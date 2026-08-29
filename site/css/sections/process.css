@@ -1,44 +1,48 @@
-/* process.css — خط زمني عمودي يرسم نفسه فوق خلفية سائلة. */
-
-#process { position: relative; overflow: hidden; }
-
-.process { position: relative; padding-inline-start: var(--s-6); }
-
+/* process.css — خط زمني: عمودي على الجوال، أفقي على سطح المكتب. */
+.process { position: relative; }
+.process__list {
+  display: grid;
+  grid-template-columns: repeat(var(--steps, 4), minmax(0, 1fr));
+  gap: var(--bento-gap);
+  position: relative;
+}
 .process__line {
   position: absolute;
-  inset-block: var(--s-2);
-  inset-inline-end: 0;      /* RTL: الخط على يمين القائمة */
-  inline-size: 4px;
-  block-size: calc(100% - var(--s-4));
-  opacity: 0.7;
+  inset-inline: 6%;
+  inset-block-start: 22px;
+  block-size: 2px;
+  overflow: visible;
+  z-index: 0;
 }
-
-.process__list { display: grid; gap: var(--s-5); }
-
+.process__line path {
+  stroke-dasharray: var(--len, 1000);
+  stroke-dashoffset: var(--off, 1000);
+}
 .step {
   position: relative;
-  padding-inline-end: var(--s-6);
+  display: grid;
+  gap: var(--s-2);
+  padding: var(--s-5) var(--s-4);
+  border-radius: var(--r-md);
+  z-index: 1;
 }
-
-.step::before {                 /* عقدة على الخط */
-  content: '';
-  position: absolute;
-  inset-inline-end: -6px;
-  inset-block-start: 10px;
-  inline-size: 12px;
-  block-size: 12px;
-  border-radius: var(--r-circle);
-  background: var(--c-accent);
-  box-shadow: 0 0 0 4px var(--c-bg), var(--sh-glow-soft);
-}
-
 .step__num {
-  display: block;
-  font-size: var(--fs-h2);
-  font-weight: 700;
-  line-height: 1;
-  color: rgba(var(--c-accent-rgb), 0.35);
-  font-variant-numeric: tabular-nums;
+  inline-size: 44px;
+  block-size: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--c-on-accent);
+  background: linear-gradient(140deg, var(--c-accent), var(--c-accent-2));
+  box-shadow: 0 4px 14px rgba(var(--c-accent-rgb), .34);
 }
+.step__title { font-size: var(--fs-card); }
 
-.step__title { font-size: var(--fs-card); margin-block: var(--s-1) var(--s-2); }
+@media (max-width: 900px) {
+  .process__list { grid-template-columns: minmax(0, 1fr); }
+  .process__line { display: none; }
+  .step { grid-template-columns: auto minmax(0, 1fr); align-items: start; column-gap: var(--s-4); }
+  .step__num { grid-row: span 2; }
+}

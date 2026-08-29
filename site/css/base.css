@@ -1,72 +1,89 @@
-/* base.css — تصفير + طباعة + RTL. خصائص منطقية فقط. */
+/* base.css — تصفير + طباعة + خلفية + RTL. خصائص منطقية فقط. */
 
 *, *::before, *::after { box-sizing: border-box; }
-
 * { margin: 0; padding: 0; }
 
 html {
+  /* clip لا hidden: يمنع التمرير الأفقي بلا إنشاء سياق تمرير يكسر sticky */
+  overflow-x: clip;
   scroll-behavior: smooth;
-  scroll-padding-block-start: calc(var(--nav-h) + var(--s-3));
+  scroll-padding-block-start: calc(var(--nav-h) + var(--s-4));
   -webkit-text-size-adjust: 100%;
 }
 
 body {
   min-block-size: 100dvh;
+  overflow-x: clip;
   background: var(--c-bg);
   color: var(--c-text);
   font-family: var(--font-base);
   font-size: var(--fs-body);
-  line-height: var(--lh-base);
-  overflow-x: hidden;
+  line-height: var(--lh-body);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* --- طبقات الخلفية الثلاث ---
-   19 الشفق و 21 الحبيبات بـ CSS خالص (بلا canvas — تكلفتهما صفر تقريباً).
-   20 حقل النجوم لوحة الرسم الوحيدة للخلفية، يحقنها `starfield.js` في #stars. */
+/* ── الخلفية: ثلاث طبقات بـ CSS خالص، بلا canvas ── */
 
-body::before {           /* 19 — شفق أزرق يتنفّس */
+/* 1 — شبكة البينتو: تربط الخلفية بنظام التخطيط */
+body::before {
   content: '';
   position: fixed;
-  inset: -20%;
+  inset: 0;
+  z-index: var(--z-grid);
+  pointer-events: none;
+  background-image:
+    linear-gradient(to left, var(--c-line-soft) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--c-line-soft) 1px, transparent 1px);
+  background-size: 72px 72px;
+  -webkit-mask-image: radial-gradient(115% 78% at 50% 0%, #000 12%, transparent 72%);
+          mask-image: radial-gradient(115% 78% at 50% 0%, #000 12%, transparent 72%);
+  opacity: .5;
+}
+
+/* 2 — هالتان تتنفّسان ببطء شديد */
+#aurora {
+  position: fixed;
+  inset: -25%;
   z-index: var(--z-bg);
+  pointer-events: none;
   background:
-    radial-gradient(38% 30% at 22% 18%, rgba(var(--c-accent-rgb), 0.22), transparent 70%),
-    radial-gradient(32% 26% at 78% 34%, rgba(96, 165, 250, 0.14), transparent 70%),
-    radial-gradient(46% 34% at 50% 92%, rgba(var(--c-accent-rgb), 0.16), transparent 72%);
-  filter: blur(30px);
-  animation: aurora 26s var(--ease-out) infinite alternate;
+    radial-gradient(34% 30% at 24% 16%, rgba(var(--c-accent-rgb), .30), transparent 68%),
+    radial-gradient(30% 26% at 78% 30%, rgba(var(--c-accent-2-rgb), .22), transparent 68%),
+    radial-gradient(42% 32% at 52% 94%, rgba(var(--c-accent-rgb), .16), transparent 70%);
+  filter: blur(46px);
+  animation: aurora 64s var(--ease-in-out) infinite alternate;
   will-change: transform;
 }
 
-body::after {            /* 21 — حبيبات فيلم تمنع تحزّم التدرّجات */
+/* 3 — حبيبات تمنع تحزّم التدرّجات */
+body::after {
   content: '';
   position: fixed;
   inset: 0;
   z-index: var(--z-grain);
   pointer-events: none;
-  opacity: 0.055;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-#stars {                 /* 20 — لوحة النجوم */
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-stars);
-  pointer-events: none;
+  opacity: .048;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 @keyframes aurora {
   0%   { transform: translate3d(0, 0, 0) scale(1); }
-  50%  { transform: translate3d(2%, -2%, 0) scale(1.06); }
-  100% { transform: translate3d(-2%, 2%, 0) scale(1.02); }
+  50%  { transform: translate3d(2.5%, -2%, 0) scale(1.07); }
+  100% { transform: translate3d(-2%, 2.5%, 0) scale(1.03); }
 }
 
-h1, h2, h3, h4 { line-height: 1.25; font-weight: 700; text-wrap: balance; }
+/* ── الطباعة ── */
+h1, h2, h3, h4 {
+  line-height: var(--lh-head);
+  font-weight: 700;
+  letter-spacing: var(--tracking-tight);
+  text-wrap: balance;
+}
 h1 { font-size: var(--fs-h1); }
 h2 { font-size: var(--fs-h2); }
 h3 { font-size: var(--fs-h3); }
-p { text-wrap: pretty; }
+p  { text-wrap: pretty; }
 
 a { color: inherit; text-decoration: none; }
 
@@ -80,16 +97,15 @@ button, input, select, textarea {
   border: none;
 }
 button { cursor: pointer; }
-
 ul, ol { list-style: none; }
 
 :focus-visible {
-  outline: 2px solid var(--c-accent);
+  outline: 2px solid var(--c-accent-text);
   outline-offset: 3px;
-  border-radius: var(--r-sm);
+  border-radius: var(--r-xs);
 }
 
-::selection { background: rgba(var(--c-accent-rgb), 0.3); color: var(--c-text); }
+::selection { background: rgba(var(--c-accent-rgb), .32); color: var(--c-text); }
 
 .sr-only {
   position: absolute;
@@ -100,15 +116,34 @@ ul, ol { list-style: none; }
 
 [hidden] { display: none !important; }
 
-/* شريط تمرير خافت متسق مع الهوية */
-* { scrollbar-width: thin; scrollbar-color: var(--glass-border) transparent; }
+* { scrollbar-width: thin; scrollbar-color: var(--c-line) transparent; }
+*::-webkit-scrollbar { inline-size: 8px; block-size: 8px; }
+*::-webkit-scrollbar-thumb { background: var(--c-line); border-radius: var(--r-full); }
+*::-webkit-scrollbar-track { background: transparent; }
+
+/* ── شبكة الأمان ──
+   قبل أن يجهز الـ JS، أو إن فشل كلياً، يظهر المحتوى كاملاً.
+   بلا هذا السطر يبقى نصف الموقع مخفياً عند أي خطأ. */
+html:not(.js-ready) .fx-reveal,
+html:not(.js-ready) .fx-split__unit {
+  opacity: 1 !important;
+  translate: none !important;
+}
+
+.noscript-note {
+  padding: var(--s-5);
+  text-align: center;
+  color: var(--c-text-2);
+  background: var(--c-surface-1);
+  border-block-end: 1px solid var(--c-line);
+}
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  body::before { animation: none; }
+  #aurora { animation: none; }
   *, *::before, *::after {
-    animation-duration: 0.001ms !important;
+    animation-duration: .001ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
+    transition-duration: .001ms !important;
   }
 }

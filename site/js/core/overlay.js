@@ -1,13 +1,12 @@
-// overlay.js — مكدّس الطبقات المنبثقة (لوحة، لايتبوكس، لوح جانبي).
-// يوحّد التعامل مع السجل حتى لا يغلق زر الرجوع طبقتين دفعة واحدة.
-// كل طبقة تُضيف مدخلاً واحداً بنفس الرابط تماماً (Spec AD-2).
-
+// overlay.js — مكدّس الطبقات المنبثقة (لوحة، لايتبوكس، درج).
+// يوحّد التعامل مع السجل حتى لا يغلق زر الرجوع طبقتين دفعة واحدة،
+// ولا يغادر الموقع بدل إغلاق الطبقة.
 const stack = [];
+let popping = false;
 
-/** يسجّل طبقة مفتوحة. `onPop` تُستدعى حين يطلب المستخدم إغلاقها من السجل. */
 export function push(onPop) {
   stack.push(onPop);
-  history.pushState({ overlay: stack.length }, '', location.href);
+  try { history.pushState({ overlay: stack.length }, '', location.href); } catch { /* */ }
 }
 
 /** يزيل طبقة أُغلقت برمجياً ويستهلك مدخلها من السجل. */
@@ -15,16 +14,19 @@ export function pop(onPop) {
   const i = stack.lastIndexOf(onPop);
   if (i === -1) return;
   stack.splice(i, 1);
-  history.back();
+  if (popping) return;
+  popping = true;
+  try { history.back(); } catch { /* */ }
+  setTimeout(() => { popping = false; }, 60);
 }
 
-/** يزيل الطبقة بلا لمس السجل (عند الاستبدال المباشر). */
+/** يزيل الطبقة بلا لمس السجل. */
 export function drop(onPop) {
   const i = stack.lastIndexOf(onPop);
   if (i > -1) stack.splice(i, 1);
 }
 
-/** يستبدل طبقة بأخرى في نفس موضع السجل (استبدال مباشر بلا مدخل جديد). */
+/** يستبدل طبقة بأخرى في نفس موضع السجل. */
 export function replace(oldPop, newPop) {
   const i = stack.lastIndexOf(oldPop);
   if (i === -1) { push(newPop); return; }
@@ -32,6 +34,7 @@ export function replace(oldPop, newPop) {
 }
 
 export function depth() { return stack.length; }
+export function top() { return stack[stack.length - 1] || null; }
 
 addEventListener('popstate', () => {
   const onPop = stack.pop();

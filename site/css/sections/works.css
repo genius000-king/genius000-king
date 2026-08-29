@@ -1,65 +1,78 @@
-/* works.css — شريط لكل معرض، وبطاقة عمل بصورتين. */
+/* works.css — جدار الأعمال المميّزة + شريط لكل معرض. */
 
-.works__strips { display: grid; gap: var(--s-6); }
-
-.works__strip-name {
-  font-size: var(--fs-h3);
-  color: var(--c-text-soft);
-  margin-block-end: var(--s-3);
-}
+.works__wall { margin-block-end: var(--s-6); }
+.works__wall .work { block-size: 100%; }
 
 .work {
   position: relative;
-  flex: 0 0 auto;
-  inline-size: clamp(200px, 26vw, 280px);
   display: grid;
-  gap: var(--s-2);
   padding: 0;
-  text-align: start;
-  background: none;
-  border: none;
-}
-
-.work__media {
-  position: relative;
-  aspect-ratio: 3 / 4;
   border-radius: var(--r-md);
-  border: 1px solid var(--glass-border);
-  background: var(--c-surface);
   overflow: hidden;
+  background: var(--c-surface-1);
+  border: 1px solid var(--c-line);
+  text-align: start;
   transition: border-color var(--t-base) var(--ease-out),
-              box-shadow var(--t-base) var(--ease-out);
+              box-shadow var(--t-base) var(--ease-out),
+              transform var(--t-base) var(--ease-out);
 }
-.work:hover .work__media,
-.work:focus-visible .work__media {
-  border-color: var(--glass-border-hot);
-  box-shadow: var(--sh-glow-soft);
+.work:hover,
+.work:focus-visible {
+  border-color: rgba(var(--c-accent-rgb), .5);
+  box-shadow: var(--sh-3), var(--sh-glow-soft);
+  transform: translate3d(0, -3px, 0);
 }
+.work__media { position: relative; inline-size: 100%; block-size: 100%; }
+.work__media img { inline-size: 100%; block-size: 100%; object-fit: cover; }
 
-.work__media img {
-  inline-size: 100%;
-  block-size: 100%;
-  object-fit: cover;
+.work__veil {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 2px;
+  padding: var(--s-4);
+  background: linear-gradient(to top, rgba(4,7,14,.88) 0%, rgba(4,7,14,.32) 42%, transparent 72%);
+  opacity: .92;
+  transition: opacity var(--t-base);
 }
+.work__title { font-size: var(--fs-sm); font-weight: 600; color: #fff; }
+.work__meta  { font-size: var(--fs-xs); color: rgba(255,255,255,.62); }
 
-.work__title {
-  font-size: var(--fs-sm);
-  color: var(--c-muted);
-  padding-inline: var(--s-1);
+/* الشريط الأفقي لكل معرض */
+.works__strips { display: grid; gap: var(--s-6); }
+.works__strip { display: grid; gap: var(--s-3); min-inline-size: 0; }
+.works__strip-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+  inline-size: min(100% - (2 * var(--s-5)), var(--container));
+  margin-inline: auto;
+}
+.works__strip-name { font-size: var(--fs-h3); color: var(--c-text); }
+.works__strip-count { font-size: var(--fs-xs); color: var(--c-text-3); font-family: var(--font-mono); }
+
+.works__strip .work {
+  flex: 0 0 auto;
+  inline-size: clamp(190px, 24vw, 268px);
+  aspect-ratio: 3 / 4;
 }
 
 /* لوحة تفاصيل العمل */
-.work-detail__title { font-size: var(--fs-h2); margin-block: var(--s-2) var(--s-5); }
+.work-detail { display: grid; gap: var(--s-5); }
+.work-detail__title { font-size: var(--fs-h2); }
+.work-detail__meta { color: var(--c-text-2); font-size: var(--fs-sm); }
 .work-detail__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--s-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: var(--s-3);
 }
 .work-detail__shot {
   padding: 0;
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--c-line);
   border-radius: var(--r-md);
   overflow: hidden;
-  background: var(--c-surface);
+  background: var(--c-surface-1);
 }
 .work-detail__shot img { inline-size: 100%; block-size: auto; }

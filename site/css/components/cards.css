@@ -1,82 +1,89 @@
-/* cards.css — بطاقة البينتو الأساسية. كل بطاقة في الموقع مبنية عليها. */
+/* cards.css — البلاطة: الوحدة البصرية الأساسية في كل الموقع. */
 
 .card {
-  position: relative;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
   padding: var(--s-5);
-  border-radius: var(--r-lg);
-  background: var(--c-surface);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--sh-sm);
-  transition: border-color var(--t-base) var(--ease-out),
-              box-shadow var(--t-base) var(--ease-out),
-              transform var(--t-base) var(--ease-out);
+  border-radius: var(--r-md);
+  line-height: var(--lh-ui);
+  text-align: start;
+  overflow: hidden;
 }
 
-.card:hover { border-color: var(--glass-border-hot); box-shadow: var(--sh-glow-soft); }
-
-/* 25 — بريق زجاجي: ضوء يمسح الحافة عند المرور.
-   المتغيّران --mx/--my يضبطهما `shine.js` من موضع المؤشر. */
-.card[data-fx~="shine"]::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 0%),
-    rgba(var(--c-accent-rgb), 0.18), transparent 65%);
-  transition: opacity var(--t-base) var(--ease-out);
-}
-.card[data-fx~="shine"]:hover::after { opacity: 1; }
-
-/* 4 — الميلان: العنصر الأب يحمل المنظور، و`tilt.js` يكتب --rx/--ry */
-.card[data-fx~="tilt"] {
-  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  transform-style: preserve-3d;
-}
+.card--pad-lg { padding: var(--s-6); }
+.card--pad-sm { padding: var(--s-4); }
+.card--center { align-items: center; justify-content: center; text-align: center; }
 
 .card__label {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-2);
-  padding: var(--s-1) var(--s-3);
-  border-radius: var(--r-full);
   font-size: var(--fs-xs);
   font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--c-text-soft);
-  background: var(--glass-bg-strong);
-  border: 1px solid var(--glass-border);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--c-accent-text);
+}
+.card__title { font-size: var(--fs-card); line-height: var(--lh-head); }
+.card__text  { color: var(--c-text-2); font-size: var(--fs-sm); line-height: var(--lh-body); }
+.card__foot  { margin-block-start: auto; padding-block-start: var(--s-3); }
+
+/* بلاطة لون مصمتة — تملأ فجوات البينتو بدل الفراغ */
+.card--solid {
+  background: linear-gradient(140deg, var(--c-accent), var(--c-accent-2));
+  color: var(--c-on-accent);
+  border: none;
+}
+.card--solid .card__text { color: rgba(255, 255, 255, .82); }
+.card--solid .card__label { color: rgba(255, 255, 255, .78); }
+
+.card--brand {
+  background: linear-gradient(140deg, var(--c-brand), #0A5F80);
+  color: #fff;
 }
 
-.card__title { font-size: var(--fs-card); line-height: var(--lh-tight); }
-.card__text { color: var(--c-text-soft); font-size: var(--fs-sm); }
-
-/* شارة الحالة أعلى الصفحة — «متاح لمشاريع جديدة» */
+/* الشارة */
 .pill {
   display: inline-flex;
   align-items: center;
   gap: var(--s-2);
-  padding: var(--s-2) var(--s-4);
+  padding: 6px 14px;
   border-radius: var(--r-full);
-  font-size: var(--fs-sm);
-  color: var(--c-text-soft);
-  background: var(--glass-bg-strong);
-  border: 1px solid var(--glass-border);
-  -webkit-backdrop-filter: blur(var(--glass-blur-soft));
-  backdrop-filter: blur(var(--glass-blur-soft));
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--c-text-2);
+  inline-size: fit-content;
 }
-
 .pill__dot {
-  inline-size: 8px;
-  block-size: 8px;
-  border-radius: var(--r-circle);
-  background: #22C55E;
-  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+  inline-size: 7px;
+  block-size: 7px;
+  border-radius: 50%;
+  background: var(--c-success);
+  box-shadow: 0 0 0 0 rgba(52, 211, 153, .6);
   animation: pulse 2.4s var(--ease-out) infinite;
 }
-
 @keyframes pulse {
-  70% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+  70%  { box-shadow: 0 0 0 9px rgba(52, 211, 153, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+}
+
+/* حالات مشتركة */
+.empty-state {
+  display: grid;
+  gap: var(--s-3);
+  justify-items: center;
+  text-align: center;
+  padding: var(--s-8) var(--s-5);
+  color: var(--c-text-3);
+  grid-column: 1 / -1;
+}
+.empty-state__title { font-size: var(--fs-card); color: var(--c-text-2); }
+.empty-state__icon { font-size: 2rem; opacity: .5; }
+
+.error-state {
+  grid-column: 1 / -1;
+  padding: var(--s-5);
+  border-radius: var(--r-md);
+  border: 1px solid color-mix(in srgb, var(--c-danger) 34%, transparent);
+  background: color-mix(in srgb, var(--c-danger) 8%, transparent);
+  color: var(--c-text-2);
+  text-align: center;
 }

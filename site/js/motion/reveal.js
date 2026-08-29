@@ -1,38 +1,62 @@
-// 10 — الظهور بموجات: العناصر تطلع وتتلاشى داخلة بتأخير متتابع.
+// reveal — الظهور بموجات، ثنائي أو ثلاثي الأبعاد.
+//
+// ثلاثة إصلاحات جوهرية عن النسخة السابقة:
+//   1. threshold: 0  — العنصر الأطول من نافذة العرض كان لا يبلغ 8% أبداً.
+//   2. مؤقّت أمان    — أي عنصر لم يُلاحَظ خلال 1200ms يظهر رغماً عن المراقب.
+//   3. فحص فوري      — ما هو ظاهر أصلاً عند التهيئة يظهر بلا انتظار تمرير.
 import prefs from './prefs.js';
 
-const STEP = 70;    // ميلي ثانية بين عنصر وآخر
+const STEP = 64;
+const SAFETY_MS = 1200;
 const observers = new WeakMap();
 
-export default {
-  name: 'reveal',
-  init(node, o = {}) {
-    if (prefs.reduced) { node.classList.add('is-in'); return; }
+function make(name, cls) {
+  return {
+    name,
+    init(node, o = {}) {
+      const kids = node.dataset.fxChildren
+        ? [...node.querySelectorAll(node.dataset.fxChildren)] : [node];
+      if (!kids.length) return;
 
-    const step = prefs.scale(STEP, o.intensity ?? 1);
-    const kids = node.dataset.fxChildren
-      ? [...node.querySelectorAll(node.dataset.fxChildren)] : [node];
-    kids.forEach((k, i) => {
-      k.classList.add('fx-reveal');
-      k.style.setProperty('--reveal-delay', `${Math.round(i * step)}ms`);
-    });
+      if (prefs.reduced) { kids.forEach((k) => k.classList.add(cls, 'is-in')); return; }
 
-    const io = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        e.target.classList.add('is-in');
-        io.unobserve(e.target);
-      }
-    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+      const step = prefs.scale(STEP, o.intensity ?? 1);
+      kids.forEach((k, i) => {
+        k.classList.add(cls);
+        k.style.setProperty('--reveal-delay', `${Math.round(i * step)}ms`);
+      });
 
-    kids.forEach((k) => io.observe(k));
-    observers.set(node, { io, kids });
-  },
-  destroy(node) {
-    const rec = observers.get(node);
-    if (!rec) return;
-    rec.io.disconnect();
-    rec.kids.forEach((k) => { k.classList.remove('fx-reveal', 'is-in'); k.style.removeProperty('--reveal-delay'); });
-    observers.delete(node);
-  },
-};
+      const show = (k) => { k.classList.add('is-in'); };
+
+      const io = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          show(e.target);
+          io.unobserve(e.target);
+        }
+      }, { rootMargin: '0px 0px -6% 0px', threshold: 0 });
+
+      kids.forEach((k) => io.observe(k));
+
+      // شبكة الأمان: لا يبقى محتوى مخفياً لأن المراقب لم يُطلق
+      const timer = setTimeout(() => kids.forEach(show), SAFETY_MS);
+
+      observers.set(node, { io, kids, timer });
+    },
+    destroy(node) {
+      const rec = observers.get(node);
+      if (!rec) return;
+      clearTimeout(rec.timer);
+      rec.io.disconnect();
+      rec.kids.forEach((k) => {
+        k.classList.remove(cls, 'is-in');
+        k.style.removeProperty('--reveal-delay');
+      });
+      observers.delete(node);
+    },
+  };
+}
+
+export const reveal = make('reveal', 'fx-reveal');
+export const reveal3d = make('reveal3d', 'fx-reveal3d');
+export default reveal;

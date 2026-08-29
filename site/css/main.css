@@ -1,21 +1,21 @@
 /* main.css — الملف الوحيد المرتبط بالـ HTML.
-   الترتيب مقصود: tokens → fonts → base → layout → components → sections.
-   إضافة قسم أو مكوّن = ملف جديد + سطر @import واحد هنا. */
+   الترتيب مقصود: tokens → fonts → base → layout → glass → components → sections. */
 
 @import url('tokens.css');
 @import url('fonts.css');
 @import url('base.css');
 @import url('layout.css');
+@import url('glass.css');
 
 /* components */
 @import url('components/cards.css');
 @import url('components/buttons.css');
+@import url('components/forms.css');
 @import url('components/fx.css');
 @import url('components/glass-panel.css');
 @import url('components/lightbox.css');
 @import url('components/toast.css');
 @import url('components/nav.css');
-@import url('components/forms.css');
 @import url('components/skeleton.css');
 
 /* sections */

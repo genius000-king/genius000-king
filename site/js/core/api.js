@@ -1,12 +1,11 @@
-// طبقة REST فوق PostgREST — بلا `supabase-js`، عبر `fetch` مباشرة (Spec AD-1).
-import { SUPABASE_URL, SUPABASE_ANON_KEY, USE_MOCK } from './config.js';
-import * as mock from './mock-data.js';
+// api.js — طبقة REST فوق PostgREST مباشرة بـ fetch. بلا supabase-js.
+import { SUPABASE_URL, SUPABASE_ANON_KEY, isConfigured } from './config.js';
 
 /** يبني سلسلة استعلام PostgREST من كائن خيارات. دالة خالصة. */
 export function buildQuery(opts = {}) {
   const parts = [];
-  for (const [col, val] of Object.entries(opts.eq || {})) parts.push(`${col}=eq.${val}`);
-  for (const [col, val] of Object.entries(opts.in || {})) parts.push(`${col}=in.(${val.join(',')})`);
+  for (const [col, val] of Object.entries(opts.eq || {})) parts.push(`${col}=eq.${encodeURIComponent(val)}`);
+  for (const [col, val] of Object.entries(opts.in || {})) parts.push(`${col}=in.(${val.map(encodeURIComponent).join(',')})`);
   if (opts.order) parts.push(`order=${opts.order}`);
   if (opts.limit) parts.push(`limit=${opts.limit}`);
   if (opts.select) parts.push(`select=${opts.select}`);
@@ -14,8 +13,8 @@ export function buildQuery(opts = {}) {
 }
 
 let token = null;
-/** يضبط رمز الجلسة المصادَقة (لوحة المشرف فقط). */
 export function setToken(t) { token = t; }
+export function getToken() { return token; }
 
 function headers(extra = {}) {
   return {
@@ -26,21 +25,33 @@ function headers(extra = {}) {
   };
 }
 
+class ApiError extends Error {
+  constructor(status, body) {
+    super(`${status} — ${body}`.slice(0, 300));
+    this.name = 'ApiError';
+    this.status = status;
+    this.body = body;
+  }
+}
+
 async function request(path, init = {}) {
+  if (!isConfigured) throw new ApiError(0, 'الاتصال بقاعدة البيانات غير مضبوط');
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { ...init, headers: headers(init.headers) });
   const text = await res.text();
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${text}`);
+  if (!res.ok) throw new ApiError(res.status, text);
   return text ? JSON.parse(text) : [];
 }
 
+// المفتاح الأساسي يختلف بين الجداول
+const PK = { site_content: 'key', theme: 'key' };
+const keyOf = (table) => PK[table] || 'id';
+
 export async function select(table, opts = {}) {
-  if (USE_MOCK) return mock.select(table, opts);
   const q = buildQuery(opts);
   return request(`${table}${q ? '?' + q : ''}`);
 }
 
 export async function insert(table, row) {
-  if (USE_MOCK) return mock.insert(table, row);
   const out = await request(table, {
     method: 'POST',
     headers: { Prefer: 'return=representation' },
@@ -50,9 +61,7 @@ export async function insert(table, row) {
 }
 
 export async function update(table, id, patch) {
-  if (USE_MOCK) return mock.update(table, id, patch);
-  const key = table === 'site_content' || table === 'theme' ? 'key' : 'id';
-  const out = await request(`${table}?${key}=eq.${id}`, {
+  const out = await request(`${table}?${keyOf(table)}=eq.${encodeURIComponent(id)}`, {
     method: 'PATCH',
     headers: { Prefer: 'return=representation' },
     body: JSON.stringify(patch),
@@ -60,9 +69,8 @@ export async function update(table, id, patch) {
   return Array.isArray(out) ? out[0] : out;
 }
 
-/** إدراج أو تحديث حسب المفتاح الأساسي (يُستعمل مع `site_content` و `theme`). */
+/** إدراج أو تحديث حسب المفتاح الأساسي. */
 export async function upsert(table, row) {
-  if (USE_MOCK) return mock.upsert(table, row);
   const out = await request(table, {
     method: 'POST',
     headers: { Prefer: 'resolution=merge-duplicates,return=representation' },
@@ -72,14 +80,11 @@ export async function upsert(table, row) {
 }
 
 export async function remove(table, id) {
-  if (USE_MOCK) return mock.remove(table, id);
-  const key = table === 'site_content' || table === 'theme' ? 'key' : 'id';
-  await request(`${table}?${key}=eq.${id}`, { method: 'DELETE' });
+  await request(`${table}?${keyOf(table)}=eq.${encodeURIComponent(id)}`, { method: 'DELETE' });
   return true;
 }
 
 export async function count(table, opts = {}) {
-  if (USE_MOCK) return mock.count(table, opts);
   const q = buildQuery({ ...opts, select: 'id', limit: 1 });
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${q}`, {
     headers: headers({ Prefer: 'count=exact', Range: '0-0' }),
@@ -87,3 +92,5 @@ export async function count(table, opts = {}) {
   const range = res.headers.get('content-range') || '/0';
   return Number(range.split('/')[1]) || 0;
 }
+
+export { ApiError };

@@ -1,9 +1,9 @@
-// about — بطاقة تعريفية + بطاقة أرقام بعدّاد تصاعدي.
+// about — بلاطة تعريف + بلاطة أرقام بعدّاد تصاعدي.
 import { el } from '../core/dom.js';
 import { content } from '../core/store.js';
 import { applyEditable } from '../components/editable.js';
 
-/** يبني بطاقات الأرقام من مفاتيح stat_N_* — بلا عدد ثابت. */
+/** يبني الأرقام من مفاتيح stat_N_* — بلا عدد ثابت. */
 function stats() {
   const out = [];
   for (let i = 1; ; i++) {
@@ -11,7 +11,7 @@ function stats() {
     if (!value) break;
     out.push(el('div', { class: 'stat', 'data-edit-id': `about.stat.${i}` }, [
       el('span', { class: 'stat__value', 'data-fx': 'counter',
-        'data-fx-to': value, 'data-fx-suffix': '+' }, [value]),
+        'data-fx-to': String(value).replace(/\D/g, ''), 'data-fx-suffix': '+' }, [value]),
       el('span', { class: 'stat__label' }, [content(`stat_${i}_label`)]),
     ]));
   }
@@ -19,16 +19,24 @@ function stats() {
 }
 
 export function mount(root, opts = {}) {
+  const text = content('about_text');
+  if (!text && !content('about_title')) { root.replaceChildren(); return; }
+
+  const list = stats();
+
   root.replaceChildren(
-    el('div', { class: 'bento', 'data-fx': 'reveal', 'data-fx-children': '.card' }, [
-      el('article', { class: 'card about', 'data-fx': 'shine gravity',
-        'data-edit-id': 'about.card' }, [
-        el('span', { class: 'card__label' }, [content('about_label')]),
+    el('div', { class: 'bento bento--flow', 'data-fx': 'reveal', 'data-fx-children': '.card' }, [
+      el('article', { class: `card about glass glass--lift ${list.length ? 't--wide' : 't--full'}`,
+        'data-fx': 'shine glow', 'data-edit-id': 'about.card' }, [
+        content('about_label')
+          ? el('span', { class: 'card__label' }, [content('about_label')]) : null,
         el('h2', { class: 'about__title', 'data-edit-id': 'about.title' }, [content('about_title')]),
-        el('p', { class: 'card__text', 'data-edit-id': 'about.text' }, [content('about_text')]),
+        el('p', { class: 'about__text', 'data-edit-id': 'about.text' }, [text]),
       ]),
-      el('article', { class: 'card stats', 'data-fx': 'shine', 'data-edit-id': 'about.stats' },
-        stats()),
+      list.length
+        ? el('article', { class: 'card stats glass glass--lift t--wide',
+            'data-fx': 'shine glow', 'data-edit-id': 'about.stats' }, list)
+        : null,
     ]),
   );
 

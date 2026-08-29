@@ -1,30 +1,27 @@
-// 12 — الخط الذي يرسم نفسه مع التمرير (stroke-dashoffset على مسار SVG).
-import loop from './loop.js';
+// draw-line — يرسم خط الخطوات مع التمرير.
 import prefs from './prefs.js';
+import { on, throttle } from '../core/dom.js';
 
 export default {
   name: 'draw-line',
-  init(node, o = {}) {
-    const path = node.tagName === 'path' ? node : node.querySelector('path');
+  init(node) {
+    const path = node.querySelector('path');
     if (!path) return;
-    const len = path.getTotalLength();
-    path.style.strokeDasharray = String(len);
+    const len = path.getTotalLength ? path.getTotalLength() : 1000;
+    path.style.setProperty('--len', len);
 
-    if (prefs.reduced) { path.style.strokeDashoffset = '0'; return; }
-    path.style.strokeDashoffset = String(len);
+    if (prefs.reduced) { path.style.setProperty('--off', 0); return; }
+    path.style.setProperty('--off', len);
 
-    const tick = () => {
+    const update = throttle(() => {
       const r = node.getBoundingClientRect();
-      if (r.bottom < 0 || r.top > innerHeight) return;
-      // التقدّم: من دخول أعلى القسم حتى وصوله منتصف الشاشة
-      const p = Math.min(1, Math.max(0, (innerHeight * 0.85 - r.top) / (r.height + innerHeight * 0.3)));
-      path.style.strokeDashoffset = String(len * (1 - p * (o.intensity ?? 1)));
-    };
+      const p = Math.min(1, Math.max(0, (innerHeight * 0.85 - r.top) / (r.height || 1)));
+      path.style.setProperty('--off', String(len * (1 - p)));
+    }, 60);
 
-    node.__draw = loop.add(tick);
+    const off = on(window, 'scroll', update, { passive: true });
+    update();
+    node.__draw = off;
   },
-  destroy(node) {
-    node.__draw?.();
-    delete node.__draw;
-  },
+  destroy(node) { node.__draw?.(); delete node.__draw; },
 };

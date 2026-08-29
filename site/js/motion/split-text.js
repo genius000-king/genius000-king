@@ -26,7 +26,7 @@ export default {
       span.className = 'fx-split__unit';
       span.setAttribute('aria-hidden', 'true');
       span.textContent = unit;
-      span.style.setProperty('--split-delay', `${Math.round(i++ * step)}ms`);
+      span.style.setProperty('--unit-delay', `${Math.round(i++ * step)}ms`);
       node.append(span);
     }
     node.classList.add('fx-split');

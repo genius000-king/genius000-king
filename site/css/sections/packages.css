@@ -1,51 +1,173 @@
-/* packages.css — مربعات اللوجوهات ولوحة تفاصيل البكج. */
+/* ============================================================
+   packages.css — بلاطات البكجات + لوحة البكج بنظام البينتو.
 
+   البلاطات داخل اللوحة تقرأ مقاسها من متغيّرين على العنصر نفسه:
+     --cs = عدد الأعمدة  ·  --rs = عدد الصفوف
+   لوحة المشرف تكتب هذين المتغيّرين، فيتغيّر التقسيم مباشرة بلا كود.
+   ============================================================ */
+
+/* ── بلاطة البكج في الصفحة ── */
 .pkg {
   position: relative;
-  flex: 0 0 auto;
-  inline-size: clamp(160px, 22vw, 220px);
-  aspect-ratio: 1;
   display: grid;
   place-items: center;
-  padding: var(--s-6);
-  border-radius: var(--r-lg);
-  overflow: hidden;
-}
-
-.pkg__logo,
-.pkg__cover {
-  inline-size: 100%;
-  block-size: 100%;
-  object-fit: contain;
-}
-.pkg__cover { object-fit: cover; }
-
-.pkg__fallback { font-size: var(--fs-sm); color: var(--c-muted); text-align: center; }
-
-/* لوحة البكج */
-.pkg-detail__title { font-size: var(--fs-h2); margin-block: var(--s-2) var(--s-5); }
-
-.pkg-block { padding-block: var(--s-5); border-block-start: 1px solid var(--glass-border); }
-.pkg-block:first-of-type { border-block-start: none; }
-
-.pkg-block__title {
-  font-size: var(--fs-h3);
-  color: var(--c-accent-text);
-  margin-block-end: var(--s-4);
-}
-
-.pkg-block__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--s-3);
-}
-
-.pkg-block__cell {
-  padding: 0;
-  border: 1px solid var(--glass-border);
+  gap: var(--s-2);
+  padding: var(--s-5);
   border-radius: var(--r-md);
   overflow: hidden;
-  background: var(--c-surface);
+  text-align: center;
+  transition: transform var(--t-base) var(--ease-out), box-shadow var(--t-base) var(--ease-out);
 }
-.pkg-block__cell img,
-.pkg-block__cell video { inline-size: 100%; block-size: auto; }
+.pkg:hover, .pkg:focus-visible { transform: translate3d(0, -4px, 0); box-shadow: var(--sh-3), var(--sh-glow-soft); }
+
+.pkg__logo {
+  inline-size: min(64%, 128px);
+  aspect-ratio: 1;
+  object-fit: contain;
+  transition: transform var(--t-base) var(--ease-spring);
+}
+.pkg:hover .pkg__logo { transform: scale(1.07) rotate(-3deg); }
+
+.pkg__cover {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity var(--t-base) var(--ease-out);
+}
+.pkg:hover .pkg__cover { opacity: .22; }
+
+.pkg__name { font-size: var(--fs-sm); font-weight: 600; }
+.pkg__count { font-size: var(--fs-xs); color: var(--c-text-3); font-family: var(--font-mono); }
+.pkg__fallback {
+  font-size: var(--fs-card);
+  font-weight: 700;
+  color: var(--c-accent-text);
+  display: grid;
+  place-items: center;
+  min-block-size: 90px;
+}
+
+/* ============================================================
+   لوحة البكج
+   ============================================================ */
+
+.pkg-detail { display: grid; gap: var(--s-6); }
+
+.pkg-detail__head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+  padding-inline-end: 52px;   /* مساحة زر الإغلاق */
+}
+.pkg-detail__logo {
+  inline-size: 72px;
+  block-size: 72px;
+  object-fit: contain;
+  border-radius: var(--r-sm);
+  flex: 0 0 auto;
+}
+.pkg-detail__titles { display: grid; gap: 2px; flex: 1; min-inline-size: 160px; }
+.pkg-detail__title { font-size: var(--fs-h2); }
+.pkg-detail__sub { color: var(--c-text-2); font-size: var(--fs-sm); }
+.pkg-detail__cta { flex: 0 0 auto; }
+
+.pkg-block { display: grid; gap: var(--s-4); }
+.pkg-block + .pkg-block { padding-block-start: var(--s-5); border-block-start: 1px solid var(--c-line-soft); }
+.pkg-block__head { display: flex; align-items: baseline; gap: var(--s-3); flex-wrap: wrap; }
+.pkg-block__title { font-size: var(--fs-h3); color: var(--c-accent-text); }
+.pkg-block__note { font-size: var(--fs-sm); color: var(--c-text-3); }
+
+/* ── جدار البينتو: هنا تعيش التقسيمة ── */
+.pkg-bento {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 12), minmax(0, 1fr));
+  grid-auto-rows: var(--unit, clamp(72px, 9vw, 116px));
+  grid-auto-flow: row dense;
+  gap: var(--gap, clamp(8px, 1vw, 14px));
+}
+.pkg-bento > * { min-inline-size: 0; min-block-size: 0; }
+
+.pkg-cell {
+  grid-column: span var(--cs, 3);
+  grid-row: span var(--rs, 1);
+  position: relative;
+  padding: 0;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  border: 1px solid var(--c-line);
+  background: var(--c-surface-1);
+  transition: transform var(--t-base) var(--ease-out),
+              box-shadow var(--t-base) var(--ease-out),
+              border-color var(--t-base) var(--ease-out);
+}
+.pkg-cell:hover,
+.pkg-cell:focus-visible {
+  transform: translate3d(0, -3px, 0) scale(1.008);
+  border-color: rgba(var(--c-accent-rgb), .48);
+  box-shadow: var(--sh-3);
+  z-index: 2;
+}
+.pkg-cell img,
+.pkg-cell video {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  transition: transform var(--t-slower) var(--ease-out);
+}
+.pkg-cell:hover img,
+.pkg-cell:hover video { transform: scale(1.055); }
+
+.pkg-cell__cap {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  padding: var(--s-4) var(--s-3) var(--s-3);
+  font-size: var(--fs-xs);
+  color: #fff;
+  background: linear-gradient(to top, rgba(4,7,14,.86), transparent);
+  opacity: 0;
+  transition: opacity var(--t-base);
+}
+.pkg-cell:hover .pkg-cell__cap { opacity: 1; }
+
+/* بلاطة لون مصمتة تملأ الفجوات — كما في المرجع البصري */
+.pkg-cell--fill {
+  display: grid;
+  place-items: center;
+  padding: var(--s-4);
+  border: none;
+  background: linear-gradient(140deg, var(--fill-a, var(--c-accent)), var(--fill-b, var(--c-accent-2)));
+  color: #fff;
+  cursor: default;
+}
+.pkg-cell--fill:hover { transform: none; box-shadow: none; }
+.pkg-cell--fill span {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  opacity: .9;
+  text-align: center;
+}
+
+/* بلاطة نصّية داخل الجدار */
+.pkg-cell--text {
+  display: grid;
+  align-content: center;
+  gap: var(--s-2);
+  padding: var(--s-5);
+  cursor: default;
+}
+.pkg-cell--text:hover { transform: none; box-shadow: none; border-color: var(--c-line); }
+.pkg-cell--text h4 { font-size: var(--fs-card); }
+.pkg-cell--text p { font-size: var(--fs-sm); color: var(--c-text-2); }
+
+/* على الجوال يتقلّص الجدار لأربعة أعمدة ويتضاعف مقاس كل بلاطة نسبياً */
+@media (max-width: 640px) {
+  .pkg-bento { grid-template-columns: repeat(var(--cols-m, 4), minmax(0, 1fr)); }
+  .pkg-cell { grid-column: span var(--cs-m, 2); grid-row: span var(--rs-m, 1); }
+}

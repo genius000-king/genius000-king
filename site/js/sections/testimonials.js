@@ -1,4 +1,4 @@
-// testimonials — شريط آراء متحرك. ⚠️ النصوص الحالية تجريبية وتُستبدل من اللوحة.
+// testimonials — شريط آراء بسحب. لا يُرسم إطلاقاً إن لم توجد آراء حقيقية.
 import { el, published } from '../core/dom.js';
 import { get, content } from '../core/store.js';
 import { icon } from '../components/icon.js';
@@ -17,8 +17,8 @@ function stars(rating = 5) {
 
 function card(t) {
   return el('article', {
-    class: 'card review', 'data-edit-id': `testimonial.card.${t.id}`,
-    'data-fx': 'tilt shine',
+    class: 'card review glass glass--lift', 'data-edit-id': `testimonial.card.${t.id}`,
+    'data-fx': 'glow shine',
   }, [
     stars(t.rating),
     el('p', { class: 'review__text' }, [t.text || '']),
@@ -31,13 +31,22 @@ function card(t) {
 
 export function mount(root, opts = {}) {
   const list = published(get('testimonials'));
+
+  // قسم بلا محتوى لا يُعرض — أفضل من عرضه فارغاً
+  if (!list.length && !opts.editable) { root.replaceChildren(); root.hidden = true; return; }
+  root.hidden = false;
+
   root.replaceChildren(
-    sectionHead('testimonials', content('testimonials_title'), content('testimonials_sub')),
-    el('div', { class: 'bleed' }, [
-      el('div', { class: 'marquee', 'data-fx': 'marquee', 'data-fx-speed': '18',
-        'data-fx-dir': '-1', 'data-cursor': 'اسحب' },
-        [el('div', { class: 'marquee__track' }, list.map(card))]),
-    ]),
+    sectionHead('testimonials', content('testimonials_title'), content('testimonials_sub'), 'آراء'),
+    list.length
+      ? el('div', { class: 'bleed' }, [
+          el('div', { class: 'marquee', 'data-fx': 'marquee', 'data-fx-speed': '18',
+            'data-fx-dir': '-1', 'data-cursor': 'اسحب' },
+            [el('div', { class: 'marquee__track' }, list.map(card))]),
+        ])
+      : el('div', { class: 'bento bento--flow' }, [
+          el('p', { class: 'empty-state' }, ['لا توجد آراء منشورة — أضِفها من لوحة التحكم.']),
+        ]),
   );
 
   applyEditable(root, opts);

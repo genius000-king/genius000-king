@@ -1,18 +1,13 @@
-/* testimonials.css — شريط آراء متحرك. */
-
+/* testimonials.css — شريط آراء بسحب. */
 .review {
   flex: 0 0 auto;
-  inline-size: clamp(260px, 34vw, 380px);
-  display: grid;
+  inline-size: clamp(280px, 34vw, 400px);
   gap: var(--s-3);
-  align-content: start;
+  padding: var(--s-5);
 }
-
+.review__text { color: var(--c-text-2); font-size: var(--fs-sm); line-height: var(--lh-body); }
+.review__by { display: flex; align-items: baseline; gap: var(--s-2); margin-block-start: auto; padding-block-start: var(--s-3); }
+.review__role { font-size: var(--fs-xs); color: var(--c-text-3); }
 .stars { display: inline-flex; gap: 2px; }
-.star--on { color: var(--c-accent-text); }
-.star--off { color: var(--c-muted); opacity: 0.45; }
-
-.review__text { font-size: var(--fs-sm); color: var(--c-text-soft); }
-
-.review__by { display: grid; gap: 2px; font-size: var(--fs-xs); }
-.review__role { color: var(--c-muted); }
+.star--on  { color: var(--c-warm); }
+.star--off { color: var(--c-line); }

@@ -1,93 +1,102 @@
-// lightbox.js — عارض الصور. يتبع نمط `panel.js` في السجل: الرابط لا يتغيّر.
-import { el, qs, on } from './dom.js';
+// lightbox.js — عارض الصور: أسهم، لمس، Escape، وحبس تركيز.
+import { el, on, qsa } from './dom.js';
+import { icon } from '../components/icon.js';
 import * as overlay from './overlay.js';
 
-let state = null;   // { items, index, root, opener, pushed }
-let unbind = [];
+let state = null;
 
-export function isLightboxOpen() { return !!state; }
-export function lightboxIndex() { return state ? state.index : -1; }
-
-function host() {
-  let h = document.getElementById('lightbox');
-  if (!h) { h = el('div', { id: 'lightbox' }); document.body.append(h); }
-  return h;
-}
-
-function media(item) {
+function mediaNode(item) {
   if (item.type === 'video') {
-    return el('video', { src: item.url, poster: item.poster || '', class: 'lightbox__media',
-      controls: true, playsinline: true, loop: true, muted: true });
+    return el('video', { src: item.url, controls: true, autoplay: true,
+      playsinline: true, poster: item.poster || '' });
   }
-  return el('img', { src: item.url, alt: item.caption || '', class: 'lightbox__media', decoding: 'async' });
+  return el('img', { src: item.url, alt: item.caption || '', decoding: 'async' });
 }
 
-function draw() {
-  const item = state.items[state.index];
-  const stage = qs('.lightbox__stage', state.root);
-  stage.replaceChildren(media(item));
-  qs('.lightbox__caption', state.root).textContent = item.caption || '';
-  qs('.lightbox__counter', state.root).textContent =
-    state.items.length > 1 ? `${state.index + 1} / ${state.items.length}` : '';
-}
-
-export function go(step) {
-  if (!state || state.items.length < 2) return;
-  state.index = (state.index + step + state.items.length) % state.items.length;
-  draw();
-}
-
-function onKey(e) {
-  if (e.key === 'Escape') closeLightbox();
-  else if (e.key === 'ArrowLeft') go(1);      // RTL: يسار = التالي
-  else if (e.key === 'ArrowRight') go(-1);
-}
-
-function bindSwipe(node) {
-  let x0 = null;
-  const down = (e) => { x0 = e.clientX; };
-  const up = (e) => {
-    if (x0 === null) return;
-    const dx = e.clientX - x0; x0 = null;
-    if (Math.abs(dx) > 45) go(dx > 0 ? -1 : 1);
-  };
-  return [on(node, 'pointerdown', down), on(node, 'pointerup', up)];
-}
-
-/** يفتح العارض على مجموعة عناصر `{type,url,poster,caption}` أو روابط نصية. */
-export function openLightbox(images, index = 0) {
-  const items = (images || []).map((i) => (typeof i === 'string' ? { type: 'image', url: i } : i));
-  if (!items.length) return;
+export function openLightbox(items = [], index = 0) {
+  const list = items.filter((i) => i && i.url);
+  if (!list.length) return null;
   if (state) closeLightbox({ silent: true });
 
-  const root = el('div', { class: 'lightbox', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'عارض الصور' }, [
-    el('button', { class: 'lightbox__close', type: 'button', 'aria-label': 'إغلاق', onclick: () => closeLightbox() }, ['×']),
-    el('button', { class: 'lightbox__nav lightbox__nav--prev', type: 'button', 'aria-label': 'السابق', onclick: () => go(-1) }, ['‹']),
-    el('div', { class: 'lightbox__stage' }),
-    el('button', { class: 'lightbox__nav lightbox__nav--next', type: 'button', 'aria-label': 'التالي', onclick: () => go(1) }, ['›']),
-    el('p', { class: 'lightbox__caption' }),
-    el('p', { class: 'lightbox__counter' }),
+  const root = document.getElementById('lightbox') || document.body;
+  let i = Math.min(list.length - 1, Math.max(0, index));
+
+  const stage = el('div', { class: 'lb__stage' });
+  const caption = el('span', { class: 'lb__caption' });
+  const counter = el('span', { class: 'lb__count' });
+
+  const prev = el('button', { class: 'btn btn--icon', type: 'button', 'aria-label': 'السابق',
+    onclick: () => step(-1) }, [icon('arrow', { size: 18 })]);
+  const nextBtn = el('button', { class: 'btn btn--icon', type: 'button', 'aria-label': 'التالي',
+    onclick: () => step(1) }, [icon('arrow', { size: 18 })]);
+  nextBtn.style.transform = 'scaleX(-1)';
+
+  const box = el('div', { class: 'lb', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'عارض الصور' }, [
+    el('div', { class: 'lb__head' }, [
+      counter,
+      el('button', { class: 'btn btn--icon lb__close', type: 'button', 'aria-label': 'إغلاق',
+        onclick: () => closeLightbox() }, [icon('close')]),
+    ]),
+    stage,
+    el('div', { class: 'lb__foot' }, [prev, caption, nextBtn]),
   ]);
-  host().replaceChildren(root);
+
+  function paint() {
+    const item = list[i];
+    stage.replaceChildren(mediaNode(item));
+    caption.textContent = item.caption || '';
+    counter.textContent = `${i + 1} / ${list.length}`;
+    prev.disabled = nextBtn.disabled = list.length < 2;
+  }
+  function step(d) { i = (i + d + list.length) % list.length; paint(); }
+
+  const onKey = (e) => {
+    if (e.key === 'Escape') closeLightbox();
+    else if (e.key === 'ArrowRight') step(-1);      // RTL: يمين = السابق
+    else if (e.key === 'ArrowLeft') step(1);
+    else if (e.key === 'Tab') {
+      const f = qsa('button:not([disabled])', box);
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  };
+
+  // سحب أفقي على اللمس
+  let sx = 0, sy = 0;
+  const offs = [
+    on(document, 'keydown', onKey),
+    on(stage, 'pointerdown', (e) => { sx = e.clientX; sy = e.clientY; }),
+    on(stage, 'pointerup', (e) => {
+      const dx = e.clientX - sx;
+      if (Math.abs(dx) > 56 && Math.abs(e.clientY - sy) < 80) step(dx > 0 ? -1 : 1);
+    }),
+    on(box, 'click', (e) => { if (e.target === box) closeLightbox(); }),
+  ];
+
+  root.replaceChildren(box);
   document.body.style.overflow = 'hidden';
+  paint();
+  requestAnimationFrame(() => box.classList.add('is-open'));
+
   const onPop = () => closeLightbox({ fromPop: true });
   overlay.push(onPop);
-  state = { items, index: Math.max(0, Math.min(index, items.length - 1)), root, opener: document.activeElement, onPop };
-  unbind = [on(document, 'keydown', onKey), ...bindSwipe(root),
-            on(qs('.lightbox__stage', root), 'click', () => go(1))];
-  draw();
-  requestAnimationFrame(() => root.classList.add('is-open'));
-  qs('.lightbox__close', root).focus();
+  state = { box, offs, root, onPop, opener: document.activeElement };
+  nextBtn.focus();
+  return box;
 }
 
 export function closeLightbox({ fromPop = false, silent = false } = {}) {
   if (!state) return;
-  const { root, opener, onPop } = state;
-  unbind.forEach((f) => f()); unbind = [];
-  root.remove();
-  state = null;
+  const { box, offs, root, onPop, opener } = state;
+  offs.forEach((f) => f());
+  box.classList.remove('is-open');
+  root.replaceChildren();
   document.body.style.overflow = '';
-  if (opener && typeof opener.focus === 'function') opener.focus();
-  if (fromPop || silent) overlay.drop(onPop);
-  else overlay.pop(onPop);
+  state = null;
+  opener?.focus?.();
+  if (fromPop || silent) overlay.drop(onPop); else overlay.pop(onPop);
 }
+
+export function isOpen() { return !!state; }

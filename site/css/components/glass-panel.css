@@ -1,12 +1,11 @@
-/* glass-panel.css — اللوحة الزجاجية المنبثقة (Spec §5.3). */
+/* glass-panel.css — اللوحة المنبثقة: الطبقة التي تُعرض فيها التفاصيل. */
 
 .glass-panel__wrap {
   position: fixed;
   inset: 0;
   z-index: var(--z-panel);
   display: grid;
-  place-items: center;
-  padding: var(--s-4);
+  place-items: end center;
   opacity: 0;
   transition: opacity var(--t-base) var(--ease-out);
 }
@@ -15,89 +14,83 @@
 .glass-panel__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(4, 2, 2, 0.72);
-  cursor: pointer;
+  background: rgba(4, 7, 14, .62);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 .glass-panel {
   position: relative;
-  inline-size: min(100%, 980px);
-  max-block-size: min(88dvh, 900px);
-  overflow: hidden auto;
-  overscroll-behavior: contain;
-  padding: var(--s-6);
-  border-radius: var(--r-lg);
-  border: 1px solid var(--glass-border);
-  background: var(--glass-bg-strong);
-  box-shadow: var(--sh-lg);
-  transform: translateY(18px) scale(0.985);
-  transition: transform var(--t-base) var(--ease-spring);
+  inline-size: min(100%, 1080px);
+  max-block-size: 94dvh;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  translate: 0 24px;
+  scale: .985;
+  transition: translate var(--t-base) var(--ease-out), scale var(--t-base) var(--ease-out);
 }
-.is-open .glass-panel { transform: none; }
+.glass-panel__wrap.is-open .glass-panel { translate: 0 0; scale: 1; }
 
-/* الزجاج نفسه — مع احتياطي صلب للأجهزة التي لا تدعمه */
-@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-  .glass-panel {
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
-    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
-  }
-}
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass-panel { background: var(--c-surface-2); }
-}
-
+/* مقبض السحب — إشارة بصرية أن اللوحة تُسحب لأسفل */
 .glass-panel::before {
   content: '';
   position: absolute;
-  inset-block-start: 0;
+  inset-block-start: 10px;
   inset-inline: 0;
-  block-size: 1px;
-  background: linear-gradient(to left, transparent,
-    rgba(var(--c-accent-rgb), 0.55), transparent);
+  margin-inline: auto;
+  inline-size: 42px;
+  block-size: 4px;
+  border-radius: var(--r-full);
+  background: rgba(255, 255, 255, .22);
+  z-index: 3;
 }
 
 .glass-panel__close {
-  position: sticky;
-  inset-block-start: 0;
-  margin-inline-start: auto;
-  display: grid;
-  place-items: center;
+  position: absolute;
+  inset-block-start: var(--s-4);
+  inset-inline-end: var(--s-4);
+  z-index: 4;
   inline-size: 40px;
   block-size: 40px;
-  font-size: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 1.3rem;
   line-height: 1;
-  color: var(--c-text-soft);
-  border-radius: var(--r-circle);
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  transition: color var(--t-fast), background var(--t-fast);
+  color: var(--c-text-2);
+  background: rgba(255, 255, 255, .07);
+  border: 1px solid rgba(255, 255, 255, .12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background var(--t-fast), color var(--t-fast), transform var(--t-fast);
 }
-.glass-panel__close:hover { color: var(--c-text); background: var(--glass-bg-strong); }
+.glass-panel__close:hover { background: rgba(255,255,255,.14); color: var(--c-text); transform: rotate(90deg); }
 
-.glass-panel__body { padding-block-start: var(--s-2); }
+.glass-panel__body {
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: var(--s-7) var(--s-5) var(--s-6);
+  -webkit-overflow-scrolling: touch;
+}
+@media (min-width: 641px) { .glass-panel__body { padding-inline: var(--s-6); } }
 
-.glass-panel__error { color: var(--c-muted); text-align: center; padding-block: var(--s-6); }
-
-/* هيكل عظمي أثناء انتظار اللودر — لا شاشة بيضاء (Spec §7) */
-.glass-panel__skeleton { display: grid; gap: var(--s-4); }
+.glass-panel__skeleton { display: grid; gap: var(--s-3); }
 .glass-panel__skeleton span {
-  display: block;
   block-size: 22px;
-  border-radius: var(--r-sm);
-  background: linear-gradient(90deg, var(--glass-bg), var(--glass-bg-strong), var(--glass-bg));
-  background-size: 200% 100%;
-  animation: skeleton 1.4s linear infinite;
+  border-radius: var(--r-xs);
+  background: linear-gradient(90deg, var(--c-surface-2) 25%, var(--c-surface-3) 37%, var(--c-surface-2) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.5s linear infinite;
 }
-.glass-panel__skeleton span:first-child { inline-size: 42%; block-size: 34px; }
-.glass-panel__skeleton span:last-child { block-size: 180px; }
+.glass-panel__skeleton span:nth-child(2) { inline-size: 78%; }
+.glass-panel__skeleton span:nth-child(3) { inline-size: 54%; block-size: 180px; }
+@keyframes shimmer { to { background-position: -135% 0; } }
 
-@keyframes skeleton { to { background-position: -200% 0; } }
+.glass-panel__error { color: var(--c-danger); text-align: center; padding: var(--s-7); }
 
-@media (max-width: 640px) {
-  .glass-panel__wrap { padding: 0; place-items: end stretch; }
-  .glass-panel {
-    max-block-size: 92dvh;
-    padding: var(--s-5) var(--s-4);
-    border-radius: var(--r-lg) var(--r-lg) 0 0;
-  }
+@media (min-width: 769px) {
+  .glass-panel__wrap { place-items: center; padding: var(--s-5); }
+  .glass-panel { border-radius: var(--r-xl); max-block-size: 90dvh; }
+  .glass-panel::before { display: none; }
 }

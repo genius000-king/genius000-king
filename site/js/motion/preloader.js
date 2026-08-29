@@ -12,7 +12,7 @@ export function markSeen() {
 /** يخفي البريلودر ويزيله من الـ DOM بعد انتهاء الانتقال. */
 export function hide(node) {
   if (!node) return;
-  node.dataset.done = '1';
+  node.classList.add('is-out');
   markSeen();
   setTimeout(() => node.remove(), 700);
 }

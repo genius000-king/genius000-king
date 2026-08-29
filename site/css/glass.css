@@ -1,0 +1,169 @@
+/* ============================================================
+   glass.css — الزجاج الحقيقي.
+
+   الشفافية وحدها ليست زجاجاً. أربع طبقات مستقلّة تصنعه:
+
+     المادة   → ضبابية الخلفية + رفع التشبّع، على العنصر نفسه
+     الانكسار → ::before — حلقة بعرض 14px عليها ضبابية إضافية
+     البريق   → ::after  — إطار 1px متدرّج، مقنَّع بحيلة xor
+     السُّمك  → ظلال داخلية وخارجية مركّبة
+
+   ⚠️ الإطار المتدرّج لا يُبنى بـ background-clip مع سطح شبه شفاف:
+      الطبقة السفلى تظهر عبر العليا فيغسل التدرّج البلاطة كلها.
+      القناع (mask-composite: exclude) هو الطريقة الصحيحة الوحيدة.
+   ============================================================ */
+
+.glass {
+  position: relative;
+  isolation: isolate;
+  border-radius: var(--r-md);
+
+  /* المادة: صبغة رقيقة + سطح داخلي مضاء من الأعلى */
+  background-color: var(--glass-tint);
+  background-image:
+    radial-gradient(120% 76% at 14% -12%, rgba(255,255,255,.09), transparent 54%),
+    linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0) 24%);
+
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(1.05);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(1.05);
+
+  /* السُّمك */
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, .07),
+    inset 0 -1px 0 0 var(--glass-inner-lo),
+    inset 0 0 22px -8px rgba(255, 255, 255, .10),
+    var(--sh-2);
+}
+
+/* ── الانكسار: حلقة ضبابية عند الحدّ ──
+   هي ما يعطي إحساس سُمك الزجاج وانحناء الضوء عند الحافّة. */
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 12px;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ── البريق: إطار 1px يمسك الضوء من جهة واحدة ──
+   التدرّج يبدأ ساطعاً من أعلى-البداية ويخفت بزاوية 158°، كأن مصدر ضوء
+   واحداً يقف فوق الحافّة — لهذا لا يبدو الإطار مرسوماً بل مضاءً. */
+.glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    158deg,
+    var(--glass-rim) 0%,
+    rgba(255,255,255,.16) 18%,
+    rgba(255,255,255,.05) 40%,
+    rgba(255,255,255,.02) 62%,
+    var(--glass-rim-dim) 100%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+.glass > * { position: relative; z-index: 1; }
+
+/* ── الأنواع ── */
+
+.glass--soft {
+  --glass-blur: var(--glass-blur-soft);
+  --glass-rim: rgba(255, 255, 255, .34);
+  background-color: rgba(255, 255, 255, .034);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255,255,255,.05),
+    var(--sh-1);
+}
+.glass--soft::before {
+  padding: 8px;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.glass--strong {
+  --glass-blur: 40px;
+  --glass-rim: rgba(255, 255, 255, .62);
+  background-color: var(--glass-tint-strong);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255,255,255,.10),
+    inset 0 -1px 0 0 var(--glass-inner-lo),
+    var(--sh-4);
+}
+
+/* زجاج ملوّن — يحمل صبغة الهوية بدل الأبيض */
+.glass--tinted {
+  background-color: rgba(var(--c-accent-rgb), .07);
+  background-image:
+    radial-gradient(120% 76% at 14% -12%, rgba(255,255,255,.10), transparent 54%),
+    linear-gradient(148deg, rgba(var(--c-accent-rgb), .16), rgba(var(--c-accent-2-rgb), .09) 58%, transparent);
+}
+
+/* ── التفاعل ── */
+.glass--lift {
+  transition:
+    transform var(--t-base) var(--ease-out),
+    box-shadow var(--t-base) var(--ease-out),
+    background-color var(--t-base) var(--ease-out);
+  will-change: transform;
+}
+.glass--lift:hover,
+.glass--lift:focus-visible {
+  transform: translate3d(0, -3px, 0);
+  background-color: var(--glass-tint-strong);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255,255,255,.13),
+    inset 0 -1px 0 0 var(--glass-inner-lo),
+    var(--sh-4),
+    var(--sh-glow-soft);
+}
+
+/* ── وهج المؤشر: بقعة ضوء تتبع الفأرة داخل الزجاج ── */
+.glass--glow > .glass__glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--t-base) var(--ease-out);
+  background: radial-gradient(
+    280px circle at var(--gx, 50%) var(--gy, 50%),
+    rgba(255, 255, 255, .09),
+    rgba(var(--c-accent-rgb), .06) 42%,
+    transparent 66%
+  );
+}
+.glass--glow:hover > .glass__glow,
+.glass--glow:focus-within > .glass__glow { opacity: 1; }
+
+/* ── احتياط: متصفح بلا backdrop-filter ── */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass { background-color: color-mix(in srgb, var(--c-surface-2) 94%, transparent); }
+  .glass::before { display: none; }
+}
+
+/* الشفافية مكلفة على بعض الأجهزة — نستبدلها بسطح مصمت */
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background-color: var(--c-surface-2);
+  }
+  .glass::before { display: none; }
+}

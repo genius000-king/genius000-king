@@ -8,6 +8,7 @@ const PULL = 0.34;     // نسبة الإزاحة من المسافة
 
 export default {
   name: 'magnetic',
+  noTouch: true,
   init(node, o = {}) {
     if (prefs.touch || prefs.reduced) return;
 

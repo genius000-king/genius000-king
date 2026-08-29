@@ -1,25 +1,28 @@
-/* footer.css — روابط التواصل الموجودة فقط، ثم النص. */
-
-#footer { padding-block: var(--s-7) var(--s-8); }
-
-.footer__inner { gap: var(--s-4); }
-
-.footer__social {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: var(--s-4);
-}
-
+/* footer.css — بلاطات التواصل + بلاطة العلامة. */
+#footer { padding-block: var(--s-8) var(--s-7); border-block-start: 1px solid var(--c-line-soft); }
+.footer__brand-tile { display: grid; gap: var(--s-3); align-content: center; padding: var(--s-6); }
+.footer__logo { inline-size: 54px; block-size: 54px; object-fit: contain; }
+.footer__brand { font-size: var(--fs-h3); font-weight: 700; }
 .social {
   display: grid;
   gap: var(--s-1);
-  padding: var(--s-4);
-  translate: var(--dx, 0) var(--dy, 0);
+  align-content: center;
+  padding: var(--s-4) var(--s-5);
+  transition: transform var(--t-base) var(--ease-out);
 }
-
-.social__icon { color: var(--c-accent-text); }
-.social__name { font-weight: 600; font-size: var(--fs-sm); }
-.social__note { font-size: var(--fs-xs); color: var(--c-muted); }
-
-.footer__note { display: grid; gap: var(--s-2); }
-.footer__brand { font-size: var(--fs-card); }
+.social:hover { transform: translate3d(0, -3px, 0); }
+.social__icon { color: var(--c-accent-text); margin-block-end: var(--s-2); }
+.social__name { font-size: var(--fs-sm); font-weight: 600; }
+.social__note { font-size: var(--fs-xs); color: var(--c-text-3); }
+.footer__legal {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  padding-block-start: var(--s-5);
+  margin-block-start: var(--s-3);
+  border-block-start: 1px solid var(--c-line-soft);
+  font-size: var(--fs-xs);
+  color: var(--c-text-3);
+}

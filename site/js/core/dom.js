@@ -2,7 +2,6 @@
 
 const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 
-/** يهرّب النص قبل حقنه في HTML. */
 export function esc(str) {
   if (str === null || str === undefined) return '';
   return String(str).replace(/[&<>"']/g, (c) => ESCAPES[c]);
@@ -10,15 +9,15 @@ export function esc(str) {
 
 /**
  * ينشئ عنصراً بسماته وأبنائه.
- * السمات: `class`, `data-*`, أي سمة عادية، `style` ككائن، و`on*` كمستمعات.
+ * `style` ككائن (يدعم --المتغيّرات) · `on*` كمستمعات · `html` كـ innerHTML.
  */
 export function el(tag, attrs = {}, children = []) {
   const node = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
     if (v === null || v === undefined || v === false) continue;
-    // المتغيّرات المخصّصة (--x) لا تُضبط بـ Object.assign — تحتاج setProperty
     if (k === 'style' && typeof v === 'object') {
       for (const [prop, val] of Object.entries(v)) {
+        if (val === null || val === undefined || val === false) continue;
         prop.startsWith('--') ? node.style.setProperty(prop, val) : (node.style[prop] = val);
       }
     }
@@ -34,32 +33,69 @@ export function el(tag, attrs = {}, children = []) {
   return node;
 }
 
-export function qs(sel, root = document) { return root.querySelector(sel); }
+/** جزء SVG — للأيقونات والمسارات. */
+export function svgEl(tag, attrs = {}, children = []) {
+  const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v === null || v === undefined || v === false) continue;
+    node.setAttribute(k, v === true ? '' : v);
+  }
+  for (const c of [].concat(children)) if (c) node.append(c);
+  return node;
+}
 
+export function qs(sel, root = document) { return root.querySelector(sel); }
 export function qsa(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
 
-/** يربط مستمعاً ويعيد دالة إلغاء الربط. */
 export function on(target, evt, fn, opts) {
   target.addEventListener(evt, fn, opts);
   return () => target.removeEventListener(evt, fn, opts);
 }
 
-/** يؤجّل التنفيذ حتى يهدأ الاستدعاء `ms` ميلي ثانية. */
 export function debounce(fn, ms = 300) {
   let t;
-  const wrapped = (...args) => {
-    clearTimeout(t);
-    t = setTimeout(() => fn(...args), ms);
-  };
+  const wrapped = (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
   wrapped.cancel = () => clearTimeout(t);
   return wrapped;
 }
 
-/** يفرغ عنصراً من أبنائه. */
+export function throttle(fn, ms = 100) {
+  let last = 0, timer = null;
+  return (...args) => {
+    const now = Date.now();
+    const wait = ms - (now - last);
+    if (wait <= 0) { last = now; fn(...args); }
+    else if (!timer) timer = setTimeout(() => { last = Date.now(); timer = null; fn(...args); }, wait);
+  };
+}
+
 export function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
 
-/** يرتّب مصفوفة بـ `sort` ثم يصفّي غير المنشور. */
+/** يصفّي غير المنشور ثم يرتّب بـ `sort`. */
 export function published(rows = []) {
-  return rows.filter((r) => r.published !== false)
+  return rows.filter((r) => r && r.published !== false)
     .slice().sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
+}
+
+/** حالة فارغة موحّدة. */
+export function emptyState(title, hint, action) {
+  return el('div', { class: 'empty-state' }, [
+    el('span', { class: 'empty-state__icon', 'aria-hidden': 'true' }, ['◇']),
+    el('p', { class: 'empty-state__title' }, [title]),
+    hint ? el('p', {}, [hint]) : null,
+    action || null,
+  ]);
+}
+
+/** حالة خطأ موحّدة. */
+export function errorState(msg, onRetry) {
+  return el('div', { class: 'error-state' }, [
+    el('p', {}, [msg || 'تعذّر تحميل هذا القسم.']),
+    onRetry ? el('button', { class: 'btn btn--sm', type: 'button', onclick: onRetry }, ['إعادة المحاولة']) : null,
+  ]);
+}
+
+/** هيكل تحميل. */
+export function skeletons(n = 4, cls = 't--box') {
+  return Array.from({ length: n }, () => el('div', { class: `skeleton skeleton--card ${cls}` }));
 }

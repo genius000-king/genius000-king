@@ -8,6 +8,7 @@ const DAMP = 0.18;          // معامل تخميد الحلقة — كلما �
 
 export default {
   name: 'cursor',
+  noTouch: true,
   init(host, o = {}) {
     if (prefs.touch || prefs.reduced) return;    // بلا معنى على اللمس
 

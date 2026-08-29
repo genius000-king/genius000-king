@@ -1,25 +1,21 @@
-/* services.css — بطاقات الخدمات فوق شبكة متموّجة. */
-
-#services { position: relative; overflow: hidden; }
-
-.services__grid { position: relative; }
-
-.service { display: grid; gap: var(--s-2); align-content: start; }
-
+/* services.css — بطاقات الخدمات بإمالة ثلاثية الأبعاد. */
+.service { gap: var(--s-3); justify-content: flex-start; }
 .service__icon {
+  inline-size: 46px;
+  block-size: 46px;
   display: grid;
   place-items: center;
-  inline-size: 42px;
-  block-size: 42px;
-  border-radius: var(--r-md);
+  border-radius: var(--r-sm);
   color: var(--c-accent-text);
-  background: rgba(var(--c-accent-rgb), 0.12);
-  border: 1px solid var(--glass-border);
-  margin-block-end: var(--s-2);
+  background: rgba(var(--c-accent-rgb), .12);
+  border: 1px solid rgba(var(--c-accent-rgb), .22);
 }
-
 .service__meta {
-  margin-block-start: var(--s-2);
+  margin-block-start: auto;
+  padding-block-start: var(--s-3);
   font-size: var(--fs-xs);
+  font-weight: 600;
   color: var(--c-accent-text);
 }
+.service--feature .service__icon { inline-size: 56px; block-size: 56px; }
+.service--feature .card__title { font-size: var(--fs-h3); }

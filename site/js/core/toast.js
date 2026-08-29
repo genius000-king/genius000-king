@@ -1,36 +1,23 @@
-// toast.js — رسائل قصيرة بطابور. لا تتكدّس ولا تحجب الواجهة.
+// toast.js — تنبيه مؤقّت. يتكدّس رأسياً ويختفي وحده.
 import { el } from './dom.js';
 
-const DURATION = 3000;
-const queue = [];
-let showing = false;
+const DURATION = 3800;
 
-function host() {
-  let h = document.getElementById('toast');
-  if (!h) { h = el('div', { id: 'toast', role: 'status', 'aria-live': 'polite' }); document.body.append(h); }
-  return h;
+export function toast(message, kind = 'info', ms = DURATION) {
+  const box = document.getElementById('toast');
+  if (!box) { console.log(`[toast:${kind}]`, message); return null; }
+
+  const node = el('div', { class: 'toast', 'data-kind': kind }, [
+    el('span', {}, [message]),
+  ]);
+  box.append(node);
+
+  const kill = () => {
+    node.classList.add('is-out');
+    node.addEventListener('animationend', () => node.remove(), { once: true });
+    setTimeout(() => node.remove(), 400);
+  };
+  const t = setTimeout(kill, ms);
+  node.addEventListener('click', () => { clearTimeout(t); kill(); });
+  return node;
 }
-
-function next() {
-  if (showing || !queue.length) return;
-  const { msg, type } = queue.shift();
-  showing = true;
-  const node = el('div', { class: `toast toast--${type}` }, [msg]);
-  host().append(node);
-  requestAnimationFrame(() => node.classList.add('is-in'));
-  setTimeout(() => {
-    node.classList.remove('is-in');
-    setTimeout(() => { node.remove(); showing = false; next(); }, 300);
-  }, DURATION);
-}
-
-/** يعرض رسالة. type: info | success | error */
-export function toast(msg, type = 'info') {
-  queue.push({ msg: String(msg), type });
-  next();
-  return queue.length;
-}
-
-export function pending() { return queue.length + (showing ? 1 : 0); }
-
-export default toast;
