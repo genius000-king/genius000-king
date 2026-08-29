@@ -1,36 +1,48 @@
 /* hero.css — الهيرو كبينتو: عنوان ضخم + شعار بالجسيمات + بلاطات مساعدة. */
 
 #hero {
-  padding-block: calc(var(--nav-h) + var(--s-7)) var(--s-9);
-  min-block-size: min(100dvh, 860px);
+  padding-block: calc(var(--nav-h) + var(--s-6)) var(--s-8);
+  min-block-size: min(100dvh, 820px);
   display: grid;
   align-content: center;
 }
 
+/* الإيقاع الداخلي: الشارة والعنوان متقاربان، ثم فراغ أكبر قبل الوصف
+   وقبل الأزرار — التدرّج هو ما يجعل الكتلة تُقرأ كوحدة لا كقائمة. */
 .hero__main {
   display: flex;
   flex-direction: column;
-  gap: var(--s-4);
+  align-items: flex-start;
   justify-content: center;
-  padding: var(--s-7) var(--s-6);
+  gap: 0;
+  padding: clamp(var(--s-5), 3.4vw, var(--s-7));
 }
+.hero__main > .pill { margin-block-end: var(--s-4); }
 
 .hero__title {
   font-size: var(--fs-mega);
   line-height: var(--lh-mega);
   font-weight: 700;
-  letter-spacing: -.035em;
+  letter-spacing: -.032em;
+  max-inline-size: 15ch;
 }
 .hero__word { display: inline-block; }
 .hero__word--hl { color: var(--c-accent-text); }
 
 .hero__sub {
+  margin-block-start: var(--s-5);
   color: var(--c-text-2);
-  font-size: var(--fs-body);
-  line-height: var(--lh-body);
-  max-inline-size: 44ch;
+  font-size: var(--fs-lead);
+  line-height: 1.6;
+  max-inline-size: 42ch;
+  text-wrap: pretty;
 }
-.hero__actions { display: flex; gap: var(--s-3); flex-wrap: wrap; margin-block-start: var(--s-2); }
+.hero__actions {
+  display: flex;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  margin-block-start: var(--s-6);
+}
 
 /* بلاطة الشعار — الجسيمات تتجمّع لتكوّنه */
 .hero__logo-tile {
@@ -42,7 +54,7 @@
 }
 .hero__logo-canvas { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; }
 .hero__logo-img {
-  inline-size: min(62%, 190px);
+  inline-size: min(54%, 170px);
   aspect-ratio: 1;
   object-fit: contain;
   opacity: 0;
@@ -52,16 +64,17 @@
 
 /* بلاطات مساعدة */
 .hero__mini {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: var(--s-1);
+  display: grid;
+  align-content: center;
+  gap: 2px;
   padding: var(--s-4) var(--s-5);
 }
 .hero__mini-value {
   font-family: var(--font-mono);
-  font-size: var(--fs-h3);
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
   font-weight: 600;
+  line-height: 1;
+  letter-spacing: -.02em;
   color: var(--c-accent-text);
   font-variant-numeric: tabular-nums;
   direction: ltr;
@@ -69,23 +82,12 @@
 }
 .hero__mini-label { font-size: var(--fs-xs); color: var(--c-text-3); }
 
-.hero__scroll {
-  grid-column: 1 / -1;
-  justify-self: center;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-2);
-  color: var(--c-text-3);
-  font-size: var(--fs-xs);
-  padding: var(--s-2) var(--s-5);
-  border-radius: var(--r-full);
-  min-block-size: 0;
-}
-.hero__scroll svg { animation: nudge 2s var(--ease-in-out) infinite; }
-@keyframes nudge { 50% { transform: translateY(5px); } }
 
 @media (max-width: 640px) {
-  #hero { min-block-size: auto; padding-block: calc(var(--nav-h) + var(--s-5)) var(--s-7); }
+  #hero { min-block-size: auto; padding-block: calc(var(--nav-h) + var(--s-4)) var(--s-7); }
   .hero__main { padding: var(--s-5) var(--s-4); }
-  .hero__title { letter-spacing: -.02em; }
+  .hero__title { letter-spacing: -.02em; max-inline-size: none; }
+  .hero__sub { margin-block-start: var(--s-4); }
+  .hero__actions { margin-block-start: var(--s-5); inline-size: 100%; }
+  .hero__actions .btn { flex: 1; }
 }

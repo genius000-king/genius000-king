@@ -14,11 +14,22 @@ export function buildStrips(collections, works) {
   })).filter((s) => s.items.length);
 }
 
-/** يوزّع الأعمال المميّزة على مقاسات بينتو متناوبة. */
+/**
+ * يوزّع الأعمال المميّزة على مقاسات تملأ صفوف الاثني عشر عموداً تماماً.
+ * الأنماط مضبوطة لكل عدد حتى لا تبقى بلاطة يتيمة في آخر صفّ.
+ */
+const SPAN_SETS = {
+  1: ['t--half'],
+  2: ['t--half', 't--half'],
+  3: ['t--third-tall', 't--third-tall', 't--third-tall'],
+};
 export function featuredSpans(n) {
-  const pattern = ['t--wide-tall', 't--tall', 't--box', 't--box', 't--tall', 't--wide'];
-  return Array.from({ length: n }, (_, i) => pattern[i % pattern.length]);
+  // البوسترات طولية، فالبلاطة الطولية (3 أعمدة × 3 صفوف ≈ 3:4) تحترم قصّها
+  return SPAN_SETS[n] || Array.from({ length: n }, () => 't--portrait');
 }
+
+/** أقصى عدد في الجدار — أربع بلاطات تملأ صفّاً كاملاً بلا يتيمة. */
+export const MAX_FEATURED = 4;
 
 function card(work, span = '') {
   return el('button', {
@@ -67,7 +78,7 @@ export function mount(root, opts = {}) {
     return;
   }
 
-  const featured = all.filter((w) => w.featured).slice(0, 6);
+  const featured = all.filter((w) => w.featured).slice(0, MAX_FEATURED);
   const spans = featuredSpans(featured.length);
   const strips = buildStrips(get('collections'), get('works'));
 

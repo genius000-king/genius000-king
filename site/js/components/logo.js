@@ -16,7 +16,7 @@ export function logoImg({ size = 34, cls = '', alt = 'aboal3z.dzn' } = {}) {
  * وخلفها صورة عادية تظهر إن تعذّر تشغيل المؤثر.
  */
 export function logoParticleTile() {
-  return el('div', { class: 'hero__logo-tile glass glass--tinted t--third-tall' }, [
+  return el('div', { class: 'hero__logo-tile glass glass--tinted t--five', 'data-fx': 'glass' }, [
     el('canvas', {
       class: 'hero__logo-canvas',
       'data-fx': 'logo-particles',

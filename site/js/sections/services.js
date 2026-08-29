@@ -8,7 +8,7 @@ import { applyEditable } from '../components/editable.js';
 
 function card(s, feature) {
   return el('article', {
-    class: `card service glass glass--lift ${feature ? 'service--feature t--wide' : 't--third'}`,
+    class: `card service glass glass--lift ${feature ? 'service--feature t--half' : 't--quarter'}`,
     'data-edit-id': `service.card.${s.id}`,
     'data-fx': 'tilt glass shine',
   }, [
@@ -34,7 +34,7 @@ export function mount(root, opts = {}) {
   root.replaceChildren(
     head,
     list.length
-      ? el('div', { class: 'bento', 'data-fx': 'reveal', 'data-fx-children': '.service' },
+      ? el('div', { class: 'bento bento--flow', 'data-fx': 'reveal', 'data-fx-children': '.service' },
           list.map((s, i) => card(s, i < 2)))
       : el('div', { class: 'bento bento--flow' }, [emptyState('لا توجد خدمات منشورة بعد')]),
   );

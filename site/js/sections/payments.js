@@ -5,7 +5,7 @@ import { sectionHead } from '../components/head.js';
 import { applyEditable } from '../components/editable.js';
 
 function tile(m) {
-  return el('div', { class: 'card pay glass glass--soft t--third',
+  return el('div', { class: 'card pay glass glass--soft t--quarter',
     'data-edit-id': `payment.card.${m.id}`, 'data-fx': 'shine' }, [
     m.logo_url
       ? el('img', { class: 'pay__logo', src: m.logo_url, alt: m.name || '',

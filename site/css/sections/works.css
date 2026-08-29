@@ -6,6 +6,8 @@
 .work {
   position: relative;
   display: grid;
+  block-size: 100%;
+  min-block-size: 0;
   padding: 0;
   border-radius: var(--r-md);
   overflow: hidden;
@@ -24,6 +26,7 @@
 }
 .work__media { position: relative; inline-size: 100%; block-size: 100%; }
 .work__media img { inline-size: 100%; block-size: 100%; object-fit: cover; }
+.work__media { min-block-size: 0; overflow: hidden; }
 
 .work__veil {
   position: absolute;

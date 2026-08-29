@@ -9,36 +9,9 @@
 //
 // وتُحقن مرشّحة SVG للانكسار الحقيقي حيث يدعمها المتصفح.
 // ============================================================
-import loop from './loop.js';
 import prefs from './prefs.js';
 import { el, on, throttle } from '../core/dom.js';
-
-const LENS_ID = 'glass-lens';
-let lensReady = false;
-
-/** يحقن مرشّحة الإزاحة مرة واحدة لكل صفحة. */
-function ensureLens() {
-  if (lensReady || document.getElementById(LENS_ID)) { lensReady = true; return; }
-  lensReady = true;
-  const NS = 'http://www.w3.org/2000/svg';
-  const svg = document.createElementNS(NS, 'svg');
-  svg.setAttribute('aria-hidden', 'true');
-  svg.setAttribute('focusable', 'false');
-  Object.assign(svg.style, {
-    position: 'absolute', inlineSize: '0', blockSize: '0',
-    overflow: 'hidden', pointerEvents: 'none',
-  });
-  svg.innerHTML = `
-    <filter id="${LENS_ID}" x="-12%" y="-12%" width="124%" height="124%"
-            color-interpolation-filters="sRGB">
-      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.018"
-                    numOctaves="2" seed="7" result="noise"/>
-      <feGaussianBlur in="noise" stdDeviation="1.6" result="soft"/>
-      <feDisplacementMap in="SourceGraphic" in2="soft" scale="9"
-                         xChannelSelector="R" yChannelSelector="G"/>
-    </filter>`;
-  document.body.append(svg);
-}
+import liquid from './liquid-glass.js';
 
 /** زاوية تدرّج CSS من مركز العنصر إلى مصدر ضوء ثابت في نافذة العرض. */
 export function rimAngle(rect, vw = innerWidth, vh = innerHeight) {
@@ -55,8 +28,8 @@ export default {
   name: 'glass',
 
   init(node, o = {}) {
-    ensureLens();
-    if (o.lens !== 0) node.classList.add('glass--lens');
+    // الانكسار الحقيقي — يتولّاه liquid-glass حيث يدعمه المتصفح
+    if (o.lens !== 0 && !prefs.reduced) liquid.init(node, { bezel: o.bezel, blur: o.blur });
 
     const state = { off: [], unsub: null, raf: 0 };
 
@@ -103,9 +76,10 @@ export default {
     const s = node.__glass;
     if (!s) return;
     cancelAnimationFrame(s.raf);
+    liquid.destroy(node);
     s.off.forEach((f) => f());
     s.layer?.remove();
-    node.classList.remove('glass--glow', 'glass--lens');
+    node.classList.remove('glass--glow');
     node.style.removeProperty('--rim-angle');
     node.style.removeProperty('--gx');
     node.style.removeProperty('--gy');

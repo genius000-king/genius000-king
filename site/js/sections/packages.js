@@ -5,7 +5,8 @@ import { openPanel } from '../core/panel.js';
 import { sectionHead } from '../components/head.js';
 import { applyEditable } from '../components/editable.js';
 
-const SPANS = ['t--wide-tall', 't--tall', 't--tall', 't--box', 't--box', 't--wide'];
+// أربع بلاطات في الصفّ — تقسيم مرتّب بلا بلاطة يتيمة في النهاية
+const SPAN = 't--quarter';
 
 function tile(pkg, span) {
   const blocks = blocksOf(pkg.id);
@@ -57,7 +58,7 @@ export function mount(root, opts = {}) {
       : null,
     list.length
       ? el('div', { class: 'bento', 'data-fx': 'reveal', 'data-fx-children': '.pkg' },
-          list.map((p, i) => tile(p, SPANS[i % SPANS.length])))
+          list.map((p) => tile(p, SPAN)))
       : el('div', { class: 'bento bento--flow' }, [
           emptyState('لا توجد بكجات منشورة بعد', 'أضِف بكجاً من لوحة التحكم لتظهر هنا.'),
         ]),

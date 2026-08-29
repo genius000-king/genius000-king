@@ -57,10 +57,6 @@ export function mount(root, opts = {}) {
       ]),
       logoParticleTile(),
       ...miniTiles(),
-      el('div', { class: 'hero__scroll glass glass--soft' }, [
-        icon('arrowDown', { size: 16 }),
-        el('span', {}, ['مرّر لتشوف الشغل']),
-      ]),
     ]),
   );
 

@@ -19,10 +19,11 @@ import swap from './swap.js';
 import shine from './shine.js';
 import drawLine from './draw-line.js';
 import logoParticles from './logo-particles.js';
+import liquidGlass from './liquid-glass.js';
 
 [
   magnetic, tilt, glass, cursor, reveal, reveal3d, parallax, counter,
-  zoomIn, splitText, marquee, swap, shine, drawLine, logoParticles,
+  zoomIn, splitText, marquee, swap, shine, drawLine, logoParticles, liquidGlass,
 ].forEach(register);
 
 export { register };
