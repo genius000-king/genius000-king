@@ -1,93 +1,138 @@
-/* hero.css — الهيرو كبينتو: عنوان ضخم + شعار بالجسيمات + بلاطات مساعدة. */
+/* ============================================================
+   hero.css — الشاشة الأولى.
+
+   قرارات مقصودة:
+   · بلا بطاقة زجاجية حول النصّ — الخلفية نفسها هي المسرح.
+   · الشعار هو البطل البصري الوحيد، بأعلى دقّة ممكنة.
+   · الجوال أولاً: عمود واحد، مسافات سخيّة، وأزرار يسهل ضربها بالإبهام.
+   ============================================================ */
 
 #hero {
-  padding-block: calc(var(--nav-h) + var(--s-6)) var(--s-8);
-  min-block-size: min(100dvh, 820px);
   display: grid;
   align-content: center;
+  padding-block: calc(var(--nav-h) + var(--s-6)) var(--s-8);
+  min-block-size: min(96svh, 780px);
 }
 
-/* الإيقاع الداخلي: الشارة والعنوان متقاربان، ثم فراغ أكبر قبل الوصف
-   وقبل الأزرار — التدرّج هو ما يجعل الكتلة تُقرأ كوحدة لا كقائمة. */
-.hero__main {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 0;
-  padding: clamp(var(--s-5), 3.4vw, var(--s-7));
+.hero {
+  inline-size: min(100% - (2 * var(--s-5)), var(--container));
+  margin-inline: auto;
+  display: grid;
+  gap: clamp(var(--s-5), 4vw, var(--s-7));
+  align-items: center;
+  justify-items: center;
+  text-align: center;
 }
-.hero__main > .pill { margin-block-end: var(--s-4); }
+
+/* ── الشعار ── */
+.hero__mark {
+  inline-size: 100%;
+  display: grid;
+  justify-items: center;
+  order: -1;                 /* فوق النصّ في العمود الواحد */
+}
+
+.logo-mark {
+  position: relative;
+  inline-size: clamp(160px, 42vw, 300px);
+  aspect-ratio: 1;
+  touch-action: manipulation;
+}
+
+.logo-mark__img,
+.logo-mark__fx {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+/* الصورة الحادّة — الحالة الطبيعية */
+.logo-mark__img {
+  object-fit: contain;
+  filter: drop-shadow(0 14px 34px rgba(0, 0, 0, .55));
+  transition: opacity .26s var(--ease-out);
+}
+
+/* الجسيمات — حالة الانتقال */
+.logo-mark__fx {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .26s var(--ease-out);
+}
+
+.logo-mark[data-state="fx"] .logo-mark__img { opacity: 0; }
+.logo-mark[data-state="fx"] .logo-mark__fx  { opacity: 1; }
+
+/* ── النصّ ── */
+.hero__copy {
+  display: grid;
+  justify-items: center;
+  gap: 0;
+  max-inline-size: 34ch;
+}
+
+.hero__badge { margin-block-end: var(--s-4); }
 
 .hero__title {
   font-size: var(--fs-mega);
-  line-height: var(--lh-mega);
+  line-height: 1.06;
   font-weight: 700;
-  letter-spacing: -.032em;
-  max-inline-size: 15ch;
+  letter-spacing: -.03em;
+  text-wrap: balance;
 }
 .hero__word { display: inline-block; }
 .hero__word--hl { color: var(--c-accent-text); }
 
 .hero__sub {
-  margin-block-start: var(--s-5);
+  margin-block-start: var(--s-4);
   color: var(--c-text-2);
   font-size: var(--fs-lead);
-  line-height: 1.6;
-  max-inline-size: 42ch;
+  line-height: 1.65;
+  max-inline-size: 38ch;
   text-wrap: pretty;
 }
+
 .hero__actions {
   display: flex;
   gap: var(--s-3);
   flex-wrap: wrap;
+  justify-content: center;
   margin-block-start: var(--s-6);
+  inline-size: 100%;
 }
 
-/* بلاطة الشعار — الجسيمات تتجمّع لتكوّنه */
-.hero__logo-tile {
-  position: relative;
-  display: grid;
-  place-items: center;
-  padding: var(--s-4);
-  overflow: hidden;
+/* ── لوحي فما فوق: الشعار جنب النصّ ── */
+@media (min-width: 860px) {
+  .hero {
+    /* النسبة تحدّد عرض كل عمود — لا max-inline-size على الكتلة كلها،
+       فذلك يخنق العنوان الضخم ويجعل كل كلمة سطراً. */
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+    align-items: center;
+    justify-items: start;
+    text-align: start;
+    gap: clamp(var(--s-6), 4vw, var(--s-8));
+  }
+  .hero__copy { justify-items: start; max-inline-size: none; }
+  .hero__mark { order: 0; justify-self: center; inline-size: 100%; }
+  .logo-mark { inline-size: min(100%, 340px); }
+  .hero__actions { justify-content: flex-start; inline-size: auto; }
+  .hero__sub { max-inline-size: 36ch; }
+  .hero__title { max-inline-size: 13ch; }
 }
-.hero__logo-canvas { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; }
-.hero__logo-img {
-  inline-size: min(54%, 170px);
-  aspect-ratio: 1;
-  object-fit: contain;
-  opacity: 0;
-  filter: drop-shadow(0 10px 30px rgba(0,0,0,.5));
-}
-.hero__logo-tile[data-static="1"] .hero__logo-img { opacity: 1; }
 
-/* بلاطات مساعدة */
-.hero__mini {
-  display: grid;
-  align-content: center;
-  gap: 2px;
-  padding: var(--s-4) var(--s-5);
-}
-.hero__mini-value {
-  font-family: var(--font-mono);
-  font-size: clamp(1.5rem, 2.6vw, 2rem);
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -.02em;
-  color: var(--c-accent-text);
-  font-variant-numeric: tabular-nums;
-  direction: ltr;
-  text-align: start;
-}
-.hero__mini-label { font-size: var(--fs-xs); color: var(--c-text-3); }
-
-
+/* ── جوال: مسافات مريحة وأزرار كاملة العرض ── */
 @media (max-width: 640px) {
-  #hero { min-block-size: auto; padding-block: calc(var(--nav-h) + var(--s-4)) var(--s-7); }
-  .hero__main { padding: var(--s-5) var(--s-4); }
-  .hero__title { letter-spacing: -.02em; max-inline-size: none; }
-  .hero__sub { margin-block-start: var(--s-4); }
-  .hero__actions { margin-block-start: var(--s-5); inline-size: 100%; }
-  .hero__actions .btn { flex: 1; }
+  #hero {
+    min-block-size: auto;
+    padding-block: var(--s-5) var(--s-7);
+  }
+  .hero { inline-size: min(100% - (2 * var(--s-4)), var(--container)); }
+  .hero__title { letter-spacing: -.022em; }
+  .hero__actions { flex-direction: column; gap: var(--s-2); }
+  .hero__actions .btn { inline-size: 100%; }
+}
+
+@media (max-width: 380px) {
+  .logo-mark { inline-size: clamp(140px, 46vw, 190px); }
 }

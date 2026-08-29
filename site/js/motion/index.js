@@ -18,12 +18,12 @@ import marquee from './marquee.js';
 import swap from './swap.js';
 import shine from './shine.js';
 import drawLine from './draw-line.js';
-import logoParticles from './logo-particles.js';
+import logoMark from './logo-mark.js';
 import liquidGlass from './liquid-glass.js';
 
 [
   magnetic, tilt, glass, cursor, reveal, reveal3d, parallax, counter,
-  zoomIn, splitText, marquee, swap, shine, drawLine, logoParticles, liquidGlass,
+  zoomIn, splitText, marquee, swap, shine, drawLine, logoMark, liquidGlass,
 ].forEach(register);
 
 export { register };
