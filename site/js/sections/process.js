@@ -1,5 +1,5 @@
 // process — خط زمني يرسم نفسه: أفقي على سطح المكتب، عمودي على الجوال.
-import { el, svgEl, published, emptyState } from '../core/dom.js';
+import { el, svgEl, published, emptyState, setKids } from '../core/dom.js';
 import { get, content } from '../core/store.js';
 import { sectionHead } from '../components/head.js';
 import { applyEditable } from '../components/editable.js';
@@ -30,7 +30,7 @@ export function mount(root, opts = {}) {
   const list = published(get('process_steps'));
   const head = sectionHead('process', content('process_title'), content('process_sub'), 'الطريقة');
 
-  root.replaceChildren(
+  setKids(root,
     head,
     list.length
       ? el('div', { class: 'bento bento--flow' }, [

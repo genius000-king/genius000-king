@@ -1,5 +1,5 @@
 // order — بلاطة الدعوة للطلب. الزر يفتح المعالج في لوحة زجاجية.
-import { el, on } from '../core/dom.js';
+import { el, on, setKids } from '../core/dom.js';
 import { content } from '../core/store.js';
 import { openPanel } from '../core/panel.js';
 import { icon } from '../components/icon.js';
@@ -11,7 +11,7 @@ export function openOrder(preset) {
 }
 
 export function mount(root, opts = {}) {
-  root.replaceChildren(
+  setKids(root,
     el('div', { class: 'bento bento--flow' }, [
       el('div', { class: 'card order glass glass--strong t--full', 'data-edit-id': 'order.band',
         'data-fx': 'reveal3d glass' }, [

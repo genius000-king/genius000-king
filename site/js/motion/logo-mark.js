@@ -42,6 +42,9 @@ const TAU_DOWN = 0.62;    // ث — سرعة التجمّع (أبطأ: العو�
 const STAGGER  = 0.55;    // كم من التحوّل يمضي في تتابع الجسيمات
 const HOLD_MS  = 620;     // أقلّ زمن يبقى فيه متفكّكاً بعد لمسة
 const ASSEMBLE = 1500;    // زمن التجميعة الأولى عند أول ظهور
+/* سقف مطلق: مهما تعقّدت الحالة، الشعار يعود صورةً حادّة بعد هذا الزمن
+   من آخر تأثير حقيقي. بلا هذا السقف يكفي خطأ واحد ليعلق نقاطاً. */
+const MAX_FX = 2600;
 
 const PALETTE = ['#E8EDF5', '#FFFFFF', '#12A5D4', '#0E86B4', '#9AA8BC'];
 const ALPHA_STEPS = 7;    // تكميم الشفافية: يجمع الرسم في دفعات قليلة
@@ -67,7 +70,7 @@ export default {
     let W = 0, H = 0;                    // مقاس لوحة الرسم (أوسع من الشعار)
     let running = false, unsub = null;
     let rect = null;                     // موضع اللوحة في نافذة العرض
-    let morph = 0, target = 0, holdUntil = 0;
+    let morph = 0, target = 0, holdUntil = 0, lastMove = 0;
     let assembleFrom = 0;                // وقت بدء التجميعة الأولى
 
     /* ── حالة المؤشّر: عالمية، لا مرتبطة بالشعار ── */
@@ -116,8 +119,11 @@ export default {
       octx.drawImage(img, bx + (bw - dw) / 2, by + (bh - dh) / 2, dw, dh);
       const px = octx.getImageData(0, 0, W, H).data;
 
-      const wish = Math.round(prefs.scale(
-        matchMedia('(max-width: 760px)').matches ? 1000 : 2000, o.intensity ?? 1)) || 600;
+      // ⚠️ prefs.scale تنصّف العدد على الأجهزة المتواضعة. مع 1000 كان
+      //    الناتج 500 جسيم لشعار يملأ نصف شاشة الجوال — يُقرأ سحابة
+      //    نقاط متفرّقة لا شعاراً. الأرضية هنا تمنع ذلك.
+      const wish = Math.max(1200, Math.round(prefs.scale(
+        matchMedia('(max-width: 760px)').matches ? 1600 : 2600, o.intensity ?? 1)));
 
       let step = 8;
       for (const s of [3, 4, 5, 6, 7, 8, 10]) {
@@ -140,7 +146,7 @@ export default {
             hx: x, hy: y,
             x, y,
             vx: 0, vy: 0,
-            r: step * 0.36 + Math.random() * 0.6,
+            r: step * 0.42 + Math.random() * 0.5,
             // الدور: من المركز إلى الأطراف، مع رشّة عشوائية تكسر الانتظام
             ord: clamp(d * 0.78 + Math.random() * 0.22),
             ph: Math.random() * Math.PI * 2,
@@ -167,7 +173,12 @@ export default {
       const dist = Math.hypot(dx, dy);
 
       const reach = Math.max(W, H) * 0.9 + 200;
-      const near = smooth(1 - clamp(dist / reach));
+      // ⚠️ على اللمس لا يوجد «مؤشّر يبتعد»: آخر موضع لمسة يبقى مسجّلاً
+      //    إلى الأبد. لو حسبنا القرب منه كما نحسبه للفأرة، بقي الشعار
+      //    نقاطاً بعد أول لمسة ولم يعد صورةً أبداً — وهذا ما كان يحدث.
+      //    فالقرب للفأرة وحدها، وأصابع اللمس تؤثّر أثناء السحب فقط.
+      const hover = prefs.touch ? 0 : smooth(1 - clamp(dist / reach));
+      const near = ptr.down ? Math.max(hover, smooth(1 - clamp(dist / reach))) : hover;
 
       // السحب: يصل من أي مكان في الصفحة، وتخفت قوّته مع البُعد ببطء
       const speed = Math.hypot(ptr.vx, ptr.vy);
@@ -188,8 +199,12 @@ export default {
       const inf = influence();
 
       /* الهدف: أقوى المؤثّرين، مع أرضية أثناء الإمساك بعد لمسة */
-      target = Math.max(inf.near * (ptr.down ? 1 : 0.92), inf.far);
+      target = Math.max(inf.near * (ptr.down ? 1 : 0.9), inf.far);
       if (now < holdUntil) target = Math.max(target, 0.55);
+      /* شبكة أمان: بلا حركة حقيقية للمؤشّر خلال MAX_FX ننسى موضعه.
+         الموضع المسجّل وحده لا يكفي لإبقاء الشعار متفكّكاً — وإلا علق
+         نقاطاً إلى الأبد لو فشل كشف اللمس أو تُرك المؤشّر ساكناً فوقه. */
+      if (!ptr.down && ptr.seen && now - lastMove > MAX_FX) ptr.seen = false;
       if (assembleFrom) {
         const t = clamp((now - assembleFrom) / ASSEMBLE);
         target = Math.max(target, 1 - smooth(t));
@@ -199,7 +214,7 @@ export default {
       /* التقارب: صعود سريع وهبوط أبطأ — لأن العودة هي التي تُشاهَد */
       const tau = target > morph ? TAU_UP : TAU_DOWN;
       morph += (target - morph) * (1 - Math.exp(-step / tau));
-      if (morph < 0.0015 && target === 0) morph = 0;
+      if (morph < 0.006 && target === 0) morph = 0;   // يوقف الحلقة أسرع
 
       /* الريح: تتبع سرعة السحب وتتلاشى وحدها */
       const decay = Math.pow(0.86, step * 60);
@@ -312,6 +327,7 @@ export default {
       ptr.px = ptr.x = x;
       ptr.py = ptr.y = y;
       ptr.seen = true;
+      lastMove = performance.now();
       if (worthWaking(x, y)) start();
     };
 
@@ -330,7 +346,11 @@ export default {
         burst(e.clientX - rect.left, e.clientY - rect.top);
       }
     };
-    const onUp = () => { ptr.down = false; };
+    const onUp = () => {
+      ptr.down = false;
+      // على اللمس: ننسى الموضع تماماً، وإلا بقي «قريباً» من الشعار للأبد
+      if (prefs.touch) { ptr.seen = false; ptr.vx = ptr.vy = 0; }
+    };
     const onLeave = () => { ptr.seen = false; ptr.down = false; ptr.vx = ptr.vy = 0; };
 
     const onResize = debounce(() => { size(); build(); start(); }, 200);
@@ -360,7 +380,7 @@ export default {
           host.dataset.seen = '1';
           // التجميعة الأولى: يبدأ نقاطاً مبعثرة ثم يستقرّ صورةً حادّة
           morph = 1;
-          const spread = Math.max(W, H) * 0.28;
+          const spread = Math.max(W, H) * 0.17;
           for (const p of P) {
             const a = Math.random() * Math.PI * 2;
             const d = spread * (0.3 + Math.random() * 0.7);

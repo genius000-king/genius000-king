@@ -1,6 +1,6 @@
 // hero — الشاشة الأولى. تخطيط مفتوح: شعار ونصّ وزرّان.
 // ❌ بلا بطاقات زجاجية وبلا أرقام — الفراغ نفسه جزء من التصميم.
-import { el } from '../core/dom.js';
+import { el, setKids } from '../core/dom.js';
 import { content } from '../core/store.js';
 import { icon } from '../components/icon.js';
 import { logoMark } from '../components/logo.js';
@@ -20,7 +20,7 @@ export function mount(root, opts = {}) {
     t2 ? el('span', { class: 'hero__word', 'data-fx': 'split-text' }, [t2]) : null,
   ]);
 
-  root.replaceChildren(
+  setKids(root,
     el('div', { class: 'hero' }, [
       el('div', { class: 'hero__copy' }, [
         badge ? el('span', { class: 'pill hero__badge', 'data-edit-id': 'hero.badge' }, [

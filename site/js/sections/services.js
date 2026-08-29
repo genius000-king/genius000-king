@@ -1,5 +1,5 @@
 // services — بلاطات الخدمات: أوّل اثنتين بارزتان، والباقي مربّعات.
-import { el, published, emptyState } from '../core/dom.js';
+import { el, published, emptyState, setKids } from '../core/dom.js';
 import { get, content, didFail, reload } from '../core/store.js';
 import { iconOr } from '../components/icon.js';
 import { sectionHead } from '../components/head.js';
@@ -23,7 +23,7 @@ export function mount(root, opts = {}) {
   const head = sectionHead('services', content('services_title'), content('services_sub'), 'ما نقدّمه');
 
   if (didFail('services')) {
-    root.replaceChildren(head, el('div', { class: 'bento bento--flow' }, [
+    setKids(root,head, el('div', { class: 'bento bento--flow' }, [
       errorState('تعذّر تحميل الخدمات.', async () => { await reload('services').catch(() => {}); mount(root, opts); }),
     ]));
     return;
@@ -31,7 +31,7 @@ export function mount(root, opts = {}) {
 
   const list = published(get('services'));
 
-  root.replaceChildren(
+  setKids(root,
     head,
     list.length
       ? el('div', { class: 'bento bento--flow', 'data-fx': 'reveal', 'data-fx-children': '.service' },

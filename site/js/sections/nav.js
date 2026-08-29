@@ -1,5 +1,5 @@
 // nav — شريط علوي زجاجي، قائمة جوال ملء الشاشة، شريط تقدّم، تتبّع القسم النشط.
-import { el, on, qsa, throttle } from '../core/dom.js';
+import { el, on, qsa, throttle, setKids } from '../core/dom.js';
 import { content, get } from '../core/store.js';
 import { icon } from '../components/icon.js';
 import { logoImg } from '../components/logo.js';
@@ -57,7 +57,7 @@ export function mount(root, opts = {}) {
     if (open) menu.querySelector('button')?.focus();
   }
 
-  root.replaceChildren(
+  setKids(root,
     el('div', { class: 'nav__bar glass glass--soft container', 'data-edit-id': 'nav.bar' }, [
       el('button', { class: 'nav__brand', type: 'button', 'data-edit-id': 'nav.brand',
         'aria-label': 'العودة لأعلى الصفحة',

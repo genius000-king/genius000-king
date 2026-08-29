@@ -1,5 +1,5 @@
 // testimonials — شريط آراء بسحب. لا يُرسم إطلاقاً إن لم توجد آراء حقيقية.
-import { el, published } from '../core/dom.js';
+import { el, published, setKids } from '../core/dom.js';
 import { get, content } from '../core/store.js';
 import { icon } from '../components/icon.js';
 import { sectionHead } from '../components/head.js';
@@ -33,10 +33,10 @@ export function mount(root, opts = {}) {
   const list = published(get('testimonials'));
 
   // قسم بلا محتوى لا يُعرض — أفضل من عرضه فارغاً
-  if (!list.length && !opts.editable) { root.replaceChildren(); root.hidden = true; return; }
+  if (!list.length && !opts.editable) { setKids(root,); root.hidden = true; return; }
   root.hidden = false;
 
-  root.replaceChildren(
+  setKids(root,
     sectionHead('testimonials', content('testimonials_title'), content('testimonials_sub'), 'آراء'),
     list.length
       ? el('div', { class: 'bleed' }, [

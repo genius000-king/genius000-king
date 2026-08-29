@@ -104,18 +104,18 @@
   --c-brand:     #0E86B4;
   --c-brand-rgb: 14, 134, 180;
 
-  /* ── الزجاج v2 (تفاصيله في القسم 7) ──
-     الصبغة محايدة تماماً الآن: على خلفية رمادية أي صبغة زرقاء تجعل
-     البلاطة تبدو بلاستيكاً ملوّناً لا زجاجاً. */
-  --glass-tint:        rgba(255, 255, 255, 0.052);
-  --glass-tint-strong: rgba(255, 255, 255, 0.082);
-  --glass-blur:        26px;
-  --glass-blur-soft:   15px;
-  --glass-sat:         150%;
-  --glass-rim:         rgba(255, 255, 255, 0.62);
-  --glass-rim-dim:     rgba(255, 255, 255, 0.10);
-  /* نسيج مجهري داخل الزجاج — المصنفر ليس أملس. 128px بلا حوافّ ظاهرة. */
-  --glass-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23g)' opacity='.05'/%3E%3C/svg%3E");
+  /* ── الزجاج: قيم الوصفة القياسية (انظر القسم 7) ──
+     المدى المتعارف عليه للتمويه 10→20px: أقلّ من ذلك يُقرأ «خارج
+     التركيز» لا «مصنفر»، وأكثر منه يصير ضباباً لا زجاجاً. */
+  --glass-tint:          rgba(255, 255, 255, 0.085);
+  --glass-tint-strong:   rgba(255, 255, 255, 0.14);
+  --glass-border:        rgba(255, 255, 255, 0.18);
+  --glass-border-strong: rgba(255, 255, 255, 0.30);
+  --glass-blur:          14px;
+  --glass-blur-soft:     10px;
+  --glass-sat:           180%;
+  --glass-shadow:        0 8px 32px rgba(0, 0, 0, 0.28);
+  --glass-shadow-lg:     0 16px 48px rgba(0, 0, 0, 0.40);
 
   /* ── الظلال ── */
   --sh-1: 0 1px 2px rgba(0,0,0,.30), 0 2px 6px rgba(0,0,0,.22);
@@ -616,198 +616,86 @@ html:not(.js-ready) .fx-split__unit {
 }
 
 /* ============================================================
-   7 · الزجاج v2
+   7 · الزجاج — الوصفة القياسية المتعارف عليها
 
-   الشفافية ليست زجاجاً. الزجاج ستّ طبقات، كلّ منها تحاكي سلوكاً
-   فيزيائياً مختلفاً للضوء:
+   ⚠️ الإصدار السابق كان وصفة من عندي: ستّ طبقات، حلقة انكسار عند
+      الحدّ، إطار متدرّج مقنَّع بـ mask-composite، ومرشّحة SVG تشوّه
+      الخلفية فعلياً. كانت ثقيلة، وكانت تختلف بين متصفّح وآخر، وشكلها
+      لم يكن زجاجاً معروفاً.
 
-     1  المادة        backdrop-filter: ضبابية + تشبّع + سطوع
-     2  الانكسار      ::before — حلقة عند الحدّ تكسر ما خلفها
-     3  البريق        ::after  — إطار 1px مقنَّع، مضاء من جهة واحدة
-     4  الزيغ اللوني  خطّان ملوّنان بالكاد مرئيّان عند الحدّين
-     5  الحبيبات      نسيج مجهري — المصنفر ليس أملس
-     6  السُّمك       ظلال داخلية وخارجية مركّبة
+   هذه بدلاً منها التركيبة الأربعة القياسية التي تتفق عليها مولّدات
+   الزجاج المعروفة (Glass UI و CSS Portal وغيرها):
 
-   الجديد في v2:
-     · صبغة محايدة تماماً — لا زرقة تصبغ كل شيء
-     · لمعة علوية (::after على .glass__sheen) تعطي إحساس السطح
-     · حدّ داخلي مزدوج: خطّ ساطع فوق وخطّ مظلم تحته يفصل البلاطة
-       عن خلفيتها بلا إطار مرسوم
-     · حالة نشطة عند الضغط — الزجاج يغوص قليلاً
+     1  خلفية rgba بشفافية منخفضة        → الصبغة
+     2  backdrop-filter: blur + saturate  → الصقيع نفسه
+     3  إطار 1px من أبيض شفّاف            → حافّة تلتقط الضوء
+     4  ظلّ ناعم واسع                      → الارتفاع عن السطح
 
-   ⚠️ الإطار المتدرّج لا يُبنى بـ background-clip مع سطح شبه شفاف:
-      mask-composite: exclude هو الطريقة الصحيحة الوحيدة.
+   saturate هو ما يفرّق الزجاج النظيف عن الضبابي: التمويه وحده يسحب
+   ما خلفه نحو الرمادي، والتشبّع يعيد اللون.
    ============================================================ */
 
 .glass {
-  --rim-angle: 158deg;
-  --rim-bright: var(--glass-rim);
-
   position: relative;
-  isolation: isolate;
   border-radius: var(--r-md);
 
-  /* ── 1 · المادة ── */
-  background-color: var(--glass-tint);
-  background-image:
-    radial-gradient(128% 78% at 12% -14%, rgba(255,255,255,.085), transparent 54%),
-    linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0) 26%),
-    var(--glass-grain);
-  background-size: auto, auto, 128px 128px;
-
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(1.08);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(1.08);
-
-  /* ── 4 + 6 · الزيغ اللوني والسُّمك ── */
-  box-shadow:
-    inset 0  1px 0 0 rgba(255, 255, 255, .14),
-    inset 0 -1px 0 0 rgba(0, 0, 0, .28),
-    inset 0  0 26px -12px rgba(255, 255, 255, .18),
-    inset 0 -16px 26px -24px rgba(0, 0, 0, .60),
-    var(--sh-2);
+  background: var(--glass-tint);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 
   transition:
-    background-color var(--t-base) var(--ease-out),
+    background var(--t-base) var(--ease-out),
+    border-color var(--t-base) var(--ease-out),
     box-shadow var(--t-base) var(--ease-out),
-    transform var(--t-fast) var(--ease-out);
+    transform var(--t-base) var(--ease-out);
 }
-
-/* ── 2 · الانكسار ── */
-.glass::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  padding: 12px;
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-          mask-composite: exclude;
-  pointer-events: none;
-}
-
-/* ── 3 · البريق ── */
-.glass::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(
-    var(--rim-angle),
-    var(--rim-bright) 0%,
-    rgba(255, 255, 255, .26) 13%,
-    rgba(255, 255, 255, .07) 32%,
-    rgba(255, 255, 255, .02) 56%,
-    rgba(255, 255, 255, .09) 82%,
-    var(--glass-rim-dim) 100%
-  );
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-          mask-composite: exclude;
-  pointer-events: none;
-  transition: background var(--t-base) var(--ease-out);
-}
-
-.glass > * { position: relative; z-index: 1; }
 
 /* ── الأنواع ── */
 .glass--soft {
   --glass-blur: var(--glass-blur-soft);
-  --rim-bright: rgba(255, 255, 255, .34);
-  background-color: rgba(255, 255, 255, .034);
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, .10),
-    inset 0 0 18px -10px rgba(255, 255, 255, .12),
-    var(--sh-1);
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: var(--sh-1);
 }
-.glass--soft::before { padding: 8px; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
 
 .glass--strong {
-  --glass-blur: 32px;
-  --rim-bright: rgba(255, 255, 255, .72);
-  background-color: var(--glass-tint-strong);
-  box-shadow:
-    inset 0  1px 0 0 rgba(255, 255, 255, .20),
-    inset 0 -1px 0 0 rgba(0, 0, 0, .34),
-    inset 0  0 32px -14px rgba(255, 255, 255, .22),
-    inset 0 -20px 30px -28px rgba(0, 0, 0, .66),
-    var(--sh-4);
+  --glass-blur: 18px;
+  background: var(--glass-tint-strong);
+  border-color: var(--glass-border-strong);
+  box-shadow: var(--glass-shadow-lg);
 }
-.glass--strong::before { padding: 16px; }
 
 .glass--tinted {
-  background-color: rgba(var(--c-accent-rgb), .07);
-  background-image:
-    radial-gradient(128% 78% at 12% -14%, rgba(255,255,255,.10), transparent 52%),
-    linear-gradient(146deg, rgba(var(--c-accent-rgb), .16), rgba(var(--c-accent-2-rgb), .09) 56%, transparent),
-    var(--glass-grain);
-  background-size: auto, auto, 128px 128px;
+  background: rgba(var(--c-accent-rgb), 0.14);
+  border-color: rgba(var(--c-accent-rgb), 0.30);
 }
 
 /* ── التفاعل ── */
-.glass--lift {
-  transition:
-    transform var(--t-base) var(--ease-out),
-    box-shadow var(--t-base) var(--ease-out),
-    background-color var(--t-base) var(--ease-out);
-  will-change: transform;
-}
+.glass--lift { will-change: transform; }
 .glass--lift:hover,
 .glass--lift:focus-visible {
   transform: translate3d(0, -3px, 0);
-  background-color: var(--glass-tint-strong);
-  box-shadow:
-    inset 0  1px 0 0 rgba(255, 255, 255, .24),
-    inset 0 -1px 0 0 rgba(0, 0, 0, .32),
-    inset 0  0 32px -10px rgba(255, 255, 255, .24),
-    inset 0 -20px 30px -28px rgba(0, 0, 0, .62),
-    var(--sh-4),
-    var(--sh-glow-soft);
+  background: var(--glass-tint-strong);
+  border-color: var(--glass-border-strong);
+  box-shadow: var(--glass-shadow-lg);
 }
-.glass--lift:hover { --rim-bright: rgba(255, 255, 255, .84); }
-/* على اللمس: الضغط يغوص بالبلاطة بدل تعليق hover لا يزول */
+/* على اللمس لا يوجد hover يزول: الضغط يغوص بالبلاطة بدل أن تعلق مرفوعة */
 .glass--lift:active { transform: translate3d(0, -1px, 0) scale(.995); }
 
-/* ── بقعة الضوء التي تتبع المؤشر ── */
-.glass--glow > .glass__glow {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--t-base) var(--ease-out);
-  background:
-    radial-gradient(220px circle at var(--gx, 50%) var(--gy, 50%),
-      rgba(255, 255, 255, .10), transparent 62%),
-    radial-gradient(420px circle at var(--gx, 50%) var(--gy, 50%),
-      rgba(var(--c-accent-rgb), .08), transparent 68%);
-}
-.glass--glow:hover > .glass__glow,
-.glass--glow:focus-within > .glass__glow { opacity: 1; }
-
-/* حين يعمل الانكسار الحقيقي عبر feDisplacementMap نُلغي حلقة المحاكاة */
-.glass.is-liquid::before { display: none; }
-
-/* ── الاحتياطات ── */
+/* ── الاحتياطات ──
+   المتصفّح الذي لا يدعم backdrop-filter يحصل على سطح مصمت بنفس
+   الحدّ والظلّ — لا بلاطة شفّافة يقرأ النصّ من خلفها. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass { background-color: color-mix(in srgb, var(--c-surface-2) 94%, transparent); }
-  .glass::before { display: none; }
+  .glass { background: color-mix(in srgb, var(--c-surface-2) 96%, transparent); }
 }
 @media (prefers-reduced-transparency: reduce) {
   .glass {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    background-color: var(--c-surface-2);
-    background-image: var(--glass-grain);
+    background: var(--c-surface-2);
   }
-  .glass::before { display: none; }
 }
 
 /* ============================================================
@@ -833,18 +721,18 @@ html:not(.js-ready) .fx-split__unit {
   isolation: isolate;
   overflow: hidden;
   color: var(--c-text);
-  background: rgba(255, 255, 255, .055);
-  border: 1px solid rgba(255, 255, 255, .10);
-  box-shadow: inset 0 1px 0 0 rgba(255,255,255,.10), var(--sh-1);
+  background: var(--glass-tint);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--sh-1);
   transition:
     transform var(--t-fast) var(--ease-spring),
     background var(--t-fast) var(--ease-out),
     box-shadow var(--t-fast) var(--ease-out),
     border-color var(--t-fast) var(--ease-out);
-  backdrop-filter: blur(14px) saturate(150%);
-  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
 }
-.btn:hover { background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.18); }
+.btn:hover { background: var(--glass-tint-strong); border-color: var(--glass-border-strong); }
 .btn:active { transform: scale(.97); }
 .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
 
@@ -1388,8 +1276,8 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
   overflow-y: auto;
   overscroll-behavior: contain;
   background: rgba(26, 27, 31, .88);
-  backdrop-filter: blur(34px) saturate(150%);
-  -webkit-backdrop-filter: blur(34px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(20px) saturate(var(--glass-sat));
 }
 .nav__menu-link {
   padding: var(--s-4);
@@ -1575,8 +1463,8 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
   color: var(--c-text);
   background: rgba(43, 46, 52, .92);
   border: 1px solid var(--c-line);
-  backdrop-filter: blur(22px) saturate(150%);
-  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(16px) saturate(var(--glass-sat));
   box-shadow: var(--sh-3);
   pointer-events: auto;
   max-inline-size: min(100%, 460px);
@@ -1721,19 +1609,51 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
 .about__title { font-size: var(--fs-h2); }
 .about__text { color: var(--c-text-2); line-height: var(--lh-body); max-inline-size: 52ch; }
 
-.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: var(--s-4); align-content: center; }
-.stat { display: grid; gap: 2px; }
+/* ── الأرقام ──
+   ⚠️ كانت auto-fit مع minmax(96px): داخل بلاطة عرضها ٢٨٠px على الجوال
+      يعطي ذلك عمودين ويترك الرقم الثالث يتيماً في المنتصف بمحاذاة
+      مكسورة. الآن ثلاثة أعمدة متساوية دائماً على الشاشات الواسعة،
+      وصفوف أفقية مقروءة على الجوال. */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-2);
+  align-content: center;
+}
+.stat {
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  text-align: center;
+  padding: var(--s-4) var(--s-2);
+  border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .07);
+}
 .stat__value {
   font-family: var(--font-mono);
-  font-size: clamp(1.6rem, 3.6vw, 2.4rem);
-  font-weight: 600;
-  line-height: 1.05;
+  font-size: clamp(1.45rem, 3.2vw, 2.05rem);
+  font-weight: 700;
+  line-height: 1.15;
   color: var(--c-accent-text);
   font-variant-numeric: tabular-nums;
   direction: ltr;
-  text-align: start;
 }
-.stat__label { font-size: var(--fs-xs); color: var(--c-text-3); }
+.stat__label { font-size: var(--fs-xs); color: var(--c-text-3); line-height: 1.4; }
+
+@media (max-width: 560px) {
+  .stats { grid-template-columns: minmax(0, 1fr); gap: var(--s-2); }
+  .stat {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--s-3);
+    text-align: start;
+    padding: var(--s-3) var(--s-4);
+  }
+  .stat__value { font-size: 1.5rem; }
+  .stat__label { text-align: end; }
+}
 
 /* ── الأعمال ── */
 .works__wall { margin-block-end: var(--s-6); }

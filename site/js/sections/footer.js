@@ -1,5 +1,5 @@
 // footer — بلاطات التواصل + بلاطة العلامة. الروابط الغائبة لا تُرسم.
-import { el } from '../core/dom.js';
+import { el, setKids } from '../core/dom.js';
 import { content } from '../core/store.js';
 import { icon } from '../components/icon.js';
 import { logoImg } from '../components/logo.js';
@@ -32,7 +32,7 @@ export function mount(root, opts = {}) {
 
   const year = new Date().getFullYear();
 
-  root.replaceChildren(
+  setKids(root,
     el('div', { class: 'bento bento--flow', 'data-fx': 'reveal', 'data-fx-children': '.card' }, [
       el('div', { class: 'card footer__brand-tile glass glass--tinted t--half', 'data-fx': 'glass' }, [
         logoImg({ size: 54, cls: 'footer__logo' }),

@@ -1,5 +1,5 @@
 // about — بلاطة تعريف + بلاطة أرقام بعدّاد تصاعدي.
-import { el } from '../core/dom.js';
+import { el, setKids } from '../core/dom.js';
 import { content } from '../core/store.js';
 import { applyEditable } from '../components/editable.js';
 
@@ -20,11 +20,11 @@ function stats() {
 
 export function mount(root, opts = {}) {
   const text = content('about_text');
-  if (!text && !content('about_title')) { root.replaceChildren(); return; }
+  if (!text && !content('about_title')) { setKids(root,); return; }
 
   const list = stats();
 
-  root.replaceChildren(
+  setKids(root,
     el('div', { class: 'bento bento--flow', 'data-fx': 'reveal', 'data-fx-children': '.card' }, [
       el('article', { class: `card about glass glass--lift ${list.length ? 't--wide' : 't--full'}`,
         'data-fx': 'shine glass', 'data-edit-id': 'about.card' }, [

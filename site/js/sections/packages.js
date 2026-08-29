@@ -1,5 +1,5 @@
 // packages — جدار بلاطات البكجات. النقر يفتح لوحة البكج بنظام البينتو.
-import { el, published, emptyState, errorState } from '../core/dom.js';
+import { el, published, emptyState, errorState, setKids } from '../core/dom.js';
 import { get, content, blocksOf, didFail, reload } from '../core/store.js';
 import { openPanel } from '../core/panel.js';
 import { sectionHead } from '../components/head.js';
@@ -38,7 +38,7 @@ export function mount(root, opts = {}) {
   const head = sectionHead('packages', content('packages_title'), content('packages_sub'), 'الحزم');
 
   if (didFail('packages')) {
-    root.replaceChildren(head, el('div', { class: 'bento bento--flow' }, [
+    setKids(root,head, el('div', { class: 'bento bento--flow' }, [
       errorState('تعذّر تحميل البكجات.', async () => {
         await reload('packages').catch(() => {}); mount(root, opts);
       }),
@@ -48,7 +48,7 @@ export function mount(root, opts = {}) {
 
   const list = published(get('packages'));
 
-  root.replaceChildren(
+  setKids(root,
     head,
     opts.editable
       ? el('div', { class: 'bento bento--flow' }, [

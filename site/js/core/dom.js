@@ -71,6 +71,19 @@ export function throttle(fn, ms = 100) {
 
 export function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
 
+/**
+ * يستبدل أبناء عنصر متجاهلاً الفراغات.
+ *
+ * ⚠️ `replaceChildren` الأصلية لا تتجاهل `null`: تحوّلها إلى *نصّ*
+ *    مكتوب فيه «null» يظهر للزائر في الصفحة. وكل قسم هنا يمرّر
+ *    `شرط ? عنصر : null` — فأي قسم بلا محتوى كان يطبع الكلمة.
+ *    هذه الدالة تحلّ ذلك في مكان واحد.
+ */
+export function setKids(node, ...kids) {
+  node.replaceChildren(...kids.flat(Infinity).filter(
+    (k) => k !== null && k !== undefined && k !== false && k !== ''));
+}
+
 /** يصفّي غير المنشور ثم يرتّب بـ `sort`. */
 export function published(rows = []) {
   return rows.filter((r) => r && r.published !== false)

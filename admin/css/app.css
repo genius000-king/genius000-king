@@ -98,12 +98,13 @@
   --a-shadow-2: 0 4px 14px rgba(0,0,0,.34);
   --a-shadow-3: 0 12px 40px rgba(0,0,0,.46);
 
-  /* الزجاج — نفس وصفة الموقع، مضبوطة لكثافة لوحة التحكّم */
-  --a-glass:        rgba(255, 255, 255, .045);
-  --a-glass-strong: rgba(255, 255, 255, .075);
-  --a-glass-blur:   22px;
-  --a-glass-rim:    rgba(255, 255, 255, .55);
-  --a-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23g)' opacity='.04'/%3E%3C/svg%3E");
+  /* الزجاج — الوصفة القياسية نفسها المستعملة في الموقع */
+  --a-glass:        rgba(255, 255, 255, .07);
+  --a-glass-strong: rgba(255, 255, 255, .12);
+  --a-glass-border: rgba(255, 255, 255, .16);
+  --a-glass-blur:   14px;
+  --a-glass-sat:    180%;
+  --a-glass-shadow: 0 8px 32px rgba(0, 0, 0, .26);
 
   --a-font: 'Cairo', 'Noto Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --a-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
@@ -153,8 +154,9 @@
   --a-shadow-2: 0 4px 14px rgba(16,24,39,.09);
   --a-shadow-3: 0 12px 40px rgba(16,24,39,.16);
   --a-glass:        rgba(255, 255, 255, .62);
-  --a-glass-strong: rgba(255, 255, 255, .78);
-  --a-glass-rim:    rgba(255, 255, 255, .9);
+  --a-glass-strong: rgba(255, 255, 255, .80);
+  --a-glass-border: rgba(255, 255, 255, .85);
+  --a-glass-shadow: 0 8px 32px rgba(16, 24, 39, .10);
 }
 
 /* ============================================================
@@ -246,36 +248,27 @@ button { cursor: pointer; }
 }
 
 /* ============================================================
-   4 · الزجاج — نفس لغة الموقع
+   4 · الزجاج — نفس الوصفة القياسية المستعملة في الموقع
 
-   اللوحة في v1 كانت ألواحاً مصمتة بلا أي علاقة بالموقع. الآن
-   الأسطح الرئيسية (الشريطان، البطاقات، الأدراج، المودال) زجاج
-   بنفس الوصفة: مادة + بريق حافّة + حبيبات.
+   خلفية rgba + backdrop-filter (blur + saturate) + إطار 1px + ظلّ.
+   لا حبيبات ولا حلقة انكسار ولا مرشّحات SVG: تلك كانت وصفة من عندنا،
+   وهذه هي المتعارف عليها.
    ============================================================ */
 
 .glass-surface {
   position: relative;
-  isolation: isolate;
-  background-color: var(--a-glass);
-  background-image: var(--a-grain);
-  background-size: 128px 128px;
-  backdrop-filter: blur(var(--a-glass-blur)) saturate(150%) brightness(1.06);
-  -webkit-backdrop-filter: blur(var(--a-glass-blur)) saturate(150%) brightness(1.06);
-  box-shadow:
-    inset 0 1px 0 0 rgba(255,255,255,.10),
-    inset 0 -1px 0 0 rgba(0,0,0,.22);
-}
-:root[data-theme="light"] .glass-surface {
-  box-shadow:
-    inset 0 1px 0 0 rgba(255,255,255,.9),
-    inset 0 -1px 0 0 rgba(16,24,39,.05);
+  background: var(--a-glass);
+  backdrop-filter: blur(var(--a-glass-blur)) saturate(var(--a-glass-sat));
+  -webkit-backdrop-filter: blur(var(--a-glass-blur)) saturate(var(--a-glass-sat));
+  border: 1px solid var(--a-glass-border);
+  box-shadow: var(--a-glass-shadow);
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass-surface { background-color: var(--a-panel); }
+  .glass-surface { background: var(--a-panel); }
 }
 @media (prefers-reduced-transparency: reduce) {
-  .glass-surface { backdrop-filter: none; -webkit-backdrop-filter: none; background-color: var(--a-panel); }
+  .glass-surface { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--a-panel); }
 }
 
 /* ============================================================
@@ -481,22 +474,19 @@ button { cursor: pointer; }
 /* ── البطاقة — زجاج خفيف بدل لوح مصمت ── */
 .card {
   position: relative;
-  isolation: isolate;
-  background-color: var(--a-glass);
-  background-image: var(--a-grain);
-  background-size: 128px 128px;
-  backdrop-filter: blur(var(--a-glass-blur)) saturate(150%) brightness(1.05);
-  -webkit-backdrop-filter: blur(var(--a-glass-blur)) saturate(150%) brightness(1.05);
-  border: 1px solid var(--a-line);
+  background: var(--a-glass);
+  backdrop-filter: blur(var(--a-glass-blur)) saturate(var(--a-glass-sat));
+  -webkit-backdrop-filter: blur(var(--a-glass-blur)) saturate(var(--a-glass-sat));
+  border: 1px solid var(--a-glass-border);
   border-radius: var(--a-r);
   padding: var(--a-5);
   display: grid;
   gap: var(--a-3);
   align-content: start;
-  box-shadow: inset 0 1px 0 0 rgba(255,255,255,.07), var(--a-shadow-1);
+  box-shadow: var(--a-glass-shadow);
   min-inline-size: 0;
 }
-:root[data-theme="light"] .card { background-color: var(--a-panel); }
+:root[data-theme="light"] .card { background: var(--a-panel); border-color: var(--a-line); }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .card { background-color: var(--a-panel); }
 }
