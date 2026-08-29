@@ -14,11 +14,24 @@ import loop from './loop.js';
 import prefs from './prefs.js';
 import { on, debounce } from '../core/dom.js';
 
-const SPRING   = 0.055;
-const FRICTION = 0.86;
-const REPEL    = 46;
+// ⚠️ لا نستخدم نابضاً هنا. النسخة الأولى كانت نابضاً (SPRING مع
+//    FRICTION) فتذبذبَ ولم يستقرّ: قياسٌ حيّ أظهر متوسط البعد عن الموطن
+//    يهبط 80←8.6 ثم يرتدّ 36.9←17.9، لأن النابض شبه المخمَّد يعيد ضخّ
+//    الطاقة كل دورة. فبقي الشعار نقاطاً بلا رجوع.
+//
+//    البديل: تقارب أسّي خالص نحو الموطن — بلا تجاوز وبلا تذبذب ووصولٌ
+//    مضمون. RETURN هو الزمن (ث) الذي يقطع فيه الجسيم 99.85% من المسافة،
+//    وهو مستقلّ عن معدّل الإطارات لأنه محسوب من dt. السرعة vx/vy لم تعد
+//    تحمل إلا دفعة النفور، وتتلاشى وحدها.
+const RETURN   = 0.55;      // ث — زمن العودة إلى الموطن
+const RESIDUAL = 0.0015;    // ما يتبقّى من المسافة بعد RETURN
+const FRICTION = 0.86;      // تلاشي دفعة النفور (لكل 1/60 ث)
+const REPEL    = 52;        // قوة النفور المستمرّ تحت المؤشّر
 const REPEL_R  = 130;
-const SETTLE   = 0.55;      // متوسط السرعة الذي نعتبره «استقراراً»
+const BURST    = 190;       // دفعة اللمسة الواحدة
+const SETTLE_D = 1.2;       // متوسط البعد (px) الذي نعتبره وصولاً
+const MIN_FX   = 520;       // أقلّ زمن تبقى فيه الجسيمات ظاهرة بعد الإشعال
+const MAX_FX   = 2600;      // سقف: الصورة الحادّة تعود مهما حدث
 const FADE     = 260;       // مدة التبديل بين الصورة والجسيمات
 
 const PALETTE = ['#E8EDF5', '#FFFFFF', '#12A5D4', '#0E86B4', '#9AA8BC'];
@@ -37,6 +50,7 @@ export default {
 
     const ctx = canvas.getContext('2d');
     let P = [], W = 0, H = 0, running = false, unsub = null, state = 'rest';
+    let fxSince = 0, holdUntil = 0;
     const mouse = { x: -9999, y: -9999, on: false };
 
     const size = () => {
@@ -59,7 +73,9 @@ export default {
       const octx = off.getContext('2d', { willReadFrequently: true });
       off.width = W; off.height = H;
 
-      const scale = Math.min(W / img.naturalWidth, H / img.naturalHeight) * 0.86;
+      // يطابق object-fit: contain تماماً — أي انكماش هنا يجعل الشعار
+      // «يقفز» حجمُه لحظة التبديل بين الصورة والجسيمات.
+      const scale = Math.min(W / img.naturalWidth, H / img.naturalHeight);
       const dw = img.naturalWidth * scale, dh = img.naturalHeight * scale;
       octx.drawImage(img, (W - dw) / 2, (H - dh) / 2, dw, dh);
       const px = octx.getImageData(0, 0, W, H).data;
@@ -75,11 +91,12 @@ export default {
         if (n <= target) break;
       }
 
+      const spread = Math.max(60, Math.min(W, H) * 0.55);
       for (let y = 0; y < H; y += step) {
         for (let x = 0; x < W; x += step) {
           if (px[(y * W + x) * 4 + 3] <= 130) continue;
           const a = Math.random() * Math.PI * 2;
-          const d = 90 + Math.random() * 220;
+          const d = spread * (0.35 + Math.random() * 0.65);
           P.push({
             hx: x, hy: y,
             x: x + Math.cos(a) * d, y: y + Math.sin(a) * d,
@@ -98,28 +115,30 @@ export default {
       host.dataset.state = s;                 // CSS يتولّى التلاشي
     };
 
-    const frame = () => {
+    const frame = (dt) => {
       if (!P.length) return;
       ctx.clearRect(0, 0, W, H);
-      let speed = 0;
+
+      const step = Math.min(dt || 0.016, 0.05);
+      const pull = 1 - Math.pow(RESIDUAL, step / RETURN);   // نحو الموطن
+      const drag = Math.pow(FRICTION, step * 60);           // تلاشي الدفعة
+      let dist = 0;
 
       for (const p of P) {
-        p.vx += (p.hx - p.x) * SPRING;
-        p.vy += (p.hy - p.y) * SPRING;
-
         if (mouse.on) {
           const dx = p.x - mouse.x, dy = p.y - mouse.y;
           const d2 = dx * dx + dy * dy;
           if (d2 < REPEL_R * REPEL_R && d2 > 0.01) {
             const d = Math.sqrt(d2);
-            const f = (1 - d / REPEL_R) * REPEL / d;
+            const f = (1 - d / REPEL_R) * REPEL / d * step * 60;
             p.vx += dx * f; p.vy += dy * f;
           }
         }
 
-        p.vx *= FRICTION; p.vy *= FRICTION;
-        p.x += p.vx; p.y += p.vy;
-        speed += Math.abs(p.vx) + Math.abs(p.vy);
+        p.x += (p.hx - p.x) * pull + p.vx * step * 60;
+        p.y += (p.hy - p.y) * pull + p.vy * step * 60;
+        p.vx *= drag; p.vy *= drag;
+        dist += Math.abs(p.hx - p.x) + Math.abs(p.hy - p.y);
 
         ctx.fillStyle = p.c;
         ctx.beginPath();
@@ -127,8 +146,12 @@ export default {
         ctx.fill();
       }
 
-      // استقرّت؟ نعيد الصورة الحادّة ونوقف الرسم
-      if (!mouse.on && speed / P.length < SETTLE) {
+      // وصلت بيوتها؟ نعيد الصورة الحادّة ونوقف الرسم. نقيس البعد لا
+      // السرعة: السرعة تهدأ والجسيم بعيد. و MIN_FX يضمن أن اللمسة تُرى
+      // ولو ارتدّ المؤشّر فوراً، و MAX_FX ضمانة ألّا يعلق نقاطاً أبداً.
+      const now = performance.now();
+      const done = dist / P.length < SETTLE_D && now > holdUntil;
+      if (!mouse.on && (done || now - fxSince > MAX_FX)) {
         setState('rest');
         setTimeout(stop, FADE);
       }
@@ -137,7 +160,24 @@ export default {
     const start = () => { if (!running) { running = true; unsub = loop.add(frame); } };
     const stop  = () => { if (running && state === 'rest') { running = false; unsub?.(); unsub = null; ctx.clearRect(0,0,W,H); } };
 
-    const wake = () => { setState('fx'); start(); };
+    const wake = () => {
+      fxSince = performance.now();
+      holdUntil = Math.max(holdUntil, fxSince + MIN_FX);
+      setState('fx'); start();
+    };
+
+    /** لمسة واحدة: دفعة شعاعية فورية — لا تعتمد على بقاء المؤشّر. */
+    const burst = (cx, cy) => {
+      const R = REPEL_R * 1.5;
+      for (const p of P) {
+        const dx = p.x - cx, dy = p.y - cy;
+        const d = Math.hypot(dx, dy);
+        if (d > R || d < 0.01) continue;
+        const f = (1 - d / R) * BURST / d / 60;
+        p.vx += dx * f; p.vy += dy * f;
+      }
+      wake();
+    };
 
     const onResize = debounce(() => { size(); build(); if (state === 'fx') start(); }, 200);
 
@@ -151,12 +191,12 @@ export default {
         if (state !== 'fx') wake();
       }, { passive: true }),
       on(host, 'pointerleave', () => { mouse.on = false; }),
-      // على اللمس: لمسة واحدة تُشعل التأثير ثم يعود وحده
+      // ⚠️ على اللمس تُطلق المتصفّحات pointerleave فور رفع الإصبع، فلو
+      //    اعتمدنا على mouse.on المستمرّ لانطفأ التأثير قبل أن يُرى.
+      //    لذلك اللمسة دفعة فورية مستقلّة عن بقاء المؤشّر.
       on(host, 'pointerdown', (e) => {
         const r = canvas.getBoundingClientRect();
-        mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
-        mouse.on = true; wake();
-        setTimeout(() => { mouse.on = false; }, 620);
+        burst(e.clientX - r.left, e.clientY - r.top);
       }),
     ];
 

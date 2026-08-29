@@ -34,8 +34,10 @@
 
 .logo-mark {
   position: relative;
-  inline-size: clamp(160px, 42vw, 300px);
-  aspect-ratio: 1;
+  /* الشعار المصدر 577×571. نُبقي الصندوق ≤ 300px حتى لا تتجاوز شاشةُ
+     2× دقّةَ الملف الأصلية — أي بلا تكبير يفقده حدّته. */
+  inline-size: min(58vw, 260px);
+  aspect-ratio: 577 / 571;
   touch-action: manipulation;
 }
 
@@ -115,7 +117,7 @@
   }
   .hero__copy { justify-items: start; max-inline-size: none; }
   .hero__mark { order: 0; justify-self: center; inline-size: 100%; }
-  .logo-mark { inline-size: min(100%, 340px); }
+  .logo-mark { inline-size: min(100%, 288px); }
   .hero__actions { justify-content: flex-start; inline-size: auto; }
   .hero__sub { max-inline-size: 36ch; }
   .hero__title { max-inline-size: 13ch; }
@@ -125,14 +127,23 @@
 @media (max-width: 640px) {
   #hero {
     min-block-size: auto;
-    padding-block: var(--s-5) var(--s-7);
+    padding-block: var(--s-4) var(--s-7);
   }
-  .hero { inline-size: min(100% - (2 * var(--s-4)), var(--container)); }
-  .hero__title { letter-spacing: -.022em; }
-  .hero__actions { flex-direction: column; gap: var(--s-2); }
+  .hero {
+    inline-size: min(100% - (2 * var(--s-4)), var(--container));
+    gap: var(--s-4);            /* الشعار قريب من نصّه، لا فراغ يفصلهما */
+  }
+  .hero__badge  { margin-block-end: var(--s-3); }
+  .hero__title  { letter-spacing: -.022em; }
+  .hero__sub    { margin-block-start: var(--s-3); font-size: 1rem; }
+  .hero__actions {
+    flex-direction: column;
+    gap: var(--s-2);
+    margin-block-start: var(--s-5);
+  }
   .hero__actions .btn { inline-size: 100%; }
 }
 
 @media (max-width: 380px) {
-  .logo-mark { inline-size: clamp(140px, 46vw, 190px); }
+  .logo-mark { inline-size: min(56vw, 190px); }
 }
