@@ -1,0 +1,48 @@
+/* process.css — خط زمني: عمودي على الجوال، أفقي على سطح المكتب. */
+.process { position: relative; }
+.process__list {
+  display: grid;
+  grid-template-columns: repeat(var(--steps, 4), minmax(0, 1fr));
+  gap: var(--bento-gap);
+  position: relative;
+}
+.process__line {
+  position: absolute;
+  inset-inline: 6%;
+  inset-block-start: 22px;
+  block-size: 2px;
+  overflow: visible;
+  z-index: 0;
+}
+.process__line path {
+  stroke-dasharray: var(--len, 1000);
+  stroke-dashoffset: var(--off, 1000);
+}
+.step {
+  position: relative;
+  display: grid;
+  gap: var(--s-2);
+  padding: var(--s-5) var(--s-4);
+  border-radius: var(--r-md);
+  z-index: 1;
+}
+.step__num {
+  inline-size: 44px;
+  block-size: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--c-on-accent);
+  background: linear-gradient(140deg, var(--c-accent), var(--c-accent-2));
+  box-shadow: 0 4px 14px rgba(var(--c-accent-rgb), .34);
+}
+.step__title { font-size: var(--fs-card); }
+
+@media (max-width: 900px) {
+  .process__list { grid-template-columns: minmax(0, 1fr); }
+  .process__line { display: none; }
+  .step { grid-template-columns: auto minmax(0, 1fr); align-items: start; column-gap: var(--s-4); }
+  .step__num { grid-row: span 2; }
+}

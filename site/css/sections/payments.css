@@ -1,0 +1,11 @@
+/* payments.css — بلاطات طرق الدفع. عرض بحت: صفر منطق دفع. */
+.pay {
+  display: grid;
+  place-items: center;
+  gap: var(--s-2);
+  padding: var(--s-4);
+  min-block-size: 96px;
+}
+.pay__logo { max-inline-size: 78%; max-block-size: 46px; object-fit: contain; }
+.pay__name { font-size: var(--fs-xs); color: var(--c-text-3); }
+.pay__note { grid-column: 1 / -1; font-size: var(--fs-sm); color: var(--c-text-3); text-align: center; }

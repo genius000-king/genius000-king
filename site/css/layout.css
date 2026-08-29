@@ -1,0 +1,158 @@
+/* ============================================================
+   layout.css — الحاويات والبينتو ونقاط التوقف.
+
+   🔒 قاعدة الحديد (السطران اللذان يمنعان انفجار العرض):
+      كل عمود شبكة يُكتب minmax(0, 1fr) — لا 1fr مجرّدة.
+      كل عنصر شبكة يأخذ min-inline-size: 0.
+   بلا هذين السطرين يتسرّب max-content من أي شريط أفقي إلى المستند كله.
+   ============================================================ */
+
+.container {
+  inline-size: min(100% - (2 * var(--s-5)), var(--container));
+  margin-inline: auto;
+}
+
+.measure { max-inline-size: var(--measure); }
+
+/* كسر العرض الكامل — آمن مع شريط التمرير */
+.bleed {
+  inline-size: 100vw;
+  max-inline-size: 100vw;
+  margin-inline: calc(50% - 50vw);
+  overflow: clip;
+}
+@supports (width: 100dvw) {
+  .bleed { inline-size: 100dvw; max-inline-size: 100dvw; margin-inline: calc(50% - 50dvw); }
+}
+
+.section {
+  padding-block: var(--s-9);
+  position: relative;
+}
+.section > * { position: relative; }
+
+.section__head {
+  /* الترويسة تعيش داخل نفس حاوية البينتو — بلا هذا تتجاوز حافة الشاشة */
+  inline-size: min(100% - (2 * var(--s-5)), var(--container));
+  margin-inline: auto;
+  margin-block-end: var(--s-6);
+  display: grid;
+  gap: var(--s-2);
+  justify-items: start;
+}
+.section__head > * { max-inline-size: var(--measure); }
+.section__label {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--c-accent-text);
+}
+.section__title { font-size: var(--fs-h1); line-height: var(--lh-tight); }
+.section__sub   { color: var(--c-text-2); font-size: var(--fs-body); }
+
+/* ============================================================
+   البينتو — الشبكة المركزية التي يعيش فيها كل شيء
+   ============================================================ */
+
+.bento {
+  inline-size: min(100% - (2 * var(--s-5)), var(--container));
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: repeat(var(--bento-cols), minmax(0, 1fr));
+  grid-auto-rows: var(--bento-unit);
+  grid-auto-flow: row dense;
+  gap: var(--bento-gap);
+  align-items: stretch;
+}
+
+/* 🔒 الحصانة البنيوية */
+.bento > *,
+.grid > * {
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+
+/* بينتو بارتفاع حرّ — للأقسام النصّية التي يحدّد محتواها ارتفاعها */
+.bento--flow { grid-auto-rows: minmax(var(--bento-unit), auto); }
+
+/* ── مقاسات البلاطات ── */
+.t--full { grid-column: span 12; }
+.t--hero { grid-column: span 7;  grid-row: span 2; }
+.t--five { grid-column: span 5;  grid-row: span 2; }
+.t--wide { grid-column: span 6; }
+.t--wide-tall { grid-column: span 6; grid-row: span 2; }
+.t--tall { grid-column: span 3;  grid-row: span 2; }
+.t--portrait { grid-column: span 3; grid-row: span 3; }
+.t--box  { grid-column: span 3; }
+.t--half { grid-column: span 6; }
+.t--third { grid-column: span 4; }
+.t--third-tall { grid-column: span 4; grid-row: span 2; }
+.t--mini { grid-column: span 2; }
+.t--quarter { grid-column: span 3; }
+
+/* شبكة عامة تقرأ --cols من جدول layout في القاعدة */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 1), minmax(0, 1fr));
+  gap: var(--gap, var(--bento-gap));
+  align-items: var(--align-items, stretch);
+}
+
+#page { display: flex; flex-direction: column; }
+
+/* ============================================================
+   نقاط التوقف الستّ
+   ============================================================ */
+
+@media (max-width: 1440px) {
+  :root { --container: 1180px; }
+}
+
+@media (max-width: 1024px) {
+  :root { --bento-cols: 8; }
+  .t--full, .t--hero, .t--five { grid-column: span 8; }
+  .t--wide, .t--wide-tall { grid-column: span 8; }
+  .t--tall { grid-column: span 4; grid-row: span 2; }
+  .t--portrait { grid-column: span 4; grid-row: span 3; }
+  .t--box, .t--third, .t--half, .t--quarter { grid-column: span 4; }
+  .t--third-tall { grid-column: span 4; grid-row: span 2; }
+  .t--mini { grid-column: span 2; }
+  .grid { grid-template-columns: repeat(min(var(--cols, 1), 2), minmax(0, 1fr)); }
+}
+
+@media (max-width: 768px) {
+  .section { padding-block: var(--s-8); }
+  .t--wide-tall { grid-row: span 1; }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --bento-cols: 4;
+    --bento-unit: clamp(76px, 22vw, 108px);
+  }
+  .container,
+  .bento,
+  .section__head { inline-size: min(100% - (2 * var(--s-4)), var(--container)); }
+  .section { padding-block: var(--s-7); }
+  .grid { grid-template-columns: minmax(0, 1fr); }
+
+  .t--full, .t--hero, .t--five, .t--wide, .t--wide-tall { grid-column: span 4; }
+  .t--hero { grid-row: span 2; }
+  .t--five { grid-row: span 1; }
+  .t--tall { grid-column: span 2; grid-row: span 2; }
+  .t--portrait { grid-column: span 2; grid-row: span 3; }
+  .t--box, .t--third, .t--half, .t--quarter, .t--mini { grid-column: span 2; }
+  .t--third-tall { grid-column: span 2; grid-row: span 2; }
+}
+
+@media (max-width: 480px) {
+  .t--box, .t--third, .t--half, .t--quarter { grid-column: span 4; }
+  .t--tall, .t--third-tall, .t--portrait { grid-column: span 2; }
+}
+
+@media (max-width: 360px) {
+  :root { --bento-gap: 8px; }
+  .t--tall, .t--third-tall, .t--mini { grid-column: span 4; grid-row: span 1; }
+  .t--portrait { grid-column: span 4; grid-row: span 3; }
+}

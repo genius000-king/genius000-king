@@ -1,0 +1,142 @@
+/* ============================================================
+   tokens.css — المصدر الوحيد لكل قيمة بصرية في الموقع.
+   جدول `theme` في القاعدة يحقن أي متغيّر هنا على :root فيتجاوزه.
+   ❌ لا تكتب لوناً أو مسافة أو مقاساً في أي ملف آخر.
+   ============================================================ */
+
+:root {
+  color-scheme: dark;
+
+  /* ── الأسطح: خمسة مستويات ── */
+  --c-bg:        #060912;
+  --c-bg-2:      #080D1A;
+  --c-surface-1: #0C1220;
+  --c-surface-2: #121A2B;
+  --c-surface-3: #1A2540;
+  --c-line:      #24314E;
+  --c-line-soft: #162034;
+
+  /* ── النص ── */
+  --c-text:      #EAF0FF;
+  --c-text-2:    rgba(234, 240, 255, 0.72);
+  --c-text-3:    rgba(234, 240, 255, 0.46);
+
+  /* ── الهوية: أزرق + بنفسجي + دافئ ── */
+  --c-accent:      #3B6EF6;
+  --c-accent-rgb:  59, 110, 246;
+  --c-accent-text: #7FA6FF;          /* 7.4:1 على الخلفية */
+  --c-accent-2:    #7C5CFF;
+  --c-accent-2-rgb: 124, 92, 255;
+  --c-warm:        #FF8A4C;
+  --c-success:     #34D399;
+  --c-danger:      #FF6B6B;
+  --c-on-accent:   #FFFFFF;
+
+  /* لون شعار الاستوديو — مأخوذ من قطرة الفرشاة */
+  --c-brand:     #0E86B4;
+  --c-brand-rgb: 14, 134, 180;
+
+  /* ── الزجاج الحقيقي (تفاصيله في glass.css) ── */
+  --glass-tint:        rgba(186, 214, 255, 0.055);   /* صبغة مائلة للأزرق لا رمادية */
+  --glass-tint-strong: rgba(186, 214, 255, 0.075);
+  --glass-blur:        28px;
+  --glass-blur-soft:   16px;
+  --glass-sat:         180%;
+  --glass-rim:         rgba(255, 255, 255, 0.58);
+  --glass-rim-dim:     rgba(255, 255, 255, 0.13);
+  --glass-inner-lo:    rgba(0, 0, 0, 0.34);
+  /* نسيج مجهري داخل الزجاج — المصنفر ليس أملس. 128px بلا حوافّ ظاهرة. */
+  --glass-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23g)' opacity='.045'/%3E%3C/svg%3E");
+
+  /* ── الظلال ── */
+  --sh-1: 0 1px 2px rgba(0,0,0,.28), 0 2px 6px rgba(0,0,0,.20);
+  --sh-2: 0 2px 6px rgba(0,0,0,.24), 0 10px 26px rgba(0,0,0,.30);
+  --sh-3: 0 4px 12px rgba(0,0,0,.28), 0 18px 48px rgba(0,0,0,.38);
+  --sh-4: 0 8px 24px rgba(0,0,0,.34), 0 34px 88px rgba(0,0,0,.46);
+  --sh-glow:      0 0 44px rgba(var(--c-accent-rgb), .28);
+  --sh-glow-soft: 0 0 26px rgba(var(--c-accent-rgb), .15);
+
+  /* ── الطباعة ── */
+  --font-base: 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', monospace;
+  --fs-scale: 1;
+  --fs-mega:    calc(clamp(2.5rem, 5.4vw, 4.5rem)  * var(--fs-scale));
+  --fs-display: calc(clamp(1.95rem, 3.9vw, 3.1rem)  * var(--fs-scale));
+  --fs-h1:      calc(clamp(1.65rem, 3.0vw, 2.35rem) * var(--fs-scale));
+  --fs-h2:      calc(clamp(1.38rem, 2.3vw, 1.78rem) * var(--fs-scale));
+  --fs-h3:      calc(clamp(1.15rem, 1.7vw, 1.35rem) * var(--fs-scale));
+  --fs-card:    calc(clamp(1.02rem, 1.4vw, 1.14rem) * var(--fs-scale));
+  --fs-lead:    calc(clamp(1.05rem, 1.5vw, 1.2rem)  * var(--fs-scale));
+  --fs-body:    calc(clamp(0.96rem, 1.1vw, 1.02rem) * var(--fs-scale));
+  --fs-sm:      calc(0.885rem * var(--fs-scale));
+  --fs-xs:      calc(0.78rem * var(--fs-scale));
+
+  /* أطوال أسطر سياقية — لا 1.8 للجميع */
+  --lh-mega:  1.02;
+  --lh-tight: 1.14;
+  --lh-head:  1.3;
+  --lh-body:  1.72;
+  --lh-ui:    1.4;
+
+  --tracking-tight: -0.02em;
+  --tracking-label: 0.14em;
+
+  /* ── المسافات ── */
+  --s-scale: 1;
+  --s-1: calc(4px  * var(--s-scale));
+  --s-2: calc(8px  * var(--s-scale));
+  --s-3: calc(12px * var(--s-scale));
+  --s-4: calc(16px * var(--s-scale));
+  --s-5: calc(24px * var(--s-scale));
+  --s-6: calc(32px * var(--s-scale));
+  --s-7: calc(48px * var(--s-scale));
+  --s-8: calc(72px * var(--s-scale));
+  --s-9: calc(96px * var(--s-scale));
+
+  /* ── نصف الأقطار — بلاطات لا بطاقات ── */
+  --r-xs: 10px;
+  --r-sm: 14px;
+  --r-md: 22px;
+  --r-lg: 30px;
+  --r-xl: 40px;
+  --r-full: 999px;
+
+  /* ── الحركة ── */
+  --t-fast:  0.18s;
+  --t-base:  0.32s;
+  --t-slow:  0.6s;
+  --t-slower: 0.9s;
+  --ease-out:    cubic-bezier(.16, 1, .3, 1);
+  --ease-spring: cubic-bezier(.34, 1.42, .5, 1);
+  --ease-in-out: cubic-bezier(.65, 0, .35, 1);
+
+  /* ── التخطيط ── */
+  --container: 1320px;
+  --measure: 66ch;
+  --nav-h: 66px;
+
+  /* ── البينتو ── */
+  --bento-cols: 12;
+  --bento-gap: clamp(10px, 1.3vw, 18px);
+  --bento-unit: clamp(84px, 10.5vw, 132px);
+
+  /* ── المؤثرات ── */
+  --fx-intensity: 1;
+  --fx-marquee-speed: 26;
+
+  /* ── الطبقات ── */
+  --z-bg: -3;
+  --z-grid: -2;
+  --z-grain: -1;
+  --z-totop: 100;
+  --z-menu: 200;
+  --z-nav: 300;
+  --z-progress: 310;
+  --z-panel: 400;
+  --z-lightbox: 500;
+  --z-toast: 600;
+  --z-cursor: 700;
+  --z-preloader: 800;
+}
+
+/* نقاط التوقف الستّ: 360 · 480 · 640 · 768 · 1024 · 1440 */

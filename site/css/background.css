@@ -1,0 +1,121 @@
+/* ============================================================
+   background.css — الخلفية الحيّة خلف الزجاج.
+
+   الزجاج لا يُرى إلا بما خلفه. خلفية مسطّحة تجعل أفضل زجاج يبدو
+   لوحاً رمادياً. لذلك خلف كل بلاطة طبقتان تستحقّان التمويه:
+
+     · أشكال هندسية مضلّعة بوجهين — حوافّ حادّة تنكسر خلف الزجاج
+     · كتل لونية ناعمة — تذوب فتعطي التدرّج اللوني الذي يميّز الزجاج
+
+   الكل CSS خالص: صفر صور، صفر canvas، صفر JavaScript.
+   ============================================================ */
+
+#bg {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-bg);
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+
+/* ── الكتل الناعمة: ما يعطي الزجاج لونه ── */
+.bg-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(64px);
+  opacity: .72;
+  will-change: transform;
+  animation: drift var(--dur, 40s) var(--ease-in-out) infinite alternate;
+  animation-delay: var(--delay, 0s);
+}
+.bg-blob--1 {
+  inline-size: 46vw; aspect-ratio: 1.2;
+  inset-block-start: -8%; inset-inline-end: -6%;
+  background: radial-gradient(circle at 40% 40%, rgba(var(--c-accent-rgb), .55), transparent 68%);
+  --dur: 44s;
+}
+.bg-blob--2 {
+  inline-size: 38vw; aspect-ratio: .9;
+  inset-block-start: 22%; inset-inline-start: -10%;
+  background: radial-gradient(circle at 55% 45%, rgba(var(--c-accent-2-rgb), .45), transparent 66%);
+  --dur: 52s; --delay: -8s;
+}
+.bg-blob--3 {
+  inline-size: 52vw; aspect-ratio: 1.4;
+  inset-block-end: -14%; inset-inline-start: 18%;
+  background: radial-gradient(circle at 50% 50%, rgba(var(--c-brand-rgb), .34), transparent 70%);
+  --dur: 60s; --delay: -20s;
+}
+.bg-blob--4 {
+  inline-size: 30vw; aspect-ratio: 1;
+  inset-block-start: 58%; inset-inline-end: 6%;
+  background: radial-gradient(circle at 45% 55%, rgba(var(--c-accent-rgb), .40), transparent 64%);
+  --dur: 38s; --delay: -14s;
+}
+
+/* ── الأشكال المضلّعة: الحوافّ الحادّة التي ينكسر عليها الزجاج ──
+   كل شكل وجهان: تدرّج بحدّ صلب عند 50% يصنع خطّ الطيّة، فيقرأ الشكل
+   مجسَّماً لا مسطّحاً. */
+.bg-shard {
+  position: absolute;
+  will-change: transform;
+  animation: float var(--dur, 26s) var(--ease-in-out) infinite alternate;
+  animation-delay: var(--delay, 0s);
+  opacity: var(--op, .9);
+}
+.bg-shard::before,
+.bg-shard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+/* الوجه المضيء */
+.bg-shard::before {
+  clip-path: polygon(50% 0%, 100% 38%, 50% 100%, 0% 38%);
+  box-shadow: inset 0 0 0 1px rgba(var(--c-accent-rgb), .30);
+  background: linear-gradient(145deg,
+    color-mix(in srgb, var(--c-accent) 58%, var(--c-bg)) 0%,
+    color-mix(in srgb, var(--c-accent) 22%, var(--c-bg)) 100%);
+}
+/* الوجه الظليل — نصف الشكل، فيظهر خطّ الطيّة */
+.bg-shard::after {
+  clip-path: polygon(50% 0%, 100% 38%, 50% 100%);
+  background: linear-gradient(200deg,
+    color-mix(in srgb, var(--c-accent-2) 42%, #000) 0%,
+    color-mix(in srgb, var(--c-bg) 88%, #000) 100%);
+}
+
+.bg-shard--1 { inline-size: 15vw; aspect-ratio: .82; inset-block-start:  6%; inset-inline-end: 12%; rotate:  14deg; --dur: 28s; --op: 1; }
+.bg-shard--2 { inline-size: 10vw; aspect-ratio: .78; inset-block-start: 30%; inset-inline-end: 34%; rotate: -22deg; --dur: 34s; --delay: -6s; --op: .858; }
+.bg-shard--3 { inline-size: 19vw; aspect-ratio: .86; inset-block-start: 46%; inset-inline-start:  4%; rotate:  32deg; --dur: 40s; --delay: -12s; --op: .92; }
+.bg-shard--4 { inline-size: 12vw; aspect-ratio: .8;  inset-block-end:   10%; inset-inline-end: 20%; rotate: -10deg; --dur: 30s; --delay: -18s; --op: .7; }
+.bg-shard--5 { inline-size:  8vw; aspect-ratio: .76; inset-block-start: 72%; inset-inline-start: 34%; rotate:  46deg; --dur: 24s; --delay: -4s; --op: .68; }
+.bg-shard--6 { inline-size: 14vw; aspect-ratio: .84; inset-block-start: 88%; inset-inline-end:  6%; rotate:  -6deg; --dur: 36s; --delay: -22s; --op: .74; }
+
+@keyframes drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(3%, -3%, 0) scale(1.08); }
+  100% { transform: translate3d(-3%, 4%, 0) scale(1.02); }
+}
+@keyframes float {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg); }
+  100% { transform: translate3d(0, -7%, 0) rotate(7deg); }
+}
+
+/* على الجوال: أشكال أقل وتمويه أخفّ — الأداء أهمّ من الزينة */
+@media (max-width: 640px) {
+  .bg-blob { filter: blur(52px); opacity: .5; }
+  .bg-shard--2, .bg-shard--5, .bg-shard--6 { display: none; }
+  .bg-shard { --op: .5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-blob, .bg-shard { animation: none; }
+}
+
+/* شفافية مخفّضة: نُبقي الألوان ونحذف التمويه الثقيل */
+@media (prefers-reduced-transparency: reduce) {
+  .bg-shard { display: none; }
+  .bg-blob { filter: blur(90px); opacity: .35; }
+}

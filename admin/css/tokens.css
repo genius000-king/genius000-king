@@ -1,0 +1,80 @@
+/* ============================================================
+   tokens.css — نظام تصميم لوحة المشرف، مستقلّ تماماً عن الموقع.
+   تغيير ثيم الموقع لا يجوز أن يكسر اللوحة، ولا العكس.
+   يدعم الوضعين الفاتح والداكن — المشرف يعمل عليها ساعات طويلة.
+   ============================================================ */
+
+:root {
+  color-scheme: dark;
+
+  --a-bg:       #0A0E17;
+  --a-panel:    #111827;
+  --a-panel-2:  #171F31;
+  --a-panel-3:  #1E293D;
+  --a-line:     #26314A;
+  --a-line-2:   #1B2437;
+
+  --a-text:   #E9EEF9;
+  --a-text-2: #9FADC6;
+  --a-text-3: #6B7A96;
+
+  --a-accent:      #4C7DFF;
+  --a-accent-rgb:  76, 125, 255;
+  --a-accent-2:    #8B6BFF;
+  --a-on-accent:   #FFFFFF;
+
+  --a-ok:    #34D399;
+  --a-warn:  #FBBF24;
+  --a-danger:#F87171;
+  --a-info:  #60A5FA;
+
+  --a-shadow-1: 0 1px 2px rgba(0,0,0,.34);
+  --a-shadow-2: 0 4px 14px rgba(0,0,0,.34);
+  --a-shadow-3: 0 12px 40px rgba(0,0,0,.44);
+
+  --a-font: 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
+  --a-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', monospace;
+
+  --a-fs-xs: 12px;
+  --a-fs-sm: 13.5px;
+  --a-fs:    15px;
+  --a-fs-lg: 17px;
+  --a-fs-h3: 19px;
+  --a-fs-h2: 24px;
+  --a-fs-h1: 30px;
+
+  --a-1: 4px;  --a-2: 8px;  --a-3: 12px; --a-4: 16px;
+  --a-5: 24px; --a-6: 32px; --a-7: 48px; --a-8: 64px;
+
+  --a-r-xs: 7px; --a-r-sm: 10px; --a-r: 14px; --a-r-lg: 20px; --a-r-full: 999px;
+
+  --a-t: .18s;
+  --a-ease: cubic-bezier(.16, 1, .3, 1);
+
+  --a-sidebar: 236px;
+  --a-topbar: 58px;
+  --a-tabbar: 62px;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --a-bg:      #F4F6FB;
+  --a-panel:   #FFFFFF;
+  --a-panel-2: #F7F9FD;
+  --a-panel-3: #EDF1F9;
+  --a-line:    #DDE4F0;
+  --a-line-2:  #E9EEF6;
+  --a-text:   #101827;
+  --a-text-2: #4A5670;
+  --a-text-3: #7A87A0;
+  --a-accent:      #2F5FE0;
+  --a-accent-rgb:  47, 95, 224;
+  --a-accent-2:    #6B4AE0;
+  --a-ok:    #0F9D63;
+  --a-warn:  #B4740B;
+  --a-danger:#D33A34;
+  --a-info:  #2563EB;
+  --a-shadow-1: 0 1px 2px rgba(16,24,39,.06);
+  --a-shadow-2: 0 4px 14px rgba(16,24,39,.09);
+  --a-shadow-3: 0 12px 40px rgba(16,24,39,.14);
+}
