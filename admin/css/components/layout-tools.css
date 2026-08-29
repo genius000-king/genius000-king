@@ -1,0 +1,98 @@
+/* layout-tools.css — لوح التخطيط، صف القسم، والكتل المخصصة. */
+
+.lt-list { display: grid; gap: var(--s-3); }
+
+.lt-row {
+  border-radius: var(--r-md);
+  background: var(--c-bg);
+  border: 1px solid var(--glass-border);
+  overflow: hidden;
+}
+
+.lt-row__head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-3);
+}
+
+.lt-row__name { flex: 1; font-size: var(--fs-sm); font-weight: 600; text-align: start; }
+.lt-row__body { display: grid; gap: var(--s-4); padding: 0 var(--s-3) var(--s-4); }
+
+.lt__grip { cursor: grab; color: var(--c-muted); padding-inline: var(--s-1); }
+
+.lt__icon {
+  display: grid;
+  place-items: center;
+  inline-size: 32px;
+  block-size: 32px;
+  border-radius: var(--r-sm);
+  color: var(--c-text-soft);
+  border: 1px solid var(--glass-border);
+}
+.lt__icon--wide { inline-size: auto; padding-inline: var(--s-3); font-size: var(--fs-xs); }
+
+/* يشرح للمشرف ماذا يصير العدد على اللوحي والجوال — فلا تفاجئه قاعدة التقلص */
+.lt__hint {
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+  line-height: 1.7;
+}
+
+.lt__bg-slot { display: grid; gap: var(--s-2); }
+
+.lt__add {
+  inline-size: 100%;
+  padding: var(--s-3);
+  border-radius: var(--r-md);
+  font-size: var(--fs-sm);
+  color: var(--c-accent-text);
+  border: 1px dashed var(--glass-border-hot);
+}
+.lt__add:hover { background: rgba(var(--c-accent-rgb), 0.08); }
+
+.lt-blocks__wrap { display: grid; gap: var(--s-2); }
+.lt-blocks { display: grid; gap: var(--s-2); }
+
+.lt-block {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2);
+  border-radius: var(--r-sm);
+  background: var(--c-surface);
+  border: 1px solid var(--glass-border);
+}
+.lt-block__head { display: flex; align-items: center; gap: var(--s-2); flex: 1; }
+.lt-block__tag {
+  padding: 2px var(--s-2);
+  border-radius: var(--r-full);
+  font-size: 11px;
+  color: var(--c-muted);
+  border: 1px solid var(--glass-border);
+}
+
+/* ---------- الكتل المخصصة كما تُعرض في المعاينة ---------- */
+.cblock { display: grid; gap: var(--s-2); }
+.cblock--text { font-size: var(--fs-body); color: var(--c-text-soft); }
+.cblock--divider {
+  block-size: 1px;
+  background: var(--glass-border);
+  border: none;
+}
+.cblock--spacer { block-size: var(--cblock-h, var(--s-6)); }
+.cblock--button { justify-items: start; }
+
+.cblock__img,
+.cblock__video {
+  inline-size: 100%;
+  block-size: auto;
+  border-radius: var(--r-md);
+}
+.cblock__cap {
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+
+.cblock-edit { display: grid; gap: var(--s-2); }
+.cblock-edit__body { display: grid; gap: var(--s-2); }

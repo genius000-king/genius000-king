@@ -1,0 +1,65 @@
+/* works.css — شريط لكل معرض، وبطاقة عمل بصورتين. */
+
+.works__strips { display: grid; gap: var(--s-6); }
+
+.works__strip-name {
+  font-size: var(--fs-h3);
+  color: var(--c-text-soft);
+  margin-block-end: var(--s-3);
+}
+
+.work {
+  position: relative;
+  flex: 0 0 auto;
+  inline-size: clamp(200px, 26vw, 280px);
+  display: grid;
+  gap: var(--s-2);
+  padding: 0;
+  text-align: start;
+  background: none;
+  border: none;
+}
+
+.work__media {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--r-md);
+  border: 1px solid var(--glass-border);
+  background: var(--c-surface);
+  overflow: hidden;
+  transition: border-color var(--t-base) var(--ease-out),
+              box-shadow var(--t-base) var(--ease-out);
+}
+.work:hover .work__media,
+.work:focus-visible .work__media {
+  border-color: var(--glass-border-hot);
+  box-shadow: var(--sh-glow-soft);
+}
+
+.work__media img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.work__title {
+  font-size: var(--fs-sm);
+  color: var(--c-muted);
+  padding-inline: var(--s-1);
+}
+
+/* لوحة تفاصيل العمل */
+.work-detail__title { font-size: var(--fs-h2); margin-block: var(--s-2) var(--s-5); }
+.work-detail__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--s-4);
+}
+.work-detail__shot {
+  padding: 0;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--c-surface);
+}
+.work-detail__shot img { inline-size: 100%; block-size: auto; }

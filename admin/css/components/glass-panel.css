@@ -1,0 +1,103 @@
+/* glass-panel.css — اللوحة الزجاجية المنبثقة (Spec §5.3). */
+
+.glass-panel__wrap {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-panel);
+  display: grid;
+  place-items: center;
+  padding: var(--s-4);
+  opacity: 0;
+  transition: opacity var(--t-base) var(--ease-out);
+}
+.glass-panel__wrap.is-open { opacity: 1; }
+
+.glass-panel__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 2, 2, 0.72);
+  cursor: pointer;
+}
+
+.glass-panel {
+  position: relative;
+  inline-size: min(100%, 980px);
+  max-block-size: min(88dvh, 900px);
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  padding: var(--s-6);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--sh-lg);
+  transform: translateY(18px) scale(0.985);
+  transition: transform var(--t-base) var(--ease-spring);
+}
+.is-open .glass-panel { transform: none; }
+
+/* الزجاج نفسه — مع احتياطي صلب للأجهزة التي لا تدعمه */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .glass-panel {
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-panel { background: var(--c-surface-2); }
+}
+
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  block-size: 1px;
+  background: linear-gradient(to left, transparent,
+    rgba(var(--c-accent-rgb), 0.55), transparent);
+}
+
+.glass-panel__close {
+  position: sticky;
+  inset-block-start: 0;
+  margin-inline-start: auto;
+  display: grid;
+  place-items: center;
+  inline-size: 40px;
+  block-size: 40px;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--c-text-soft);
+  border-radius: var(--r-circle);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  transition: color var(--t-fast), background var(--t-fast);
+}
+.glass-panel__close:hover { color: var(--c-text); background: var(--glass-bg-strong); }
+
+.glass-panel__body { padding-block-start: var(--s-2); }
+
+.glass-panel__error { color: var(--c-muted); text-align: center; padding-block: var(--s-6); }
+
+/* هيكل عظمي أثناء انتظار اللودر — لا شاشة بيضاء (Spec §7) */
+.glass-panel__skeleton { display: grid; gap: var(--s-4); }
+.glass-panel__skeleton span {
+  display: block;
+  block-size: 22px;
+  border-radius: var(--r-sm);
+  background: linear-gradient(90deg, var(--glass-bg), var(--glass-bg-strong), var(--glass-bg));
+  background-size: 200% 100%;
+  animation: skeleton 1.4s linear infinite;
+}
+.glass-panel__skeleton span:first-child { inline-size: 42%; block-size: 34px; }
+.glass-panel__skeleton span:last-child { block-size: 180px; }
+
+@keyframes skeleton { to { background-position: -200% 0; } }
+
+@media (max-width: 640px) {
+  .glass-panel__wrap { padding: 0; place-items: end stretch; }
+  .glass-panel {
+    max-block-size: 92dvh;
+    padding: var(--s-5) var(--s-4);
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+  }
+}

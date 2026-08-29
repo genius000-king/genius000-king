@@ -1,0 +1,31 @@
+/* toast.css — رسائل قصيرة أسفل الشاشة. */
+
+#toast {
+  position: fixed;
+  inset-block-end: var(--s-5);
+  inset-inline: 0;
+  z-index: var(--z-toast);
+  display: grid;
+  justify-items: center;
+  gap: var(--s-2);
+  pointer-events: none;
+  padding-inline: var(--s-4);
+}
+
+.toast {
+  max-inline-size: min(100%, 420px);
+  padding: var(--s-3) var(--s-5);
+  border-radius: var(--r-full);
+  font-size: var(--fs-sm);
+  color: var(--c-text);
+  background: var(--c-surface-2);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--sh-md);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity var(--t-base) var(--ease-out), transform var(--t-base) var(--ease-out);
+}
+.toast.is-in { opacity: 1; transform: none; }
+
+.toast--success { border-color: color-mix(in srgb, #2ecc71 45%, transparent); }
+.toast--error { border-color: color-mix(in srgb, #e74c3c 55%, transparent); }

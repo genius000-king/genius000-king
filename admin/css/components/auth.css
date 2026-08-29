@@ -1,0 +1,24 @@
+/* auth.css — شاشة الدخول. */
+
+.auth__wrap {
+  min-block-size: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--s-5);
+}
+
+.auth__card {
+  inline-size: min(100%, 380px);
+  display: grid;
+  gap: var(--s-3);
+  padding: var(--s-6);
+}
+
+.auth__title { font-size: var(--fs-h3); text-align: center; }
+.auth__sub {
+  font-size: var(--fs-sm);
+  color: var(--c-muted);
+  text-align: center;
+  margin-block-end: var(--s-2);
+}
+.auth__error { color: #F87171; font-size: var(--fs-sm); min-block-size: 1.4em; }

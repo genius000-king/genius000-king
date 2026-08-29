@@ -1,0 +1,46 @@
+/* hero.css — الشاشة الأولى: جسيمات خلف نص مفكَّك. */
+
+#hero {
+  position: relative;
+  min-block-size: calc(100dvh - var(--nav-h));
+  display: grid;
+  align-content: center;
+  padding-block: var(--s-8) var(--s-7);
+  overflow: hidden;
+}
+
+.hero__canvas {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  opacity: 0.5;
+}
+
+.hero__inner {
+  position: relative;
+  justify-items: center;
+  text-align: center;
+  gap: var(--s-5);
+}
+
+.hero__title {
+  font-size: var(--fs-display);
+  line-height: var(--lh-tight);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.hero__word--hl { color: var(--c-accent-text); }
+
+.hero__sub {
+  max-inline-size: 46ch;
+  color: var(--c-text-soft);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  justify-content: center;
+}

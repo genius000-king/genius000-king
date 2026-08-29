@@ -1,0 +1,34 @@
+/* sortable.css — السحب بالفتحات. ❌ لا سحب حر لإحداثية إطلاقاً. */
+
+.sortable { position: relative; }
+
+.sortable__item { cursor: grab; }
+.sortable__item.is-dragging { opacity: 0.35; cursor: grabbing; }
+
+/* شبح شفاف يتبع المؤشر */
+.sortable__ghost {
+  position: fixed;
+  z-index: var(--z-toast);
+  pointer-events: none;
+  opacity: 0.85;
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-lg);
+  rotate: 1.5deg;
+}
+
+/* مؤشر الإفلات: خط متوهّج عند الفتحة الهدف */
+.is-sorting .lt-drop,
+.sortable .lt-drop { position: relative; }
+
+.is-drop-start::before,
+.is-drop-end::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  block-size: 2px;
+  border-radius: var(--r-full);
+  background: var(--c-accent);
+  box-shadow: 0 0 10px var(--c-accent);
+}
+.is-drop-start::before { inset-block-start: -4px; }
+.is-drop-end::after { inset-block-end: -4px; }

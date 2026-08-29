@@ -1,0 +1,44 @@
+/* process.css — خط زمني عمودي يرسم نفسه فوق خلفية سائلة. */
+
+#process { position: relative; overflow: hidden; }
+
+.process { position: relative; padding-inline-start: var(--s-6); }
+
+.process__line {
+  position: absolute;
+  inset-block: var(--s-2);
+  inset-inline-end: 0;      /* RTL: الخط على يمين القائمة */
+  inline-size: 4px;
+  block-size: calc(100% - var(--s-4));
+  opacity: 0.7;
+}
+
+.process__list { display: grid; gap: var(--s-5); }
+
+.step {
+  position: relative;
+  padding-inline-end: var(--s-6);
+}
+
+.step::before {                 /* عقدة على الخط */
+  content: '';
+  position: absolute;
+  inset-inline-end: -6px;
+  inset-block-start: 10px;
+  inline-size: 12px;
+  block-size: 12px;
+  border-radius: var(--r-circle);
+  background: var(--c-accent);
+  box-shadow: 0 0 0 4px var(--c-bg), var(--sh-glow-soft);
+}
+
+.step__num {
+  display: block;
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  line-height: 1;
+  color: rgba(var(--c-accent-rgb), 0.35);
+  font-variant-numeric: tabular-nums;
+}
+
+.step__title { font-size: var(--fs-card); margin-block: var(--s-1) var(--s-2); }

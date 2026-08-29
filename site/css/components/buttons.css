@@ -1,0 +1,43 @@
+/* buttons.css — الأزرار. كلها ترث حلقة تركيز مرئية من base.css. */
+
+.btn {
+  --btn-bg: var(--glass-bg-strong);
+  --btn-fg: var(--c-text);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-block-size: 46px;          /* هدف لمس ≥ 44px */
+  padding: var(--s-3) var(--s-5);
+  border-radius: var(--r-full);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--btn-fg);
+  background: var(--btn-bg);
+  border: 1px solid var(--glass-border);
+  transition: background var(--t-fast) var(--ease-out),
+              border-color var(--t-fast) var(--ease-out),
+              transform var(--t-fast) var(--ease-out);
+  /* 2 — المغناطيس يكتب --dx/--dy */
+  translate: var(--dx, 0) var(--dy, 0);
+}
+
+.btn:hover { border-color: var(--glass-border-hot); background: var(--glass-bg-strong); }
+.btn:active { transform: scale(0.97); }
+
+.btn--primary {
+  --btn-bg: var(--c-accent);
+  --btn-fg: var(--c-on-accent);
+  border-color: transparent;
+  box-shadow: var(--sh-glow-soft);
+}
+.btn--primary:hover { --btn-bg: var(--c-accent-soft); box-shadow: var(--sh-glow); }
+
+.btn--block { inline-size: 100%; }
+
+.btn--icon {
+  inline-size: 46px;
+  padding: 0;
+  border-radius: var(--r-circle);
+}

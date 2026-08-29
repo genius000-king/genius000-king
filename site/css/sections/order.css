@@ -1,0 +1,15 @@
+/* order.css — شريط الدعوة للطلب. */
+
+.order {
+  display: grid;
+  gap: var(--s-3);
+  justify-items: center;
+  text-align: center;
+  padding: var(--s-7) var(--s-5);
+  background:
+    radial-gradient(80% 120% at 50% 0%, rgba(var(--c-accent-rgb), 0.18), transparent 70%),
+    var(--c-surface);
+}
+
+.order__title { font-size: var(--fs-h2); line-height: var(--lh-tight); }
+.order .btn { max-inline-size: 320px; margin-block-start: var(--s-2); }

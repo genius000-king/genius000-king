@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="استوديو تصميم بصري — بوسترات، هويات، ولوجوهات.">
+  <meta name="theme-color" content="#050A14">
+  <title>aboal3z.dzn</title>
+
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/ibmplex-0.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body data-fx="cursor cursor-trail">
+  <!-- هيكل فقط: حاويات فارغة تملؤها ملفات js/sections/*.
+       صفر محتوى ثابت وصفر بيانات. -->
+  <canvas id="stars" data-fx="starfield" aria-hidden="true"></canvas>
+
+  <div id="preloader" aria-hidden="true"></div>
+  <div id="scrollProgress" aria-hidden="true"></div>
+
+  <header id="nav"></header>
+
+  <main id="page">
+    <section id="hero"         class="section" data-section="hero"></section>
+    <section id="about"        class="section" data-section="about"></section>
+    <section id="works"        class="section" data-section="works"></section>
+    <section id="packages"     class="section" data-section="packages"></section>
+    <section id="services"     class="section" data-section="services"></section>
+    <section id="process"      class="section" data-section="process"></section>
+    <section id="testimonials" class="section" data-section="testimonials"></section>
+    <section id="payments"     class="section" data-section="payments"></section>
+    <section id="order"        class="section" data-section="order"></section>
+  </main>
+
+  <footer id="footer" data-section="footer"></footer>
+
+  <div id="panelRoot"></div>
+  <div id="lightbox"></div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <button id="toTop" type="button" hidden aria-label="العودة لأعلى الصفحة"></button>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

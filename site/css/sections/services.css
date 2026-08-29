@@ -1,0 +1,25 @@
+/* services.css — بطاقات الخدمات فوق شبكة متموّجة. */
+
+#services { position: relative; overflow: hidden; }
+
+.services__grid { position: relative; }
+
+.service { display: grid; gap: var(--s-2); align-content: start; }
+
+.service__icon {
+  display: grid;
+  place-items: center;
+  inline-size: 42px;
+  block-size: 42px;
+  border-radius: var(--r-md);
+  color: var(--c-accent-text);
+  background: rgba(var(--c-accent-rgb), 0.12);
+  border: 1px solid var(--glass-border);
+  margin-block-end: var(--s-2);
+}
+
+.service__meta {
+  margin-block-start: var(--s-2);
+  font-size: var(--fs-xs);
+  color: var(--c-accent-text);
+}

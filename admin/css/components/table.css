@@ -1,0 +1,77 @@
+/* table.css — جدول الطلبات وقوائم المديرين. */
+
+.table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.table th,
+.table td {
+  padding: var(--s-3);
+  text-align: start;
+  border-block-end: 1px solid var(--glass-border);
+}
+
+.table th { font-size: var(--fs-xs); color: var(--c-muted); font-weight: 600; }
+.table tr.is-unread td { background: rgba(var(--c-accent-rgb), 0.07); }
+.table tr.is-unread td:first-child { box-shadow: inset 3px 0 0 var(--c-accent); }
+.nowrap { white-space: nowrap; }
+
+.link { color: var(--c-accent-text); font-weight: 600; }
+.link:hover { text-decoration: underline; }
+
+.empty {
+  padding: var(--s-7) var(--s-4);
+  text-align: center;
+  color: var(--c-muted);
+  font-size: var(--fs-sm);
+}
+
+.orders__tools { display: grid; gap: var(--s-3); margin-block-end: var(--s-4); }
+
+.pill-select {
+  padding: var(--s-1) var(--s-3);
+  border-radius: var(--r-full);
+  font-size: var(--fs-xs);
+  color: var(--c-text);
+  background: var(--c-bg);
+  border: 1px solid var(--glass-border);
+}
+.pill-select[data-status="new"] { border-color: var(--c-accent); color: var(--c-accent-text); }
+.pill-select[data-status="in_progress"] { border-color: #F59E0B; color: #FBBF24; }
+.pill-select[data-status="done"] { border-color: #22C55E; color: #4ADE80; }
+.pill-select[data-status="cancelled"] { border-color: var(--glass-border); color: var(--c-muted); }
+
+/* ---------- قوائم المديرين ---------- */
+.mgr__list { display: grid; gap: var(--s-2); margin-block-start: var(--s-4); }
+
+.mgr__row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2);
+  border-radius: var(--r-md);
+  background: var(--c-bg);
+  border: 1px solid var(--glass-border);
+}
+.mgr__row .field { flex: 1; min-inline-size: 0; }
+
+.mgr__handle { cursor: grab; color: var(--c-muted); padding-inline: var(--s-1); }
+.mgr__thumb {
+  inline-size: 36px;
+  block-size: 36px;
+  border-radius: var(--r-sm);
+  object-fit: cover;
+}
+.mgr__name { flex: 1; text-align: start; }
+
+.mgr__block { display: grid; gap: var(--s-3); }
+.mgr__block-head { display: flex; align-items: center; gap: var(--s-2); }
+.mgr__media {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--s-2);
+}
+
+.order-detail { display: grid; gap: var(--s-4); margin-block-start: var(--s-4); }

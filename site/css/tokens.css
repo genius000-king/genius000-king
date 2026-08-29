@@ -1,0 +1,108 @@
+/* ============================================================
+   tokens.css — مصدر القيم الافتراضية لكل الهوية البصرية.
+   جدول `theme` في القاعدة يتجاوز أياً منها بحقن متغيّر على :root.
+   لا تكتب لوناً أو مسافة في أي ملف آخر — استعمل توكناً من هنا.
+   المرجع: DESIGN-DECISIONS.md — أزرق ملكي على كحلي، داكن فقط.
+   ============================================================ */
+
+:root {
+  color-scheme: dark;
+
+  /* --- الأسطح والنص --- */
+  --c-bg: #050A14;
+  --c-surface: #0A1220;        /* سطح البطاقة */
+  --c-surface-2: #101A2C;      /* سطح مرتفع: لوحات، مودالات */
+  --c-text: #F2F6FF;
+  --c-text-soft: rgba(242, 246, 255, 0.72);
+  --c-muted: rgba(242, 246, 255, 0.45);
+
+  /* --- اللون المميز — موحّد لكل الموقع --- */
+  --c-accent: #2563EB;             /* للتعبئة والحدود والوهج */
+  --c-accent-rgb: 37, 99, 235;
+  --c-accent-text: #60A5FA;        /* للنص الملوّن — 7.8:1 على الخلفية */
+  --c-accent-soft: #1D4ED8;
+  --c-on-accent: #FFFFFF;          /* 5.1:1 على --c-accent */
+
+  /* --- الزجاج --- */
+  --glass-bg: rgba(255, 255, 255, 0.035);
+  --glass-bg-strong: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-border-hot: rgba(var(--c-accent-rgb), 0.45);
+  --glass-blur: 24px;
+  --glass-blur-soft: 14px;
+  --glass-sat: 140%;
+
+  /* --- الظلال --- */
+  --sh-sm: 0 2px 10px rgba(0, 0, 0, 0.4);
+  --sh-md: 0 12px 34px rgba(0, 0, 0, 0.5);
+  --sh-lg: 0 28px 70px rgba(0, 0, 0, 0.65);
+  --sh-glow: 0 0 40px rgba(var(--c-accent-rgb), 0.3);
+  --sh-glow-soft: 0 0 24px rgba(var(--c-accent-rgb), 0.16);
+
+  /* --- الطباعة --- */
+  --font-base: 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --fs-scale: 1;
+  --fs-display: calc(clamp(2.4rem, 7vw, 4.4rem) * var(--fs-scale));
+  --fs-h1: calc(clamp(2rem, 5.4vw, 3.4rem) * var(--fs-scale));
+  --fs-h2: calc(clamp(1.7rem, 4.4vw, 2.5rem) * var(--fs-scale));
+  --fs-h3: calc(clamp(1.35rem, 3vw, 1.8rem) * var(--fs-scale));
+  --fs-card: calc(clamp(1.2rem, 2.6vw, 1.5rem) * var(--fs-scale));
+  --fs-body: calc(clamp(1rem, 2vw, 1.14rem) * var(--fs-scale));
+  --fs-sm: calc(clamp(0.9rem, 1.6vw, 1rem) * var(--fs-scale));
+  --fs-xs: calc(0.8rem * var(--fs-scale));
+  --lh-base: 1.8;
+  --lh-tight: 1.22;
+
+  /* --- سلّم المسافات --- */
+  --s-scale: 1;
+  --s-1: calc(4px * var(--s-scale));
+  --s-2: calc(8px * var(--s-scale));
+  --s-3: calc(12px * var(--s-scale));
+  --s-4: calc(16px * var(--s-scale));
+  --s-5: calc(24px * var(--s-scale));
+  --s-6: calc(32px * var(--s-scale));
+  --s-7: calc(48px * var(--s-scale));
+  --s-8: calc(72px * var(--s-scale));
+
+  /* --- نصف الأقطار --- */
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 26px;
+  --r-xl: 34px;
+  --r-full: 999px;
+  --r-circle: 50%;
+
+  /* --- الانتقالات --- */
+  --t-fast: 0.2s;
+  --t-base: 0.35s;
+  --t-slow: 0.7s;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* --- التخطيط --- */
+  --container: 1280px;
+  --bento: 620px;        /* عرض عمود البينتو الضيق */
+  --nav-h: 68px;
+  --cols: 1;             /* يُتجاوَز لكل قسم من جدول `layout` */
+  --gap: var(--s-4);
+
+  /* --- المؤثرات --- */
+  --fx-intensity: 1;
+  --fx-marquee-speed: 28;   /* بكسل/ثانية */
+
+  /* --- الطبقات --- */
+  --z-bg: -3;
+  --z-stars: -2;
+  --z-grain: -1;
+  --z-totop: 100;
+  --z-menu: 200;
+  --z-nav: 300;
+  --z-progress: 310;
+  --z-panel: 400;
+  --z-lightbox: 500;
+  --z-toast: 600;
+  --z-cursor: 700;
+  --z-preloader: 800;
+}
+
+/* نقاط التوقف: جوال 640px · لوحي 1024px. لا ثالثة. */
