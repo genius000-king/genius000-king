@@ -5,7 +5,6 @@
 import { isConfigured } from './core/config.js';
 import { loadAll, hydrate, anyFailed } from './core/store.js';
 import { restore, isAuthed } from './core/auth.js';
-import { isUnlocked, mountGate } from './core/gate.js';
 import { route, start, resolve } from './core/router.js';
 import { toast } from './core/toast.js';
 import { el } from './core/dom.js';
@@ -101,17 +100,11 @@ async function enter() {
   orders.refreshBadge();
 }
 
-function afterGate() {
+function boot() {
   if (!isConfigured) return mountAuth(document.getElementById('auth'), enter);
   restore();
   if (isAuthed()) return enter();
   mountAuth(document.getElementById('auth'), enter);
-}
-
-function boot() {
-  // قفل أوّلي قبل أي شيء — لا تظهر حتى شاشة الدخول بدونه
-  if (!isUnlocked()) return mountGate(document.getElementById('auth'), afterGate);
-  afterGate();
 }
 
 boot();

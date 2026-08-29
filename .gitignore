@@ -1,4 +1,3 @@
-# مفاتيح الاتصال — تُوضع بجانب index.html في كل مجلد ولا تُرفع
-config.local.js
+# ملفات محلية
 .DS_Store
 node_modules/
