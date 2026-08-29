@@ -1,108 +1,80 @@
 /* ============================================================
-   tokens.css — مصدر القيم الافتراضية لكل الهوية البصرية.
-   جدول `theme` في القاعدة يتجاوز أياً منها بحقن متغيّر على :root.
-   لا تكتب لوناً أو مسافة في أي ملف آخر — استعمل توكناً من هنا.
-   المرجع: DESIGN-DECISIONS.md — أزرق ملكي على كحلي، داكن فقط.
+   tokens.css — نظام تصميم لوحة المشرف، مستقلّ تماماً عن الموقع.
+   تغيير ثيم الموقع لا يجوز أن يكسر اللوحة، ولا العكس.
+   يدعم الوضعين الفاتح والداكن — المشرف يعمل عليها ساعات طويلة.
    ============================================================ */
 
 :root {
   color-scheme: dark;
 
-  /* --- الأسطح والنص --- */
-  --c-bg: #050A14;
-  --c-surface: #0A1220;        /* سطح البطاقة */
-  --c-surface-2: #101A2C;      /* سطح مرتفع: لوحات، مودالات */
-  --c-text: #F2F6FF;
-  --c-text-soft: rgba(242, 246, 255, 0.72);
-  --c-muted: rgba(242, 246, 255, 0.45);
+  --a-bg:       #0A0E17;
+  --a-panel:    #111827;
+  --a-panel-2:  #171F31;
+  --a-panel-3:  #1E293D;
+  --a-line:     #26314A;
+  --a-line-2:   #1B2437;
 
-  /* --- اللون المميز — موحّد لكل الموقع --- */
-  --c-accent: #2563EB;             /* للتعبئة والحدود والوهج */
-  --c-accent-rgb: 37, 99, 235;
-  --c-accent-text: #60A5FA;        /* للنص الملوّن — 7.8:1 على الخلفية */
-  --c-accent-soft: #1D4ED8;
-  --c-on-accent: #FFFFFF;          /* 5.1:1 على --c-accent */
+  --a-text:   #E9EEF9;
+  --a-text-2: #9FADC6;
+  --a-text-3: #6B7A96;
 
-  /* --- الزجاج --- */
-  --glass-bg: rgba(255, 255, 255, 0.035);
-  --glass-bg-strong: rgba(255, 255, 255, 0.06);
-  --glass-border: rgba(255, 255, 255, 0.09);
-  --glass-border-hot: rgba(var(--c-accent-rgb), 0.45);
-  --glass-blur: 24px;
-  --glass-blur-soft: 14px;
-  --glass-sat: 140%;
+  --a-accent:      #4C7DFF;
+  --a-accent-rgb:  76, 125, 255;
+  --a-accent-2:    #8B6BFF;
+  --a-on-accent:   #FFFFFF;
 
-  /* --- الظلال --- */
-  --sh-sm: 0 2px 10px rgba(0, 0, 0, 0.4);
-  --sh-md: 0 12px 34px rgba(0, 0, 0, 0.5);
-  --sh-lg: 0 28px 70px rgba(0, 0, 0, 0.65);
-  --sh-glow: 0 0 40px rgba(var(--c-accent-rgb), 0.3);
-  --sh-glow-soft: 0 0 24px rgba(var(--c-accent-rgb), 0.16);
+  --a-ok:    #34D399;
+  --a-warn:  #FBBF24;
+  --a-danger:#F87171;
+  --a-info:  #60A5FA;
 
-  /* --- الطباعة --- */
-  --font-base: 'IBM Plex Sans Arabic', system-ui, sans-serif;
-  --fs-scale: 1;
-  --fs-display: calc(clamp(2.4rem, 7vw, 4.4rem) * var(--fs-scale));
-  --fs-h1: calc(clamp(2rem, 5.4vw, 3.4rem) * var(--fs-scale));
-  --fs-h2: calc(clamp(1.7rem, 4.4vw, 2.5rem) * var(--fs-scale));
-  --fs-h3: calc(clamp(1.35rem, 3vw, 1.8rem) * var(--fs-scale));
-  --fs-card: calc(clamp(1.2rem, 2.6vw, 1.5rem) * var(--fs-scale));
-  --fs-body: calc(clamp(1rem, 2vw, 1.14rem) * var(--fs-scale));
-  --fs-sm: calc(clamp(0.9rem, 1.6vw, 1rem) * var(--fs-scale));
-  --fs-xs: calc(0.8rem * var(--fs-scale));
-  --lh-base: 1.8;
-  --lh-tight: 1.22;
+  --a-shadow-1: 0 1px 2px rgba(0,0,0,.34);
+  --a-shadow-2: 0 4px 14px rgba(0,0,0,.34);
+  --a-shadow-3: 0 12px 40px rgba(0,0,0,.44);
 
-  /* --- سلّم المسافات --- */
-  --s-scale: 1;
-  --s-1: calc(4px * var(--s-scale));
-  --s-2: calc(8px * var(--s-scale));
-  --s-3: calc(12px * var(--s-scale));
-  --s-4: calc(16px * var(--s-scale));
-  --s-5: calc(24px * var(--s-scale));
-  --s-6: calc(32px * var(--s-scale));
-  --s-7: calc(48px * var(--s-scale));
-  --s-8: calc(72px * var(--s-scale));
+  --a-font: 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
+  --a-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', monospace;
 
-  /* --- نصف الأقطار --- */
-  --r-sm: 12px;
-  --r-md: 18px;
-  --r-lg: 26px;
-  --r-xl: 34px;
-  --r-full: 999px;
-  --r-circle: 50%;
+  --a-fs-xs: 12px;
+  --a-fs-sm: 13.5px;
+  --a-fs:    15px;
+  --a-fs-lg: 17px;
+  --a-fs-h3: 19px;
+  --a-fs-h2: 24px;
+  --a-fs-h1: 30px;
 
-  /* --- الانتقالات --- */
-  --t-fast: 0.2s;
-  --t-base: 0.35s;
-  --t-slow: 0.7s;
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --a-1: 4px;  --a-2: 8px;  --a-3: 12px; --a-4: 16px;
+  --a-5: 24px; --a-6: 32px; --a-7: 48px; --a-8: 64px;
 
-  /* --- التخطيط --- */
-  --container: 1280px;
-  --bento: 620px;        /* عرض عمود البينتو الضيق */
-  --nav-h: 68px;
-  --cols: 1;             /* يُتجاوَز لكل قسم من جدول `layout` */
-  --gap: var(--s-4);
+  --a-r-xs: 7px; --a-r-sm: 10px; --a-r: 14px; --a-r-lg: 20px; --a-r-full: 999px;
 
-  /* --- المؤثرات --- */
-  --fx-intensity: 1;
-  --fx-marquee-speed: 28;   /* بكسل/ثانية */
+  --a-t: .18s;
+  --a-ease: cubic-bezier(.16, 1, .3, 1);
 
-  /* --- الطبقات --- */
-  --z-bg: -3;
-  --z-stars: -2;
-  --z-grain: -1;
-  --z-totop: 100;
-  --z-menu: 200;
-  --z-nav: 300;
-  --z-progress: 310;
-  --z-panel: 400;
-  --z-lightbox: 500;
-  --z-toast: 600;
-  --z-cursor: 700;
-  --z-preloader: 800;
+  --a-sidebar: 236px;
+  --a-topbar: 58px;
+  --a-tabbar: 62px;
 }
 
-/* نقاط التوقف: جوال 640px · لوحي 1024px. لا ثالثة. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --a-bg:      #F4F6FB;
+  --a-panel:   #FFFFFF;
+  --a-panel-2: #F7F9FD;
+  --a-panel-3: #EDF1F9;
+  --a-line:    #DDE4F0;
+  --a-line-2:  #E9EEF6;
+  --a-text:   #101827;
+  --a-text-2: #4A5670;
+  --a-text-3: #7A87A0;
+  --a-accent:      #2F5FE0;
+  --a-accent-rgb:  47, 95, 224;
+  --a-accent-2:    #6B4AE0;
+  --a-ok:    #0F9D63;
+  --a-warn:  #B4740B;
+  --a-danger:#D33A34;
+  --a-info:  #2563EB;
+  --a-shadow-1: 0 1px 2px rgba(16,24,39,.06);
+  --a-shadow-2: 0 4px 14px rgba(16,24,39,.09);
+  --a-shadow-3: 0 12px 40px rgba(16,24,39,.14);
+}

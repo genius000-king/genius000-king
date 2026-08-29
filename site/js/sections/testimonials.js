@@ -18,7 +18,7 @@ function stars(rating = 5) {
 function card(t) {
   return el('article', {
     class: 'card review glass glass--lift', 'data-edit-id': `testimonial.card.${t.id}`,
-    'data-fx': 'glow shine',
+    'data-fx': 'glass shine',
   }, [
     stars(t.rating),
     el('p', { class: 'review__text' }, [t.text || '']),

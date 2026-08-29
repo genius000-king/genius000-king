@@ -27,7 +27,7 @@ export function mount(root, opts = {}) {
   root.replaceChildren(
     el('div', { class: 'bento bento--flow', 'data-fx': 'reveal', 'data-fx-children': '.card' }, [
       el('article', { class: `card about glass glass--lift ${list.length ? 't--wide' : 't--full'}`,
-        'data-fx': 'shine glow', 'data-edit-id': 'about.card' }, [
+        'data-fx': 'shine glass', 'data-edit-id': 'about.card' }, [
         content('about_label')
           ? el('span', { class: 'card__label' }, [content('about_label')]) : null,
         el('h2', { class: 'about__title', 'data-edit-id': 'about.title' }, [content('about_title')]),
@@ -35,7 +35,7 @@ export function mount(root, opts = {}) {
       ]),
       list.length
         ? el('article', { class: 'card stats glass glass--lift t--wide',
-            'data-fx': 'shine glow', 'data-edit-id': 'about.stats' }, list)
+            'data-fx': 'shine glass', 'data-edit-id': 'about.stats' }, list)
         : null,
     ]),
   );

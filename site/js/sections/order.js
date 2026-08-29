@@ -14,7 +14,7 @@ export function mount(root, opts = {}) {
   root.replaceChildren(
     el('div', { class: 'bento bento--flow' }, [
       el('div', { class: 'card order glass glass--strong t--full', 'data-edit-id': 'order.band',
-        'data-fx': 'reveal3d glow' }, [
+        'data-fx': 'reveal3d glass' }, [
         el('h2', { class: 'order__title', 'data-edit-id': 'order.title' },
           [content('order_title', 'جاهز نبدأ؟')]),
         el('p', { class: 'order__sub', 'data-edit-id': 'order.sub' },

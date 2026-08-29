@@ -37,7 +37,7 @@ export function mount(root, opts = {}) {
 
   root.replaceChildren(
     el('div', { class: 'bento' }, [
-      el('div', { class: 'hero__main glass glass--strong t--hero', 'data-fx': 'reveal3d' }, [
+      el('div', { class: 'hero__main glass glass--strong t--hero', 'data-fx': 'reveal3d glass' }, [
         badge ? el('span', { class: 'pill glass glass--soft', 'data-edit-id': 'hero.badge' }, [
           el('i', { class: 'pill__dot' }),
           el('span', {}, [badge]),

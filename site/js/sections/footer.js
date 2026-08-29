@@ -34,7 +34,7 @@ export function mount(root, opts = {}) {
 
   root.replaceChildren(
     el('div', { class: 'bento bento--flow', 'data-fx': 'reveal', 'data-fx-children': '.card' }, [
-      el('div', { class: 'card footer__brand-tile glass glass--tinted t--third' }, [
+      el('div', { class: 'card footer__brand-tile glass glass--tinted t--third', 'data-fx': 'glass' }, [
         logoImg({ size: 54, cls: 'footer__logo' }),
         el('strong', { class: 'footer__brand' }, [content('brand', 'aboal3z.dzn')]),
         el('p', { class: 'card__text', 'data-edit-id': 'footer.text' }, [content('footer_text')]),

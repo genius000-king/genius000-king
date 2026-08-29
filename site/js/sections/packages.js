@@ -14,7 +14,7 @@ function tile(pkg, span) {
   return el('button', {
     class: `pkg glass glass--lift ${span}`, type: 'button',
     'data-edit-id': `package.card.${pkg.id}`,
-    'data-fx': 'tilt glow shine',
+    'data-fx': 'tilt glass shine',
     'data-cursor': 'افتح',
     'aria-label': `افتح بكج ${pkg.name}`,
     onclick: () => openPanel(`pkg-${pkg.id}`,

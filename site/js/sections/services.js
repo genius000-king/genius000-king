@@ -10,7 +10,7 @@ function card(s, feature) {
   return el('article', {
     class: `card service glass glass--lift ${feature ? 'service--feature t--wide' : 't--third'}`,
     'data-edit-id': `service.card.${s.id}`,
-    'data-fx': 'tilt glow shine',
+    'data-fx': 'tilt glass shine',
   }, [
     el('span', { class: 'service__icon' }, [iconOr(s.icon, '✦')]),
     el('h3', { class: 'card__title' }, [s.name]),

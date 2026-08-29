@@ -35,25 +35,10 @@ body::before {
   background-image:
     linear-gradient(to left, var(--c-line-soft) 1px, transparent 1px),
     linear-gradient(to bottom, var(--c-line-soft) 1px, transparent 1px);
-  background-size: 72px 72px;
+  background-size: 64px 64px;
   -webkit-mask-image: radial-gradient(115% 78% at 50% 0%, #000 12%, transparent 72%);
           mask-image: radial-gradient(115% 78% at 50% 0%, #000 12%, transparent 72%);
-  opacity: .5;
-}
-
-/* 2 — هالتان تتنفّسان ببطء شديد */
-#aurora {
-  position: fixed;
-  inset: -25%;
-  z-index: var(--z-bg);
-  pointer-events: none;
-  background:
-    radial-gradient(34% 30% at 24% 16%, rgba(var(--c-accent-rgb), .30), transparent 68%),
-    radial-gradient(30% 26% at 78% 30%, rgba(var(--c-accent-2-rgb), .22), transparent 68%),
-    radial-gradient(42% 32% at 52% 94%, rgba(var(--c-accent-rgb), .16), transparent 70%);
-  filter: blur(46px);
-  animation: aurora 64s var(--ease-in-out) infinite alternate;
-  will-change: transform;
+  opacity: .55;
 }
 
 /* 3 — حبيبات تمنع تحزّم التدرّجات */
@@ -65,12 +50,6 @@ body::after {
   pointer-events: none;
   opacity: .048;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-@keyframes aurora {
-  0%   { transform: translate3d(0, 0, 0) scale(1); }
-  50%  { transform: translate3d(2.5%, -2%, 0) scale(1.07); }
-  100% { transform: translate3d(-2%, 2.5%, 0) scale(1.03); }
 }
 
 /* ── الطباعة ── */
@@ -140,7 +119,6 @@ html:not(.js-ready) .fx-split__unit {
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  #aurora { animation: none; }
   *, *::before, *::after {
     animation-duration: .001ms !important;
     animation-iteration-count: 1 !important;

@@ -7,7 +7,7 @@ import { register } from './registry.js';
 
 import magnetic from './magnetic.js';
 import tilt from './tilt.js';
-import glow from './glow.js';
+import glass from './glass.js';
 import cursor from './cursor.js';
 import { reveal, reveal3d } from './reveal.js';
 import parallax from './parallax.js';
@@ -21,7 +21,7 @@ import drawLine from './draw-line.js';
 import logoParticles from './logo-particles.js';
 
 [
-  magnetic, tilt, glow, cursor, reveal, reveal3d, parallax, counter,
+  magnetic, tilt, glass, cursor, reveal, reveal3d, parallax, counter,
   zoomIn, splitText, marquee, swap, shine, drawLine, logoParticles,
 ].forEach(register);
 
