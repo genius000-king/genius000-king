@@ -34,10 +34,11 @@
 
 .logo-mark {
   position: relative;
-  /* الشعار المصدر 577×571. نُبقي الصندوق ≤ 300px حتى لا تتجاوز شاشةُ
-     2× دقّةَ الملف الأصلية — أي بلا تكبير يفقده حدّته. */
-  inline-size: min(58vw, 260px);
-  aspect-ratio: 577 / 571;
+  /* الملف مقصوص من هامشه الشفّاف (577×571 ← 540×448)؛ ذلك الهامش كان
+     يترك فراغاً ميتاً تحت الشعار على الجوال. النسبة هنا تطابق الملف،
+     والحدّ الأقصى يبقى دون دقّته الأصلية فلا يُكبَّر ويفقد حدّته. */
+  inline-size: min(70vw, 300px);
+  aspect-ratio: 540 / 448;
   touch-action: manipulation;
 }
 
@@ -117,7 +118,7 @@
   }
   .hero__copy { justify-items: start; max-inline-size: none; }
   .hero__mark { order: 0; justify-self: center; inline-size: 100%; }
-  .logo-mark { inline-size: min(100%, 288px); }
+  .logo-mark { inline-size: min(100%, 300px); }
   .hero__actions { justify-content: flex-start; inline-size: auto; }
   .hero__sub { max-inline-size: 36ch; }
   .hero__title { max-inline-size: 13ch; }
@@ -145,5 +146,5 @@
 }
 
 @media (max-width: 380px) {
-  .logo-mark { inline-size: min(56vw, 190px); }
+  .logo-mark { inline-size: min(68vw, 210px); }
 }

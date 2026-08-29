@@ -23,7 +23,8 @@ function saveKey(key, value) {
   return saveContent(key, value);
 }
 
-/* ── مثال واقعي لمعاينة القالب ── */
+/* ── عيّنة لمعاينة القالب فقط. لا تُرسل ولا تُحفظ — وظيفتها أن ترى
+      شكل الرسالة وأنت تحرّرها. ── */
 const SAMPLE = {
   order_number: 'APX-K3M9F2',
   lines: [
@@ -36,7 +37,7 @@ const SAMPLE = {
   platform: 'واتساب',
   usage: 'تجاري — مشروع أو متجر',
   description: 'براند قهوة مختصة، الهوية بين الدافئ والمينيمال.',
-  attachments: ['https://example.com/a1.jpg', 'https://example.com/a2.jpg'],
+  attachments: ['<رابط المرفق الأول>', '<رابط المرفق الثاني>'],
 };
 
 function templateTab() {
