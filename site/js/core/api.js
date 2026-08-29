@@ -51,10 +51,17 @@ export async function select(table, opts = {}) {
   return request(`${table}${q ? '?' + q : ''}`);
 }
 
-export async function insert(table, row) {
+/**
+ * يدرج صفاً. `returning: false` يمنع طلب الصفّ بعد إدراجه.
+ *
+ * ⚠️ مهم للطلبات القادمة من الزائر: `return=representation` يجعل PostgREST
+ *    يقرأ الصفّ بعد كتابته، والزائر لا يملك صلاحية قراءة `orders` — وهذا
+ *    مقصود. فيفشل الطلب بـ 401 رغم نجاح الكتابة. الحل ألا نطلب الصفّ.
+ */
+export async function insert(table, row, { returning = true } = {}) {
   const out = await request(table, {
     method: 'POST',
-    headers: { Prefer: 'return=representation' },
+    headers: returning ? { Prefer: 'return=representation' } : { Prefer: 'return=minimal' },
     body: JSON.stringify(row),
   });
   return Array.isArray(out) ? out[0] : out;

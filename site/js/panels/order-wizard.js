@@ -335,7 +335,7 @@ export default function render({ preset } = {}) {
         status: 'new',
         read: false,
       };
-      await insert('orders', record).catch((e) => {
+      await insert('orders', record, { returning: false }).catch((e) => {
         console.error('[order:insert]', e);   // نكمل — الأهم أن تصل الرسالة
       });
 
