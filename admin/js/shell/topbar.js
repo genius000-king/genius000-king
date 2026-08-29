@@ -59,11 +59,10 @@ export function mountTopbar(root) {
 
   return {
     setCrumb(path, extra) {
-      crumb.replaceChildren(
-        el('b', {}, [titleOf(path.split('/').slice(0, 2).join('/')) || 'لوحة القيادة']),
-        extra ? el('span', {}, ['/']) : null,
-        extra ? el('span', {}, [extra]) : null,
-      );
+      const base = '/' + (path.split('/')[1] || '');
+      const parts = [el('b', {}, [titleOf(base) || 'لوحة القيادة'])];
+      if (extra) parts.push(el('span', {}, ['/']), el('span', { class: 'mono' }, [extra]));
+      crumb.replaceChildren(...parts);
     },
   };
 }

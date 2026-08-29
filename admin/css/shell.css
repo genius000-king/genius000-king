@@ -89,7 +89,7 @@
 }
 .top__crumb { display: flex; align-items: center; gap: var(--a-2); font-size: var(--a-fs-sm); color: var(--a-text-3); }
 .top__crumb b { color: var(--a-text); font-weight: 600; font-size: var(--a-fs); }
-.top__menu { display: none; }
+.top__menu { display: none !important; }
 
 .save-state {
   display: inline-flex; align-items: center; gap: 6px;
@@ -144,7 +144,7 @@
     transition: opacity var(--a-t);
   }
   .side-scrim.is-on { opacity: 1; pointer-events: auto; }
-  .top__menu { display: inline-flex; }
+  .top__menu { display: inline-flex !important; }
   #main { padding: var(--a-4); }
 
   #tabbar {
