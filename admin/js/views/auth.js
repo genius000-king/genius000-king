@@ -1,6 +1,12 @@
-// auth.js — شاشة الدخول. بريد وكلمة مرور فقط: لا تسجيل ذاتي ولا دخول اجتماعي.
+// auth.js — شاشة الدخول: كلمة مرور واحدة.
+//
+// البريد ثابت في الإعدادات (ADMIN_EMAIL) فلا يُكتب في كل مرّة — لكن
+// ما يُرسَل إلى Supabase هو نفسه، والتحقّق يبقى على الخادم. إن لم
+// يُضبط البريد بعد نُظهر حقله أيضاً، فلا يُحبَس المشرف خارج لوحته.
+//
+// ❌ لا تسجيل ذاتي · ❌ لا دخول اجتماعي · ❌ لا كلمة مرور في الكود.
 import { el } from '../core/dom.js';
-import { signIn } from '../core/auth.js';
+import { signIn, hasAdminEmail } from '../core/auth.js';
 import { isConfigured } from '../core/config.js';
 import { logoImg, logoMark } from '../shell/logo.js';
 import logoFx from '../motion/logo-mark.js';
@@ -8,9 +14,12 @@ import logoFx from '../motion/logo-mark.js';
 export function mountAuth(root, onDone) {
   if (!isConfigured) return mountSetup(root);
 
+  const solo = hasAdminEmail();          // بريد مضبوط ← كلمة المرور تكفي
+
   const err = el('p', { class: 'fld__err', role: 'alert', style: { minBlockSize: '1.2em' } });
-  const email = el('input', { type: 'email', class: 'field', autocomplete: 'username',
-    required: true, 'aria-label': 'البريد الإلكتروني', placeholder: 'البريد الإلكتروني' });
+  const email = solo ? null : el('input', { type: 'email', class: 'field',
+    autocomplete: 'username', required: true,
+    'aria-label': 'البريد الإلكتروني', placeholder: 'البريد الإلكتروني' });
   const pass = el('input', { type: 'password', class: 'field', autocomplete: 'current-password',
     required: true, 'aria-label': 'كلمة المرور', placeholder: 'كلمة المرور' });
   const submit = el('button', { class: 'btn btn--primary btn--lg btn--block', type: 'submit' }, ['دخول']);
@@ -22,7 +31,7 @@ export function mountAuth(root, onDone) {
     submit.disabled = true;
     submit.textContent = 'جارٍ الدخول…';
     try {
-      await signIn(email.value.trim(), pass.value);
+      await signIn(pass.value, email ? email.value.trim() : undefined);
       onDone();
     } catch (ex) {
       err.textContent = ex.message || 'تعذّر تسجيل الدخول';
@@ -36,12 +45,15 @@ export function mountAuth(root, onDone) {
     el('h1', { class: 'auth__title' }, ['aboal3z.dzn']),
     el('p', { class: 'auth__sub' }, ['لوحة التحكم']),
     email, pass, err, submit,
+    solo ? null : el('p', { class: 'fld__hint' }, [
+      'أضِف ', el('code', {}, ['ADMIN_EMAIL']), ' في config.local.js ليكفيك إدخال كلمة المرور.',
+    ]),
   ]);
 
   root.replaceChildren(el('div', { class: 'auth' }, [form]));
   // الشعار يتفاعل مع السحب في أي مكان من الشاشة — نفس سلوك الموقع
   try { logoFx.init(mark, {}); } catch (e) { console.warn('[logo]', e); }
-  email.focus();
+  (email || pass).focus();
 }
 
 /** لا اتصال بعد — نعرض خطوات الإعداد بدل شاشة دخول لا تعمل. */

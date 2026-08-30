@@ -16,4 +16,9 @@ window.APP_CONFIG = {
   SUPABASE_URL: 'https://xxxxxxxxxxxxxxxx.supabase.co',
   SUPABASE_ANON_KEY: 'eyJhbGciOi...',
   STORAGE_BUCKET: 'media',
+
+  /* بريد حساب المشرف — به تصير شاشة الدخول كلمةَ مرور فقط.
+     ❌ لا تضع كلمة المرور هنا أبداً: هذا الملف يصل إلى متصفّح كل
+        زائر. كلمة المرور تُضبط في Supabase ← Authentication ← Users. */
+  ADMIN_EMAIL: 'you@example.com',
 };
