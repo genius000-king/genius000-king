@@ -29,17 +29,21 @@ const sorted = (r) => r.slice().sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
    ============================================================ */
 function bentoPreview(block, pkg, onPick, selected) {
   const images = Array.isArray(block.images) ? block.images : [];
-  const { cells } = planBento(images, block.layout || 'auto', { fillGaps: block.fill_gaps !== false });
+  const { cells, cols, square } = planBento(images, block.layout || 'auto',
+    { fillGaps: block.fill_gaps !== false });
 
+  // الشبكة المنتظمة تفرض أعمدتها ونسبتها المربّعة — والمعاينة هنا يجب
+  // أن تُظهر ما يراه الزبون بالضبط، وإلا اختار المشرف نمطاً على غير ما رأى
   const grid = el('div', {
     class: 'bento-prev',
     style: {
-      '--cols': String(block.cols || 12),
-      '--unit': `${block.unit || 54}px`,
+      '--cols': String(square ? cols : (block.cols || 12)),
+      '--unit': square ? 'auto' : `${block.unit || 54}px`,
       '--gap': `${block.gap || 6}px`,
+      ...(square ? { gridAutoRows: 'auto' } : {}),
     },
   }, cells.map((c) => {
-    const style = { '--cs': c.cs, '--rs': c.rs };
+    const style = { '--cs': c.cs, '--rs': c.rs, ...(square ? { aspectRatio: '1' } : {}) };
     if (c.kind === 'fill') {
       return el('span', { class: 'bento-prev__cell is-fill', style,
         title: 'بلاطة لون تملأ الفراغ' }, []);

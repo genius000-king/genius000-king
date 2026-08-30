@@ -1323,7 +1323,8 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
 }
 .glass-panel {
   position: relative;
-  inline-size: min(100%, 1080px);
+  /* كانت 1080px ثابتة فتشغل ٥٦٪ من شاشة 1920 — لوحةً صغيرة وسط فراغ */
+  inline-size: min(100%, 92vw, 1720px);
   max-block-size: 94dvh;
   display: flex;
   flex-direction: column;
@@ -1333,8 +1334,8 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
   transition: translate var(--t-base) var(--ease-out), scale var(--t-base) var(--ease-out);
 }
 .glass-panel__wrap.is-open .glass-panel { translate: 0 0; scale: 1; }
-.glass-panel::before {
-  content: '';
+/* غمّازة السحب — عنصر حقيقي لا ::before، فـ panel.js يُنشئها */
+.glass-panel__grip {
   position: absolute;
   inset-block-start: 10px;
   inset-inline: 0;
@@ -1344,6 +1345,7 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
   border-radius: var(--r-full);
   background: rgba(255, 255, 255, .24);
   z-index: 3;
+  pointer-events: none;
 }
 .glass-panel__close {
   position: absolute;
@@ -1387,9 +1389,14 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
 .glass-panel__error { color: var(--c-danger); text-align: center; padding: var(--s-7); }
 
 @media (min-width: 769px) {
-  .glass-panel__wrap { place-items: center; padding: var(--s-5); }
-  .glass-panel { border-radius: var(--r-xl); max-block-size: 90dvh; }
-  .glass-panel::before { display: none; }
+  .glass-panel__wrap { place-items: center; padding: clamp(12px, 3vh, 28px); }
+  .glass-panel {
+    border-radius: var(--r-xl);
+    inline-size: min(92vw, 1720px);
+    block-size: 92dvh;
+    max-block-size: 92dvh;
+  }
+  .glass-panel__grip { display: none; }
 }
 
 /* ── عارض الصور ── */
@@ -1582,7 +1589,8 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
 
 @media (min-width: 860px) {
   .hero {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+    /* نسبة النصّ إلى الشعار — يضبطها المشرف من لوحة المظهر */
+    grid-template-columns: var(--hero-split, minmax(0, 1.15fr) minmax(0, .85fr));
     align-items: center;
     justify-items: start;
     text-align: start;
@@ -1723,6 +1731,9 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
 .work-detail__shot img { inline-size: 100%; block-size: auto; }
 
 /* ── البكجات ── */
+/* البلاطة مربّعة. كانت ٣ أعمدة × صفّ واحد فتخرج مستطيلاً عريضاً —
+   و aspect-ratio وحدها لا تكفي لأن البينتو يفرض ارتفاع الصف، فنُلغي
+   الارتفاع المفروض ثم نطلب مربّعاً. */
 .pkg {
   position: relative;
   display: grid;
@@ -1732,6 +1743,10 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
   border-radius: var(--r-md);
   overflow: hidden;
   text-align: center;
+  grid-row: auto;
+  aspect-ratio: 1;
+  block-size: auto;
+  align-self: start;
   transition: transform var(--t-base) var(--ease-out), box-shadow var(--t-base) var(--ease-out);
 }
 .pkg:hover, .pkg:focus-visible { transform: translate3d(0, -4px, 0); box-shadow: var(--sh-3), var(--sh-glow-soft); }
@@ -1780,6 +1795,14 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
   gap: var(--gap, clamp(8px, 1vw, 14px));
 }
 .pkg-bento > * { min-inline-size: 0; min-block-size: 0; }
+/* الشبكة المنتظمة: الخليّة مربّعة فعلاً — ارتفاع الصفّ هنا تقرّره
+   نسبةُ الخليّة لا --unit، وإلا خرجت مستطيلات في شبكة يُفترض أن
+   تكون مربّعات. */
+.pkg-bento--square { grid-auto-rows: auto; }
+.pkg-bento--square .pkg-cell { aspect-ratio: 1; }
+.pkg-bento--square .pkg-cell img,
+.pkg-bento--square .pkg-cell video { block-size: 100%; }
+
 .pkg-cell {
   grid-column: span var(--cs, 3);
   grid-row: span var(--rs, 1);
@@ -1961,10 +1984,14 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
        لا transition هنا: أي transition سيقاتل الحساب ويعيد القفز.
    ============================================================ */
 
+/* المقاس والإزاحة من لوحة المظهر (core/theme.js يكتب المتغيّرات).
+   ⚠️ الإزاحة بـ translate لا margin: الأخير يزيح الصندوق فيتغيّر
+      تخطيط الشاشة كلها، والأول يحرّك الشعار وحده فوق مكانه. */
 .logo-mark {
   position: relative;
-  inline-size: min(70vw, 300px);
+  inline-size: min(70vw, var(--logo-size, 300px));
   aspect-ratio: 540 / 448;
+  translate: var(--logo-shift-x, 0px) var(--logo-shift-y, 0px);
   touch-action: manipulation;
   cursor: grab;
   -webkit-user-select: none;
@@ -2054,7 +2081,7 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
 }
 
 @media (max-width: 380px) {
-  .logo-mark { inline-size: min(68vw, 215px); }
+  .logo-mark { inline-size: min(68vw, calc(var(--logo-size, 300px) * .72)); }
 }
 
 @media (max-width: 360px) {

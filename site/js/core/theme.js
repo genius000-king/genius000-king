@@ -9,7 +9,17 @@ export const THEME_KEYS = [
   'c-text', 'c-accent', 'c-accent-text', 'c-accent-2', 'c-warm', 'c-brand',
   'fs-scale', 's-scale', 'fx-intensity',
   'r-sm', 'r-md', 'r-lg', 'r-xl',
-  'container', 'bento-gap', 'bento-unit', 'glass-blur', 'glass-sat',
+  'container', 'bento-gap', 'bento-unit',
+  'glass-blur', 'glass-sat',
+
+  /* ── الشعار: مقاسه وموضعه في الشاشة الأولى ── */
+  'logo-size', 'logo-shift-x', 'logo-shift-y', 'hero-split',
+
+  /* ── تفاعل المجسّم ──
+     تُكتب متغيّرات CSS كبقيّة الثيم، ويقرؤها motion/logo-3d.js من
+     الجذر عند التركيب. فمسار الحفظ والمعاينة واحد لا اثنان. */
+  'logo-fx-r', 'logo-fx-push', 'logo-fx-lift', 'logo-fx-rise', 'logo-fx-fall',
+  'logo-track', 'logo-tilt', 'logo-spin', 'logo-grain', 'logo-particles',
 ];
 
 const HEX = /^#[0-9a-f]{3,8}$/i;

@@ -23,16 +23,18 @@ function fillStyle(pkg, i) {
 
 function wall(block, pkg) {
   const images = Array.isArray(block.images) ? block.images : [];
-  const { cells } = planBento(images, block.layout || 'auto', {
+  const { cells, cols, square } = planBento(images, block.layout || 'auto', {
     fillGaps: block.fill_gaps !== false,
   });
   const openable = cells.filter((c) => c.kind === 'media').map((c) => c.image);
 
   return el('div', {
-    class: 'pkg-bento',
+    // الشبكة المنتظمة تفرض عدد أعمدتها (grid5 يحتاج عشرة)، فتتجاوز
+    // ما اختاره المشرف — وإلا خرجت خمس صور في صفّ من اثني عشر عموداً
+    class: `pkg-bento ${square ? 'pkg-bento--square' : ''}`,
     style: {
-      '--cols': String(block.cols || 12),
-      '--cols-m': String(block.cols_m || 4),
+      '--cols': String(square ? cols : (block.cols || 12)),
+      '--cols-m': String(square ? 2 : (block.cols_m || 4)),
       '--unit': block.unit ? `${block.unit}px` : null,
       '--gap': block.gap ? `${block.gap}px` : null,
     },

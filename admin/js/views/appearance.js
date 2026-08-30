@@ -33,6 +33,29 @@ const GLASS = [
   ['glass-sat', 'تشبّع الزجاج', 100, 220, 10, '%'],
 ];
 
+/* ── الشعار ──
+   الأولان مقاسه وموضعه، والباقي فيزياء تفاعله المجسّم. كلّها مفاتيح
+   ثيم عادية: تُحفظ في جدول theme وتُكتب متغيّراتِ CSS على الجذر،
+   ويقرؤها site/js/motion/logo-3d.js عند التركيب. */
+const LOGO = [
+  ['logo-size', 'حجم الشعار', 140, 620, 10, 'px'],
+  ['logo-shift-x', 'إزاحة أفقية', -160, 160, 5, 'px'],
+  ['logo-shift-y', 'إزاحة رأسية', -160, 160, 5, 'px'],
+];
+
+const LOGO_FX = [
+  ['logo-fx-r', 'قُطر التفكّك تحت المؤشّر', 0.05, 0.9, 0.01, ''],
+  ['logo-fx-push', 'قوة تطاير الجسيمات', 0, 4000, 50, ''],
+  ['logo-fx-lift', 'ارتفاعها عن السطح', 0, 2500, 20, ''],
+  ['logo-fx-rise', 'سرعة التفكّك', 0.01, 0.4, 0.005, ''],
+  ['logo-fx-fall', 'بطء العودة خلف المؤشّر', 0.05, 1.5, 0.05, ''],
+  ['logo-grain', 'خشونة حافّة التفكّك', 0.2, 3, 0.05, ''],
+  ['logo-track', 'سرعة ملاحقة المؤشّر', 0.02, 0.5, 0.01, ''],
+  ['logo-tilt', 'مدى الميلان', 0, 1.4, 0.02, ''],
+  ['logo-spin', 'التمايل الخامل', 0, 0.8, 0.01, ''],
+  ['logo-particles', 'عدد الجسيمات', 1500, 20000, 500, ''],
+];
+
 const SHAPE = [
   ['r-md', 'استدارة البلاطات', 8, 40, 2, 'px'],
   ['r-lg', 'استدارة الكبيرة', 12, 52, 2, 'px'],
@@ -52,7 +75,8 @@ async function set(key, value) {
 
 export function render(host, { query } = {}) {
   const GROUPS = [['colors', 'الألوان'], ['type', 'الخط والمسافات'],
-                  ['glass', 'الزجاج'], ['shape', 'الأشكال']];
+                  ['glass', 'الزجاج'], ['shape', 'الأشكال'],
+                  ['logo', 'الشعار'], ['logofx', 'تفاعل الشعار']];
   let active = GROUPS.some(([k]) => k === query?.g) ? query.g : 'colors';
   const body = el('div');
 
@@ -86,6 +110,15 @@ export function render(host, { query } = {}) {
       body.replaceChildren(el('div', { class: 'fld-grid' }, SCALES.map(sliderRow)));
     } else if (active === 'glass') {
       body.replaceChildren(el('div', { class: 'fld-grid' }, GLASS.map(sliderRow)));
+    } else if (active === 'logo') {
+      body.replaceChildren(el('div', { class: 'fld-grid' }, LOGO.map(sliderRow)));
+    } else if (active === 'logofx') {
+      body.replaceChildren(
+        el('p', { class: 'view__sub', style: { marginBlockEnd: 'var(--a-3)' } }, [
+          'حرّك المؤشّر فوق الشعار في المعاينة لترى الأثر. التغيير يُطبَّق عند إعادة رسم المعاينة.',
+        ]),
+        el('div', { class: 'fld-grid' }, LOGO_FX.map(sliderRow)),
+      );
     } else {
       body.replaceChildren(el('div', { class: 'fld-grid' }, SHAPE.map(sliderRow)));
     }

@@ -26,6 +26,32 @@ export const PRESETS = {
   mini:    { cs: 2, rs: 1, csM: 2, rsM: 1, label: 'صغيرة' },
 };
 
+/* ── شبكات منتظمة ──
+   البينتو فوق يعطي أحجاماً متفاوتة، وأحياناً يُراد العكس: صفوف
+   مرتّبة بخلايا متساوية مربّعة. هنا الأعداد التي تقسم ١٢ بالتساوي.
+
+   الارتفاع: الخلية تصير مربّعة حين يساوي ارتفاعُها عرضَها. عرض
+   الخلية = (عرض الحاوية × cs / 12)، وارتفاعها = rs × unit. فلا
+   يمكن ضمان التربيع بأرقام ثابتة — لذلك يحمل كل نمط `square: true`
+   ويطبّقه CSS بـ aspect-ratio على الخلية بدل حساب rs. */
+export const GRIDS = {
+  grid2: { per: 2, cs: 6, csM: 2, label: 'شبكة ثنائية — صورتان في الصف' },
+  grid3: { per: 3, cs: 4, csM: 2, label: 'شبكة ثلاثية — ثلاث في الصف' },
+  grid4: { per: 4, cs: 3, csM: 2, label: 'شبكة رباعية — أربع في الصف' },
+  grid6: { per: 6, cs: 2, csM: 2, label: 'شبكة سداسية — ستّ في الصف' },
+};
+
+/* ٥ في الصفّ لا يقسم ١٢. نعطيه شبكةً من عشرة أعمدة بدل اثني عشر:
+   الخليّة تشغل عمودين من عشرة. هذا يتطلّب تغيير cols للكتلة كلها،
+   ولذلك يحمل النمط `cols` صريحاً تقرؤه اللوحة والموقع معاً. */
+export const GRID_COLS = { grid5: 10 };
+GRIDS.grid5 = { per: 5, cs: 2, csM: 2, cols: 10, label: 'شبكة خماسية — خمس في الصف' };
+
+export const GRID_KEYS = Object.keys(GRIDS);
+export const isGrid = (mode) => Object.prototype.hasOwnProperty.call(GRIDS, mode);
+/** عدد أعمدة الشبكة لنمط ما — ١٢ ما لم يُذكر خلافه. */
+export const colsFor = (mode) => (isGrid(mode) && GRIDS[mode].cols) || COLS;
+
 export const PRESET_KEYS = Object.keys(PRESETS);
 
 /** يحوّل اسم مقاس (أو مقاساً مخصّصاً) إلى أرقام آمنة. */
@@ -80,13 +106,24 @@ export function planBento(images = [], mode = 'auto', opts = {}) {
   const list = (Array.isArray(images) ? images : []).filter(Boolean);
   if (!list.length) return { cells: [], rows: 0 };
 
+  // الشبكة المنتظمة تتجاوز كل حساب: خلايا متطابقة، بلا ملء فجوات
+  // (الفجوة في آخر صفّ مقصودة هنا — ملؤها يكسر انتظام الشبكة)
+  if (isGrid(mode)) {
+    const g = GRIDS[mode];
+    const cells = list.map((im, i) => ({
+      kind: 'media', image: im, index: i, square: true,
+      cs: g.cs, rs: 1, csM: g.csM, rsM: 1,
+    }));
+    return { cells, rows: Math.ceil(list.length / g.per), cols: g.cols || COLS, square: true };
+  }
+
   const cells = list.map((im, i) => {
     const span = resolveSpan(pickSpan(im, i, mode, list.length));
     return { kind: 'media', image: im, index: i, ...span };
   });
 
   if (opts.fillGaps !== false) fillGaps(cells);
-  return { cells, rows: rowsNeeded(cells) };
+  return { cells, rows: rowsNeeded(cells), cols: COLS, square: false };
 }
 
 function pickSpan(im, i, mode, total) {
@@ -133,7 +170,7 @@ function rowsNeeded(cells) {
   return Math.ceil(units / COLS);
 }
 
-/** الأنماط المتاحة للمشرف. */
+/** الأنماط المتاحة للمشرف — البينتو الحرّ أولاً ثم الشبكات المنتظمة. */
 export const MODES = [
   ['auto',   'تلقائي — حسب نسبة كل صورة'],
   ['mosaic', 'فسيفساء — أحجام متناوبة'],
@@ -141,5 +178,10 @@ export const MODES = [
   ['strip',  'شريط — كلها عريضة'],
   ['pair',   'ثنائي — صورتان في الصف'],
   ['trio',   'ثلاثي — ثلاث في الصف'],
+  ['grid2',  GRIDS.grid2.label],
+  ['grid3',  GRIDS.grid3.label],
+  ['grid4',  GRIDS.grid4.label],
+  ['grid5',  GRIDS.grid5.label],
+  ['grid6',  GRIDS.grid6.label],
   ['manual', 'يدوي — تختار مقاس كل صورة'],
 ];

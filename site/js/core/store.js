@@ -22,10 +22,13 @@ export const TABLES = [
   'site_content', 'theme', 'overrides', 'layout',
   'collections', 'works', 'packages', 'package_blocks',
   'services', 'process_steps', 'payment_methods', 'testimonials', 'order_items',
+  'order_platforms', 'order_usages',
 ];
 
-/* غيّر الرقم لإبطال كل النسخ المخزّنة على أجهزة الزوّار دفعة واحدة. */
-const CACHE_KEY = 'aboal3z:data:v2';
+/* غيّر الرقم لإبطال كل النسخ المخزّنة على أجهزة الزوّار دفعة واحدة.
+   رُفع إلى v3 عند إضافة order_platforms وorder_usages — وإلا ظلّ
+   الزوّار القدامى يقرأون نسخة مخزّنة بلا الجدولين الجديدين. */
+const CACHE_KEY = 'aboal3z:data:v3';
 const MAX_AGE = 7 * 24 * 60 * 60 * 1000;   // أسبوع — والتحديث الصامت يسبقه دائماً
 
 const cache = {};

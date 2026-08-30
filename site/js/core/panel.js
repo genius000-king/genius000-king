@@ -45,6 +45,8 @@ export async function openPanel(id, loader, props = {}) {
     class: 'glass-panel glass glass--strong', role: 'dialog', 'aria-modal': 'true',
     'data-panel': id, tabindex: '-1',
   }, [
+    // غمّازة السحب: عنصر حقيقي لا ::before — تلك محجوزة لحلقة الزجاج
+    el('span', { class: 'glass-panel__grip', 'aria-hidden': 'true' }),
     el('button', { class: 'glass-panel__close', type: 'button', 'aria-label': 'إغلاق اللوحة',
       onclick: () => closePanel() }, ['×']),
     body,

@@ -25,10 +25,19 @@ import {
 export { summarize, validateStep1, validateStep3 };
 
 const DRAFT_KEY = 'aboal3z:draft';
-const PLATFORMS = ['واتساب', 'انستقرام', 'سناب شات', 'بريد إلكتروني'];
-const USAGES = ['تجاري — مشروع أو متجر', 'شخصي — هدية أو مناسبة',
+
+// احتياط: تُستعمل فقط إن كان جدول order_platforms / order_usages فارغاً
+// أو تعذّر جلبه. الطلب يمسّ زبوناً حقيقياً — لا نعرض قائمة فارغة أبداً.
+const FALLBACK_PLATFORMS = ['واتساب', 'انستقرام', 'سناب شات', 'بريد إلكتروني'];
+const FALLBACK_USAGES = ['تجاري — مشروع أو متجر', 'شخصي — هدية أو مناسبة',
                 'فعالية — حفل أو مؤتمر', 'محتوى — سوشيال ميديا'];
 const STEPS = ['البنود', 'المرفقات', 'بياناتك', 'المراجعة'];
+
+/** يقرأ من المخزن (يديره المشرف)، ويرجع للثوابت إن كان الجدول فارغاً. */
+function namesOf(table, fallback) {
+  const names = published(get(table)).map((r) => (r.name || '').trim()).filter(Boolean);
+  return names.length ? names : fallback;
+}
 
 const loadDraft = () => {
   try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch { return null; }
@@ -39,12 +48,21 @@ const saveDraft = (s) => {
 const clearDraft = () => { try { localStorage.removeItem(DRAFT_KEY); } catch { /* */ } };
 
 export default function render({ preset } = {}) {
+  // تُقرأ عند فتح المعالج لا عند تحميل الوحدة: المخزن قد لا يكون
+  // جاهزاً وقت الاستيراد، والمشرف قد يكون عدّلها بين فتحةٍ وأخرى
+  const platforms = namesOf('order_platforms', FALLBACK_PLATFORMS);
+  const usages = namesOf('order_usages', FALLBACK_USAGES);
+
   const draft = loadDraft();
   const state = {
     items: [], custom: [], files: [], uploaded: [],
-    name: '', contact: '', platform: PLATFORMS[0], usage: USAGES[0], description: '',
+    name: '', contact: '', platform: platforms[0], usage: usages[0], description: '',
     ...(draft || {}),
   };
+  // مسودّة قديمة قد تحمل خياراً حذفه المشرف — وإلا أُرسل الطلب بقيمة
+  // لم تعد موجودة، أو ظهرت قائمة بلا شيء محدَّد
+  if (!platforms.includes(state.platform)) state.platform = platforms[0];
+  if (!usages.includes(state.usage)) state.usage = usages[0];
   if (preset?.name) state.custom = [...(state.custom || []), { text: preset.name, qty: preset.qty || 1 }];
 
   let step = 1;
@@ -254,14 +272,14 @@ export default function render({ preset } = {}) {
         value: state.name, oninput: (e) => { state.name = e.target.value; saveDraft(state); } })),
       field('المنصة المفضّلة', el('select', { class: 'field',
         onchange: (e) => { state.platform = e.target.value; saveDraft(state); } },
-        PLATFORMS.map((p) => el('option', { value: p, selected: p === state.platform }, [p])))),
+        platforms.map((p) => el('option', { value: p, selected: p === state.platform }, [p])))),
       field('وسيلة التواصل', el('input', { type: 'text', class: 'field', inputmode: 'tel',
         placeholder: 'رقم واتساب أو معرف انستقرام', value: state.contact,
         oninput: (e) => { state.contact = e.target.value; saveDraft(state); } }),
         'لو اخترت واتساب اكتب الرقم بالأرقام — مثل 05xxxxxxxx'),
       field('نوع الاستخدام', el('select', { class: 'field',
         onchange: (e) => { state.usage = e.target.value; saveDraft(state); } },
-        USAGES.map((u) => el('option', { value: u, selected: u === state.usage }, [u])))),
+        usages.map((u) => el('option', { value: u, selected: u === state.usage }, [u])))),
       field('وصف الفكرة', el('div', { class: 'field__stack' }, [desc, counter])),
     ]);
   }

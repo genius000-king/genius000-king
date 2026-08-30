@@ -52,20 +52,61 @@ export const TUNE = {
   burst:    1050,   // قوة الانفجار الكامل عند النقر
   spread:   210,    // نصيب العشوائية من الانفجار
   burstFade: 0.55,  // ث — انحسار الانفجار بعد فترة الإمساك
-  size:     7.5,    // قطر الجسيمة بوحدات المجسّم
+  size:     9,      // قطر الجسيمة بوحدات المجسّم
   wind:     0.9,    // دفع السحب على ما هو مُفعَّل
 
   /* ── الحقل الموضعي تحت المؤشّر ──
-     هذا هو التفاعل الأساسي: لا نقرة ولا تصويب. مجرّد مرور الماوس
-     يفكّك ما تحته ويعيد تشكيله خلفه. */
+     التفاعل الأساسي: لا نقرة ولا تصويب. مجرّد مرور الماوس أو الإصبع
+     يحوّل ما تحته إلى جسيمات ويعيده خلفه.
+
+     ⚠️ الدفع ضعيف عمداً. جرّبناه قوياً فطارت الجسيمات بعيداً وتُرك
+        مكانها خالياً — فتُقرأ فجوةً محفورة في الشعار لا تحوّلاً.
+        حين تبقى الجسيمة قرب موضعها ترفّ مكانها، فترى المادّة نفسها
+        وقد صارت غباراً: هذا هو «التحوّل». */
   fxR:      0.30,   // نصف قطر التأثير، نسبةً إلى نصف قطر المجسّم
-  fxRise:   0.045,  // ث — تفكّك ما يدخل الحقل (سريع)
-  fxFall:   0.40,   // ث — عودة ما خرج منه (أبطأ، فيبقى أثر)
-  fxPush:   1500,   // دفع الجسيمات بعيداً عن المؤشّر
-  fxLift:   760,    // رفعها عن سطح المجسّم فتبدو خارجةً منه
-  grain:    0.9,    // خشونة حافّة التفكّك (أكبر = حبيبات أدقّ)
+  fxRise:   0.07,   // ث — تحوّل ما يدخل الحقل (ناعم لا مفاجئ)
+  fxFall:   0.45,   // ث — عودة ما خرج منه (أبطأ، فيبقى أثر)
+  fxPush:   240,    // رفّة جانبية خفيفة — لا قذف
+  fxLift:   170,    // ارتفاع طفيف عن السطح
+  fxSwirl:  1.6,    // دوران حول موضع المؤشّر: يمنع الجمود بلا تشتيت
+  fxKeep:   0.17,   // ما يبقى من السطح في قلب الحقل — بلا هذا يصير ثقباً
+  grain:    1.7,    // خشونة حافّة التحوّل (أكبر = حبيبات أدقّ)
   idleMs:   2600,   // إن سكن المؤشّر هذا الزمن يهدأ الحقل
 };
+
+/* ── جسر لوحة المشرف ──
+   ما يضبطه المشرف يُكتب متغيّراتِ CSS على الجذر (core/theme.js)،
+   ونقرؤه هنا عند التركيب. فالمسار واحد: نفس الحفظ ونفس المعاينة
+   الحيّة داخل iframe اللوحة، بلا قناة ثانية نصونها. */
+const THEME_MAP = {
+  fxR: ['--logo-fx-r', 0.05, 1],
+  fxPush: ['--logo-fx-push', 0, 6000],
+  fxLift: ['--logo-fx-lift', 0, 4000],
+  fxRise: ['--logo-fx-rise', 0.005, 1],
+  fxFall: ['--logo-fx-fall', 0.03, 3],
+  track: ['--logo-track', 0.01, 1],
+  tiltY: ['--logo-tilt', 0, 2],
+  spin: ['--logo-spin', 0, 2],
+  grain: ['--logo-grain', 0.1, 6],
+};
+
+/** يقرأ تجاوزات المشرف من الجذر. القيمة الفاسدة تُتجاهَل لا تُعطِّل. */
+function tuneFromTheme() {
+  const cs = getComputedStyle(document.documentElement);
+  const out = { ...TUNE };
+  for (const [key, [varName, lo, hi]] of Object.entries(THEME_MAP)) {
+    const raw = cs.getPropertyValue(varName).trim();
+    if (!raw) continue;
+    const n = parseFloat(raw);
+    if (!Number.isFinite(n)) continue;
+    out[key] = Math.min(hi, Math.max(lo, n));
+  }
+  // الميلان الرأسي يتبع الأفقي بنسبة ثابتة — مسطرة واحدة تكفي المشرف
+  out.tiltX = out.tiltY * (TUNE.tiltX / TUNE.tiltY);
+  const p = parseFloat(cs.getPropertyValue('--logo-particles'));
+  out.particles = Number.isFinite(p) ? Math.min(24000, Math.max(800, p)) : null;
+  return out;
+}
 
 const clamp = (v, a = 0, b = 1) => (v < a ? a : v > b ? b : v);
 const smooth = (t) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
@@ -150,9 +191,11 @@ export function mount(THREE, host, opts = {}) {
   const canvas = host.querySelector('.logo-mark__fx');
   if (!canvas) return null;
 
+  const T = tuneFromTheme();          // ثوابت الفيزياء بعد تجاوزات المشرف
   const intensity = clamp(Number(opts.intensity ?? 1), 0, 1);
   const low = prefs.lowPower;
-  const N = Math.round((low ? 4200 : prefs.touch ? 7000 : 12000) * (0.5 + intensity * 0.5));
+  const base = T.particles ?? (low ? 6000 : prefs.touch ? 10000 : 17000);
+  const N = Math.round(base * (0.5 + intensity * 0.5));
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: !low, alpha: true,
     powerPreference: low ? 'low-power' : 'high-performance' });
@@ -185,7 +228,7 @@ export function mount(THREE, host, opts = {}) {
     uFxR:     { value: 120 },                          // نصف قطر التأثير
     uBurst:   { value: 0 },                            // 0..1 للانفجار الكامل
     uModelR:  { value: 300 },
-    uGrain:   { value: TUNE.grain },
+    uGrain:   { value: T.grain },
   };
 
   /* ── الخامتان ──
@@ -213,7 +256,7 @@ export function mount(THREE, host, opts = {}) {
       sh.fragmentShader = sh.fragmentShader
         .replace('#include <common>', `#include <common>
 varying vec2 vLocalXY;
-uniform vec2 uFxPos; uniform float uFxR, uBurst, uModelR, uGrain;
+uniform vec2 uFxPos; uniform float uFxR, uBurst, uModelR, uGrain, uKeep;
 // ضوضاء رخيصة: تجعل حافّة التفكّك حبيبات لا دائرة مقصوصة بمقصّ
 float lgHash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.545); }`)
         .replace('#include <clipping_planes_fragment>', `#include <clipping_planes_fragment>
@@ -222,7 +265,9 @@ float lgHash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.545);
   float pf = 1.0 - smoothstep(uFxR * 0.42, uFxR, d);          // قرب المؤشّر
   float rr = length(vLocalXY) / max(1.0, uModelR);
   float bw = clamp(uBurst * 1.55 - rr * 0.55, 0.0, 1.0);      // موجة الانفجار
-  float a  = max(pf, bw);
+  // uKeep يمنع الحذف الكامل: يبقى نسيج رقيق من السطح حتى في القلب،
+  // فيُقرأ الموضع مادّةً تتفكّك لا فجوةً سوداء
+  float a  = min(max(pf, bw), 1.0 - uKeep);
   if (a > 0.002 && a > lgHash(floor(vLocalXY * uGrain)) * 0.94 + 0.03) discard;
 }`);
     };
@@ -250,7 +295,7 @@ float lgHash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.545);
   const HALF_W = sz.x / 2, HALF_H = sz.y / 2;
   const RADIUS = Math.hypot(sz.x, sz.y) / 2;      // مرجع مقياس، لا تأطير
   FX.uModelR.value = RADIUS;
-  FX.uFxR.value = RADIUS * TUNE.fxR;
+  FX.uFxR.value = RADIUS * T.fxR;
 
   /* ── الجسيمات: عيّنات من سطح المجسّم بترجيح المساحة ── */
   const home = new Float32Array(N * 3), pos = new Float32Array(N * 3);
@@ -311,7 +356,7 @@ float lgHash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.545);
   pGeo.setAttribute('aAct', new THREE.BufferAttribute(act, 1));
   const pMat = new THREE.ShaderMaterial({
     transparent: true, depthWrite: false,
-    uniforms: { uSize: { value: TUNE.size }, uProj: { value: 600 } },
+    uniforms: { uSize: { value: T.size }, uProj: { value: 600 } },
     vertexShader: `
       attribute vec3 aColor; attribute float aAct;
       varying vec3 vC; varying float vD, vA;
@@ -393,8 +438,8 @@ float lgHash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.545);
 
   function burst(power = 1) {
     burstAmt = Math.min(1.6, burstAmt + power);
-    burstUntil = performance.now() + TUNE.holdMs;
-    const F = TUNE.burst * power, S = TUNE.spread * power;
+    burstUntil = performance.now() + T.holdMs;
+    const F = T.burst * power, S = T.spread * power;
     for (let i = 0; i < N; i++) {
       const j = i * 3;
       const d = Math.hypot(home[j], home[j + 1], home[j + 2]) || 1;
@@ -412,14 +457,14 @@ float lgHash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.545);
     last = now;
 
     // المؤشّر يهدأ إن سكن طويلاً: لا يبقى ثقبٌ محفور في الشعار
-    if (pointerLive && now - lastPointer > TUNE.idleMs) pointerLive = false;
+    if (pointerLive && now - lastPointer > T.idleMs) pointerLive = false;
     projectPointer();
     const live = pointerLive && px < 1e5;
     FX.uFxPos.value.set(live ? px : 1e6, live ? py : 1e6);
 
     // الانفجار ينحسر بعد فترة الإمساك
     if (now > burstUntil && burstAmt > 0) {
-      burstAmt -= dt / TUNE.burstFade;
+      burstAmt -= dt / T.burstFade;
       if (burstAmt < 0) burstAmt = 0;
     }
     FX.uBurst.value = Math.min(1, burstAmt);
@@ -429,9 +474,9 @@ float lgHash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.545);
        من الجسيمات. الاختلاف بينهما يعني ثقباً أو ازدواجاً. */
     const R = FX.uFxR.value, R0 = R * 0.42;
     const bAmt = FX.uBurst.value;
-    const riseA = approach(dt, TUNE.fxRise);
-    const fallA = approach(dt, TUNE.fxFall);
-    const drag = Math.pow(TUNE.drag, dt * 60);
+    const riseA = approach(dt, T.fxRise);
+    const fallA = approach(dt, T.fxFall);
+    const drag = Math.pow(T.drag, dt * 60);
     let anyAct = false;
 
     for (let i = 0; i < N; i++) {
@@ -456,15 +501,17 @@ float lgHash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.545);
         if (pf > 0.01) {
           const dx = pos[j] - px, dy = pos[j + 1] - py;
           const d = Math.hypot(dx, dy) || 1;
-          const f = TUNE.fxPush * pf * dt;
-          vel[j] += (dx / d) * f;
-          vel[j + 1] += (dy / d) * f;
-          vel[j + 2] += (seed[j + 2] * 0.6 + 0.6) * TUNE.fxLift * pf * dt;
+          const f = T.fxPush * pf * dt;
+          // نصفها طرد ونصفها دوران: الطرد وحده يفرّغ المكان، والدوران
+          // وحده يجمّدها في مدار. معاً ترفّ حول موضعها
+          vel[j] += ((dx / d) * f) + (-dy / d) * f * T.fxSwirl;
+          vel[j + 1] += ((dy / d) * f) + (dx / d) * f * T.fxSwirl;
+          vel[j + 2] += (seed[j + 2] * 0.7 + 0.5) * T.fxLift * pf * dt;
         }
         // النابض يشدّ إلى البيت، ويضعف بقدر ما الجسيم مُفعَّل
         const gi = 1 - a * 0.92;
-        const k = TUNE.omega * TUNE.omega * gi;
-        const c = 2 * TUNE.omega * Math.sqrt(gi > 1e-4 ? gi : 1e-4);
+        const k = T.omega * T.omega * gi;
+        const c = 2 * T.omega * Math.sqrt(gi > 1e-4 ? gi : 1e-4);
         const ex = home[j] - pos[j], ey = home[j + 1] - pos[j + 1], ez = home[j + 2] - pos[j + 2];
         vel[j] = (vel[j] + (ex * k - vel[j] * c) * dt) * drag;
         vel[j + 1] = (vel[j + 1] + (ey * k - vel[j + 1] * c) * dt) * drag;
@@ -485,10 +532,10 @@ float lgHash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.545);
     points.visible = anyAct;
 
     /* ── الميلان: ملاحقة سريعة ── */
-    const t = approach(dt, TUNE.track);
+    const t = approach(dt, T.track);
     rx += (tx - rx) * t;
     ry += (ty - ry) * t;
-    spin += dt * TUNE.spin;
+    spin += dt * T.spin;
     group.rotation.x = rx + Math.sin(now / 2600) * .04;
     group.rotation.y = ry + Math.sin(spin) * .16;
     group.position.y = Math.sin(now / 1900) * RADIUS * .022;
@@ -512,8 +559,8 @@ float lgHash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.545);
      الاستماع على النافذة كلها: المؤثّر يستجيب لمرور الماوس ولو لم
      يقصده أحد، وهذا هو المطلوب — لا نقرة ولا تصويب. */
   const onMove = (e) => {
-    ty = clamp((e.clientX / innerWidth - .5) * 2, -1, 1) * TUNE.tiltY;
-    tx = clamp((e.clientY / innerHeight - .5) * -2, -1, 1) * TUNE.tiltX;
+    ty = clamp((e.clientX / innerWidth - .5) * 2, -1, 1) * T.tiltY;
+    tx = clamp((e.clientY / innerHeight - .5) * -2, -1, 1) * T.tiltX;
     const r = canvas.getBoundingClientRect();
     ndcX = ((e.clientX - r.left) / r.width) * 2 - 1;
     ndcY = -((e.clientY - r.top) / r.height) * 2 + 1;
@@ -522,7 +569,7 @@ float lgHash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.545);
     if (dragging) {
       const dx = e.clientX - lastX, dy = e.clientY - lastY;
       lastX = e.clientX; lastY = e.clientY;
-      const w = TUNE.wind;                     // السحب يدفع ما هو مُفعَّل فقط
+      const w = T.wind;                     // السحب يدفع ما هو مُفعَّل فقط
       for (let i = 0; i < N; i++) {
         if (act[i] < .02) continue;
         vel[i * 3] += dx * w * act[i];

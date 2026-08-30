@@ -16,9 +16,12 @@ export const TABLES = [
   'site_content', 'theme', 'overrides', 'layout',
   'collections', 'works', 'packages', 'package_blocks',
   'services', 'process_steps', 'payment_methods', 'testimonials', 'order_items',
+  'order_platforms', 'order_usages',
 ];
 
-const CACHE_KEY = 'aboal3z:admin-data:v2';
+/* رُفع إلى v3 عند إضافة order_platforms وorder_usages — وإلا ظلّت
+   نسخة الجهاز القديمة بلا الجدولين الجديدين حتى انتهاء MAX_AGE. */
+const CACHE_KEY = 'aboal3z:admin-data:v3';
 const MAX_AGE = 3 * 24 * 60 * 60 * 1000;   // ثلاثة أيام
 
 const cache = {};
