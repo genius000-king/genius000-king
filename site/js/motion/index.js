@@ -1,6 +1,8 @@
 // index.js — سجل المؤثرات. إضافة مؤثر = import + إدخال في المصفوفة.
 //
 // الميزانية: 14 مؤثراً · لوحة رسم واحدة كحدّ أقصى.
+// الشعار صار WebGL (logo-3d.js) — يُحمَّل عند ظهوره لا في الإقلاع،
+// ويعود تلقائياً إلى المحرّك المسطّح إن غاب WebGL أو طُلب تقليل الحركة.
 // الزجاج خرج من هنا: صار وصفة CSS قياسية بلا JavaScript.
 // المحذوفة: الجاذبية · السائل · تشويه الزجاج · موجة الشبكة · أثر المؤشر ·
 // التشويش · حقل النجوم — سبعة مؤثرات تستهلك أداءً ولا تضيف قيمة في البينتو.
@@ -19,7 +21,7 @@ import marquee from './marquee.js';
 import swap from './swap.js';
 import shine from './shine.js';
 import drawLine from './draw-line.js';
-import logoMark from './logo-mark.js';
+import logoMark from './logo-3d.js';   // ← يسقط إلى logo-mark.js بلا WebGL
 
 [
   magnetic, tilt, glass, cursor, reveal, reveal3d, parallax, counter,

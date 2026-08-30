@@ -19,7 +19,7 @@
    لإبطال كل ما هو محفوظ على أجهزة الزوّار: غيّر VERSION.
    ============================================================ */
 
-const VERSION = 'v2.0.0';
+const VERSION = 'v2.1.0';
 const CACHE = `aboal3z-site-${VERSION}`;
 
 /* ما نريده جاهزاً قبل أول استخدام — الباقي يُحفظ وهو يُطلب */
@@ -89,7 +89,15 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // قاعدة البيانات: تمرّ كما هي — لا تخزين
+  // محرّك العرض من الـ CDN: نسخة واحدة تكفي إلى الأبد (الإصدار مثبّت
+  // في الرابط)، فلا تُطلب الشبكة في الزيارات التالية ولا يتوقّف الشعار
+  // على وجود اتصال
+  if (/^https:\/\/cdnjs\.cloudflare\.com\//.test(req.url) && /three/.test(url.pathname)) {
+    e.respondWith(staleWhileRevalidate(req));
+    return;
+  }
+
+  // قاعدة البيانات وكل ما عداه: يمرّ كما هو — لا تخزين
   if (url.origin !== location.origin) return;
 
   if (req.mode === 'navigate' || /\.html?$/.test(url.pathname) || url.pathname.endsWith('/')) {
