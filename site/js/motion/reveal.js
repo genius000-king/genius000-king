@@ -1,11 +1,10 @@
-// reveal — الظهور بموجات، ثنائي أو ثلاثي الأبعاد، مع غبار يتجمّع.
+// reveal — الظهور بموجات، ثنائي أو ثلاثي الأبعاد.
 //
 // ثلاثة إصلاحات جوهرية عن النسخة السابقة:
 //   1. threshold: 0  — العنصر الأطول من نافذة العرض كان لا يبلغ 8% أبداً.
 //   2. مؤقّت أمان    — أي عنصر لم يُلاحَظ خلال 1200ms يظهر رغماً عن المراقب.
 //   3. فحص فوري      — ما هو ظاهر أصلاً عند التهيئة يظهر بلا انتظار تمرير.
 import prefs from './prefs.js';
-import { assemble } from './assemble.js';
 
 const STEP = 64;
 const SAFETY_MS = 1200;
@@ -27,10 +26,7 @@ function make(name, cls) {
         k.style.setProperty('--reveal-delay', `${Math.round(i * step)}ms`);
       });
 
-      // الظهور نفسه لم يتغيّر — أُضيف فوقه غبارٌ يتجمّع على موضع
-      // البلاطة في اللحظة ذاتها، فتُقرأ كأنها تتشكّل لا كأنها تُكشف.
-      // assemble تتولّى بنفسها: تقليل الحركة، السقف، وخارج الشاشة.
-      const show = (k) => { k.classList.add('is-in'); assemble(k); };
+      const show = (k) => { k.classList.add('is-in'); };
 
       const io = new IntersectionObserver((entries) => {
         for (const e of entries) {
