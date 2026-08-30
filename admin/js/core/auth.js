@@ -1,6 +1,12 @@
 // auth.js — مصادقة Supabase عبر REST مباشرة.
-// ⛔ لا كلمة مرور مكتوبة في الكود — الحساب يُنشأ من لوحة Supabase.
-import { SUPABASE_URL, SUPABASE_ANON_KEY, isConfigured } from './config.js';
+//
+// ⛔ لا كلمة مرور مكتوبة في الكود — الحساب يُنشأ من لوحة Supabase،
+//    والتحقّق يقع على الخادم لا في المتصفّح.
+//
+// البريد ثابت في config.local.js (ADMIN_EMAIL) فلا يُكتب في كل دخول،
+// لكن الجلسة تبقى جلسة Supabase حقيقية: بلا رمزها لا تكتب سياسات
+// RLS حرفاً واحداً في القاعدة. إخفاء الحقل لم يُضعف الحماية.
+import { SUPABASE_URL, SUPABASE_ANON_KEY, ADMIN_EMAIL, isConfigured } from './config.js';
 import { setToken } from './api.js';
 
 const KEY = 'aboal3z:session';
@@ -32,7 +38,7 @@ async function post(path, body) {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     const msg = data.error_description || data.msg || data.message || '';
-    throw new Error(/invalid/i.test(msg) ? 'البريد أو كلمة المرور غير صحيحة' : (msg || 'تعذّر تسجيل الدخول'));
+    throw new Error(/invalid/i.test(msg) ? 'كلمة المرور غير صحيحة' : (msg || 'تعذّر تسجيل الدخول'));
   }
   return data;
 }
@@ -55,10 +61,19 @@ export function isAuthed() { return !!session?.access_token; }
 export function accessToken() { return session?.access_token || null; }
 export function currentUser() { return session?.user || null; }
 
-export async function signIn(email, password) {
-  persist(await post('token?grant_type=password', { email, password }));
+/**
+ * دخول بكلمة المرور. البريد من الإعدادات، ويُقبل تمريره لحالة
+ * لم يُضبط فيها ADMIN_EMAIL بعد.
+ */
+export async function signIn(password, email = ADMIN_EMAIL) {
+  const mail = String(email || '').trim();
+  if (!mail) throw new Error('بريد المشرف غير مضبوط في config.local.js');
+  persist(await post('token?grant_type=password', { email: mail, password }));
   return session;
 }
+
+/** هل يكفي إدخال كلمة المرور وحدها؟ */
+export const hasAdminEmail = () => Boolean(ADMIN_EMAIL);
 
 export async function refresh() {
   if (!session?.refresh_token) return session;

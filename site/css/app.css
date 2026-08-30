@@ -1984,11 +1984,15 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
   will-change: opacity;
 }
 
-/* اللوحة أوسع من الصندوق: الجسيمات تخرج ولا تُقصّ */
+/* اللوحة أوسع من الصندوق: الجسيمات تخرج ولا تُقصّ.
+   ⚠️ max-inline-size: none ضروري — قاعدة الإعادة العامة
+   (img, video, canvas, svg { max-inline-size: 100% }) كانت تردّ
+   العرض إلى 100% فتُقصّ الجسيمات أفقياً بينما تخرج رأسياً. */
 .logo-mark__fx {
   position: absolute;
   inset: -26%;
   inline-size: 152%;
+  max-inline-size: none;
   block-size: 152%;
   opacity: 0;
   pointer-events: none;
