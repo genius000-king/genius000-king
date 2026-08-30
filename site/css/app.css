@@ -1323,9 +1323,11 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
 }
 .glass-panel {
   position: relative;
-  /* كانت 1080px ثابتة فتشغل ٥٦٪ من شاشة 1920 — لوحةً صغيرة وسط فراغ */
+  /* كانت 1080px ثابتة فتشغل ٥٦٪ من شاشة 1920 — لوحةً صغيرة وسط فراغ.
+     وعلى الجوال كانت تنكمش على محتواها فتبدأ من منتصف الشاشة. */
   inline-size: min(100%, 92vw, 1720px);
-  max-block-size: 94dvh;
+  block-size: 92dvh;
+  max-block-size: 92dvh;
   display: flex;
   flex-direction: column;
   border-radius: var(--r-xl) var(--r-xl) 0 0;
@@ -1738,8 +1740,9 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
   position: relative;
   display: grid;
   place-items: center;
-  gap: var(--s-2);
-  padding: var(--s-5);
+  align-content: center;
+  gap: var(--s-1);
+  padding: var(--s-4);
   border-radius: var(--r-md);
   overflow: hidden;
   text-align: center;
@@ -1750,20 +1753,49 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
   transition: transform var(--t-base) var(--ease-out), box-shadow var(--t-base) var(--ease-out);
 }
 .pkg:hover, .pkg:focus-visible { transform: translate3d(0, -4px, 0); box-shadow: var(--sh-3), var(--sh-glow-soft); }
-.pkg__logo { inline-size: min(64%, 128px); aspect-ratio: 1; object-fit: contain; transition: transform var(--t-base) var(--ease-spring); }
-.pkg:hover .pkg__logo { transform: scale(1.07) rotate(-3deg); }
+
+/* ── الصورة هي البلاطة ──
+   كانت شعاراً صغيراً (٦٤٪) وسط لوح مصمت، وغلافاً مخفياً لا يظهر إلا
+   عند المرور. الآن الغلاف يملأ الإطار ظاهراً، والشعار يكبر ليملأه إن
+   لم يكن ثمّة غلاف، والاسم يعلوه بستارة تدرّج تضمن قراءته على أي صورة. */
 .pkg__cover {
   position: absolute;
   inset: 0;
   inline-size: 100%;
   block-size: 100%;
   object-fit: cover;
-  opacity: 0;
-  transition: opacity var(--t-base) var(--ease-out);
+  opacity: 1;
+  transition: transform var(--t-slower) var(--ease-out);
 }
-.pkg:hover .pkg__cover { opacity: .22; }
-.pkg__name { font-size: var(--fs-sm); font-weight: 600; }
-.pkg__count { font-size: var(--fs-xs); color: var(--c-text-3); font-family: var(--font-mono); }
+.pkg:hover .pkg__cover { transform: scale(1.06); }
+
+.pkg__logo {
+  inline-size: min(88%, 260px);
+  aspect-ratio: 1;
+  object-fit: contain;
+  transition: transform var(--t-base) var(--ease-spring);
+}
+/* بوجود غلاف يصغر الشعار ويعلوه شارةً؛ بلا غلاف هو البطل */
+.pkg:has(.pkg__cover) .pkg__logo { inline-size: min(46%, 132px); }
+.pkg:hover .pkg__logo { transform: scale(1.06) rotate(-2deg); }
+
+/* الستارة: تُبقي الاسم مقروءاً فوق أي صورة، بلا تعتيم الصورة كلها */
+.pkg::after {
+  content: '';
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline: 0;
+  block-size: 52%;
+  background: linear-gradient(to top, rgba(6, 9, 18, .88), rgba(6, 9, 18, .34) 46%, transparent);
+  pointer-events: none;
+}
+.pkg__name, .pkg__count {
+  position: relative;
+  z-index: 1;
+  align-self: end;
+}
+.pkg__name { font-size: var(--fs-card); font-weight: 700; }
+.pkg__count { font-size: var(--fs-xs); color: var(--c-text-2); font-family: var(--font-mono); }
 .pkg__fallback {
   font-size: var(--fs-card);
   font-weight: 700;
@@ -1802,6 +1834,53 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
 .pkg-bento--square .pkg-cell { aspect-ratio: 1; }
 .pkg-bento--square .pkg-cell img,
 .pkg-bento--square .pkg-cell video { block-size: 100%; }
+
+/* ── المعرض الأفقي ──
+   الصور تملأ إطاراتها بلا لوح خلفها: الإطار شفّاف، والصورة هي كل
+   ما يُرى. الارتفاع من نافذة العرض لا من وحدة البينتو، فيملأ اللوحة
+   المنبثقة التي صارت ٩٢٪. */
+.pkg-strip {
+  inline-size: 100%;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y;
+  -webkit-mask-image: linear-gradient(to left, transparent, #000 4%, #000 96%, transparent);
+          mask-image: linear-gradient(to left, transparent, #000 4%, #000 96%, transparent);
+}
+.pkg-strip.is-dragging { cursor: grabbing; }
+.pkg-strip__track {
+  display: flex;
+  gap: var(--gap, clamp(8px, 1vw, 14px));
+  inline-size: max-content;
+  will-change: transform;
+}
+.pkg-strip__cell {
+  position: relative;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  block-size: min(62dvh, 520px);
+  transition: transform var(--t-base) var(--ease-out);
+}
+.pkg-strip__cell img,
+.pkg-strip__cell video {
+  display: block;
+  block-size: 100%;
+  inline-size: auto;
+  max-inline-size: none;
+  object-fit: contain;          /* الشفافية تبقى شفافية — لا قصّ ولا لوح */
+}
+.pkg-strip__cell:hover { transform: translateY(-4px); }
+@media (max-width: 640px) {
+  .pkg-strip__cell { block-size: min(46dvh, 360px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pkg-strip { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .pkg-strip__track { transform: none !important; }
+}
 
 .pkg-cell {
   grid-column: span var(--cs, 3);
@@ -2046,6 +2125,9 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
   .t--tall { grid-column: span 4; grid-row: span 2; }
   .t--portrait { grid-column: span 4; grid-row: span 3; }
   .t--box, .t--third, .t--half, .t--quarter { grid-column: span 4; }
+  /* البلاطة المربّعة بعرض الشاشة تصير مربّعاً ضخماً يبتلع الشاشة —
+     اثنتان في الصفّ أنسب. الانتقاء أخصّ من .t--quarter فيغلبه. */
+  .bento > .pkg { grid-column: span 2; }
   .t--third-tall { grid-column: span 4; grid-row: span 2; }
   .t--mini { grid-column: span 2; }
   .grid { grid-template-columns: repeat(min(var(--cols, 1), 2), minmax(0, 1fr)); }
@@ -2077,6 +2159,9 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
 
 @media (max-width: 480px) {
   .t--box, .t--third, .t--half, .t--quarter { grid-column: span 4; }
+  /* البلاطة المربّعة بعرض الشاشة تصير مربّعاً ضخماً يبتلع الشاشة —
+     اثنتان في الصفّ أنسب. الانتقاء أخصّ من .t--quarter فيغلبه. */
+  .bento > .pkg { grid-column: span 2; }
   .t--tall, .t--third-tall, .t--portrait { grid-column: span 2; }
 }
 

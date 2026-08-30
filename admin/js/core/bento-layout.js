@@ -47,6 +47,12 @@ export const GRIDS = {
 export const GRID_COLS = { grid5: 10 };
 GRIDS.grid5 = { per: 5, cs: 2, csM: 2, cols: 10, label: 'شبكة خماسية — خمس في الصف' };
 
+/* ── معرض أفقي ──
+   ليس شبكة أصلاً: شريط واحد يمشي أفقياً بلا نهاية، يتحرّك وحده
+   ويُسحب باليد. يتولّاه motion/marquee.js — والمخطِّط هنا يكتفي
+   بالإشارة إليه فلا يحسب صفوفاً ولا أعمدة. */
+export const isGallery = (mode) => mode === 'gallery';
+
 export const GRID_KEYS = Object.keys(GRIDS);
 export const isGrid = (mode) => Object.prototype.hasOwnProperty.call(GRIDS, mode);
 /** عدد أعمدة الشبكة لنمط ما — ١٢ ما لم يُذكر خلافه. */
@@ -105,6 +111,14 @@ function ratioOf(image) {
 export function planBento(images = [], mode = 'auto', opts = {}) {
   const list = (Array.isArray(images) ? images : []).filter(Boolean);
   if (!list.length) return { cells: [], rows: 0 };
+
+  // المعرض لا يُخطَّط: الشريط يرتّب نفسه أفقياً
+  if (isGallery(mode)) {
+    return {
+      cells: list.map((im, i) => ({ kind: 'media', image: im, index: i })),
+      rows: 1, cols: COLS, square: false, gallery: true,
+    };
+  }
 
   // الشبكة المنتظمة تتجاوز كل حساب: خلايا متطابقة، بلا ملء فجوات
   // (الفجوة في آخر صفّ مقصودة هنا — ملؤها يكسر انتظام الشبكة)
@@ -183,5 +197,6 @@ export const MODES = [
   ['grid4',  GRIDS.grid4.label],
   ['grid5',  GRIDS.grid5.label],
   ['grid6',  GRIDS.grid6.label],
+  ['gallery', 'معرض — شريط أفقي يمشي وحده ويُسحب باليد'],
   ['manual', 'يدوي — تختار مقاس كل صورة'],
 ];

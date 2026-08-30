@@ -57,7 +57,10 @@ export function mount(root, opts = {}) {
             ['⚙ إدارة البكجات'])])
       : null,
     list.length
-      ? el('div', { class: 'bento', 'data-fx': 'reveal', 'data-fx-children': '.pkg' },
+      // ⚠️ bento--flow لا bento: صفوف البينتو الثابتة ارتفاعها
+      //    --bento-unit، والبلاطة المربّعة أطول منها بكثير فتفيض
+      //    وتتراكب على القسم الذي يليها. الصفوف المرنة تكبر معها.
+      ? el('div', { class: 'bento bento--flow', 'data-fx': 'reveal', 'data-fx-children': '.pkg' },
           list.map((p) => tile(p, SPAN)))
       : el('div', { class: 'bento bento--flow' }, [
           emptyState('لا توجد بكجات منشورة بعد', 'أضِف بكجاً من لوحة التحكم لتظهر هنا.'),

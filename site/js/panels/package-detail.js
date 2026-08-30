@@ -23,10 +23,30 @@ function fillStyle(pkg, i) {
 
 function wall(block, pkg) {
   const images = Array.isArray(block.images) ? block.images : [];
-  const { cells, cols, square } = planBento(images, block.layout || 'auto', {
+  const { cells, cols, square, gallery } = planBento(images, block.layout || 'auto', {
     fillGaps: block.fill_gaps !== false,
   });
   const openable = cells.filter((c) => c.kind === 'media').map((c) => c.image);
+
+  /* المعرض: شريط واحد يتولّاه marquee — يمشي وحده، يقف عند المرور،
+     ويُسحب باليد بقصور ذاتي. النقر بعد سحب يُبتلع فلا تفتح صورةٌ
+     لم يقصدها الزائر. */
+  if (gallery) {
+    return el('div', {
+      class: 'pkg-strip', 'data-fx': 'marquee',
+      'data-fx-speed': '22', 'aria-label': 'معرض صور — اسحب للتصفّح',
+    }, [
+      el('div', { class: 'pkg-strip__track' }, cells.map((c) => el('button', {
+        class: 'pkg-strip__cell', type: 'button',
+        'data-cursor': 'كبّر',
+        'aria-label': `تكبير ${c.image.caption || 'الصورة'}`,
+        onclick: () => openLightbox(openable, Math.max(0, openable.indexOf(c.image))),
+      }, [
+        media(c.image),
+        c.image.caption ? el('span', { class: 'pkg-cell__cap' }, [c.image.caption]) : null,
+      ]))),
+    ]);
+  }
 
   return el('div', {
     // الشبكة المنتظمة تفرض عدد أعمدتها (grid5 يحتاج عشرة)، فتتجاوز
