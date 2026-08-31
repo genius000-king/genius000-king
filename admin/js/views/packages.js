@@ -69,7 +69,7 @@ function editBlock(block, pkg, done) {
 
   const patch = (k, v) => {
     block[k] = v;
-    save('package_blocks', block.id, { [k]: v }).catch(() => {});
+    save('package_blocks', block.id, { [k]: v }).catch((e) => toast(`تعذّر الحفظ: ${e.message}`, 'error'));
     draw();
   };
 
@@ -79,7 +79,7 @@ function editBlock(block, pkg, done) {
     if (!imgs[i]) return;
     imgs[i] = { ...imgs[i], span: span || undefined };
     block.images = imgs;
-    save('package_blocks', block.id, { images: imgs }).catch(() => {});
+    save('package_blocks', block.id, { images: imgs }).catch((e) => toast(`تعذّر الحفظ: ${e.message}`, 'error'));
     draw();
   };
 
@@ -88,7 +88,7 @@ function editBlock(block, pkg, done) {
     imgs.splice(i, 1);
     block.images = imgs;
     selected = null;
-    save('package_blocks', block.id, { images: imgs }).catch(() => {});
+    save('package_blocks', block.id, { images: imgs }).catch((e) => toast(`تعذّر الحفظ: ${e.message}`, 'error'));
     draw();
   };
 
@@ -99,7 +99,7 @@ function editBlock(block, pkg, done) {
     [imgs[i], imgs[j]] = [imgs[j], imgs[i]];
     block.images = imgs;
     selected = j;
-    save('package_blocks', block.id, { images: imgs }).catch(() => {});
+    save('package_blocks', block.id, { images: imgs }).catch((e) => toast(`تعذّر الحفظ: ${e.message}`, 'error'));
     draw();
   };
 
@@ -148,7 +148,7 @@ function editBlock(block, pkg, done) {
         const arr = [...block.images];
         arr[selected] = { ...arr[selected], caption: v };
         block.images = arr;
-        save('package_blocks', block.id, { images: arr }).catch(() => {});
+        save('package_blocks', block.id, { images: arr }).catch((e) => toast(`تعذّر الحفظ: ${e.message}`, 'error'));
       }, { label: 'تعليق' }), 'يظهر عند مرور المؤشر'),
     ]);
   }
@@ -197,7 +197,7 @@ function editBlock(block, pkg, done) {
 
       dropzone(`packages/${pkg.id}`, (items) => {
         block.images = [...(block.images || []), ...items];
-        save('package_blocks', block.id, { images: block.images }).catch(() => {});
+        save('package_blocks', block.id, { images: block.images }).catch((e) => toast(`تعذّر الحفظ: ${e.message}`, 'error'));
         draw();
       }, { title: 'أضِف صوراً للكتلة' }),
     );
@@ -226,7 +226,7 @@ function editBlock(block, pkg, done) {
    محرّر بكج
    ============================================================ */
 function editPackage(pkg, done) {
-  const patch = (k, v) => { pkg[k] = v; save('packages', pkg.id, { [k]: v }).catch(() => {}); };
+  const patch = (k, v) => { pkg[k] = v; save('packages', pkg.id, { [k]: v }).catch((e) => toast(`تعذّر الحفظ: ${e.message}`, 'error')); };
   const list = el('div', { class: 'sortable' });
 
   const drawBlocks = () => {

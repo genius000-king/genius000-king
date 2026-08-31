@@ -17,7 +17,7 @@ const sorted = (rows) => rows.slice().sort((a, b) => (a.sort ?? 0) - (b.sort ?? 
 /* ── محرّر عمل واحد ── */
 function editWork(work, done) {
   const w = { ...work };
-  const patch = (k, v) => { w[k] = v; save('works', w.id, { [k]: v }).catch(() => {}); Object.assign(work, { [k]: v }); };
+  const patch = (k, v) => { w[k] = v; save('works', w.id, { [k]: v }).catch((e) => toast(`تعذّر الحفظ: ${e.message}`, 'error')); Object.assign(work, { [k]: v }); };
 
   const gallery = el('div', { class: 'media-grid' });
   const drawGallery = () => {

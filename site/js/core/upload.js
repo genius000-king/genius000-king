@@ -14,13 +14,9 @@ export function safeName(name = 'file') {
   return `${Date.now().toString(36)}-${rand}-${stem}${ext}`;
 }
 
-/** يرفع ملفاً واحداً ويعيد رابطه العام. */
-export async function upload(file, folder = 'uploads', onProgress) {
-  if (!isConfigured) throw new Error('التخزين غير مضبوط');
-  const path = `${folder.replace(/^\/+|\/+$/g, '')}/${safeName(file.name)}`;
+/** طلب رفع واحد. يفشل بالرفض، ولا يعرف شيئاً عن إعادة المحاولة. */
+function send(file, path, token, onProgress) {
   const url = `${SUPABASE_URL}/storage/v1/object/${STORAGE_BUCKET}/${path}`;
-  const token = getToken() || SUPABASE_ANON_KEY;
-
   // XHR لا fetch — لأن fetch لا يعطي تقدّم الرفع
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -38,8 +34,46 @@ export async function upload(file, folder = 'uploads', onProgress) {
       else reject(new Error(`رفع فاشل ${xhr.status}: ${xhr.responseText.slice(0, 160)}`));
     };
     xhr.onerror = () => reject(new Error('انقطع الاتصال أثناء الرفع'));
+    xhr.ontimeout = () => reject(new Error('انتهت مهلة الرفع'));
     xhr.send(file);
   });
+}
+
+/** هل وصل الملف فعلاً رغم أنّ الطلب بدا فاشلاً؟ */
+async function landed(path) {
+  try {
+    const res = await fetch(publicUrl(path), { method: 'HEAD', cache: 'no-store' });
+    return res.ok;
+  } catch { return false; }
+}
+
+/**
+ * يرفع ملفاً واحداً ويعيد رابطه العام.
+ *
+ * ⚠️ الحالة التي أوقعت صوراً فعليّة في هذا الموقع: البايتات تصل إلى
+ * التخزين ثمّ ينقطع ردّ الخادم. الطلب يبدو فاشلاً فلا يُحفظ الرابط في
+ * الصفّ، بينما الملف قائمٌ في الحاوية — صورةٌ رفعها صاحب الموقع
+ * واختفت، ويتيمةٌ لا يشير إليها شيء. لذلك لا نصدّق الفشل حتى نسأل
+ * التخزين نفسه: إن كان الملف هناك فالرفع نجح مهما قال الطلب.
+ */
+export async function upload(file, folder = 'uploads', onProgress) {
+  if (!isConfigured) throw new Error('التخزين غير مضبوط');
+  const path = `${folder.replace(/^\/+|\/+$/g, '')}/${safeName(file.name)}`;
+  const token = getToken() || SUPABASE_ANON_KEY;
+
+  try {
+    return await send(file, path, token, onProgress);
+  } catch (first) {
+    if (await landed(path)) return { path, url: publicUrl(path) };
+
+    // لم يصل: محاولة ثانية واحدة — العطل العابر لا يستحقّ خسارة الصورة
+    try {
+      return await send(file, path, token, onProgress);
+    } catch (second) {
+      if (await landed(path)) return { path, url: publicUrl(path) };
+      throw second;
+    }
+  }
 }
 
 /** يرفع عدة ملفات بالتوازي ويعيد الروابط بترتيبها. */

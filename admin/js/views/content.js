@@ -5,6 +5,7 @@ import { saveContent } from '../core/autosave.js';
 import { tabs, fld, text, textarea } from '../ui/fields.js';
 import { icon } from '../ui/icon.js';
 import { go } from '../core/router.js';
+import { toast } from '../core/toast.js';
 
 /** خريطة النصوص: [مفتاح، تسمية، نوع، تلميح] */
 export const GROUPS = [
@@ -64,7 +65,7 @@ export const ALL_KEYS = GROUPS.flatMap(([, , fields]) => fields.map(([k]) => k))
 function saveKey(key, value) {
   const rows = get('site_content').filter((r) => r.key !== key).concat([{ key, value }]);
   setAll('site_content', rows);
-  saveContent(key, value).catch(() => {});
+  saveContent(key, value).catch((e) => toast(`تعذّر الحفظ: ${e.message}`, 'error'));
 }
 
 function fieldFor([key, label, type, hint]) {

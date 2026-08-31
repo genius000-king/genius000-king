@@ -66,7 +66,7 @@ async function ensureRows() {
 function editSection(row, done) {
   const patch = (k, v) => {
     row[k] = v;
-    save('layout', row.id, { [k]: v }).catch(() => {});
+    save('layout', row.id, { [k]: v }).catch((e) => toast(`تعذّر الحفظ: ${e.message}`, 'error'));
     reloadPreview();
   };
   const bgHost = el('div');

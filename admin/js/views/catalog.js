@@ -111,7 +111,7 @@ function ratingPicker(value, onChange) {
 
 function editRow(table, row, done) {
   const def = TABLES[table];
-  const patch = (k, v) => { row[k] = v; save(table, row.id, { [k]: v }).catch(() => {}); };
+  const patch = (k, v) => { row[k] = v; save(table, row.id, { [k]: v }).catch((e) => toast(`تعذّر الحفظ: ${e.message}`, 'error')); };
 
   const body = el('div', { class: 'stack stack--lg' }, [
     ...def.fields.map(([key, label, type, hint]) => {

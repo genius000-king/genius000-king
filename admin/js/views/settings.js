@@ -51,7 +51,7 @@ function templateTab() {
   let timer = null;
   const queue = () => {
     clearTimeout(timer);
-    timer = setTimeout(() => saveKey('wa_template', area.value).catch(() => {}), 700);
+    timer = setTimeout(() => saveKey('wa_template', area.value).catch((e) => toast(`تعذّر الحفظ: ${e.message}`, 'error')), 700);
   };
 
   function paint() {
