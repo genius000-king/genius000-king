@@ -30,7 +30,7 @@ export function logoMark() {
   }, [
     el('img', {
       class: 'logo-mark__img', src: LOGO_SRC, alt: '',
-      width: '540', height: '448',
+      width: '922', height: '614',
       loading: 'eager', fetchpriority: 'high', decoding: 'async', draggable: 'false',
     }),
     el('canvas', { class: 'logo-mark__fx', 'aria-hidden': 'true' }),

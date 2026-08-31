@@ -63,7 +63,7 @@ export const TUNE = {
         مكانها خالياً — فتُقرأ فجوةً محفورة في الشعار لا تحوّلاً.
         حين تبقى الجسيمة قرب موضعها ترفّ مكانها، فترى المادّة نفسها
         وقد صارت غباراً: هذا هو «التحوّل». */
-  fxR:      0.30,   // نصف قطر التأثير، نسبةً إلى نصف قطر المجسّم
+  fxR:      0.46,   // نصف قطر التأثير — متوسط: كان 0.30 فبدا صغيراً
   fxRise:   0.07,   // ث — تحوّل ما يدخل الحقل (ناعم لا مفاجئ)
   fxFall:   0.45,   // ث — عودة ما خرج منه (أبطأ، فيبقى أثر)
   fxPush:   240,    // رفّة جانبية خفيفة — لا قذف
@@ -72,7 +72,21 @@ export const TUNE = {
   fxKeep:   0.17,   // ما يبقى من السطح في قلب الحقل — بلا هذا يصير ثقباً
   grain:    1.7,    // خشونة حافّة التحوّل (أكبر = حبيبات أدقّ)
   idleMs:   2600,   // إن سكن المؤشّر هذا الزمن يهدأ الحقل
+
+  /* ── الإضاءة ──
+     مأخوذة من الصورة المرجعية الجديدة: ضوء رئيسي من أعلى اليسار،
+     جسم أبيض لمّاع، وأزرق نقيّ لا يبهت. يضبطها المشرف من اللوحة. */
+  lightX:   -0.55,  // موضع الضوء أفقياً، نسبةً إلى نصف قطر المجسّم
+  lightY:    0.70,  // وعمودياً
+  lightZ:    1.00,  // وأمام/خلف
+  lightPow:  2.10,  // شدّته
+  lightHue:  0,     // درجة تلوينه (0 = أبيض؛ تُضبط بمنتقي لون)
+  envPow:    1.15,  // شدّة انعكاس المحيط
+  gloss:     0.14,  // لمعان الجسم (خشونة أقلّ = ألمع)
 };
+
+/* لون الضوء الافتراضي — يتجاوزه المشرف بمفتاح ثيم. */
+const LIGHT_COLOR = 0xffffff;
 
 /* ── جسر لوحة المشرف ──
    ما يضبطه المشرف يُكتب متغيّراتِ CSS على الجذر (core/theme.js)،
@@ -88,7 +102,19 @@ const THEME_MAP = {
   tiltY: ['--logo-tilt', 0, 2],
   spin: ['--logo-spin', 0, 2],
   grain: ['--logo-grain', 0.1, 6],
+  lightX: ['--logo-light-x', -3, 3],
+  lightY: ['--logo-light-y', -3, 3],
+  lightZ: ['--logo-light-z', -3, 3],
+  lightPow: ['--logo-light-power', 0, 8],
+  envPow: ['--logo-env-power', 0, 4],
+  gloss: ['--logo-gloss', 0.01, 0.8],
 };
+
+/** #RRGGBB → عدد. القيمة الفاسدة تُتجاهَل. */
+function hexNum(v) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(v).trim());
+  return m ? parseInt(m[1], 16) : null;
+}
 
 /** يقرأ تجاوزات المشرف من الجذر. القيمة الفاسدة تُتجاهَل لا تُعطِّل. */
 function tuneFromTheme() {
@@ -105,6 +131,7 @@ function tuneFromTheme() {
   out.tiltX = out.tiltY * (TUNE.tiltX / TUNE.tiltY);
   const p = parseFloat(cs.getPropertyValue('--logo-particles'));
   out.particles = Number.isFinite(p) ? Math.min(24000, Math.max(800, p)) : null;
+  out.lightColor = hexNum(cs.getPropertyValue('--logo-light-color')) ?? LIGHT_COLOR;
   return out;
 }
 
@@ -208,10 +235,12 @@ export function mount(THREE, host, opts = {}) {
   scene.environment = studioEnv(THREE, renderer);
   const camera = new THREE.PerspectiveCamera(34, 1, 1, 5000);
 
-  scene.add(new THREE.AmbientLight(0xffffff, .25));
-  const key = new THREE.DirectionalLight(0xffffff, 1.5); key.position.set(-260, 320, 480);
-  const rim = new THREE.DirectionalLight(0x64d2f5, 1.1); rim.position.set(340, -180, -300);
-  const fil = new THREE.DirectionalLight(0xfff0dc, .5); fil.position.set(180, 260, 300);
+  /* الضوء الرئيسي يضبط المشرف موضعه ولونه وشدّته؛ الحافّ والملء
+     ثابتان لأنهما يحفظان حجم المجسّم لا يغيّران مزاجه. */
+  scene.add(new THREE.AmbientLight(0xffffff, .34));
+  const key = new THREE.DirectionalLight(T.lightColor ?? LIGHT_COLOR, T.lightPow);
+  const rim = new THREE.DirectionalLight(0x8fdcf7, .55); rim.position.set(340, -180, -300);
+  const fil = new THREE.DirectionalLight(0xffffff, .34); fil.position.set(180, 260, 300);
   scene.add(key, rim, fil);
 
   const group = new THREE.Group();
@@ -237,11 +266,15 @@ export function mount(THREE, host, opts = {}) {
      الأصل سطح لمّاع ملوّن — أي عازل بطلاء صافٍ فوقه.
      الفضّي عكسه: كروم حقيقي، لونه من المحيط، وخشونة تكفي ليبقى فيه
      رماد بدل أن يصير أبيض مسطّحاً. */
+  /* ── الخامتان، مطابقتان للصورة المرجعية الجديدة ──
+     الجسم لم يعد كروماً رمادياً: صار أبيض لمّاعاً — عازلاً بطلاء
+     صافٍ، لونه من نفسه لا من انعكاسه، فلا يبهت ولا يسودّ.
+     والأزرق أنصع: 0x0a9ad3 بدل 0x0e86b4، كما في الصورة. */
   const mats = SHAPES.map((sh) => isBlue(sh.rgb)
-    ? new THREE.MeshPhysicalMaterial({ color: 0x0e86b4, metalness: .22, roughness: .28,
-        clearcoat: 1, clearcoatRoughness: .07, envMapIntensity: 1.1 })
-    : new THREE.MeshPhysicalMaterial({ color: sh.rgb[0] < 170 ? 0x9fa6b0 : 0xdfe4ec,
-        metalness: 1, roughness: .26, clearcoat: .35, envMapIntensity: 1.3 }));
+    ? new THREE.MeshPhysicalMaterial({ color: 0x0a9ad3, metalness: .10, roughness: T.gloss + .06,
+        clearcoat: 1, clearcoatRoughness: .04, envMapIntensity: T.envPow, reflectivity: .6 })
+    : new THREE.MeshPhysicalMaterial({ color: 0xf4f6f8, metalness: .06, roughness: T.gloss,
+        clearcoat: 1, clearcoatRoughness: .05, envMapIntensity: T.envPow, reflectivity: .55 }));
 
   /* حقن الحذف في شيدر الخامة القياسية.
      ⚠️ discard لا opacity: الشفافية تُظهر ما خلف السطح فيبان الوجه
@@ -273,7 +306,10 @@ float lgHash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.545);
     };
   }
 
-  const DEPTH = 46, BEVEL = 7;
+  /* السماكة والشطف نسبةً إلى مقاس الشعار لا رقمين ثابتين: الأصل
+     تغيّر مرّة من ٥٤٠ عرضاً إلى ٩٢٢، فبدا المجسّم مسطّحاً بسماكة
+     كانت تناسب الأصغر. النسبة تنجو من أي تغيير قادم. */
+  const DEPTH = VIEW.w * 0.086, BEVEL = VIEW.w * 0.013;
   const meshes = SHAPES.map((sh, i) => {
     const g = new THREE.ExtrudeGeometry(shapeFrom(THREE, sh.d), {
       depth: DEPTH, curveSegments: low ? 8 : 14,
@@ -295,6 +331,7 @@ float lgHash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.545);
   const HALF_W = sz.x / 2, HALF_H = sz.y / 2;
   const RADIUS = Math.hypot(sz.x, sz.y) / 2;      // مرجع مقياس، لا تأطير
   FX.uModelR.value = RADIUS;
+  key.position.set(T.lightX * RADIUS * 2, T.lightY * RADIUS * 2, T.lightZ * RADIUS * 2);
   FX.uFxR.value = RADIUS * T.fxR;
 
   /* ── الجسيمات: عيّنات من سطح المجسّم بترجيح المساحة ── */

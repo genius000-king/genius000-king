@@ -2069,7 +2069,7 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
 .logo-mark {
   position: relative;
   inline-size: min(70vw, var(--logo-size, 300px));
-  aspect-ratio: 540 / 448;
+  aspect-ratio: 922 / 614;
   translate: var(--logo-shift-x, 0px) var(--logo-shift-y, 0px);
   touch-action: manipulation;
   cursor: grab;

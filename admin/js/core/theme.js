@@ -15,11 +15,17 @@ export const THEME_KEYS = [
   /* ── الشعار: مقاسه وموضعه في الشاشة الأولى ── */
   'logo-size', 'logo-shift-x', 'logo-shift-y', 'hero-split',
 
-  /* ── تفاعل المجسّم ──
+  /* ── تفاعل المجسّم وإضاءته ──
      تُكتب متغيّرات CSS كبقيّة الثيم، ويقرؤها motion/logo-3d.js من
      الجذر عند التركيب. فمسار الحفظ والمعاينة واحد لا اثنان. */
   'logo-fx-r', 'logo-fx-push', 'logo-fx-lift', 'logo-fx-rise', 'logo-fx-fall',
   'logo-track', 'logo-tilt', 'logo-spin', 'logo-grain', 'logo-particles',
+  'logo-light-x', 'logo-light-y', 'logo-light-z', 'logo-light-power',
+  'logo-light-color', 'logo-env-power', 'logo-gloss',
+
+  /* ── الزجاج والخلفية ── */
+  'glass-tint', 'glass-border', 'glass-edge', 'glass-edge-bright',
+  'page-bg', 'page-bg-image', 'page-bg-dim',
 ];
 
 const HEX = /^#[0-9a-f]{3,8}$/i;

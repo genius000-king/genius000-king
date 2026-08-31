@@ -1087,7 +1087,7 @@ input[type="range"]::-moz-range-thumb { inline-size: 18px; block-size: 18px; bor
 .logo-mark {
   position: relative;
   inline-size: min(58vw, 168px);
-  aspect-ratio: 540 / 448;
+  aspect-ratio: 922 / 614;
   margin-inline: auto;
   touch-action: manipulation;
   cursor: grab;

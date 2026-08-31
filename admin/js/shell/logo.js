@@ -23,7 +23,7 @@ export function logoMark() {
   }, [
     el('img', {
       class: 'logo-mark__img', src: LOGO_SRC, alt: '',
-      width: '540', height: '448', decoding: 'async', draggable: 'false',
+      width: '922', height: '614', decoding: 'async', draggable: 'false',
     }),
     el('canvas', { class: 'logo-mark__fx', 'aria-hidden': 'true' }),
   ]);
