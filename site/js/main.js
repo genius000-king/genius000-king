@@ -12,7 +12,7 @@
 import { isConfigured } from './core/config.js';
 import { loadAll, hydrate, anyFailed } from './core/store.js';
 import { applyTheme } from './core/theme.js';
-import { applyLayout } from './core/layout-apply.js';
+import { applyLayout, watchLayout } from './core/layout-apply.js';
 import { scan, destroyIn } from './motion/registry.js';
 import { el } from './core/dom.js';
 import { toast } from './core/toast.js';
@@ -44,7 +44,6 @@ let drawn = false;
 /** يبني الصفحة كاملة من البيانات الحاضرة في الذاكرة. */
 function paint() {
   applyTheme();
-  applyLayout();
 
   for (const [id, mount] of SECTIONS) {
     const container = document.getElementById(id);
@@ -55,6 +54,12 @@ function paint() {
     try { mount(container); }
     catch (e) { console.error(`[section:${id}]`, e); }
   }
+
+  // بعد التركيب لا قبله: أقسامٌ كـ«طرق الدفع» و«الآراء» ترفع إخفاءَ
+  // نفسها عند التركيب متى وجدت بيانات، فلو سبقها التخطيط ضاع قرار
+  // المشرف بإخفائها. الكلمة الأخيرة للتخطيط.
+  applyLayout();
+  watchLayout();
 
   document.documentElement.classList.add('js-ready');
   scan(document);

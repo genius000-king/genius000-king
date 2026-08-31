@@ -462,7 +462,7 @@ html:not(.js-ready) .fx-split__unit {
 .section > * { position: relative; }
 
 .section__head {
-  inline-size: min(100% - (2 * var(--s-5)), var(--container));
+  inline-size: min(100% - (2 * var(--s-5)), var(--section-w, var(--container)));
   margin-inline: auto;
   margin-block-end: var(--s-6);
   display: grid;
@@ -497,7 +497,7 @@ html:not(.js-ready) .fx-split__unit {
 .section__sub   { color: var(--c-text-2); font-size: var(--fs-body); }
 
 .bento {
-  inline-size: min(100% - (2 * var(--s-5)), var(--container));
+  inline-size: min(100% - (2 * var(--s-5)), var(--section-w, var(--container)));
   margin-inline: auto;
   display: grid;
   grid-template-columns: repeat(var(--bento-cols), minmax(0, 1fr));
@@ -533,7 +533,21 @@ html:not(.js-ready) .fx-split__unit {
   align-items: var(--align-items, stretch);
 }
 
-#page { display: flex; flex-direction: column; }
+/* ── الصفحة شبكة اثني عشر عموداً ──
+   كانت عموداً مرناً: قسمٌ تحت قسم، لا خيار. الآن لكل قسم عرضٌ
+   بالأعمدة (‎--span‎) يضبطه المشرف، فيصير وضع قسمين جنب بعض ممكناً.
+   الافتراضي ١٢ = عرض كامل — أي السلوك السابق بالضبط.
+
+   ⚠️ حاويات القسم الداخلية (‎.bento‎ و‎.section__head‎) عرضها
+   ‎min(100%, --container)‎. في قسمٍ نصفِ عرضٍ يصير ‎--container‎ أوسع
+   من القسم نفسه فيفيض. لذلك ‎--section-w‎: يكتبها layout-apply بـ‎100%‎
+   لكل قسم أضيق من الكامل. */
+#page {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: start;
+}
+.section { grid-column: span var(--span, 12); }
 
 /* ============================================================
    6 · الخلفية الحيّة
@@ -2164,6 +2178,10 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
 
 @media (max-width: 640px) {
   :root { --bento-cols: 4; --bento-unit: clamp(76px, 22vw, 108px); }
+
+  /* الجوال: عرض القسم مستقلّ، وافتراضه الكامل مهما ضُبط لسطح المكتب
+     — نصفُ عرضٍ على شاشة عريضة يصير شريطاً لا يُقرأ على الجوال. */
+  .section { grid-column: span var(--span-m, 12); }
 
   /* ⚠️ الترتيب مستقلّ عن سطح المكتب.
      الإزاحة **لا ترث**: قيمةٌ ضُبطت لشاشة عريضة تدفع الشعار خارج
