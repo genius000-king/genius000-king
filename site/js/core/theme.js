@@ -73,6 +73,21 @@ export function varsFor(rows = []) {
     out[`--${row.key}`] = URL_KEYS.has(row.key)
       ? `url("${String(row.value).trim()}")`
       : String(row.value).trim();
+
+    /* ── شفافية الزجاج ──
+       تُخزَّن رقماً (٠ إلى ٠٫٤) لأنّ مسطرةً أسهل من منتقي لونٍ بقناة
+       ألفا، لكنّ CSS تستعملها في `background` فتحتاج لوناً. الرقم وحده
+       تصريحٌ باطل يُهمَل كاملاً — فكانت المسطرة تتحرّك ولا يتغيّر شيء.
+       فنترجمه هنا إلى لون. و«القويّة» تتبعها بنسبةٍ ثابتة وإلا تحرّك
+       نصف الأسطح دون نصف. */
+    if (row.key === 'glass-tint') {
+      const a = Number(String(row.value).trim());
+      if (Number.isFinite(a) && a >= 0 && a <= 1) {
+        out['--glass-tint'] = `rgba(255, 255, 255, ${a})`;
+        out['--glass-tint-strong'] = `rgba(255, 255, 255, ${Math.min(1, a * 1.6)})`;
+        out['--glass-tint-soft'] = `rgba(255, 255, 255, ${a * 0.6})`;
+      }
+    }
     // الألوان الرئيسية تحتاج نسخة RGB للشفافيات
     if (HEX.test(row.value) && /^c-(accent|accent-2|brand)$/.test(row.key)) {
       const rgb = hexToRgb(row.value);

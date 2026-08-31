@@ -121,6 +121,8 @@
   --glass-tint:          color-mix(in oklab, white 10%, transparent);
   --glass-tint-strong:   rgba(255, 255, 255, .16);   /* احتياط */
   --glass-tint-strong:   color-mix(in oklab, white 16%, transparent);
+  --glass-tint-soft:     rgba(255, 255, 255, .06);   /* احتياط */
+  --glass-tint-soft:     color-mix(in oklab, white 6%, transparent);
   --glass-border:        rgba(255, 255, 255, 0.28);
   --glass-border-strong: rgba(255, 255, 255, 0.42);
   --glass-blur:          18px;
@@ -693,7 +695,9 @@ html:not(.js-ready) .fx-split__unit {
 /* ── الأنواع ── */
 .glass--soft {
   --glass-blur: var(--glass-blur-soft);
-  background: color-mix(in oklab, white 6%, transparent);
+  /* من المتغيّر لا نصّاً: كانت القيمة مثبّتة هنا وحدها بين الأنواع،
+     فمسطرة الشفافية تتحرّك ولا يتغيّر شريط التنقّل ولا كل ما هو ناعم. */
+  background: var(--glass-tint-soft);
   border-color: rgba(255, 255, 255, 0.18);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .26), var(--sh-1);
 }

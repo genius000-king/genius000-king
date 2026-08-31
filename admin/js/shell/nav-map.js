@@ -11,8 +11,11 @@ export const NAV = [
     { path: '/catalog',    label: 'الكتالوج',     icon: 'list' },
   ] },
   { group: 'المظهر', items: [
-    { path: '/appearance', label: 'الألوان والخط', icon: 'palette' },
-    { path: '/layout',     label: 'ترتيب الأقسام', icon: 'layout' },
+    /* الاسم يدلّ على ما بالداخل: هذه الشاشة تضمّ الزجاج والشفافية
+       والخلفية وإضاءة الشعار، لا الألوان والخطّ وحدهما — و«الألوان
+       والخط» كان يخفيها عمّن يبحث عنها. */
+    { path: '/appearance', label: 'المظهر والخلفية', icon: 'palette' },
+    { path: '/layout',     label: 'تخطيط الصفحة',   icon: 'layout' },
     { path: '/preview',    label: 'معاينة الموقع', icon: 'eye', tab: true },
   ] },
   { group: 'الإعدادات', items: [
