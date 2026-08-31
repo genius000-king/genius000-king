@@ -104,18 +104,32 @@
   --c-brand:     #0E86B4;
   --c-brand-rgb: 14, 134, 180;
 
-  /* ── الزجاج: قيم الوصفة القياسية (انظر القسم 7) ──
-     المدى المتعارف عليه للتمويه 10→20px: أقلّ من ذلك يُقرأ «خارج
-     التركيز» لا «مصنفر»، وأكثر منه يصير ضباباً لا زجاجاً. */
-  --glass-tint:          rgba(255, 255, 255, 0.085);
-  --glass-tint-strong:   rgba(255, 255, 255, 0.14);
-  --glass-border:        rgba(255, 255, 255, 0.18);
-  --glass-border-strong: rgba(255, 255, 255, 0.30);
-  --glass-blur:          14px;
-  --glass-blur-soft:     10px;
-  --glass-sat:           180%;
-  --glass-shadow:        0 8px 32px rgba(0, 0, 0, 0.28);
-  --glass-shadow-lg:     0 16px 48px rgba(0, 0, 0, 0.40);
+  /* ── الزجاج ──
+     الوصفة من CodeFronts (رخصة MIT) كما سلّمها صاحب المشروع، بقيمها
+     كما هي — لا إضافات ولا حلقات ولا مرشّحات SVG:
+
+       backdrop-filter: blur(18px) saturate(170%)
+       background: color-mix(in oklab, white 10%, transparent)
+       border: 1px solid rgba(255,255,255,.28)
+       box-shadow: inset 0 1px 0 rgba(255,255,255,.4),
+                   0 16px 34px -22px rgba(0,0,0,.6)
+
+     ما يفرّقها عن السابق ثلاثة: تمويه أعلى، وحدّ أنصع، وخطّ داخلي
+     مضيء أعلى البلاطة مع ظلٍّ أضيق انتشاراً. الخطّ الداخلي هو ما
+     يعطيها سُمكاً — بلاطة بلا حرف علوي تُقرأ ورقةً لا لوحاً. */
+  --glass-tint:          rgba(255, 255, 255, .10);   /* احتياط */
+  --glass-tint:          color-mix(in oklab, white 10%, transparent);
+  --glass-tint-strong:   rgba(255, 255, 255, .16);   /* احتياط */
+  --glass-tint-strong:   color-mix(in oklab, white 16%, transparent);
+  --glass-border:        rgba(255, 255, 255, 0.28);
+  --glass-border-strong: rgba(255, 255, 255, 0.42);
+  --glass-blur:          18px;
+  --glass-blur-soft:     12px;
+  --glass-sat:           170%;
+  --glass-shadow:        inset 0 1px 0 rgba(255, 255, 255, .4),
+                         0 16px 34px -22px rgba(0, 0, 0, .6);
+  --glass-shadow-lg:     inset 0 1px 0 rgba(255, 255, 255, .5),
+                         0 26px 52px -26px rgba(0, 0, 0, .68);
 
   /* ── الظلال ── */
   --sh-1: 0 1px 2px rgba(0,0,0,.30), 0 2px 6px rgba(0,0,0,.22);
@@ -241,10 +255,20 @@ html {
   text-size-adjust: 100%;
 }
 
+/* الخلفية: لون يضبطه المشرف، وفوقه صورة اختيارية بتعتيم يضبطه أيضاً.
+   ⚠️ التعتيم طبقة تدرّج فوق الصورة لا مرشّح brightness: المرشّح يعتّم
+      الصفحة كلها بما فيها المحتوى، والطبقة تعتّم الخلفية وحدها. */
 body {
   min-block-size: 100dvh;
   overflow-x: clip;
-  background: var(--c-bg);
+  background-color: var(--page-bg, var(--c-bg));
+  background-image:
+    linear-gradient(rgba(0, 0, 0, var(--page-bg-dim, 0)), rgba(0, 0, 0, var(--page-bg-dim, 0))),
+    var(--page-bg-image, none);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   color: var(--c-text);
   font-family: var(--font-base);
   font-size: var(--fs-body);
@@ -655,9 +679,9 @@ html:not(.js-ready) .fx-split__unit {
 /* ── الأنواع ── */
 .glass--soft {
   --glass-blur: var(--glass-blur-soft);
-  background: rgba(255, 255, 255, 0.055);
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: var(--sh-1);
+  background: color-mix(in oklab, white 6%, transparent);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .26), var(--sh-1);
 }
 
 .glass--strong {
@@ -2140,6 +2164,16 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
 
 @media (max-width: 640px) {
   :root { --bento-cols: 4; --bento-unit: clamp(76px, 22vw, 108px); }
+
+  /* ⚠️ الترتيب مستقلّ عن سطح المكتب.
+     الإزاحة **لا ترث**: قيمةٌ ضُبطت لشاشة عريضة تدفع الشعار خارج
+     شاشة الجوال — وهذا ما حدث فعلاً. تبدأ من الصفر ما لم تُضبط
+     نسخة الجوال. أما المقاس فيرث، لأنه لا يُخرج شيئاً من الإطار. */
+  .logo-mark {
+    inline-size: min(68vw, calc(var(--logo-size-m, var(--logo-size, 300px)) * .72));
+    translate: var(--logo-shift-x-m, 0px) var(--logo-shift-y-m, 0px);
+  }
+  .hero { grid-template-columns: var(--hero-split-m, minmax(0, 1fr)); }
   .container, .bento, .section__head, .works__strip-head {
     inline-size: min(100% - (2 * var(--s-4)), var(--container));
   }

@@ -99,12 +99,17 @@
   --a-shadow-3: 0 12px 40px rgba(0,0,0,.46);
 
   /* الزجاج — الوصفة القياسية نفسها المستعملة في الموقع */
-  --a-glass:        rgba(255, 255, 255, .07);
-  --a-glass-strong: rgba(255, 255, 255, .12);
-  --a-glass-border: rgba(255, 255, 255, .16);
-  --a-glass-blur:   14px;
-  --a-glass-sat:    180%;
-  --a-glass-shadow: 0 8px 32px rgba(0, 0, 0, .26);
+  /* نفس وصفة الموقع (CodeFronts، MIT) بالقيم ذاتها — اللوحة والموقع
+     لغة بصرية واحدة، فما يُضبط هناك يُقرأ هنا. */
+  --a-glass:        rgba(255, 255, 255, .10);   /* احتياط */
+  --a-glass:        color-mix(in oklab, white 10%, transparent);
+  --a-glass-strong: rgba(255, 255, 255, .16);   /* احتياط */
+  --a-glass-strong: color-mix(in oklab, white 16%, transparent);
+  --a-glass-border: rgba(255, 255, 255, .28);
+  --a-glass-blur:   18px;
+  --a-glass-sat:    170%;
+  --a-glass-shadow: inset 0 1px 0 rgba(255, 255, 255, .4),
+                    0 16px 34px -22px rgba(0, 0, 0, .6);
 
   --a-font: 'Cairo', 'Noto Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --a-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;

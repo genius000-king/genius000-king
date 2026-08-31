@@ -12,8 +12,14 @@ export const THEME_KEYS = [
   'container', 'bento-gap', 'bento-unit',
   'glass-blur', 'glass-sat',
 
-  /* ── الشعار: مقاسه وموضعه في الشاشة الأولى ── */
+  /* ── الشعار: مقاسه وموضعه في الشاشة الأولى ──
+     ولكلٍّ نسخة للجوال تنتهي بـ‎-m‎. القاعدة التي اتّفقنا عليها:
+     المحتوى والألوان والخطّ مشتركة بين الأجهزة، أما **الترتيب
+     والمواضع** فمستقلّة — إزاحةٌ تناسب شاشة عريضة تدفع الشعار خارج
+     شاشة الجوال. فالإزاحة على الجوال تبدأ من الصفر لا من قيمة سطح
+     المكتب، والمقاس يرث ما لم يُضبط. */
   'logo-size', 'logo-shift-x', 'logo-shift-y', 'hero-split',
+  'logo-size-m', 'logo-shift-x-m', 'logo-shift-y-m', 'hero-split-m',
 
   /* ── تفاعل المجسّم وإضاءته ──
      تُكتب متغيّرات CSS كبقيّة الثيم، ويقرؤها motion/logo-3d.js من
@@ -31,10 +37,18 @@ export const THEME_KEYS = [
 const HEX = /^#[0-9a-f]{3,8}$/i;
 const NUM = /^-?\d*\.?\d+(px|rem|em|%|vw|vh|deg|s|ms)?$/i;
 
+/* مفاتيح قيمتها رابط صورة. الرابط أطول من حدّ القيم العادية، فله
+   تحقّق خاصّ أضيق لا أوسع: https فقط، وبلا اقتباس ولا قوس ولا فراغ
+   — وهي المحارف الوحيدة التي تُخرج القيمة من url() إلى بقيّة CSS. */
+const URL_KEYS = new Set(['page-bg-image']);
+const SAFE_URL = /^https:\/\/[^\s'"()\\<>{};]+$/i;
+
 /** يتحقق من القيمة قبل حقنها — لا نحقن أي شيء يكسر CSS. */
-export function isSafeValue(v) {
+export function isSafeValue(v, key = '') {
   const s = String(v ?? '').trim();
-  if (!s || s.length > 64) return false;
+  if (!s) return false;
+  if (URL_KEYS.has(key)) return s.length <= 400 && SAFE_URL.test(s);
+  if (s.length > 64) return false;
   if (/[{}<>;]/.test(s)) return false;
   return HEX.test(s) || NUM.test(s) || /^[a-z0-9(),.%\s#/-]+$/i.test(s);
 }
@@ -53,8 +67,12 @@ export function varsFor(rows = []) {
   const out = {};
   for (const row of rows) {
     if (!row || !THEME_KEYS.includes(row.key)) continue;
-    if (!isSafeValue(row.value)) { console.warn('[theme] قيمة مرفوضة', row.key, row.value); continue; }
-    out[`--${row.key}`] = String(row.value).trim();
+    if (!isSafeValue(row.value, row.key)) { console.warn('[theme] قيمة مرفوضة', row.key, row.value); continue; }
+    // الرابط يُلفّ بـ url() هنا لا في القاعدة: المخزَّن يبقى رابطاً
+    // نظيفاً تقرؤه اللوحة وتعرضه، والتحويل لصيغة CSS شأن هذه الطبقة
+    out[`--${row.key}`] = URL_KEYS.has(row.key)
+      ? `url("${String(row.value).trim()}")`
+      : String(row.value).trim();
     // الألوان الرئيسية تحتاج نسخة RGB للشفافيات
     if (HEX.test(row.value) && /^c-(accent|accent-2|brand)$/.test(row.key)) {
       const rgb = hexToRgb(row.value);
@@ -86,7 +104,7 @@ export async function loadTheme() {
 /** يحفظ مفتاحاً ويطبّقه فوراً. */
 export async function setThemeKey(key, value) {
   if (!THEME_KEYS.includes(key)) throw new Error(`مفتاح ثيم غير مسموح: ${key}`);
-  if (!isSafeValue(value)) throw new Error('قيمة غير صالحة');
+  if (!isSafeValue(value, key)) throw new Error('قيمة غير صالحة');
   await api.upsert('theme', { key, value: String(value).trim() });
   const rows = get('theme').filter((r) => r.key !== key).concat([{ key, value }]);
   setAll('theme', rows);

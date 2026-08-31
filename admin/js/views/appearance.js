@@ -6,6 +6,7 @@ import { fld, color, slider, tabs, toggle } from '../ui/fields.js';
 import { icon } from '../ui/icon.js';
 import { toast } from '../core/toast.js';
 import { confirmModal } from '../ui/modal.js';
+import { imageField } from '../ui/media.js';
 import { previewFrame, pushTheme } from './preview.js';
 
 /** ما يظهر للمشرف — القائمة المغلقة نفسها، مع تسميات عربية. */
@@ -31,6 +32,24 @@ const SCALES = [
 const GLASS = [
   ['glass-blur', 'قوة تمويه الزجاج', 8, 48, 2, 'px'],
   ['glass-sat', 'تشبّع الزجاج', 100, 220, 10, '%'],
+  /* glass-tint مفهوماً هو تراكب أبيض شبه-شفاف فوق الزجاج، لكنّنا نخزّنه هنا
+     كرقم شفافية (0 إلى 0.4) لا كقيمة rgba كاملة: حقل color() الموجود
+     مبنيّ على <input type="color"> الذي لا يحمل قناة ألفا أصلاً (يقبل
+     #RRGGBB فقط)، فتمثيل rgba(...) الحقيقي يحتاج عنصر تحكّم جديدًا خارج
+     أدوات fields.js المُعاد استعمالها هنا. رقم الشفافية وحده يكفي عملياً
+     ويمر بسهولة على فحص isSafeValue في theme.js (نمط NUM). */
+  ['glass-tint', 'شفافية الزجاج', 0, 0.4, 0.01, ''],
+];
+
+/* إضاءة الشعار المجسّم — موضع مصدر الضوء وقوّته وانعكاسه. مفاتيح ثيم
+   عادية أيضاً، يقرؤها site/js/motion/logo-3d.js كبقيّة LOGO_FX. */
+const LIGHT = [
+  ['logo-light-x', 'موضع الضوء — يمين/يسار', -3, 3, 0.05, ''],
+  ['logo-light-y', 'موضع الضوء — أعلى/أسفل', -3, 3, 0.05, ''],
+  ['logo-light-z', 'موضع الضوء — أمام/خلف', -3, 3, 0.05, ''],
+  ['logo-light-power', 'شدّة الضوء', 0, 8, 0.1, ''],
+  ['logo-env-power', 'قوّة الانعكاس', 0, 4, 0.05, ''],
+  ['logo-gloss', 'لمعان الجسم (أصغر = ألمع)', 0.01, 0.8, 0.01, ''],
 ];
 
 /* ── الشعار ──
@@ -41,6 +60,17 @@ const LOGO = [
   ['logo-size', 'حجم الشعار', 140, 620, 10, 'px'],
   ['logo-shift-x', 'إزاحة أفقية', -160, 160, 5, 'px'],
   ['logo-shift-y', 'إزاحة رأسية', -160, 160, 5, 'px'],
+];
+
+/* ── ترتيب الجوال، مستقلّ ──
+   المحتوى والألوان والخطّ مشتركة بين الأجهزة، أما المواضع فلا:
+   إزاحةٌ تُضبط لشاشة عريضة تدفع الشعار خارج شاشة الجوال. لذلك
+   تبدأ إزاحة الجوال من الصفر ولا ترث شيئاً، والمقاس يرث ما لم
+   يُضبط لأنه لا يُخرج شيئاً من الإطار. */
+const LOGO_M = [
+  ['logo-size-m', 'حجم الشعار — جوال', 140, 620, 10, 'px'],
+  ['logo-shift-x-m', 'إزاحة أفقية — جوال', -160, 160, 5, 'px'],
+  ['logo-shift-y-m', 'إزاحة رأسية — جوال', -160, 160, 5, 'px'],
 ];
 
 const LOGO_FX = [
@@ -76,7 +106,9 @@ async function set(key, value) {
 export function render(host, { query } = {}) {
   const GROUPS = [['colors', 'الألوان'], ['type', 'الخط والمسافات'],
                   ['glass', 'الزجاج'], ['shape', 'الأشكال'],
-                  ['logo', 'الشعار'], ['logofx', 'تفاعل الشعار']];
+                  ['logo', 'الشعار'], ['logofx', 'تفاعل الشعار'],
+                  ['light', 'إضاءة الشعار'], ['bg', 'الخلفية'],
+                  ['logom', 'ترتيب الجوال']];
   let active = GROUPS.some(([k]) => k === query?.g) ? query.g : 'colors';
   const body = el('div');
 
@@ -97,21 +129,41 @@ export function render(host, { query } = {}) {
     ]);
   };
 
+  /** بطاقة لون واحدة — نفس هيكل سطر colors تماماً، معاد استعمالها هنا
+      لتبويبَي «إضاءة الشعار» و«الخلفية» وحدّ الزجاج بدل تكرارها. */
+  const colorRow = (key, label, dflt) =>
+    el('div', { class: 'card', style: { padding: 'var(--a-4)' } }, [
+      fld(label, color(valueOf(key, dflt), (v) => set(key, v), { label, fallback: dflt })),
+      el('button', { class: 'btn btn--sm btn--ghost', type: 'button',
+        onclick: async () => { await resetThemeKey(key); draw(); pushTheme(varsFor(get('theme'))); } },
+        [icon('undo', { size: 13 }), 'الافتراضي']),
+    ]);
+
   function draw() {
     if (active === 'colors') {
-      body.replaceChildren(el('div', { class: 'fld-grid' }, COLORS.map(([key, label, dflt]) =>
-        el('div', { class: 'card', style: { padding: 'var(--a-4)' } }, [
-          fld(label, color(valueOf(key, dflt), (v) => set(key, v), { label, fallback: dflt })),
-          el('button', { class: 'btn btn--sm btn--ghost', type: 'button',
-            onclick: async () => { await resetThemeKey(key); draw(); pushTheme(varsFor(get('theme'))); } },
-            [icon('undo', { size: 13 }), 'الافتراضي']),
-        ]))));
+      body.replaceChildren(el('div', { class: 'fld-grid' },
+        COLORS.map(([key, label, dflt]) => colorRow(key, label, dflt))));
     } else if (active === 'type') {
       body.replaceChildren(el('div', { class: 'fld-grid' }, SCALES.map(sliderRow)));
     } else if (active === 'glass') {
-      body.replaceChildren(el('div', { class: 'fld-grid' }, GLASS.map(sliderRow)));
+      body.replaceChildren(el('div', { class: 'fld-grid' }, [
+        ...GLASS.map(sliderRow),
+        colorRow('glass-border', 'لون حدّ الزجاج', '#2A3A5C'),
+      ]));
     } else if (active === 'logo') {
-      body.replaceChildren(el('div', { class: 'fld-grid' }, LOGO.map(sliderRow)));
+      body.replaceChildren(
+        el('p', { class: 'view__sub', style: { marginBlockEnd: 'var(--a-3)' } }, [
+          'هذه قيم سطح المكتب. ترتيب الجوال في تبويب منفصل — فإزاحةٌ هنا لا تكسر الشاشة الصغيرة.',
+        ]),
+        el('div', { class: 'fld-grid' }, LOGO.map(sliderRow)),
+      );
+    } else if (active === 'logom') {
+      body.replaceChildren(
+        el('p', { class: 'view__sub', style: { marginBlockEnd: 'var(--a-3)' } }, [
+          'مستقلّة تماماً عن سطح المكتب. الإزاحة تبدأ من الصفر؛ والحجم يرث قيمة سطح المكتب ما لم تحرّكه هنا.',
+        ]),
+        el('div', { class: 'fld-grid' }, LOGO_M.map(sliderRow)),
+      );
     } else if (active === 'logofx') {
       body.replaceChildren(
         el('p', { class: 'view__sub', style: { marginBlockEnd: 'var(--a-3)' } }, [
@@ -119,6 +171,28 @@ export function render(host, { query } = {}) {
         ]),
         el('div', { class: 'fld-grid' }, LOGO_FX.map(sliderRow)),
       );
+    } else if (active === 'light') {
+      body.replaceChildren(
+        el('p', { class: 'view__sub', style: { marginBlockEnd: 'var(--a-3)' } }, [
+          'التغيير يظهر في المعاينة عند إعادة رسمها.',
+        ]),
+        el('div', { class: 'fld-grid' }, [
+          ...LIGHT.map(sliderRow),
+          colorRow('logo-light-color', 'لون الضوء', '#ffffff'),
+        ]),
+      );
+    } else if (active === 'bg') {
+      body.replaceChildren(el('div', { class: 'fld-grid' }, [
+        colorRow('page-bg', 'لون خلفية الصفحة', '#060912'),
+        el('div', { class: 'card', style: { padding: 'var(--a-4)' } }, [
+          fld('صورة الخلفية', imageField(valueOf('page-bg-image', ''), 'site',
+            (v) => set('page-bg-image', v), 'صورة الخلفية')),
+          el('button', { class: 'btn btn--sm btn--ghost', type: 'button',
+            onclick: async () => { await resetThemeKey('page-bg-image'); draw(); } },
+            [icon('undo', { size: 13 }), 'إزالة الصورة']),
+        ]),
+        sliderRow(['page-bg-dim', 'تعتيم الصورة', 0, 1, 0.05, '']),
+      ]));
     } else {
       body.replaceChildren(el('div', { class: 'fld-grid' }, SHAPE.map(sliderRow)));
     }
