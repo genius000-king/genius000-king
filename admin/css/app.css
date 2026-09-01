@@ -870,6 +870,81 @@ input[type="range"]::-moz-range-thumb { inline-size: 18px; block-size: 18px; bor
 .sort-slot { border: 1.5px dashed var(--a-accent); border-radius: var(--a-r-sm); background: rgba(var(--a-accent-rgb), .07); }
 .sort-row.is-off { opacity: .55; }
 
+/* ── لوحة التخطيط: مربّعات تُسحب وتُكبَّر ──
+   الصفحة اثنا عشر عموداً، وهذه اللوحة نسخةٌ منها بمقياس أصغر: ما
+   تراه هنا هو ما يصير هناك. عرض المربّعة ‎--span‎ من اثني عشر. */
+.lay-canvas {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--a-2);
+  align-items: start;
+  /* شبكةٌ خلفية تُري الأعمدة الاثني عشر فيُعرف أين تقف الحافّة */
+  background-image: repeating-linear-gradient(
+    to left,
+    var(--a-line-2) 0 1px,
+    transparent 1px calc((100% - 11 * var(--a-2)) / 12 + var(--a-2)));
+  background-position: top right;
+  padding: var(--a-2);
+  border: 1px solid var(--a-line-2);
+  border-radius: var(--a-r-sm);
+}
+
+.lay-block {
+  grid-column: span var(--span, 12);
+  position: relative;
+  min-inline-size: 0;
+  min-block-size: 74px;
+  padding: var(--a-3) var(--a-4);
+  padding-inline-end: 26px;              /* مكان مقبض التكبير */
+  background: var(--a-panel);
+  border: 1px solid var(--a-line);
+  border-radius: var(--a-r-sm);
+  cursor: grab;
+  touch-action: none;                    /* السحب لنا لا للتمرير */
+  transition: border-color var(--a-t), box-shadow var(--a-t), opacity var(--a-t);
+}
+.lay-block:active { cursor: grabbing; }
+.lay-block.is-off { opacity: .5; }
+.lay-block.is-dragging,
+.lay-block.is-resizing {
+  border-color: var(--a-accent);
+  box-shadow: var(--a-shadow-3);
+  z-index: 2;
+}
+.lay-canvas.is-editing .lay-block:not(.is-dragging):not(.is-resizing) { opacity: .6; }
+
+.lay-block__name { font-weight: 600; display: block; margin-block-end: 2px; }
+.lay-block__w    { color: var(--a-text-2); font-size: 12px; }
+
+/* مقبض التكبير على حافّة النهاية — يميناً في LTR، يساراً في RTL */
+/* المقبض يُرى بلا بحث: شريطٌ واضح على حافّة كاملة الارتفاع، ومساحة
+   لمسٍ أوسع من الشريط نفسه حتى يُمسك بالإصبع لا بالتصويب. */
+.lay-block__resize {
+  position: absolute; inset-block: 0; inset-inline-end: 0;
+  inline-size: 24px;
+  display: grid; place-items: center;
+  cursor: ew-resize; touch-action: none;
+  color: var(--a-text-2);
+  background: linear-gradient(to var(--lay-grip-dir, left),
+    rgba(var(--a-accent-rgb), .10), transparent);
+  border-start-end-radius: var(--a-r-sm); border-end-end-radius: var(--a-r-sm);
+  transition: color var(--a-t), background var(--a-t);
+}
+.lay-block__resize::before {
+  content: ''; inline-size: 4px; block-size: 30px; border-radius: 4px;
+  background: currentColor; opacity: .7;
+}
+.lay-block__resize:hover,
+.lay-block.is-resizing .lay-block__resize {
+  color: var(--a-accent);
+  background: rgba(var(--a-accent-rgb), .18);
+}
+
+.lay-block__tools { display: flex; align-items: center; gap: var(--a-2); margin-block-start: var(--a-2); }
+/* الأزرار داخل مربّعة تُسحب: النقر لها، لا للسحب */
+.lay-block__tools > * { touch-action: auto; }
+
+
 .thumb-sm { inline-size: 40px; block-size: 40px; border-radius: var(--a-r-xs); object-fit: cover; flex: 0 0 auto; border: 1px solid var(--a-line); }
 
 /* ============================================================

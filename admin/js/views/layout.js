@@ -1,11 +1,12 @@
-// layout.js — ترتيب الأقسام وإظهارها وخلفياتها. السحب هو التفاعل الرئيسي.
+// layout.js — تخطيط الصفحة: مربّعاتٌ تُسحب لتُرتَّب وتُسحب حافّتها
+// لتكبر وتصغر، على شبكة الصفحة نفسها (اثنا عشر عموداً).
 import { el } from '../core/dom.js';
 import { get, setAll } from '../core/store.js';
 import { insert } from '../core/api.js';
 import { save } from '../core/autosave.js';
 import { toast } from '../core/toast.js';
 import { icon } from '../ui/icon.js';
-import { makeSortable } from '../ui/sortable.js';
+import { makeGridCanvas } from '../ui/grid-canvas.js';
 import { fld, toggle, select, slider, color, tabs } from '../ui/fields.js';
 import { openDrawer, closeDrawer } from '../ui/drawer.js';
 import { reloadPreview } from './preview.js';
@@ -24,24 +25,9 @@ const BG_TYPES = [['none', 'بلا خلفية'], ['color', 'لون'], ['gradient
    ١٢ وحده، أو ٦+٦، أو ٤+٤+٤، أو ٣+٣+٣+٣. أي عرض آخر يترك فجوة. */
 const SPANS = [[12, 'كامل'], [6, 'نصف'], [4, 'ثلث'], [3, 'ربع']];
 
-/** مربّعات صغيرة ترسم العرض — يُرى بالعين لا يُقرأ رقماً. */
-function spanPicker(value, onPick) {
-  const box = el('div', { class: 'row', style: { gap: '6px', flexWrap: 'wrap' } });
-  const draw = () => box.replaceChildren(...SPANS.map(([n, label]) => el('button', {
-    class: `btn btn--sm ${Number(value) === n ? 'btn--primary' : ''}`,
-    type: 'button', title: `${label} — ${n} من ١٢`,
-    onclick: () => { value = n; onPick(n); draw(); },
-  }, [
-    el('span', { style: {
-      display: 'inline-block', inlineSize: `${n * 3.2}px`, blockSize: '10px',
-      borderRadius: '2px', background: 'currentColor', opacity: '.85',
-      marginInlineEnd: '6px', verticalAlign: 'middle',
-    } }),
-    label,
-  ])));
-  draw();
-  return box;
-}
+/** اسم العرض كما يفهمه الإنسان: «نصف» أوضح من «٦ من ١٢». */
+const spanName = (n) => (SPANS.find(([v]) => v === Number(n)) || [])[1]
+  || `${n} من ١٢`;
 
 /** يضمن وجود صفّ لكل قسم — الجدول قد يكون ناقصاً. */
 async function ensureRows() {
@@ -113,6 +99,8 @@ export async function render(host) {
      عمودٌ خاصّ في القاعدة — فما يُضبط هنا لا يمسّ الآخر إطلاقاً.
      أما الخلفية والمسافة فمشتركة: ليست تخطيطاً. */
   let dev = 'd';
+  // كل رسمة تبني لوحةً جديدة؛ بلا إيقاف السابقة يتراكم مستمع window
+  let stopCanvas = null;
   const K = () => (dev === 'm'
     ? { sort: 'sort_m', span: 'span_m', vis: 'visible_m' }
     : { sort: 'sort',   span: 'span',   vis: 'visible' });
@@ -122,36 +110,61 @@ export async function render(host) {
     const rows = get('layout')
       .filter((l) => LABEL[l.section_key])
       .sort((a, b) => (a[k.sort] ?? 99) - (b[k.sort] ?? 99));
-    const list = el('div', { class: 'sortable' });
 
-    list.replaceChildren(...rows.map((r, i) => el('div', {
-      class: `sort-row ${r[k.vis] === false ? 'is-off' : ''}`, 'data-id': r.id,
-    }, [
-      el('span', { class: 'grip', 'aria-hidden': 'true' }, [icon('drag', { size: 15 })]),
-      el('span', { class: 'mono fld__hint', style: { inlineSize: '22px' } }, [String(i + 1)]),
-      el('button', { class: 'link grow', type: 'button', style: { textAlign: 'start' },
-        onclick: () => editSection(r, draw) }, [LABEL[r.section_key]]),
-      spanPicker(r[k.span] ?? 12, (v) => {
-        r[k.span] = v;
-        save('layout', r.id, { [k.span]: v }).catch((e) => toast(e.message, 'error'));
-        reloadPreview();
-      }),
-      toggle(r[k.vis] !== false, (v) => {
-        r[k.vis] = v;
-        save('layout', r.id, { [k.vis]: v }).catch((e) => toast(e.message, 'error'));
-        draw();
-        reloadPreview();
-      }),
-    ])));
+    const canvas = el('div', { class: 'lay-canvas' });
 
-    makeSortable(list, (ids) => {
-      ids.forEach((id, i) => save('layout', id, { [k.sort]: i + 1 })
-        .catch((e) => toast(e.message, 'error')));
-      setAll('layout', get('layout').map((l) =>
-        ids.includes(l.id) ? { ...l, [k.sort]: ids.indexOf(l.id) + 1 } : l));
-      draw();
-      reloadPreview();
-      toast('حُفظ الترتيب', 'success');
+    canvas.replaceChildren(...rows.map((r) => {
+      const span = r[k.span] ?? 12;
+      const wLabel = el('span', { class: 'lay-block__w' },
+        [`${spanName(span)} · ${span}/12`]);
+
+      return el('div', {
+        class: `lay-block ${r[k.vis] === false ? 'is-off' : ''}`,
+        'data-id': r.id, 'data-span': String(span), 'data-grip': '',
+        style: { '--span': String(span) },
+        title: 'اسحب المربّعة لتنقلها، واسحب المقبض على حافّتها لتكبّرها',
+      }, [
+        el('span', { class: 'lay-block__name' }, [LABEL[r.section_key]]),
+        wLabel,
+        el('div', { class: 'lay-block__tools' }, [
+          toggle(r[k.vis] !== false, (v) => {
+            r[k.vis] = v;
+            save('layout', r.id, { [k.vis]: v }).catch((e) => toast(e.message, 'error'));
+            draw();
+            reloadPreview();
+          }),
+          el('button', { class: 'btn btn--sm btn--ghost', type: 'button',
+            onclick: () => editSection(r, draw) }, [icon('settings', { size: 13 }), 'خلفية']),
+        ]),
+        /* المقبض على حافّة النهاية — لا يحمل data-grip فلا يُخلط
+           سحبُ التكبير بسحب النقل */
+        el('div', { class: 'lay-block__resize', 'data-resize': '',
+          'aria-label': 'اسحب لتغيير العرض', title: 'اسحب لتغيير العرض' }),
+      ]);
+    }));
+
+    stopCanvas?.();
+    stopCanvas = makeGridCanvas(canvas, {
+      // أثناء السحب: التسمية وحدها تتغيّر — لا نداءَ شبكة في كل بكسل
+      onSpanLive: (id, span) => {
+        const w = canvas.querySelector(`[data-id="${id}"] .lay-block__w`);
+        if (w) w.textContent = `${spanName(span)} · ${span}/12`;
+      },
+      onResize: (id, span) => {
+        const row = get('layout').find((l) => l.id === id);
+        if (row) row[k.span] = span;
+        save('layout', id, { [k.span]: span })
+          .then(() => reloadPreview())
+          .catch((e) => toast(e.message, 'error'));
+      },
+      onReorder: (ids) => {
+        ids.forEach((id, i) => save('layout', id, { [k.sort]: i + 1 })
+          .catch((e) => toast(e.message, 'error')));
+        setAll('layout', get('layout').map((l) =>
+          ids.includes(l.id) ? { ...l, [k.sort]: ids.indexOf(l.id) + 1 } : l));
+        reloadPreview();
+        toast('حُفظ الترتيب', 'success');
+      },
     });
 
     const dt = tabs([['d', 'سطح المكتب'], ['m', 'الجوال']], dev, (v) => { dev = v; draw(); });
@@ -161,7 +174,8 @@ export async function render(host) {
         el('div', {}, [
           el('h1', { class: 'view__title' }, ['تخطيط الصفحة']),
           el('p', { class: 'view__sub' }, [
-            'اسحب لتغيير الترتيب، واختر عرض كل قسم. قسمان بنصف عرض يقفان جنب بعض.',
+            'امسك المربّعة واسحبها لتنقلها، واسحب المقبض على حافّتها لتكبّرها وتصغّرها. '
+            + 'مربّعتان بنصف عرض تقفان جنب بعض.',
           ]),
         ]),
       ]),
@@ -171,7 +185,7 @@ export async function render(host) {
           ? 'ترتيب الجوال وعرضه مستقلّان تماماً عن سطح المكتب — فما تضبطه هنا لا يمسّ الشاشة الكبيرة.'
           : 'هذه قيم سطح المكتب. للجوال تبويب منفصل، فعرضٌ يناسب شاشة عريضة لا يصير شريطاً على الصغيرة.',
       ]),
-      list,
+      canvas,
     ]));
   };
 
