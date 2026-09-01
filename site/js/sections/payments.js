@@ -5,7 +5,14 @@ import { sectionHead } from '../components/head.js';
 import { applyEditable } from '../components/editable.js';
 
 function tile(m) {
-  return el('div', { class: 'card pay glass glass--soft t--quarter',
+  // shape/fit اختيار المشرف — auto+contain هو الافتراضي القديم بحرفه،
+  // فمن لا يلمسهما لا يرى فرقاً. الاثنان مستقلّان (كل تركيبة ممكنة).
+  const mods = [
+    m.shape === 'square' ? 'pay--square' : null,
+    m.fit === 'cover' ? 'pay--fill' : null,
+  ].filter(Boolean);
+
+  return el('div', { class: ['card', 'pay', 'glass', 'glass--soft', 't--quarter', ...mods].join(' '),
     'data-edit-id': `payment.card.${m.id}`, 'data-fx': 'shine' }, [
     m.logo_url
       ? el('img', { class: 'pay__logo', src: m.logo_url, alt: m.name || '',

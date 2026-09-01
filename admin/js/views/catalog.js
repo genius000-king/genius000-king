@@ -14,7 +14,7 @@ import { icon, iconNames } from '../ui/icon.js';
 import { makeSortable } from '../ui/sortable.js';
 import { openDrawer, closeDrawer } from '../ui/drawer.js';
 import { confirmDelete } from '../ui/modal.js';
-import { fld, text, textarea, toggle, select, tabs, emptyState } from '../ui/fields.js';
+import { fld, text, textarea, toggle, select as selectField, tabs, emptyState } from '../ui/fields.js';
 import { imageField } from '../ui/media.js';
 
 /** تعريف كل جدول: الحقول والافتراضيات. مصدر واحد للعرض والتحرير. */
@@ -61,8 +61,15 @@ const TABLES = {
   payment_methods: {
     label: 'طرق الدفع', hint: 'عرض فقط — لا يتم أي دفع داخل الموقع',
     title: 'name',
-    fields: [['name', 'الاسم', 'text'], ['logo_url', 'الشعار', 'image']],
-    blank: () => ({ name: 'طريقة دفع', logo_url: '', published: false }),
+    fields: [
+      ['name', 'الاسم', 'text'],
+      ['logo_url', 'الشعار', 'image'],
+      // auto/contain هي القيم الافتراضية في القاعدة — من لا يلمسهما لا يرى فرقاً
+      ['shape', 'شكل البطاقة', 'select', null, [['auto', 'تلقائي'], ['square', 'مربّع']]],
+      ['fit', 'الصورة داخل البطاقة', 'select', null,
+        [['contain', 'كاملة بحوافّها'], ['cover', 'تملأ البطاقة']]],
+    ],
+    blank: () => ({ name: 'طريقة دفع', logo_url: '', shape: 'auto', fit: 'contain', published: false }),
   },
   testimonials: {
     label: 'الآراء', hint: 'لا تُعرض إلا الآراء المنشورة',
@@ -114,12 +121,13 @@ function editRow(table, row, done) {
   const patch = (k, v) => { row[k] = v; save(table, row.id, { [k]: v }).catch((e) => toast(`تعذّر الحفظ: ${e.message}`, 'error')); };
 
   const body = el('div', { class: 'stack stack--lg' }, [
-    ...def.fields.map(([key, label, type, hint]) => {
+    ...def.fields.map(([key, label, type, hint, options]) => {
       let node;
       if (type === 'area') node = textarea(row[key], (v) => patch(key, v), { rows: 3, label });
       else if (type === 'icon') node = iconPicker(row[key], (v) => patch(key, v));
       else if (type === 'image') node = imageField(row[key], table, (v) => patch(key, v), label);
       else if (type === 'rating') node = ratingPicker(Number(row[key]) || 5, (v) => patch(key, v));
+      else if (type === 'select') node = selectField(row[key], options, (v) => patch(key, v), { label });
       else node = text(row[key], (v) => patch(key, v), { label });
       return fld(label, node, hint);
     }),

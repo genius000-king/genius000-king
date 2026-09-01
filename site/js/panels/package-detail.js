@@ -1,8 +1,8 @@
-// لوحة البكج — جدار بينتو لكل كتلة. صفر عنوان مكتوب في الكود.
+// لوحة البكج — جدار بينتو لكل كتلة. صفر عنوان مكتوب في الكود، وصفر
+// كروم: لا زرّ طلب ولا عناوين كتل — الصور وحدها هي المحتوى بطلب المالك.
 import { el } from '../core/dom.js';
-import { get, blocksOf, content } from '../core/store.js';
+import { get, blocksOf } from '../core/store.js';
 import { openLightbox } from '../core/lightbox.js';
-import { icon } from '../components/icon.js';
 import { planBento } from './bento-layout.js';
 
 function media(item) {
@@ -82,13 +82,8 @@ function wall(block, pkg) {
 }
 
 function block(b, pkg) {
+  // صفر عنوان: لا head مكتوب — الصور فقط، بلا كتلة عنوان/ملاحظة فوقها
   return el('section', { class: 'pkg-block', 'data-edit-id': `package.block.${b.id}` }, [
-    (b.title || b.note)
-      ? el('div', { class: 'pkg-block__head' }, [
-          b.title ? el('h3', { class: 'pkg-block__title' }, [b.title]) : null,
-          b.note ? el('span', { class: 'pkg-block__note' }, [b.note]) : null,
-        ])
-      : null,
     wall(b, pkg),
   ]);
 }
@@ -98,6 +93,8 @@ export default function render({ id }) {
   if (!pkg) return el('p', { class: 'glass-panel__error' }, ['البكج غير موجود.']);
 
   const blocks = blocksOf(id);
+  // اللوحة صور فقط — "بلا صور" تعني صفر صور فعلياً، لا صفر كتل
+  const shots = blocks.reduce((n, b) => n + (Array.isArray(b.images) ? b.images.length : 0), 0);
 
   return el('div', { class: 'pkg-detail' }, [
     el('header', { class: 'pkg-detail__head' }, [
@@ -108,15 +105,10 @@ export default function render({ id }) {
         el('h2', { class: 'pkg-detail__title' }, [pkg.name || '']),
         pkg.description ? el('p', { class: 'pkg-detail__sub' }, [pkg.description]) : null,
       ]),
-      el('button', {
-        class: 'btn btn--primary pkg-detail__cta', type: 'button', 'data-fx': 'magnetic',
-        onclick: () => document.dispatchEvent(new CustomEvent('order:open', {
-          detail: { preset: { name: `بكج ${pkg.name}`, qty: 1 } },
-        })),
-      }, [content('package_cta', 'اطلب هذا البكج'), icon('arrow', { size: 18 })]),
     ]),
-    ...(blocks.length
+    ...(shots
       ? blocks.map((b) => block(b, pkg))
-      : [el('p', { class: 'card__text' }, ['لا توجد كتل في هذا البكج بعد.'])]),
+      // ليست فراغاً صامتاً — سطر هادئ يفسّر الغياب بدل صمتٍ مربك
+      : [el('p', { class: 'card__text pkg-detail__empty' }, ['لا توجد صور لهذا البكج بعد.'])]),
   ]);
 }

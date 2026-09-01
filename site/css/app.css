@@ -1829,14 +1829,25 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
 }
 .pkg:hover .pkg__cover { transform: scale(1.06); }
 
+/* بلا غلاف الشعار هو البطل: يملأ البلاطة حافّة لحافّة تماماً كالغلاف —
+   لا حشوة ولا هامش. بوجود غلاف يتقلّص إلى شارة وسط البلاطة (أدناه). */
 .pkg__logo {
-  inline-size: min(88%, 260px);
-  aspect-ratio: 1;
-  object-fit: contain;
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
   transition: transform var(--t-base) var(--ease-spring);
 }
-/* بوجود غلاف يصغر الشعار ويعلوه شارةً؛ بلا غلاف هو البطل */
-.pkg:has(.pkg__cover) .pkg__logo { inline-size: min(46%, 132px); }
+/* بوجود غلاف يصغر الشعار ويعلوه شارةً محتواة لا ممتدّة */
+.pkg:has(.pkg__cover) .pkg__logo {
+  position: static;
+  inset: auto;
+  inline-size: min(46%, 132px);
+  block-size: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+}
 .pkg:hover .pkg__logo { transform: scale(1.06) rotate(-2deg); }
 
 /* الستارة: تُبقي الاسم مقروءاً فوق أي صورة، بلا تعتيم الصورة كلها */
@@ -1871,13 +1882,11 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
 .pkg-detail__titles { display: grid; gap: 2px; flex: 1; min-inline-size: 160px; }
 .pkg-detail__title { font-size: var(--fs-h2); }
 .pkg-detail__sub { color: var(--c-text-2); font-size: var(--fs-sm); }
-.pkg-detail__cta { flex: 0 0 auto; }
+/* لا زرّ طلب ولا عناوين كتل — اللوحة صور فقط. سطر الفراغ الهادئ فقط */
+.pkg-detail__empty { color: var(--c-text-3); }
 
 .pkg-block { display: grid; gap: var(--s-4); }
 .pkg-block + .pkg-block { padding-block-start: var(--s-5); border-block-start: 1px solid var(--c-line-soft); }
-.pkg-block__head { display: flex; align-items: baseline; gap: var(--s-3); flex-wrap: wrap; }
-.pkg-block__title { font-size: var(--fs-h3); color: var(--c-accent-text); }
-.pkg-block__note { font-size: var(--fs-sm); color: var(--c-text-3); }
 
 .pkg-bento {
   display: grid;
@@ -2054,11 +2063,40 @@ select.field option { background: var(--c-surface-2); color: var(--c-text); }
 .star--on  { color: var(--c-warm); }
 .star--off { color: var(--c-line); }
 
-/* ── طرق الدفع ── */
-.pay { display: grid; place-items: center; gap: var(--s-2); padding: var(--s-4); min-block-size: 96px; }
+/* ── طرق الدفع ──
+   الشكل والامتلاء اختيار المشرف من الكتالوج (shape/fit في القاعدة).
+   auto+contain — بلا صنف معدِّل — يطابق الشكل القديم بحرفه. */
+/* نسبيّةٌ صراحةً: الشعار المالئ مطلقٌ داخلها، وكان يتّكل على أنّ
+   ‎.glass‎ نسبيّة — ارتباطٌ خفيّ ينكسر لو نُزع الصنف يوماً. */
+.pay { position: relative; display: grid; place-items: center; gap: var(--s-2); padding: var(--s-4); min-block-size: 96px; }
 .pay__logo { max-inline-size: 78%; max-block-size: 46px; object-fit: contain; }
 .pay__name { font-size: var(--fs-xs); color: var(--c-text-3); }
 .pay__note { grid-column: 1 / -1; font-size: var(--fs-sm); color: var(--c-text-3); text-align: center; }
+
+/* shape: مربّع بدل الارتفاع الأدنى الحر */
+.pay--square { aspect-ratio: 1; min-block-size: 0; }
+
+/* fit: الشعار يملأ البطاقة حافّة لحافّة — يخرج من قيود max-inline-size
+   ويصير موضعاً مطلقاً كي يتجاهل الحشوة تماماً كما تفعل .pkg__cover.
+   الاسم يبقى مقروءاً فوقه بشارة داكنة صغيرة بدل التماهي مع الصورة. */
+.pay--fill .pay__logo {
+  position: absolute;
+  inset: 0;
+  max-inline-size: none;
+  max-block-size: none;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+.pay--fill .pay__name {
+  position: relative;
+  z-index: 1;
+  align-self: end;
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  background: rgba(6, 9, 18, .6);
+  color: #fff;
+}
 
 /* ── دعوة الطلب ── */
 .order {
