@@ -11,7 +11,7 @@
 // ============================================================
 import { isConfigured } from './core/config.js';
 import { loadAll, hydrate, anyFailed } from './core/store.js';
-import { applyTheme } from './core/theme.js';
+import { applyTheme, listenPreviewTheme } from './core/theme.js';
 import { applyLayout, watchLayout } from './core/layout-apply.js';
 import { scan, destroyIn } from './motion/registry.js';
 import { el } from './core/dom.js';
@@ -97,6 +97,9 @@ function setupScreen() {
 }
 
 async function boot() {
+  // داخل معاينة اللوحة نستقبل الثيم منها حيّاً؛ خارجها لا أثر لهذا
+  listenPreviewTheme();
+
   if (!isConfigured) return setupScreen();
 
   /* ── المسار السريع: نسخة الجهاز موجودة ── */

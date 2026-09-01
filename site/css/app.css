@@ -257,20 +257,15 @@ html {
   text-size-adjust: 100%;
 }
 
-/* الخلفية: لون يضبطه المشرف، وفوقه صورة اختيارية بتعتيم يضبطه أيضاً.
-   ⚠️ التعتيم طبقة تدرّج فوق الصورة لا مرشّح brightness: المرشّح يعتّم
-      الصفحة كلها بما فيها المحتوى، والطبقة تعتّم الخلفية وحدها. */
+/* الخلفية: اللون هنا، والصورة على طبقة ‎#bg‎ لا هنا.
+   ⚠️ كانت الصورة هنا فلا تُرى أبداً: ‎#bg‎ طبقةٌ مثبّتة تغطّي المنفذ
+      كلَّه وتنتهي بلونٍ مصمت، فتحجب خلفية الجسم مهما ضُبطت. صاحب
+      الموقع يختار صورة فتُحفظ ولا يظهر شيء. الطبقة الحاجبة هي التي
+      تحمل الصورة الآن، فلا حاجب. */
 body {
   min-block-size: 100dvh;
   overflow-x: clip;
   background-color: var(--page-bg, var(--c-bg));
-  background-image:
-    linear-gradient(rgba(0, 0, 0, var(--page-bg-dim, 0)), rgba(0, 0, 0, var(--page-bg-dim, 0))),
-    var(--page-bg-image, none);
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
   color: var(--c-text);
   font-family: var(--font-base);
   font-size: var(--fs-body);
@@ -569,8 +564,31 @@ html:not(.js-ready) .fx-split__unit {
   background:
     radial-gradient(120% 80% at 78% -6%, #2A2D34 0%, transparent 60%),
     radial-gradient(105% 72% at 8% 106%, #24262C 0%, transparent 62%),
-    var(--c-bg);
+    var(--page-bg, var(--c-bg));
 }
+
+/* ── صورة خلفية للموقع كلّه ──
+   ‎has-bg-image‎ يضعها theme.js على الجذر متى ضُبطت صورة. الطبقة
+   نفسها ثابتة في المنفذ أصلاً (‎position: fixed‎) فتتصرّف الصورة
+   كأنّها ‎background-attachment: fixed‎ بلا تكلفته على الجوال.
+
+   والتعتيم طبقةُ تدرّجٍ فوق الصورة لا مرشّح ‎brightness‎: المرشّح
+   يعتّم الصفحة كلها بما فيها المحتوى، والطبقة تعتّم الخلفية وحدها.
+
+   والزخرفة تنسحب: التدرّجات نصف المصمتة والفقاعات والشظايا وُضعت
+   لتحيي لوناً مسطّحاً، وفوق صورةٍ تُوحِلها. */
+html.has-bg-image #bg {
+  background:
+    linear-gradient(rgba(0, 0, 0, var(--page-bg-dim, 0)),
+                    rgba(0, 0, 0, var(--page-bg-dim, 0))),
+    var(--page-bg-image, none),
+    var(--page-bg, var(--c-bg));
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+html.has-bg-image .bg-blob,
+html.has-bg-image .bg-shard { display: none; }
 
 .bg-blob {
   position: absolute;

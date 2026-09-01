@@ -1,7 +1,7 @@
 // appearance.js — الألوان والخط والمسافات والحركة، بمعاينة حيّة داخل iframe.
 import { el } from '../core/dom.js';
 import { get, setAll } from '../core/store.js';
-import { THEME_KEYS, setThemeKey, resetThemeKey, varsFor } from '../core/theme.js';
+import { THEME_KEYS, setThemeKey, resetThemeKey } from '../core/theme.js';
 import { fld, color, slider, tabs, toggle } from '../ui/fields.js';
 import { icon } from '../ui/icon.js';
 import { toast } from '../core/toast.js';
@@ -99,7 +99,7 @@ const valueOf = (key, fallback) => get('theme').find((r) => r.key === key)?.valu
 async function set(key, value) {
   try {
     await setThemeKey(key, value);
-    pushTheme(varsFor(get('theme')));
+    pushTheme(get('theme'));
   } catch (e) { toast(e.message, 'error'); }
 }
 
@@ -124,7 +124,7 @@ export function render(host, { query } = {}) {
     return el('div', { class: 'card', style: { padding: 'var(--a-4)' } }, [
       slider(cur, (v) => set(key, unit ? `${v}${unit}` : String(v)), { label, min, max, step, unit }),
       el('button', { class: 'btn btn--sm btn--ghost', type: 'button',
-        onclick: async () => { await resetThemeKey(key); pushTheme(varsFor(get('theme'))); draw(); } },
+        onclick: async () => { await resetThemeKey(key); pushTheme(get('theme')); draw(); } },
         [icon('undo', { size: 13 }), 'الافتراضي']),
     ]);
   };
@@ -135,7 +135,7 @@ export function render(host, { query } = {}) {
     el('div', { class: 'card', style: { padding: 'var(--a-4)' } }, [
       fld(label, color(valueOf(key, dflt), (v) => set(key, v), { label, fallback: dflt })),
       el('button', { class: 'btn btn--sm btn--ghost', type: 'button',
-        onclick: async () => { await resetThemeKey(key); draw(); pushTheme(varsFor(get('theme'))); } },
+        onclick: async () => { await resetThemeKey(key); draw(); pushTheme(get('theme')); } },
         [icon('undo', { size: 13 }), 'الافتراضي']),
     ]);
 

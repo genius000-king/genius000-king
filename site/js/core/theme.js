@@ -101,7 +101,38 @@ export function varsFor(rows = []) {
 export function applyTheme(rows = get('theme'), target = document.documentElement) {
   const vars = varsFor(rows);
   for (const [k, v] of Object.entries(vars)) target.style.setProperty(k, v);
+
+  /* صورة الخلفية تحتاج أكثر من متغيّر: طبقةُ ‎#bg‎ الحاجبة يجب أن
+     تحملها هي، وزخرفةُ الفقاعات والشظايا يجب أن تنسحب من فوقها.
+     صنفٌ واحد على الجذر يقول ذلك لـ CSS — أوضح من ثلاثة متغيّرات
+     يطفئ بعضها بعضاً. */
+  target.classList?.toggle('has-bg-image', !!vars['--page-bg-image']);
   return vars;
+}
+
+/* ── معاينة اللوحة الحيّة ──
+   اللوحة تبثّ صفوف الثيم إلى إطار المعاينة عند كل تعديل. كانت تبثّ
+   في الفراغ: لا مستمع هنا إطلاقاً — فيحرّك صاحب الموقع مسطرةً ولا
+   يتغيّر شيء أمامه، ويظنّ الضبط معطّلاً.
+
+   الأمان: لا نستمع إلا داخل المعاينة (‎?preview=1‎)، ولا نقبل إلا من
+   نفس الأصل، ولا نطبّق القيم مباشرةً بل نمرّرها على applyTheme نفسها
+   — فتمرّ بـ THEME_KEYS و isSafeValue كما تمرّ القادمة من القاعدة.
+   الرسالة تختار قيماً موجودةً أصلاً، ولا تفتح باباً جديداً. */
+export function listenPreviewTheme(win = window) {
+  let params;
+  try { params = new URLSearchParams(win.location.search); } catch { return; }
+  if (params.get('preview') !== '1') return;
+
+  win.addEventListener('message', (e) => {
+    if (e.origin !== win.location.origin) return;
+    const d = e.data;
+    if (!d || d.type !== 'theme' || !Array.isArray(d.rows)) return;
+    setAll('theme', d.rows);
+    applyTheme(d.rows);
+    // ما يقرأ الثيم مرّةً عند تركيبه (الشعار المجسّم مثلاً) يحتاج نداءً
+    document.dispatchEvent(new CustomEvent('theme:applied', { detail: { rows: d.rows } }));
+  });
 }
 
 /** يجلب الثيم ويطبّقه. */

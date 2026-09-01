@@ -17,10 +17,18 @@ const DEVICES = [
 
 const frames = new Set();
 
-/** يبثّ متغيّرات الثيم إلى كل إطارات المعاينة المفتوحة. */
-export function pushTheme(vars) {
+/**
+ * يبثّ صفوف الثيم إلى كل إطارات المعاينة المفتوحة.
+ *
+ * الصفوف الخام لا المتغيّرات المحسوبة: الموقع يمرّرها على applyTheme
+ * نفسها، فيمرّ الوارد بنفس فحص المفاتيح والقيم الذي يمرّ به القادم من
+ * القاعدة — مسارٌ واحد نصونه لا اثنان. والهدف نفس الأصل لا '*'.
+ */
+export function pushTheme(rows) {
+  const list = Array.isArray(rows) ? rows : [];
   for (const f of frames) {
-    try { f.contentWindow?.postMessage({ type: 'theme', vars }, '*'); } catch { /* */ }
+    try { f.contentWindow?.postMessage({ type: 'theme', rows: list }, location.origin); }
+    catch { /* إطارٌ لم يُحمَّل بعد */ }
   }
 }
 
