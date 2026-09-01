@@ -95,6 +95,22 @@ export const TUNE = {
   rimX:   2.40, rimY: -0.90, rimZ:  0.15, rimPow: 0.55, rimCol: 0x8fdcf7,
   ambient: 0.34,   // ضوء محيط عامّ يرفع أرضية الصورة
 
+  /* ── تركيز كل ضوء ──
+     المصابيح مخروطية (SpotLight) لا اتجاهية: الاتجاهيّ لا مكان له
+     في الفراغ ولا مخروط، فلا «تركيز» يُضبط ولا جسمٌ يُمسك ويُحرَّك
+     في مشهد ثلاثي. والمخروطيّ له الاثنان.
+
+     ‎decay = 0‎ و‎distance = 0‎: بلا خفوتٍ بالمسافة. الخفوت الفيزيائي
+     يجعل تقريب الضوء يحرقه وإبعاده يطفئه، فتصير القوّة والمسافة
+     مقبضاً واحداً متشابكاً. هنا الموضع يحدّد الاتجاه والقوّة تحدّد
+     الشدّة، كلٌّ على حدة.
+
+     والزاوية واسعة افتراضاً حتى يغطّي المخروط الشعار كلَّه —
+     فيبدو كالاتجاهيّ تماماً — والتضييق هو ما يصنع بقعة الضوء. */
+  keyAng: 1.10, keySoft: 0.55,
+  filAng: 1.10, filSoft: 0.55,
+  rimAng: 1.10, rimSoft: 0.55,
+
   envPow:    1.15,  // شدّة انعكاس المحيط
   gloss:     0.14,  // لمعان الجسم (خشونة أقلّ = ألمع)
 };
@@ -122,13 +138,16 @@ const THEME_MAP = {
    مقروءةً كافتراضٍ للمفتاحيّ وحده: من ضبطها قبل الاستوديو لا ينكسر
    ضبطه، ومن ضبط `--logo-key-*` فهي الأحدث فتغلب. */
 const RIG = [
-  ['key', 'key', ['--logo-key-x', '--logo-light-x'], ['--logo-key-y', '--logo-light-y'],
+  ['key', ['--logo-key-x', '--logo-light-x'], ['--logo-key-y', '--logo-light-y'],
    ['--logo-key-z', '--logo-light-z'], ['--logo-key-power', '--logo-light-power'],
-   ['--logo-key-color', '--logo-light-color']],
-  ['fil', 'fill', ['--logo-fill-x'], ['--logo-fill-y'], ['--logo-fill-z'],
-   ['--logo-fill-power'], ['--logo-fill-color']],
-  ['rim', 'rim', ['--logo-rim-x'], ['--logo-rim-y'], ['--logo-rim-z'],
-   ['--logo-rim-power'], ['--logo-rim-color']],
+   ['--logo-key-color', '--logo-light-color'],
+   ['--logo-key-angle'], ['--logo-key-soft']],
+  ['fil', ['--logo-fill-x'], ['--logo-fill-y'], ['--logo-fill-z'],
+   ['--logo-fill-power'], ['--logo-fill-color'],
+   ['--logo-fill-angle'], ['--logo-fill-soft']],
+  ['rim', ['--logo-rim-x'], ['--logo-rim-y'], ['--logo-rim-z'],
+   ['--logo-rim-power'], ['--logo-rim-color'],
+   ['--logo-rim-angle'], ['--logo-rim-soft']],
 ];
 
 /** أوّل متغيّرٍ له قيمة صالحة في القائمة، وإلا الافتراض. */
@@ -169,12 +188,15 @@ function tuneFromTheme() {
   const p = parseFloat(cs.getPropertyValue('--logo-particles'));
   out.particles = Number.isFinite(p) ? Math.min(24000, Math.max(800, p)) : null;
   // ── الاستوديو: ثلاثة أضواء ومحيط ──
-  for (const [k, , xs, ys, zs, ps, colors] of RIG) {
+  for (const [k, xs, ys, zs, ps, colors, angs, softs] of RIG) {
     out[`${k}X`] = pick(cs, xs, -3, 3, TUNE[`${k}X`]);
     out[`${k}Y`] = pick(cs, ys, -3, 3, TUNE[`${k}Y`]);
     out[`${k}Z`] = pick(cs, zs, -3, 3, TUNE[`${k}Z`]);
     out[`${k}Pow`] = pick(cs, ps, 0, 8, TUNE[`${k}Pow`]);
     out[`${k}Col`] = pickColor(cs, colors, TUNE[`${k}Col`]);
+    // الزاوية بالراديان: ٠٫٠٥ بقعةٌ ضيّقة، و١٫٤ يغمر المشهد
+    out[`${k}Ang`] = pick(cs, angs, 0.05, 1.4, TUNE[`${k}Ang`]);
+    out[`${k}Soft`] = pick(cs, softs, 0, 1, TUNE[`${k}Soft`]);
   }
   out.ambient = pick(cs, ['--logo-ambient'], 0, 2, TUNE.ambient);
   return out;
@@ -184,6 +206,11 @@ const clamp = (v, a = 0, b = 1) => (v < a ? a : v > b ? b : v);
 const smooth = (t) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
 /** تقارب أسّي مستقلّ عن معدّل الإطارات. */
 const approach = (dt, tau) => 1 - Math.exp(-dt / tau);
+
+/* سماكة البثق وحافّته — نسبةً إلى عرض الشعار لا بالبكسل، فلا
+   تنبسط الحروف إذا تغيّر مقاس الصورة المصدر. مُصدَّرة ليبني استوديو
+   اللوحة الجسم نفسه. */
+export const EXTRUDE = { depth: VIEW.w * 0.086, bevel: VIEW.w * 0.013 };
 
 let threeMod = null;
 function loadThree() {
@@ -199,7 +226,9 @@ function webglOk() {
 }
 
 /* ════════════════ المسار → شكل ════════════════ */
-function shapeFrom(THREE, d) {
+/* مُصدَّرة ليستعملها استوديو الإضاءة في اللوحة: يعرض الجسم نفسه
+   بالهندسة نفسها لا تقريباً له، فما يُضبط هناك هو ما يُرى هنا. */
+export function shapeFrom(THREE, d) {
   const s = new THREE.Shape();
   const cx = VIEW.w / 2, cy = VIEW.h / 2;
   const X = (x) => x - cx, Y = (y) => cy - y;      // SVG ينزل، three يصعد
@@ -284,10 +313,19 @@ export function mount(THREE, host, opts = {}) {
      ولونه — ومحيطٌ يرفع أرضية الصورة. المسافة لا تعني شيئاً لضوءٍ
      اتجاهيّ، فالموضع اتجاهٌ لا بُعد. */
   const amb = new THREE.AmbientLight(0xffffff, T.ambient);
-  const key = new THREE.DirectionalLight(T.keyCol, T.keyPow);
-  const fil = new THREE.DirectionalLight(T.filCol, T.filPow);
-  const rim = new THREE.DirectionalLight(T.rimCol, T.rimPow);
-  scene.add(amb, key, fil, rim);
+  const spot = (col, pow) => {
+    const l = new THREE.SpotLight(col, pow);
+    l.decay = 0;        // بلا خفوتٍ بالمسافة — انظر تعليق TUNE
+    l.distance = 0;
+    return l;
+  };
+  const key = spot(T.keyCol, T.keyPow);
+  const fil = spot(T.filCol, T.filPow);
+  const rim = spot(T.rimCol, T.rimPow);
+  // المخروط يصوّب إلى مركز المشهد؛ والهدف يجب أن يكون في المشهد
+  // ليُحدَّث مصفوفته، وإلا صوّبت كلُّها إلى نقطة الأصل الافتراضية
+  for (const l of [key, fil, rim]) scene.add(l, l.target);
+  scene.add(amb);
 
   const group = new THREE.Group();
   const solid = new THREE.Group();
@@ -361,7 +399,7 @@ float lgHash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.545);
   /* السماكة والشطف نسبةً إلى مقاس الشعار لا رقمين ثابتين: الأصل
      تغيّر مرّة من ٥٤٠ عرضاً إلى ٩٢٢، فبدا المجسّم مسطّحاً بسماكة
      كانت تناسب الأصغر. النسبة تنجو من أي تغيير قادم. */
-  const DEPTH = VIEW.w * 0.086, BEVEL = VIEW.w * 0.013;
+  const DEPTH = EXTRUDE.depth, BEVEL = EXTRUDE.bevel;
   const meshes = SHAPES.map((sh, i) => {
     const g = new THREE.ExtrudeGeometry(shapeFrom(THREE, sh.d), {
       depth: DEPTH, curveSegments: low ? 8 : 14,
@@ -390,12 +428,16 @@ float lgHash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.545);
   function applyRig(t = tuneFromTheme()) {
     const D = RADIUS * 2;
     amb.intensity = t.ambient;
-    key.color.setHex(t.keyCol); key.intensity = t.keyPow;
-    key.position.set(t.keyX * D, t.keyY * D, t.keyZ * D);
-    fil.color.setHex(t.filCol); fil.intensity = t.filPow;
-    fil.position.set(t.filX * D, t.filY * D, t.filZ * D);
-    rim.color.setHex(t.rimCol); rim.intensity = t.rimPow;
-    rim.position.set(t.rimX * D, t.rimY * D, t.rimZ * D);
+    const put = (l, k) => {
+      l.color.setHex(t[`${k}Col`]);
+      l.intensity = t[`${k}Pow`];
+      l.position.set(t[`${k}X`] * D, t[`${k}Y`] * D, t[`${k}Z`] * D);
+      l.angle = t[`${k}Ang`];
+      l.penumbra = t[`${k}Soft`];
+      l.target.position.set(0, 0, 0);
+      l.target.updateMatrixWorld();
+    };
+    put(key, 'key'); put(fil, 'fil'); put(rim, 'rim');
     for (const m of mats) {
       m.envMapIntensity = t.envPow;
       m.roughness = m.userData.blue ? t.gloss + .06 : t.gloss;

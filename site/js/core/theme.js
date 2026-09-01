@@ -36,8 +36,11 @@ export const THEME_KEYS = [
      ضوءٌ محيطٌ عامّ. مفاتيح `logo-light-*` أعلاه تبقى مقروءةً
      كافتراضٍ للمفتاحيّ حتى لا ينكسر ضبطٌ قديم. */
   'logo-key-x', 'logo-key-y', 'logo-key-z', 'logo-key-power', 'logo-key-color',
+  'logo-key-angle', 'logo-key-soft',
   'logo-fill-x', 'logo-fill-y', 'logo-fill-z', 'logo-fill-power', 'logo-fill-color',
+  'logo-fill-angle', 'logo-fill-soft',
   'logo-rim-x', 'logo-rim-y', 'logo-rim-z', 'logo-rim-power', 'logo-rim-color',
+  'logo-rim-angle', 'logo-rim-soft',
   'logo-ambient',
 
   /* ── الزجاج والخلفية ── */

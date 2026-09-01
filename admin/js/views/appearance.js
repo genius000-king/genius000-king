@@ -8,7 +8,7 @@ import { icon } from '../ui/icon.js';
 import { toast } from '../core/toast.js';
 import { confirmModal } from '../ui/modal.js';
 import { imageField } from '../ui/media.js';
-import { makeLightStage } from '../ui/light-stage.js';
+import { makeLightStudio3D } from '../ui/light-studio3d.js';
 import { previewFrame, pushTheme } from './preview.js';
 
 /** ما يظهر للمشرف — القائمة المغلقة نفسها، مع تسميات عربية. */
@@ -49,19 +49,20 @@ const GLASS = [
    logo-rim المخزَّنة في theme.js — مكرَّرة هنا فقط لأنّ اللوحة تحتاجها
    كنقطة بداية قبل أوّل حفظ، ولأنّ زرّ «رجّع الإضاءة للأصل» يستعملها محلياً. */
 const STUDIO_LIGHTS = [
-  ['key', 'مفتاحيّ', { x: -0.55, y: 0.70, z: 1.00, power: 2.10, color: '#ffffff' }],
-  ['fill', 'ملء', { x: 0.60, y: 0.87, z: 1.00, power: 0.34, color: '#ffffff' }],
+  ['key', 'مفتاحيّ', { x: -0.55, y: 0.70, z: 1.00, power: 2.10, color: '#ffffff', angle: 1.10, soft: 0.55 }],
+  ['fill', 'ملء', { x: 0.60, y: 0.87, z: 1.00, power: 0.34, color: '#ffffff', angle: 1.10, soft: 0.55 }],
   /* الحافّ زاويةً ماسّة لا خلفاً تماماً — كما في محرّك الشعار حرفاً
      بحرف. الخلف التامّ قِيس فوُجد تحت أرضية الضوضاء: لا يضيء شيئاً
      تراه الكاميرا. وأيّ خلافٍ بين هذه القيم وقيم المحرّك يعني بقعةً
      تقف في غير موضع ضوئها قبل أوّل حفظ. */
-  ['rim', 'حافّ', { x: 2.40, y: -0.90, z: 0.15, power: 0.55, color: '#8fdcf7' }],
+  ['rim', 'حافّ', { x: 2.40, y: -0.90, z: 0.15, power: 0.55, color: '#8fdcf7', angle: 1.10, soft: 0.55 }],
 ];
 
 /* كل مفاتيح الاستوديو — تُستعمل لزرّ الإرجاع الجماعي وحده؛ لكل مفتاح
    أيضاً زرّ إرجاعٍ فردي عبر sliderRow/colorRow كبقيّة اللوحة. */
 const STUDIO_KEYS = STUDIO_LIGHTS
-  .flatMap(([id]) => [`logo-${id}-x`, `logo-${id}-y`, `logo-${id}-z`, `logo-${id}-power`, `logo-${id}-color`])
+  .flatMap(([id]) => [`logo-${id}-x`, `logo-${id}-y`, `logo-${id}-z`, `logo-${id}-power`,
+    `logo-${id}-color`, `logo-${id}-angle`, `logo-${id}-soft`])
   .concat(['logo-ambient']);
 
 /* مشتركة بين الأضواء الثلاثة — تبقى بمفاتيحها القديمة كما هي. */
@@ -124,25 +125,28 @@ async function set(key, value) {
 
 /** يحفظ x وy لضوءٍ واحد بطلبٍ واحد — سحبٌ يحرّك محورين لا يجوز أن
     يكتب مرّتين على القاعدة، وupsert PostgREST يقبل مصفوفة صفوف. */
-async function commitLightXY(id, x, y) {
-  const kx = `logo-${id}-x`, ky = `logo-${id}-y`;
-  const vx = String(x), vy = String(y);
+/** صفوف الثيم بعد استبدال محاور ضوءٍ واحد — بلا تكرار مفتاح. */
+function rowsWithXYZ(id, x, y, z) {
+  const keys = [`logo-${id}-x`, `logo-${id}-y`, `logo-${id}-z`];
+  const next = [{ key: keys[0], value: String(x) },
+    { key: keys[1], value: String(y) }, { key: keys[2], value: String(z) }];
+  return get('theme').filter((r) => !keys.includes(r.key)).concat(next);
+}
+
+/** يحفظ محاور ضوءٍ واحد بطلبٍ واحد — سحبةٌ تحرّك ثلاثة محاور لا يجوز
+    أن تكتب ثلاث مرّات، وupsert PostgREST يقبل مصفوفة صفوف. */
+async function commitLightXYZ(id, x, y, z) {
+  const rows = rowsWithXYZ(id, x, y, z);
+  const keys = [`logo-${id}-x`, `logo-${id}-y`, `logo-${id}-z`];
   try {
-    await upsert('theme', [{ key: kx, value: vx }, { key: ky, value: vy }]);
-    const rows = get('theme').filter((r) => r.key !== kx && r.key !== ky)
-      .concat([{ key: kx, value: vx }, { key: ky, value: vy }]);
+    await upsert('theme', rows.filter((r) => keys.includes(r.key)));
     setAll('theme', rows);
     pushTheme(rows);
   } catch (e) { toast(e.message, 'error'); }
 }
 
 /** أثناء السحب وحده — لا حفظ، فقط بثّ حيّ رخيص لإطار المعاينة. */
-const pushLiveXY = throttle((id, x, y) => {
-  const kx = `logo-${id}-x`, ky = `logo-${id}-y`;
-  const rows = get('theme').filter((r) => r.key !== kx && r.key !== ky)
-    .concat([{ key: kx, value: String(x) }, { key: ky, value: String(y) }]);
-  pushTheme(rows);
-}, 50);
+const pushLiveXYZ = throttle((id, x, y, z) => pushTheme(rowsWithXYZ(id, x, y, z)), 60);
 
 export function render(host, { query } = {}) {
   const GROUPS = [['colors', 'الألوان'], ['type', 'الخط والمسافات'],
@@ -188,34 +192,36 @@ export function render(host, { query } = {}) {
         [icon('undo', { size: 13 }), 'الافتراضي']),
     ]);
 
-  /** تبويب «إضاءة الشعار» — مسرحٌ يُسحب فوقه ثلاثة أضواء، بدل مزالق x/y. */
+  /** تبويب «إضاءة الشعار» — استوديو ثلاثيّ: مصابيح تُمسك وتُحرّك. */
   function drawLightTab() {
     stopStage?.();
 
     const hexOr = (v, d) => (/^#[0-9a-f]{6}$/i.test(v || '') ? v : d);
     /* ‎Number(v) || d‎ يبتلع الصفر المشروع: ضوءٌ أُطفئ أو وُضع في
-       المنتصف يعود للافتراض من تلقائه. الفحص على الانتهاء لا على
-       الصدق. */
+       المنتصف يعود للافتراض من تلقائه. الفحص على الانتهاء لا الصدق. */
     const num = (v, d) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
     const lightsData = STUDIO_LIGHTS.map(([id, label, d]) => ({
       id, label,
       x: num(valueOf(`logo-${id}-x`, d.x), d.x),
       y: num(valueOf(`logo-${id}-y`, d.y), d.y),
+      z: num(valueOf(`logo-${id}-z`, d.z), d.z),
       power: num(valueOf(`logo-${id}-power`, d.power), d.power),
+      angle: num(valueOf(`logo-${id}-angle`, d.angle), d.angle),
+      soft: num(valueOf(`logo-${id}-soft`, d.soft), d.soft),
       color: hexOr(valueOf(`logo-${id}-color`, d.color), d.color),
     }));
 
-    const stage = makeLightStage({
+    const studio = makeLightStudio3D({
       lights: lightsData, selected: selectedLight,
       onSelect: (id) => { selectedLight = id; lightTabs.select(id); drawSelected(); },
-      onMove: (id, x, y) => pushLiveXY(id, x, y),
-      onCommit: (id, x, y) => commitLightXY(id, x, y),
+      onMove: (id, x, y, z) => pushLiveXYZ(id, x, y, z),
+      onCommit: (id, x, y, z) => commitLightXYZ(id, x, y, z),
     });
-    stopStage = stage.stop;
+    stopStage = studio.stop;
 
     const lightTabs = tabs(STUDIO_LIGHTS.map(([id, label]) => [id, label]), selectedLight, (id) => {
       selectedLight = id;
-      stage.select(id);
+      studio.select(id);
       drawSelected();
     });
 
@@ -225,17 +231,18 @@ export function render(host, { query } = {}) {
       selectedBox.replaceChildren(
         colorRow(`logo-${id}-color`, `لون ${label}`, d.color),
         sliderRow([`logo-${id}-power`, 'الشدّة', 0, 8, 0.1, '', d.power]),
-        sliderRow([`logo-${id}-z`, 'العمق (أمام/خلف)', -3, 3, 0.05, '', d.z]),
+        sliderRow([`logo-${id}-angle`, 'التركيز (ضيّق ← واسع)', 0.05, 1.4, 0.01, '', d.angle]),
+        sliderRow([`logo-${id}-soft`, 'نعومة حافّة الضوء', 0, 1, 0.05, '', d.soft]),
       );
     }
     drawSelected();
 
     body.replaceChildren(
       el('p', { class: 'view__sub', style: { marginBlockEnd: 'var(--a-3)' } }, [
-        'اسحب كلّ ضوء على المسرح لتحريكه يميناً/يساراً وأعلى/أسفل، أو اختر ضوءاً من التبويبات '
-        + 'أدناه لضبط لونه وشدّته وعمقه (أمام/خلف).',
+        'استوديو ثلاثيّ الأبعاد: اسحب الخلفية لتدوير الكاميرا حول الشعار، واسحب أيّ مصباح لتحريكه '
+        + 'في الفراغ. العمق يتغيّر بحسب الجهة التي تنظر منها — أدِر الكاميرا ثمّ اسحب.',
       ]),
-      stage.node,
+      studio.node,
       lightTabs.node,
       selectedBox,
       el('div', { class: 'fld-grid' }, STUDIO_SHARED.map(sliderRow)),
