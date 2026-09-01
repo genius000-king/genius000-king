@@ -1,12 +1,14 @@
 // appearance.js — الألوان والخط والمسافات والحركة، بمعاينة حيّة داخل iframe.
-import { el } from '../core/dom.js';
+import { el, throttle } from '../core/dom.js';
 import { get, setAll } from '../core/store.js';
 import { THEME_KEYS, setThemeKey, resetThemeKey } from '../core/theme.js';
+import { upsert } from '../core/api.js';
 import { fld, color, slider, tabs, toggle } from '../ui/fields.js';
 import { icon } from '../ui/icon.js';
 import { toast } from '../core/toast.js';
 import { confirmModal } from '../ui/modal.js';
 import { imageField } from '../ui/media.js';
+import { makeLightStage } from '../ui/light-stage.js';
 import { previewFrame, pushTheme } from './preview.js';
 
 /** ما يظهر للمشرف — القائمة المغلقة نفسها، مع تسميات عربية. */
@@ -41,15 +43,32 @@ const GLASS = [
   ['glass-tint', 'شفافية الزجاج', 0, 0.4, 0.01, ''],
 ];
 
-/* إضاءة الشعار المجسّم — موضع مصدر الضوء وقوّته وانعكاسه. مفاتيح ثيم
-   عادية أيضاً، يقرؤها site/js/motion/logo-3d.js كبقيّة LOGO_FX. */
-const LIGHT = [
-  ['logo-light-x', 'موضع الضوء — يمين/يسار', -3, 3, 0.05, ''],
-  ['logo-light-y', 'موضع الضوء — أعلى/أسفل', -3, 3, 0.05, ''],
-  ['logo-light-z', 'موضع الضوء — أمام/خلف', -3, 3, 0.05, ''],
-  ['logo-light-power', 'شدّة الضوء', 0, 8, 0.1, ''],
-  ['logo-env-power', 'قوّة الانعكاس', 0, 4, 0.05, ''],
-  ['logo-gloss', 'لمعان الجسم (أصغر = ألمع)', 0.01, 0.8, 0.01, ''],
+/* إضاءة الشعار المجسّم — استوديو تصوير مصغّر بثلاثة أضواء بدل شريط
+   مزالق: مفتاحيٌّ يرسم الشكل، وملءٌ يفتح ظلّه، وحافٌّ من الخلف يفصل
+   الجسم عن الخلفية. القيم هنا هي نفس افتراضات logo-key، logo-fill،
+   logo-rim المخزَّنة في theme.js — مكرَّرة هنا فقط لأنّ اللوحة تحتاجها
+   كنقطة بداية قبل أوّل حفظ، ولأنّ زرّ «رجّع الإضاءة للأصل» يستعملها محلياً. */
+const STUDIO_LIGHTS = [
+  ['key', 'مفتاحيّ', { x: -0.55, y: 0.70, z: 1.00, power: 2.10, color: '#ffffff' }],
+  ['fill', 'ملء', { x: 0.60, y: 0.87, z: 1.00, power: 0.34, color: '#ffffff' }],
+  /* الحافّ زاويةً ماسّة لا خلفاً تماماً — كما في محرّك الشعار حرفاً
+     بحرف. الخلف التامّ قِيس فوُجد تحت أرضية الضوضاء: لا يضيء شيئاً
+     تراه الكاميرا. وأيّ خلافٍ بين هذه القيم وقيم المحرّك يعني بقعةً
+     تقف في غير موضع ضوئها قبل أوّل حفظ. */
+  ['rim', 'حافّ', { x: 2.40, y: -0.90, z: 0.15, power: 0.55, color: '#8fdcf7' }],
+];
+
+/* كل مفاتيح الاستوديو — تُستعمل لزرّ الإرجاع الجماعي وحده؛ لكل مفتاح
+   أيضاً زرّ إرجاعٍ فردي عبر sliderRow/colorRow كبقيّة اللوحة. */
+const STUDIO_KEYS = STUDIO_LIGHTS
+  .flatMap(([id]) => [`logo-${id}-x`, `logo-${id}-y`, `logo-${id}-z`, `logo-${id}-power`, `logo-${id}-color`])
+  .concat(['logo-ambient']);
+
+/* مشتركة بين الأضواء الثلاثة — تبقى بمفاتيحها القديمة كما هي. */
+const STUDIO_SHARED = [
+  ['logo-ambient', 'الإضاءة المحيطة', 0, 2, 0.02, '', 0.34],
+  ['logo-env-power', 'قوّة الانعكاس', 0, 4, 0.05, '', 1.15],
+  ['logo-gloss', 'لمعان الجسم (أصغر = ألمع)', 0.01, 0.8, 0.01, '', 0.14],
 ];
 
 /* ── الشعار ──
@@ -103,6 +122,28 @@ async function set(key, value) {
   } catch (e) { toast(e.message, 'error'); }
 }
 
+/** يحفظ x وy لضوءٍ واحد بطلبٍ واحد — سحبٌ يحرّك محورين لا يجوز أن
+    يكتب مرّتين على القاعدة، وupsert PostgREST يقبل مصفوفة صفوف. */
+async function commitLightXY(id, x, y) {
+  const kx = `logo-${id}-x`, ky = `logo-${id}-y`;
+  const vx = String(x), vy = String(y);
+  try {
+    await upsert('theme', [{ key: kx, value: vx }, { key: ky, value: vy }]);
+    const rows = get('theme').filter((r) => r.key !== kx && r.key !== ky)
+      .concat([{ key: kx, value: vx }, { key: ky, value: vy }]);
+    setAll('theme', rows);
+    pushTheme(rows);
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+/** أثناء السحب وحده — لا حفظ، فقط بثّ حيّ رخيص لإطار المعاينة. */
+const pushLiveXY = throttle((id, x, y) => {
+  const kx = `logo-${id}-x`, ky = `logo-${id}-y`;
+  const rows = get('theme').filter((r) => r.key !== kx && r.key !== ky)
+    .concat([{ key: kx, value: String(x) }, { key: ky, value: String(y) }]);
+  pushTheme(rows);
+}, 50);
+
 export function render(host, { query } = {}) {
   const GROUPS = [['colors', 'الألوان'], ['type', 'الخط والمسافات'],
                   ['glass', 'الزجاج'], ['shape', 'الأشكال'],
@@ -110,6 +151,8 @@ export function render(host, { query } = {}) {
                   ['light', 'إضاءة الشعار'], ['bg', 'الخلفية'],
                   ['logom', 'ترتيب الجوال']];
   let active = GROUPS.some(([k]) => k === query?.g) ? query.g : 'colors';
+  let selectedLight = 'key';
+  let stopStage = null; // المسرح يُعاد بناؤه في كل draw()، فيوقَف القديم قبل التالي — كما grid-canvas.js في layout.js
   const body = el('div');
 
   const t = tabs(GROUPS, active, (k) => {
@@ -118,9 +161,15 @@ export function render(host, { query } = {}) {
     draw();
   });
 
-  const sliderRow = ([key, label, min, max, step, unit]) => {
+  /* العنصر السابع اختياريّ: القيمة التي يعمل بها الموقع فعلاً حين لا
+     يوجد صفٌّ محفوظ. بلا هذا تعرض المسطرة منتصفَ مداها — رقماً لا
+     علاقة له بما يراه الزائر، فتقفز الإضاءة عند أوّل لمسة. */
+  const sliderRow = ([key, label, min, max, step, unit, dflt]) => {
     const raw = String(valueOf(key, '')).replace(/[a-z%]+$/i, '');
-    const cur = Number(raw) || (min + max) / 2;
+    const n = Number(raw);
+    const cur = Number.isFinite(n) && raw !== ''
+      ? n
+      : (Number.isFinite(dflt) ? dflt : (min + max) / 2);
     return el('div', { class: 'card', style: { padding: 'var(--a-4)' } }, [
       slider(cur, (v) => set(key, unit ? `${v}${unit}` : String(v)), { label, min, max, step, unit }),
       el('button', { class: 'btn btn--sm btn--ghost', type: 'button',
@@ -139,7 +188,73 @@ export function render(host, { query } = {}) {
         [icon('undo', { size: 13 }), 'الافتراضي']),
     ]);
 
+  /** تبويب «إضاءة الشعار» — مسرحٌ يُسحب فوقه ثلاثة أضواء، بدل مزالق x/y. */
+  function drawLightTab() {
+    stopStage?.();
+
+    const hexOr = (v, d) => (/^#[0-9a-f]{6}$/i.test(v || '') ? v : d);
+    /* ‎Number(v) || d‎ يبتلع الصفر المشروع: ضوءٌ أُطفئ أو وُضع في
+       المنتصف يعود للافتراض من تلقائه. الفحص على الانتهاء لا على
+       الصدق. */
+    const num = (v, d) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
+    const lightsData = STUDIO_LIGHTS.map(([id, label, d]) => ({
+      id, label,
+      x: num(valueOf(`logo-${id}-x`, d.x), d.x),
+      y: num(valueOf(`logo-${id}-y`, d.y), d.y),
+      power: num(valueOf(`logo-${id}-power`, d.power), d.power),
+      color: hexOr(valueOf(`logo-${id}-color`, d.color), d.color),
+    }));
+
+    const stage = makeLightStage({
+      lights: lightsData, selected: selectedLight,
+      onSelect: (id) => { selectedLight = id; lightTabs.select(id); drawSelected(); },
+      onMove: (id, x, y) => pushLiveXY(id, x, y),
+      onCommit: (id, x, y) => commitLightXY(id, x, y),
+    });
+    stopStage = stage.stop;
+
+    const lightTabs = tabs(STUDIO_LIGHTS.map(([id, label]) => [id, label]), selectedLight, (id) => {
+      selectedLight = id;
+      stage.select(id);
+      drawSelected();
+    });
+
+    const selectedBox = el('div', { class: 'fld-grid' });
+    function drawSelected() {
+      const [id, label, d] = STUDIO_LIGHTS.find(([lid]) => lid === selectedLight);
+      selectedBox.replaceChildren(
+        colorRow(`logo-${id}-color`, `لون ${label}`, d.color),
+        sliderRow([`logo-${id}-power`, 'الشدّة', 0, 8, 0.1, '', d.power]),
+        sliderRow([`logo-${id}-z`, 'العمق (أمام/خلف)', -3, 3, 0.05, '', d.z]),
+      );
+    }
+    drawSelected();
+
+    body.replaceChildren(
+      el('p', { class: 'view__sub', style: { marginBlockEnd: 'var(--a-3)' } }, [
+        'اسحب كلّ ضوء على المسرح لتحريكه يميناً/يساراً وأعلى/أسفل، أو اختر ضوءاً من التبويبات '
+        + 'أدناه لضبط لونه وشدّته وعمقه (أمام/خلف).',
+      ]),
+      stage.node,
+      lightTabs.node,
+      selectedBox,
+      el('div', { class: 'fld-grid' }, STUDIO_SHARED.map(sliderRow)),
+      el('button', { class: 'btn btn--sm btn--ghost', type: 'button', onclick: async () => {
+        try {
+          for (const k of STUDIO_KEYS) await resetThemeKey(k);
+          pushTheme(get('theme'));
+          drawLightTab();
+          toast('رجعت الإضاءة للأصل', 'success');
+        } catch (e) { toast(e.message, 'error'); }
+      } }, [icon('undo', { size: 13 }), 'رجّع الإضاءة للأصل']),
+    );
+  }
+
   function draw() {
+    // مغادرة تبويب الإضاءة يجب أن توقف مستمعي المسرح — منها مستمعٌ على
+    // window لا يزول بمجرّد نزع عقدته من DOM.
+    if (active !== 'light') { stopStage?.(); stopStage = null; }
+
     if (active === 'colors') {
       body.replaceChildren(el('div', { class: 'fld-grid' },
         COLORS.map(([key, label, dflt]) => colorRow(key, label, dflt))));
@@ -172,15 +287,7 @@ export function render(host, { query } = {}) {
         el('div', { class: 'fld-grid' }, LOGO_FX.map(sliderRow)),
       );
     } else if (active === 'light') {
-      body.replaceChildren(
-        el('p', { class: 'view__sub', style: { marginBlockEnd: 'var(--a-3)' } }, [
-          'التغيير يظهر في المعاينة عند إعادة رسمها.',
-        ]),
-        el('div', { class: 'fld-grid' }, [
-          ...LIGHT.map(sliderRow),
-          colorRow('logo-light-color', 'لون الضوء', '#ffffff'),
-        ]),
-      );
+      drawLightTab();
     } else if (active === 'bg') {
       body.replaceChildren(el('div', { class: 'fld-grid' }, [
         colorRow('page-bg', 'لون خلفية الصفحة', '#060912'),

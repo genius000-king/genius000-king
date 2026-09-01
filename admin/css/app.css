@@ -1346,3 +1346,119 @@ input[type="range"]::-moz-range-thumb { inline-size: 18px; block-size: 18px; bor
   #app { grid-template-rows: calc(var(--a-topbar) + env(safe-area-inset-top)) minmax(0, 1fr); grid-template-areas: "top" "main"; }
   #toast { inset-block-end: calc(var(--a-3) + var(--a-safe-b)); }
 }
+
+/* ============================================================
+   مسرح إضاءة الشعار — admin/js/ui/light-stage.js
+   أرضية استوديو داكنة ثابتة بصرف النظر عن مظهر اللوحة (فاتحاً كان أم
+   داكناً): بقعُ الضوء الملوّنة والشعار يُقرآن فوقها كما يُقرآن فوق
+   خلفية تصوير حقيقية، لا فوق سطح اللوحة المتغيّر بتغيّر المظهر.
+   ============================================================ */
+.light-stage {
+  position: relative;
+  max-inline-size: 420px;
+  margin-inline: auto;
+  border-radius: var(--a-r);
+  border: 1px solid var(--a-line);
+  box-shadow: var(--a-shadow-3);
+  overflow: hidden;
+  background:
+    radial-gradient(120% 85% at 50% 6%, rgba(255, 255, 255, .08), transparent 60%),
+    linear-gradient(180deg, #16181f 0%, #0b0c10 66%, #050506 100%);
+}
+
+.light-stage__field {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  /* شبكة أرضية خفيفة — إحساسُ مسرحٍ لا فراغ */
+  background-image:
+    linear-gradient(rgba(255, 255, 255, .05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .05) 1px, transparent 1px);
+  background-size: 12.5% 12.5%;
+}
+/* محورا المنتصف — مرجعٌ بصريّ لأصل الإحداثيات (٠, ٠) */
+.light-stage__field::before,
+.light-stage__field::after {
+  content: '';
+  position: absolute;
+  background: rgba(255, 255, 255, .1);
+  pointer-events: none;
+}
+.light-stage__field::before { left: 0; right: 0; top: 50%; block-size: 1px; }
+.light-stage__field::after { top: 0; bottom: 0; left: 50%; inline-size: 1px; }
+
+/* الشعار مرجعٌ مركزيّ — لا يتفاعل مع السحب أبداً */
+.light-stage__logo {
+  position: absolute;
+  top: 50%; left: 50%;
+  translate: -50% -50%;
+  inline-size: 24%;
+  min-inline-size: 52px;
+  max-inline-size: 96px;
+  pointer-events: none;
+  z-index: 1;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, .55));
+}
+.light-stage__logo img { display: block; inline-size: 100%; block-size: auto; }
+.light-stage__logo-fallback {
+  inline-size: 100%;
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgba(255, 255, 255, .32);
+  border-radius: var(--a-r-sm);
+  background: rgba(255, 255, 255, .05);
+  color: rgba(255, 255, 255, .6);
+  font-size: var(--a-fs-xs);
+  font-weight: 600;
+}
+
+/* بقعة الضوء — لونها لون الضوء، وحجمها وتوهّجها شدّته */
+.light-stage__puck {
+  all: unset;
+  position: absolute;
+  top: 0; left: 0;
+  translate: -50% -50%;
+  inline-size: var(--puck-size, 40px);
+  block-size: var(--puck-size, 40px);
+  border-radius: 50%;
+  box-sizing: border-box;
+  border: 2px solid rgba(255, 255, 255, .6);
+  background: radial-gradient(circle at 32% 28%, #fff, var(--puck-color, #fff) 55%,
+    color-mix(in srgb, var(--puck-color, #fff) 55%, #000) 100%);
+  box-shadow: var(--a-shadow-2), 0 0 0 1px rgba(0, 0, 0, .4);
+  cursor: grab;
+  touch-action: none;
+  z-index: 2;
+  transition: border-color var(--a-t), box-shadow var(--a-t), scale var(--a-t);
+}
+/* توهّج خلف البقعة — شفافيته شدّة الضوء نفسها، فتُقرأ قبل فتح أي مزلاق */
+.light-stage__puck::after {
+  content: '';
+  position: absolute;
+  inset: -42%;
+  border-radius: 50%;
+  background: var(--puck-color, #fff);
+  opacity: var(--puck-glow, .35);
+  filter: blur(9px);
+  z-index: -1;
+  pointer-events: none;
+}
+.light-stage__puck:hover { border-color: #fff; }
+.light-stage__puck.is-dragging { cursor: grabbing; scale: 1.1; }
+.light-stage__puck.is-selected {
+  border-color: var(--a-accent);
+  box-shadow: 0 0 0 3px rgba(var(--a-accent-rgb), .5), var(--a-shadow-2);
+}
+.light-stage__puck-label {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  translate: -50% 0;
+  margin-block-start: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .85);
+  pointer-events: none;
+}

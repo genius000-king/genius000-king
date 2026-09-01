@@ -29,6 +29,17 @@ export const THEME_KEYS = [
   'logo-light-x', 'logo-light-y', 'logo-light-z', 'logo-light-power',
   'logo-light-color', 'logo-env-power', 'logo-gloss',
 
+  /* ── استوديو الإضاءة ──
+     ثلاثة أضواء كما في استوديو التصوير: مفتاحيٌّ يرسم الشكل، وملءٌ
+     يفتح ظلّه، وحافٌّ من الخلف يفصل الجسم عن الخلفية. لكلٍّ موضعه
+     (x يمين/يسار · y أعلى/أسفل · z أمام/خلف) وقوّته ولونه، ومعها
+     ضوءٌ محيطٌ عامّ. مفاتيح `logo-light-*` أعلاه تبقى مقروءةً
+     كافتراضٍ للمفتاحيّ حتى لا ينكسر ضبطٌ قديم. */
+  'logo-key-x', 'logo-key-y', 'logo-key-z', 'logo-key-power', 'logo-key-color',
+  'logo-fill-x', 'logo-fill-y', 'logo-fill-z', 'logo-fill-power', 'logo-fill-color',
+  'logo-rim-x', 'logo-rim-y', 'logo-rim-z', 'logo-rim-power', 'logo-rim-color',
+  'logo-ambient',
+
   /* ── الزجاج والخلفية ── */
   'glass-tint', 'glass-border', 'glass-edge', 'glass-edge-bright',
   'page-bg', 'page-bg-image', 'page-bg-dim',

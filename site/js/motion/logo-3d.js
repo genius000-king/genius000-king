@@ -73,20 +73,31 @@ export const TUNE = {
   grain:    1.7,    // خشونة حافّة التحوّل (أكبر = حبيبات أدقّ)
   idleMs:   2600,   // إن سكن المؤشّر هذا الزمن يهدأ الحقل
 
-  /* ── الإضاءة ──
-     مأخوذة من الصورة المرجعية الجديدة: ضوء رئيسي من أعلى اليسار،
-     جسم أبيض لمّاع، وأزرق نقيّ لا يبهت. يضبطها المشرف من اللوحة. */
-  lightX:   -0.55,  // موضع الضوء أفقياً، نسبةً إلى نصف قطر المجسّم
-  lightY:    0.70,  // وعمودياً
-  lightZ:    1.00,  // وأمام/خلف
-  lightPow:  2.10,  // شدّته
-  lightHue:  0,     // درجة تلوينه (0 = أبيض؛ تُضبط بمنتقي لون)
+  /* ── الإضاءة: استوديو ثلاثيّ ──
+     التوزيع القياسيّ في استوديو التصوير، وهو ما كان هنا أصلاً غير
+     أنّ اثنين منه كانا مثبَّتين في الكود:
+
+       المفتاحيّ  يرسم الشكل ويصنع الظلّ — من أعلى اليسار
+       الملء      يفتح ذلك الظلّ فلا يصير الجانب أسود — من اليمين
+       الحافّ     من الخلف يرسم خطّاً على الحوافّ يفصل الجسم عن الخلفية
+
+     المواضع نسبةٌ إلى نصف قطر المجسّم، والضوء اتجاهيّ فالمهمّ اتجاهه
+     لا بُعده. القيم أدناه هي القديمة نفسها بعد تطبيعها على مقياسٍ
+     واحد — فالمظهر الافتراضي لم يتغيّر بشعرة. */
+  keyX:  -0.55, keyY:  0.70, keyZ:  1.00, keyPow: 2.10, keyCol: 0xffffff,
+  filX:   0.60, filY:  0.87, filZ:  1.00, filPow: 0.34, filCol: 0xffffff,
+  /* الحافّ زاويةً ماسّة لا خلفاً تماماً. قِستُ الخلفَ التامّ فوجدته
+     تحت أرضية الضوضاء: ٢٫٤٪ من البكسلات تتغيّر مقابل ٢٫٨٪ بين
+     تشغيلتين متطابقتين — أي لا شيء. وهو متوقّع: ضوءٌ اتجاهيّ من
+     الخلف يضيء أوجهاً لا تراها الكاميرا، وسماكة البثق هنا رقيقة
+     فلا تلتقط منه شيئاً يُذكر. عند ‎z = +0.15‎ يقفز الأثر إلى ١١٫٥٪
+     — يمسّ الحوافّ فيفصل الجسم عن الخلفية، وهو عمل الضوء الحافّ. */
+  rimX:   2.40, rimY: -0.90, rimZ:  0.15, rimPow: 0.55, rimCol: 0x8fdcf7,
+  ambient: 0.34,   // ضوء محيط عامّ يرفع أرضية الصورة
+
   envPow:    1.15,  // شدّة انعكاس المحيط
   gloss:     0.14,  // لمعان الجسم (خشونة أقلّ = ألمع)
 };
-
-/* لون الضوء الافتراضي — يتجاوزه المشرف بمفتاح ثيم. */
-const LIGHT_COLOR = 0xffffff;
 
 /* ── جسر لوحة المشرف ──
    ما يضبطه المشرف يُكتب متغيّراتِ CSS على الجذر (core/theme.js)،
@@ -102,13 +113,39 @@ const THEME_MAP = {
   tiltY: ['--logo-tilt', 0, 2],
   spin: ['--logo-spin', 0, 2],
   grain: ['--logo-grain', 0.1, 6],
-  lightX: ['--logo-light-x', -3, 3],
-  lightY: ['--logo-light-y', -3, 3],
-  lightZ: ['--logo-light-z', -3, 3],
-  lightPow: ['--logo-light-power', 0, 8],
   envPow: ['--logo-env-power', 0, 4],
   gloss: ['--logo-gloss', 0.01, 0.8],
 };
+
+/* ── مفاتيح الاستوديو ──
+   لكل ضوء موضعٌ وقوّة ولون. والمفاتيح القديمة `--logo-light-*` تبقى
+   مقروءةً كافتراضٍ للمفتاحيّ وحده: من ضبطها قبل الاستوديو لا ينكسر
+   ضبطه، ومن ضبط `--logo-key-*` فهي الأحدث فتغلب. */
+const RIG = [
+  ['key', 'key', ['--logo-key-x', '--logo-light-x'], ['--logo-key-y', '--logo-light-y'],
+   ['--logo-key-z', '--logo-light-z'], ['--logo-key-power', '--logo-light-power'],
+   ['--logo-key-color', '--logo-light-color']],
+  ['fil', 'fill', ['--logo-fill-x'], ['--logo-fill-y'], ['--logo-fill-z'],
+   ['--logo-fill-power'], ['--logo-fill-color']],
+  ['rim', 'rim', ['--logo-rim-x'], ['--logo-rim-y'], ['--logo-rim-z'],
+   ['--logo-rim-power'], ['--logo-rim-color']],
+];
+
+/** أوّل متغيّرٍ له قيمة صالحة في القائمة، وإلا الافتراض. */
+function pick(cs, names, lo, hi, dflt) {
+  for (const n of names) {
+    const v = parseFloat(cs.getPropertyValue(n));
+    if (Number.isFinite(v)) return Math.min(hi, Math.max(lo, v));
+  }
+  return dflt;
+}
+function pickColor(cs, names, dflt) {
+  for (const n of names) {
+    const c = hexNum(cs.getPropertyValue(n));
+    if (c != null) return c;
+  }
+  return dflt;
+}
 
 /** #RRGGBB → عدد. القيمة الفاسدة تُتجاهَل. */
 function hexNum(v) {
@@ -131,7 +168,15 @@ function tuneFromTheme() {
   out.tiltX = out.tiltY * (TUNE.tiltX / TUNE.tiltY);
   const p = parseFloat(cs.getPropertyValue('--logo-particles'));
   out.particles = Number.isFinite(p) ? Math.min(24000, Math.max(800, p)) : null;
-  out.lightColor = hexNum(cs.getPropertyValue('--logo-light-color')) ?? LIGHT_COLOR;
+  // ── الاستوديو: ثلاثة أضواء ومحيط ──
+  for (const [k, , xs, ys, zs, ps, colors] of RIG) {
+    out[`${k}X`] = pick(cs, xs, -3, 3, TUNE[`${k}X`]);
+    out[`${k}Y`] = pick(cs, ys, -3, 3, TUNE[`${k}Y`]);
+    out[`${k}Z`] = pick(cs, zs, -3, 3, TUNE[`${k}Z`]);
+    out[`${k}Pow`] = pick(cs, ps, 0, 8, TUNE[`${k}Pow`]);
+    out[`${k}Col`] = pickColor(cs, colors, TUNE[`${k}Col`]);
+  }
+  out.ambient = pick(cs, ['--logo-ambient'], 0, 2, TUNE.ambient);
   return out;
 }
 
@@ -235,13 +280,14 @@ export function mount(THREE, host, opts = {}) {
   scene.environment = studioEnv(THREE, renderer);
   const camera = new THREE.PerspectiveCamera(34, 1, 1, 5000);
 
-  /* الضوء الرئيسي يضبط المشرف موضعه ولونه وشدّته؛ الحافّ والملء
-     ثابتان لأنهما يحفظان حجم المجسّم لا يغيّران مزاجه. */
-  scene.add(new THREE.AmbientLight(0xffffff, .34));
-  const key = new THREE.DirectionalLight(T.lightColor ?? LIGHT_COLOR, T.lightPow);
-  const rim = new THREE.DirectionalLight(0x8fdcf7, .55); rim.position.set(340, -180, -300);
-  const fil = new THREE.DirectionalLight(0xffffff, .34); fil.position.set(180, 260, 300);
-  scene.add(key, rim, fil);
+  /* الاستوديو: ثلاثةٌ يضبط المشرف كلَّ واحدٍ منها — موضعه وقوّته
+     ولونه — ومحيطٌ يرفع أرضية الصورة. المسافة لا تعني شيئاً لضوءٍ
+     اتجاهيّ، فالموضع اتجاهٌ لا بُعد. */
+  const amb = new THREE.AmbientLight(0xffffff, T.ambient);
+  const key = new THREE.DirectionalLight(T.keyCol, T.keyPow);
+  const fil = new THREE.DirectionalLight(T.filCol, T.filPow);
+  const rim = new THREE.DirectionalLight(T.rimCol, T.rimPow);
+  scene.add(amb, key, fil, rim);
 
   const group = new THREE.Group();
   const solid = new THREE.Group();
@@ -270,11 +316,17 @@ export function mount(THREE, host, opts = {}) {
      الجسم لم يعد كروماً رمادياً: صار أبيض لمّاعاً — عازلاً بطلاء
      صافٍ، لونه من نفسه لا من انعكاسه، فلا يبهت ولا يسودّ.
      والأزرق أنصع: 0x0a9ad3 بدل 0x0e86b4، كما في الصورة. */
-  const mats = SHAPES.map((sh) => isBlue(sh.rgb)
-    ? new THREE.MeshPhysicalMaterial({ color: 0x0a9ad3, metalness: .10, roughness: T.gloss + .06,
-        clearcoat: 1, clearcoatRoughness: .04, envMapIntensity: T.envPow, reflectivity: .6 })
-    : new THREE.MeshPhysicalMaterial({ color: 0xf4f6f8, metalness: .06, roughness: T.gloss,
-        clearcoat: 1, clearcoatRoughness: .05, envMapIntensity: T.envPow, reflectivity: .55 }));
+  const mats = SHAPES.map((sh) => {
+    const blue = isBlue(sh.rgb);
+    const m = blue
+      ? new THREE.MeshPhysicalMaterial({ color: 0x0a9ad3, metalness: .10, roughness: T.gloss + .06,
+          clearcoat: 1, clearcoatRoughness: .04, envMapIntensity: T.envPow, reflectivity: .6 })
+      : new THREE.MeshPhysicalMaterial({ color: 0xf4f6f8, metalness: .06, roughness: T.gloss,
+          clearcoat: 1, clearcoatRoughness: .05, envMapIntensity: T.envPow, reflectivity: .55 });
+    // الأزرق أخشن قليلاً من الأبيض؛ تُحفظ الصفة ليتبعها ضبط اللمعان لاحقاً
+    m.userData.blue = blue;
+    return m;
+  });
 
   /* حقن الحذف في شيدر الخامة القياسية.
      ⚠️ discard لا opacity: الشفافية تُظهر ما خلف السطح فيبان الوجه
@@ -331,7 +383,30 @@ float lgHash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.545);
   const HALF_W = sz.x / 2, HALF_H = sz.y / 2;
   const RADIUS = Math.hypot(sz.x, sz.y) / 2;      // مرجع مقياس، لا تأطير
   FX.uModelR.value = RADIUS;
-  key.position.set(T.lightX * RADIUS * 2, T.lightY * RADIUS * 2, T.lightZ * RADIUS * 2);
+  /* يعيد قراءة الاستوديو من الجذر ويطبّقه على الأضواء القائمة.
+     بلا هذا يحتاج كل تعديلٍ إعادةَ تركيبٍ كاملة — وإعادة التركيب
+     تعني بناء المجسّم والجسيمات من جديد، فيقفز الشعار ويتقطّع
+     السحب في لوحة المشرف بدل أن ينساب. */
+  function applyRig(t = tuneFromTheme()) {
+    const D = RADIUS * 2;
+    amb.intensity = t.ambient;
+    key.color.setHex(t.keyCol); key.intensity = t.keyPow;
+    key.position.set(t.keyX * D, t.keyY * D, t.keyZ * D);
+    fil.color.setHex(t.filCol); fil.intensity = t.filPow;
+    fil.position.set(t.filX * D, t.filY * D, t.filZ * D);
+    rim.color.setHex(t.rimCol); rim.intensity = t.rimPow;
+    rim.position.set(t.rimX * D, t.rimY * D, t.rimZ * D);
+    for (const m of mats) {
+      m.envMapIntensity = t.envPow;
+      m.roughness = m.userData.blue ? t.gloss + .06 : t.gloss;
+    }
+    // لا نداءَ رسمٍ هنا: حلقة العرض تلتقط التغيير في الإطار التالي
+  }
+  applyRig(T);
+
+  // اللوحة تبثّ الثيم حيّاً إلى المعاينة؛ الإضاءة تتبعه بلا إعادة تركيب
+  const onTheme = () => applyRig();
+  document.addEventListener('theme:applied', onTheme);
   FX.uFxR.value = RADIUS * T.fxR;
 
   /* ── الجسيمات: عيّنات من سطح المجسّم بترجيح المساحة ── */
@@ -657,6 +732,7 @@ float lgHash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.545);
       removeEventListener('pointercancel', onUp);
       document.removeEventListener('pointerleave', onLeave);
       document.removeEventListener('visibilitychange', onVis);
+      document.removeEventListener('theme:applied', onTheme);
       for (const m of meshes) m.geometry.dispose();
       for (const m of mats) m.dispose();
       pGeo.dispose(); pMat.dispose();
