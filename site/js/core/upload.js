@@ -2,14 +2,32 @@
 import { SUPABASE_URL, SUPABASE_ANON_KEY, STORAGE_BUCKET, publicUrl, isConfigured } from './config.js';
 import { getToken } from './api.js';
 
-/** اسم ملف آمن: بلا مسافات ولا محارف تكسر المسار. */
+/**
+ * اسم ملف آمن للتخزين — لاتينيّ بحت.
+ *
+ * ⚠️ لا عربيّ في مفتاح التخزين. كان هذا السطر يُبقيه عمداً (نطاق
+ * ‎؀-ۿ‎)، والتخزين يرفضه رفضاً قاطعاً. قِستُه على الحاوية الحقيقية:
+ *
+ *   orders/probe-ascii-only.png  →  200
+ *   orders/probe-نسخة.png        →  400 InvalidKey
+ *
+ * وويندوز العربيّ يسمّي النسخة «نسخة»، فكل صورةٍ نُسخت على جهازٍ
+ * عربيّ اسمها فيه عربيّ — فترفض دائماً لا أحياناً. وهذا ما كان
+ * يُرى: «تعذّر رفع untitled - نسخة - نسخة (3).png».
+ *
+ * والاسم لا نخسر به شيئاً: الطابع الزمنيّ والعشوائيّ قبله يضمنان
+ * التفرّد، وما بقي من الاسم للقراءة البشرية وحدها.
+ */
 export function safeName(name = 'file') {
   const dot = name.lastIndexOf('.');
   const ext = dot > 0 ? name.slice(dot).toLowerCase().replace(/[^a-z0-9.]/g, '') : '';
   const stem = (dot > 0 ? name.slice(0, dot) : name)
-    .replace(/[^\w؀-ۿ-]+/g, '-')
+    // يفصل التشكيل عن حروفه، فيبقى café حرفَي c-a-f-e لا يُمحى كلّه
+    .normalize('NFKD')
+    .replace(/[^A-Za-z0-9]+/g, '-')
     .replace(/-+/g, '-')
-    .slice(0, 48) || 'file';
+    .replace(/^-|-$/g, '')
+    .slice(0, 48) || 'file';   // اسمٌ كلّه عربيّ يصير 'file' لا فراغاً
   const rand = Math.random().toString(36).slice(2, 8);
   return `${Date.now().toString(36)}-${rand}-${stem}${ext}`;
 }

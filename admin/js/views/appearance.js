@@ -8,7 +8,6 @@ import { icon } from '../ui/icon.js';
 import { toast } from '../core/toast.js';
 import { confirmModal } from '../ui/modal.js';
 import { imageField } from '../ui/media.js';
-import { makeLightStudio3D } from '../ui/light-studio3d.js';
 import { previewFrame, pushTheme } from './preview.js';
 
 /** ما يظهر للمشرف — القائمة المغلقة نفسها، مع تسميات عربية. */
@@ -192,6 +191,15 @@ export function render(host, { query } = {}) {
         [icon('undo', { size: 13 }), 'الافتراضي']),
     ]);
 
+  /* ── الاستوديو يُحمَّل عند فتح تبويبه لا مع اللوحة ──
+     ⚠️ كان مستورداً استيراداً ثابتاً، وهو يستورد هندسة الشعار من
+     مجلّد الموقع بمسارٍ نسبيّ. واستيرادٌ ثابتٌ يفشل يُسقط الوحدة التي
+     تستورده، وهذه يستوردها main.js — فتسقط اللوحة كلُّها: لا أعمال
+     ولا بكجات ولا طلبات، شاشةٌ فارغة بلا تفسير. الآن أسوأ ما يحدث
+     رسالةٌ في هذا التبويب وحده. */
+  let studioMod = null;
+  const loadStudio = () => (studioMod ||= import('../ui/light-studio3d.js'));
+
   /** تبويب «إضاءة الشعار» — استوديو ثلاثيّ: مصابيح تُمسك وتُحرّك. */
   function drawLightTab() {
     stopStage?.();
@@ -211,17 +219,30 @@ export function render(host, { query } = {}) {
       color: hexOr(valueOf(`logo-${id}-color`, d.color), d.color),
     }));
 
-    const studio = makeLightStudio3D({
-      lights: lightsData, selected: selectedLight,
-      onSelect: (id) => { selectedLight = id; lightTabs.select(id); drawSelected(); },
-      onMove: (id, x, y, z) => pushLiveXYZ(id, x, y, z),
-      onCommit: (id, x, y, z) => commitLightXYZ(id, x, y, z),
+    // موضعُ المشهد يُحجز الآن ويُملأ حين تصل الوحدة
+    const stageHost = el('div');
+    let studio = null;
+    loadStudio().then(({ makeLightStudio3D }) => {
+      if (active !== 'light') return;              // غادر التبويب قبل الوصول
+      studio = makeLightStudio3D({
+        lights: lightsData, selected: selectedLight,
+        onSelect: (id) => { selectedLight = id; lightTabs.select(id); drawSelected(); },
+        onMove: (id, x, y, z) => pushLiveXYZ(id, x, y, z),
+        onCommit: (id, x, y, z) => commitLightXYZ(id, x, y, z),
+      });
+      stopStage = studio.stop;
+      stageHost.replaceChildren(studio.node);
+    }).catch((e) => {
+      console.error('[appearance] تعذّر تحميل الاستوديو', e);
+      stageHost.replaceChildren(el('p', { class: 'studio3d__error' }, [
+        'تعذّر تحميل الاستوديو ثلاثيّ الأبعاد. بقيّة اللوحة تعمل، '
+        + 'والمقابض أدناه تضبط الإضاءة بلا مشهد.',
+      ]));
     });
-    stopStage = studio.stop;
 
     const lightTabs = tabs(STUDIO_LIGHTS.map(([id, label]) => [id, label]), selectedLight, (id) => {
       selectedLight = id;
-      studio.select(id);
+      studio?.select(id);
       drawSelected();
     });
 
@@ -242,7 +263,7 @@ export function render(host, { query } = {}) {
         'استوديو ثلاثيّ الأبعاد: اسحب الخلفية لتدوير الكاميرا حول الشعار، واسحب أيّ مصباح لتحريكه '
         + 'في الفراغ. العمق يتغيّر بحسب الجهة التي تنظر منها — أدِر الكاميرا ثمّ اسحب.',
       ]),
-      studio.node,
+      stageHost,
       lightTabs.node,
       selectedBox,
       el('div', { class: 'fld-grid' }, STUDIO_SHARED.map(sliderRow)),
