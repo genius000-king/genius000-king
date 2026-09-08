@@ -163,12 +163,16 @@
   function offerFile(name, text) {
     $('dataBox').value = text;
     $('dataBox').dataset.name = name;
+    var saved = false;
     try {
       var url = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
       var a = document.createElement('a');
       a.href = url; a.download = name; a.click();
       setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-    } catch (e) { /* sandboxed viewers: the textarea + copy button is the fallback */ }
+      saved = true;
+    } catch (e) { /* sandboxed host */ }
+    /* some hosts silently block downloads, so always leave the text copyable */
+    toast(saved ? name : UI.t().copyFallback);
   }
 
   /* ------------------------------ first run -------------------------------- */

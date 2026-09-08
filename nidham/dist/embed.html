@@ -579,7 +579,7 @@ html[dir="rtl"] .toasts{transform:translateX(50%)}
       streak: 'متتالية', weekDone: 'هذا الأسبوع',
       settings: 'الإعدادات', weekStart: 'بداية الأسبوع', sunday: 'الأحد', monday: 'الإثنين', saturday: 'السبت',
       exportJson: 'تصدير نسخة', importJson: 'استيراد', exportIcs: 'تصدير تقويم (ICS)',
-      copy: 'نسخ', copied: 'تم النسخ', close: 'إغلاق', clearDone: 'مسح المنجز',
+      copy: 'نسخ', copied: 'تم النسخ', copyFallback: 'المحتوى في الصندوق — اضغط "نسخ"', close: 'إغلاق', clearDone: 'مسح المنجز',
       dataTitle: 'بياناتك', dataSub: 'كل شيء محفوظ محليًا في متصفحك فقط.',
       importPrompt: 'الصق محتوى النسخة هنا ثم اضغط حفظ',
       imported: 'تم الاستيراد', badJson: 'ملف غير صالح',
@@ -610,7 +610,7 @@ html[dir="rtl"] .toasts{transform:translateX(50%)}
       streak: 'Streak', weekDone: 'This week',
       settings: 'Settings', weekStart: 'Week starts', sunday: 'Sunday', monday: 'Monday', saturday: 'Saturday',
       exportJson: 'Export backup', importJson: 'Import', exportIcs: 'Export calendar (ICS)',
-      copy: 'Copy', copied: 'Copied', close: 'Close', clearDone: 'Clear done',
+      copy: 'Copy', copied: 'Copied', copyFallback: 'Content is in the box — press "Copy"', close: 'Close', clearDone: 'Clear done',
       dataTitle: 'Your data', dataSub: 'Everything is stored locally in this browser only.',
       importPrompt: 'Paste a backup here, then press save',
       imported: 'Imported', badJson: 'Invalid file',
@@ -1233,12 +1233,16 @@ html[dir="rtl"] .toasts{transform:translateX(50%)}
   function offerFile(name, text) {
     $('dataBox').value = text;
     $('dataBox').dataset.name = name;
+    var saved = false;
     try {
       var url = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
       var a = document.createElement('a');
       a.href = url; a.download = name; a.click();
       setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-    } catch (e) { /* sandboxed viewers: the textarea + copy button is the fallback */ }
+      saved = true;
+    } catch (e) { /* sandboxed host */ }
+    /* some hosts silently block downloads, so always leave the text copyable */
+    toast(saved ? name : UI.t().copyFallback);
   }
 
   /* ------------------------------ first run -------------------------------- */
