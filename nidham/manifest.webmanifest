@@ -1,0 +1,15 @@
+{
+  "name": "NIDHAM — Calendar & Tasks",
+  "short_name": "NIDHAM",
+  "description": "Calendar and to-do in one calm, local-first workspace.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#EFE4D2",
+  "theme_color": "#EFE4D2",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    { "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
