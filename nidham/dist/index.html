@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>نِظام — تقويم ومهام</title>
-<meta name="description" content="تقويم ومهام في واجهة واحدة هادئة. يعمل بلا إنترنت، وبياناتك تبقى في جهازك.">
+<title>&#1606;&#1616;&#1592;&#1575;&#1605; &#8212; &#1578;&#1602;&#1608;&#1610;&#1605; &#1608;&#1605;&#1607;&#1575;&#1605;</title>
+<meta name="description" content="&#1578;&#1602;&#1608;&#1610;&#1605; &#1608;&#1605;&#1607;&#1575;&#1605; &#1601;&#1610; &#1608;&#1575;&#1580;&#1607;&#1577; &#1608;&#1575;&#1581;&#1583;&#1577; &#1607;&#1575;&#1583;&#1574;&#1577;. &#1610;&#1593;&#1605;&#1604; &#1576;&#1604;&#1575; &#1573;&#1606;&#1578;&#1585;&#1606;&#1578;&#1548; &#1608;&#1576;&#1610;&#1575;&#1606;&#1575;&#1578;&#1603; &#1578;&#1576;&#1602;&#1609; &#1601;&#1610; &#1580;&#1607;&#1575;&#1586;&#1603;.">
 <meta name="theme-color" content="#EDE3D3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
-   NIDHAM — calendar + tasks
-   Two colours only: Lavender Haze #92A9E1 · Soft Graphite #2B2B2B
+   NIDHAM - calendar + tasks
+   Two colours only: Lavender Haze #92A9E1 + Soft Graphite #2B2B2B
    on warm cream. Few blocks, wide margins, one control per job.
    ============================================================ */
 
@@ -275,7 +275,7 @@ html[dir="rtl"] .hcount::after{
 
 <div class="wrap">
   <div class="top">
-    <span class="mark"><i></i>نِظام</span>
+    <span class="mark"><i></i>&#1606;&#1616;&#1592;&#1575;&#1605;</span>
     <button class="dots-btn" id="menuBtn" aria-label="menu"></button>
   </div>
 
@@ -350,16 +350,16 @@ html[dir="rtl"] .hcount::after{
     <div class="f"><textarea id="dataBox" spellcheck="false"
       style="min-height:180px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px"></textarea></div>
     <div class="foot">
-      <button class="btn go" id="dataSave">↧</button>
-      <button class="btn quiet" id="dataCopy">⧉</button>
-      <button class="btn quiet" id="dataClose">✕</button>
+      <button class="btn go" id="dataSave">&#8615;</button>
+      <button class="btn quiet" id="dataCopy">&#10697;</button>
+      <button class="btn quiet" id="dataClose">&#10005;</button>
     </div>
   </div>
 </div>
 
 <div class="toasts" id="toasts"></div>
 <script>
-/* NIDHAM — dates, strings, storage, quick-add parsing. No dependencies. */
+/* NIDHAM \u2014 dates, strings, storage, quick-add parsing. No dependencies. */
 (function (root) {
   'use strict';
 
@@ -389,7 +389,7 @@ html[dir="rtl"] .hcount::after{
     clock: function (t) {
       if (!t) return '';
       var p = t.split(':'), h = +p[0];
-      return (h % 12 || 12) + ':' + p[1] + (h >= 12 ? ' م' : ' ص');
+      return (h % 12 || 12) + ':' + p[1] + (h >= 12 ? ' \u0645' : ' \u0635');
     },
     clockEn: function (t) {
       if (!t) return '';
@@ -402,45 +402,70 @@ html[dir="rtl"] .hcount::after{
   var STR = {
     ar: {
       dir: 'rtl', code: 'ar',
-      today: 'اليوم', tomorrow: 'غدًا', yesterday: 'أمس',
-      add: 'اكتب مهمة…', empty: 'يوم فارغ.',
-      view: 'العرض', month: 'شهر', list: 'قائمة',
-      search: 'بحث في المهام', lang: 'اللغة', theme: 'المظهر', light: 'فاتح', dark: 'داكن',
-      weekStart: 'يبدأ الأسبوع', sun: 'أحد', mon: 'إثنين', sat: 'سبت',
-      data: 'البيانات', exportJ: 'تصدير نسخة', importJ: 'استيراد نسخة', ics: 'ملف تقويم (ICS)', clearDone: 'مسح المنجز',
-      title: 'اكتب المهمة…', date: 'التاريخ', time: 'الوقت', until: 'حتى', note: 'ملاحظة',
-      important: 'مهم', repeat: 'تكرار',
-      none: 'بدون', daily: 'يومي', workdays: 'أيام العمل', weekly: 'أسبوعي', monthly: 'شهري',
-      save: 'حفظ', del: 'حذف', close: 'تم',
-      undo: 'تراجع', deleted: 'حُذفت', moved: 'نُقلت', copied: 'نُسخ',
-      inBox: 'المحتوى في الصندوق — انسخه', bad: 'ملف غير صالح', done: 'تم',
-      searchGo: 'ابحث…', nores: 'لا نتائج',
-      dow: ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'],
-      dow1: ['أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت'],
-      months: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-               'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
+      today: '\u0627\u0644\u064a\u0648\u0645', tomorrow: '\u063a\u062f\u064b\u0627', yesterday: '\u0623\u0645\u0633',
+      add: '\u0627\u0643\u062a\u0628 \u0645\u0647\u0645\u0629\u2026', empty: '\u064a\u0648\u0645 \u0641\u0627\u0631\u063a.',
+      view: '\u0627\u0644\u0639\u0631\u0636', month: '\u0634\u0647\u0631', list: '\u0642\u0627\u0626\u0645\u0629',
+      search: '\u0628\u062d\u062b \u0641\u064a \u0627\u0644\u0645\u0647\u0627\u0645', lang: '\u0627\u0644\u0644\u063a\u0629', theme: '\u0627\u0644\u0645\u0638\u0647\u0631', light: '\u0641\u0627\u062a\u062d', dark: '\u062f\u0627\u0643\u0646',
+      weekStart: '\u064a\u0628\u062f\u0623 \u0627\u0644\u0623\u0633\u0628\u0648\u0639', sun: '\u0623\u062d\u062f', mon: '\u0625\u062b\u0646\u064a\u0646', sat: '\u0633\u0628\u062a',
+      data: '\u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a', exportJ: '\u062a\u0635\u062f\u064a\u0631 \u0646\u0633\u062e\u0629', importJ: '\u0627\u0633\u062a\u064a\u0631\u0627\u062f \u0646\u0633\u062e\u0629', ics: '\u0645\u0644\u0641 \u062a\u0642\u0648\u064a\u0645 (ICS)', clearDone: '\u0645\u0633\u062d \u0627\u0644\u0645\u0646\u062c\u0632',
+      title: '\u0627\u0643\u062a\u0628 \u0627\u0644\u0645\u0647\u0645\u0629\u2026', date: '\u0627\u0644\u062a\u0627\u0631\u064a\u062e', time: '\u0627\u0644\u0648\u0642\u062a', until: '\u062d\u062a\u0649', note: '\u0645\u0644\u0627\u062d\u0638\u0629',
+      important: '\u0645\u0647\u0645', repeat: '\u062a\u0643\u0631\u0627\u0631',
+      none: '\u0628\u062f\u0648\u0646', daily: '\u064a\u0648\u0645\u064a', workdays: '\u0623\u064a\u0627\u0645 \u0627\u0644\u0639\u0645\u0644', weekly: '\u0623\u0633\u0628\u0648\u0639\u064a', monthly: '\u0634\u0647\u0631\u064a',
+      save: '\u062d\u0641\u0638', del: '\u062d\u0630\u0641', close: '\u062a\u0645',
+      undo: '\u062a\u0631\u0627\u062c\u0639', deleted: '\u062d\u064f\u0630\u0641\u062a', moved: '\u0646\u064f\u0642\u0644\u062a', copied: '\u0646\u064f\u0633\u062e',
+      inBox: '\u0627\u0644\u0645\u062d\u062a\u0648\u0649 \u0641\u064a \u0627\u0644\u0635\u0646\u062f\u0648\u0642 \u2014 \u0627\u0646\u0633\u062e\u0647', bad: '\u0645\u0644\u0641 \u063a\u064a\u0631 \u0635\u0627\u0644\u062d', done: '\u062a\u0645',
+      searchGo: '\u0627\u0628\u062d\u062b\u2026', nores: '\u0644\u0627 \u0646\u062a\u0627\u0626\u062c',
+      dow: ['\u0623\u062d\u062f', '\u0625\u062b\u0646\u064a\u0646', '\u062b\u0644\u0627\u062b\u0627\u0621', '\u0623\u0631\u0628\u0639\u0627\u0621', '\u062e\u0645\u064a\u0633', '\u062c\u0645\u0639\u0629', '\u0633\u0628\u062a'],
+      dow1: ['\u0623\u062d\u062f', '\u0625\u062b\u0646', '\u062b\u0644\u0627', '\u0623\u0631\u0628', '\u062e\u0645\u064a', '\u062c\u0645\u0639', '\u0633\u0628\u062a'],
+      months: ['\u064a\u0646\u0627\u064a\u0631', '\u0641\u0628\u0631\u0627\u064a\u0631', '\u0645\u0627\u0631\u0633', '\u0623\u0628\u0631\u064a\u0644', '\u0645\u0627\u064a\u0648', '\u064a\u0648\u0646\u064a\u0648',
+               '\u064a\u0648\u0644\u064a\u0648', '\u0623\u063a\u0633\u0637\u0633', '\u0633\u0628\u062a\u0645\u0628\u0631', '\u0623\u0643\u062a\u0648\u0628\u0631', '\u0646\u0648\u0641\u0645\u0628\u0631', '\u062f\u064a\u0633\u0645\u0628\u0631']
     },
     en: {
       dir: 'ltr', code: 'en',
       today: 'Today', tomorrow: 'Tomorrow', yesterday: 'Yesterday',
-      add: 'Write a task…', empty: 'Empty day.',
+      add: 'Write a task\u2026', empty: 'Empty day.',
       view: 'View', month: 'Month', list: 'List',
       search: 'Search tasks', lang: 'Language', theme: 'Theme', light: 'Light', dark: 'Dark',
       weekStart: 'Week starts', sun: 'Sun', mon: 'Mon', sat: 'Sat',
       data: 'Data', exportJ: 'Export a backup', importJ: 'Import a backup', ics: 'Calendar file (ICS)', clearDone: 'Clear done',
-      title: 'Write the task…', date: 'Date', time: 'Time', until: 'Until', note: 'Note',
+      title: 'Write the task\u2026', date: 'Date', time: 'Time', until: 'Until', note: 'Note',
       important: 'Important', repeat: 'Repeat',
       none: 'None', daily: 'Daily', workdays: 'Weekdays', weekly: 'Weekly', monthly: 'Monthly',
       save: 'Save', del: 'Delete', close: 'Done',
       undo: 'Undo', deleted: 'Deleted', moved: 'Moved', copied: 'Copied',
-      inBox: 'Content is in the box — copy it', bad: 'Invalid file', done: 'Done',
-      searchGo: 'Search…', nores: 'No results',
+      inBox: 'Content is in the box \u2014 copy it', bad: 'Invalid file', done: 'Done',
+      searchGo: 'Search\u2026', nores: 'No results',
       dow: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
       dow1: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
       months: ['January', 'February', 'March', 'April', 'May', 'June',
                'July', 'August', 'September', 'October', 'November', 'December']
     }
   };
+
+  /* Arabic saved while the page was mis-decoded comes back as "\u00d8\u00b1\u00d8\u00a7...".
+     Browsers decode such files as windows-1252, whose 0x80-0x9F slots map to typographic
+     characters, so undo that map first, then read the bytes back as UTF-8. */
+  var CP1252 = { 0x20AC: 0x80, 0x201A: 0x82, 0x0192: 0x83, 0x201E: 0x84, 0x2026: 0x85,
+    0x2020: 0x86, 0x2021: 0x87, 0x02C6: 0x88, 0x2030: 0x89, 0x0160: 0x8A, 0x2039: 0x8B,
+    0x0152: 0x8C, 0x017D: 0x8E, 0x2018: 0x91, 0x2019: 0x92, 0x201C: 0x93, 0x201D: 0x94,
+    0x2022: 0x95, 0x2013: 0x96, 0x2014: 0x97, 0x02DC: 0x98, 0x2122: 0x99, 0x0161: 0x9A,
+    0x203A: 0x9B, 0x0153: 0x9C, 0x017E: 0x9E, 0x0178: 0x9F };
+
+  function healText(str) {
+    if (typeof str !== 'string' || !/[\u00C2-\u00F4]/.test(str)) return str;
+    if (typeof TextDecoder === 'undefined') return str;
+    var bytes = new Uint8Array(str.length);
+    for (var i = 0; i < str.length; i++) {
+      var c = str.charCodeAt(i);
+      if (c > 0xFF) { c = CP1252[c]; if (c === undefined) return str; }
+      bytes[i] = c;
+    }
+    try {
+      /* strict: ordinary accented text is not valid UTF-8, so it is left alone */
+      var out = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+      return out === str ? str : out;
+    } catch (e) { return str; }
+  }
 
   /* ------------------------------- store --------------------------------- */
   var KEY = 'nidham.v1';
@@ -458,7 +483,7 @@ html[dir="rtl"] .hcount::after{
           this.data.items = (Array.isArray(p.items) ? p.items : []).map(function (i) {
             /* v1 carried kind/priority/list; fold them into the simpler shape */
             return {
-              id: i.id, title: i.title || '', note: i.note || i.notes || '',
+              id: i.id, title: healText(i.title || ''), note: healText(i.note || i.notes || ''),
               date: i.date || D.todayKey(), time: i.time || null, end: i.end || null,
               done: !!i.done, doneAt: i.doneAt || null,
               big: i.big !== undefined ? !!i.big : i.priority === 'high',
@@ -524,7 +549,7 @@ html[dir="rtl"] .hcount::after{
   };
 
   /* -------------------- quick add: plain sentence in ---------------------- */
-  /* "اجتماع 3م غدا !مهم"  ·  "gym 7am daily"  -> {title, date, time, big, repeat} */
+  /* "\u0627\u062c\u062a\u0645\u0627\u0639 3\u0645 \u063a\u062f\u0627 !\u0645\u0647\u0645"  \u00b7  "gym 7am daily"  -> {title, date, time, big, repeat} */
   function parseQuick(text, fallbackDate) {
     var out = { title: text.trim(), date: fallbackDate || D.todayKey(), time: null, big: false, repeat: 'none' };
     var s = ' ' + out.title + ' ';
@@ -532,35 +557,35 @@ html[dir="rtl"] .hcount::after{
     function rx(body) { return new RegExp(B + body + E, 'i'); }
     function eat(re, cb) { var m = s.match(re); if (m) { s = s.replace(m[0], ' '); cb(m); } return !!m; }
 
-    eat(rx('[!*](high|مهم|عاجل)'), function () { out.big = true; });
+    eat(rx('[!*](high|\u0645\u0647\u0645|\u0639\u0627\u062c\u0644)'), function () { out.big = true; });
     eat(new RegExp(B + '#[\\p{L}\\w-]+' + E, 'iu'), function () {});   /* legacy #tag: strip, do not show */
-    eat(rx('(every ?day|daily|يومي(?:ا|ًا)?|يوميا)'), function () { out.repeat = 'daily'; });
-    eat(rx('(every ?week|weekly|أسبوعي(?:ا|ًا)?|اسبوعيا?)'), function () { out.repeat = 'weekly'; });
-    eat(rx('(monthly|شهري(?:ا|ًا)?)'), function () { out.repeat = 'monthly'; });
+    eat(rx('(every ?day|daily|\u064a\u0648\u0645\u064a(?:\u0627|\u064b\u0627)?|\u064a\u0648\u0645\u064a\u0627)'), function () { out.repeat = 'daily'; });
+    eat(rx('(every ?week|weekly|\u0623\u0633\u0628\u0648\u0639\u064a(?:\u0627|\u064b\u0627)?|\u0627\u0633\u0628\u0648\u0639\u064a\u0627?)'), function () { out.repeat = 'weekly'; });
+    eat(rx('(monthly|\u0634\u0647\u0631\u064a(?:\u0627|\u064b\u0627)?)'), function () { out.repeat = 'monthly'; });
 
     var today = D.today();
-    if (eat(rx('(after ?tomorrow|بعد ?غد(?:ا|ًا)?)'), function () {})) out.date = D.key(D.add(today, 2));
-    else if (eat(rx('(tomorrow|tmrw|غدا|غدًا|غد|بكرة|بكره|باكر)'), function () {})) out.date = D.key(D.add(today, 1));
-    else if (eat(rx('(today|اليوم)'), function () {})) out.date = D.key(today);
+    if (eat(rx('(after ?tomorrow|\u0628\u0639\u062f ?\u063a\u062f(?:\u0627|\u064b\u0627)?)'), function () {})) out.date = D.key(D.add(today, 2));
+    else if (eat(rx('(tomorrow|tmrw|\u063a\u062f\u0627|\u063a\u062f\u064b\u0627|\u063a\u062f|\u0628\u0643\u0631\u0629|\u0628\u0643\u0631\u0647|\u0628\u0627\u0643\u0631)'), function () {})) out.date = D.key(D.add(today, 1));
+    else if (eat(rx('(today|\u0627\u0644\u064a\u0648\u0645)'), function () {})) out.date = D.key(today);
     else {
-      var names = { 'sunday': 0, 'sun': 0, 'الاحد': 0, 'الأحد': 0, 'monday': 1, 'mon': 1, 'الاثنين': 1, 'الإثنين': 1,
-        'tuesday': 2, 'tue': 2, 'الثلاثاء': 2, 'wednesday': 3, 'wed': 3, 'الاربعاء': 3, 'الأربعاء': 3,
-        'thursday': 4, 'thu': 4, 'الخميس': 4, 'friday': 5, 'fri': 5, 'الجمعة': 5, 'saturday': 6, 'sat': 6, 'السبت': 6 };
+      var names = { 'sunday': 0, 'sun': 0, '\u0627\u0644\u0627\u062d\u062f': 0, '\u0627\u0644\u0623\u062d\u062f': 0, 'monday': 1, 'mon': 1, '\u0627\u0644\u0627\u062b\u0646\u064a\u0646': 1, '\u0627\u0644\u0625\u062b\u0646\u064a\u0646': 1,
+        'tuesday': 2, 'tue': 2, '\u0627\u0644\u062b\u0644\u0627\u062b\u0627\u0621': 2, 'wednesday': 3, 'wed': 3, '\u0627\u0644\u0627\u0631\u0628\u0639\u0627\u0621': 3, '\u0627\u0644\u0623\u0631\u0628\u0639\u0627\u0621': 3,
+        'thursday': 4, 'thu': 4, '\u0627\u0644\u062e\u0645\u064a\u0633': 4, 'friday': 5, 'fri': 5, '\u0627\u0644\u062c\u0645\u0639\u0629': 5, 'saturday': 6, 'sat': 6, '\u0627\u0644\u0633\u0628\u062a': 6 };
       var hit = null;
       Object.keys(names).forEach(function (w) { if (hit === null) eat(rx('(' + w + ')'), function () { hit = names[w]; }); });
       if (hit !== null) out.date = D.key(D.add(today, (hit - today.getDay() + 7) % 7 || 7));
       eat(rx('(\\d{4})-(\\d{2})-(\\d{2})'), function (m) { out.date = m[1] + '-' + m[2] + '-' + m[3]; });
     }
 
-    eat(rx('(\\d{1,2})(?::(\\d{2}))?\\s?(am|pm|ص|م)'), function (m) {
+    eat(rx('(\\d{1,2})(?::(\\d{2}))?\\s?(am|pm|\u0635|\u0645)'), function (m) {
       var h = +m[1], mi = m[2] || '00', ap = m[3].toLowerCase();
-      if ((ap === 'pm' || ap === 'م') && h < 12) h += 12;
-      if ((ap === 'am' || ap === 'ص') && h === 12) h = 0;
+      if ((ap === 'pm' || ap === '\u0645') && h < 12) h += 12;
+      if ((ap === 'am' || ap === '\u0635') && h === 12) h = 0;
       out.time = String(h).padStart(2, '0') + ':' + mi;
-    }) || eat(rx('(ص|م)\\s?(\\d{1,2})(?::(\\d{2}))?'), function (m) {
+    }) || eat(rx('(\u0635|\u0645)\\s?(\\d{1,2})(?::(\\d{2}))?'), function (m) {
       var h = +m[2], mi = m[3] || '00';
-      if (m[1] === 'م' && h < 12) h += 12;
-      if (m[1] === 'ص' && h === 12) h = 0;
+      if (m[1] === '\u0645' && h < 12) h += 12;
+      if (m[1] === '\u0635' && h === 12) h = 0;
       out.time = String(h).padStart(2, '0') + ':' + mi;
     }) || eat(rx('([01]?\\d|2[0-3]):([0-5]\\d)'), function (m) {
       out.time = String(+m[1]).padStart(2, '0') + ':' + m[2];
@@ -570,10 +595,10 @@ html[dir="rtl"] .hcount::after{
     return out;
   }
 
-  root.NID = { D: D, STR: STR, Store: Store, parseQuick: parseQuick };
+  root.NID = { D: D, STR: STR, Store: Store, parseQuick: parseQuick, healText: healText };
 })(window);
 
-/* NIDHAM — render + wiring. */
+/* NIDHAM \u2014 render + wiring. */
 (function (root) {
   'use strict';
   var N = root.NID, D = N.D, Store = N.Store;
@@ -616,9 +641,9 @@ html[dir="rtl"] .hcount::after{
   /* ------------------------------- render -------------------------------- */
   function rowHTML(it, showDate) {
     var late = !it.done && it.date < D.todayKey();
-    var when = it.time ? clock(it.time) + (it.end ? ' – ' + clock(it.end) : '') : '';
-    if (showDate) when = (when ? when + ' · ' : '') + rel(it.date);
-    else if (late) when = (when ? when + ' · ' : '') + longDate(it.date);
+    var when = it.time ? clock(it.time) + (it.end ? ' \u2013 ' + clock(it.end) : '') : '';
+    if (showDate) when = (when ? when + ' \u00b7 ' : '') + rel(it.date);
+    else if (late) when = (when ? when + ' \u00b7 ' : '') + longDate(it.date);
     return '<div class="row' + (it.done ? ' done' : '') + (it.big ? ' big' : '') + '" draggable="true" data-id="' + it.id + '">' +
       '<button class="mark-btn" data-act="toggle" data-id="' + it.id + '" aria-label="' + esc(s().done) + '">' + I.check + '</button>' +
       '<button class="t" dir="auto" data-act="open" data-id="' + it.id + '">' + esc(it.title) + '</button>' +
@@ -681,8 +706,8 @@ html[dir="rtl"] .hcount::after{
       : [];
 
     $('dayName').textContent = dayName(V.sel);
-    $('dayDate').textContent = longDate(V.sel) + (V.sel === tk ? ' · ' + s().today : '');
-    $('count').textContent = items.length ? (items.length - open.length) + '/' + items.length : '—';
+    $('dayDate').textContent = longDate(V.sel) + (V.sel === tk ? ' \u00b7 ' + s().today : '');
+    $('count').textContent = items.length ? (items.length - open.length) + '/' + items.length : '\u2014';
 
     var body = late.map(function (i) { return rowHTML(i, false); }).join('') +
                items.map(function (i) { return rowHTML(i); }).join('');
@@ -765,7 +790,7 @@ html[dir="rtl"] .hcount::after{
       '<div class="opt"><label>' + esc(s().theme) + '</label>' +
         seg('theme', [['light', s().light], ['dark', s().dark]], st.theme) + '</div>' +
       '<div class="opt"><label>' + esc(s().lang) + '</label>' +
-        seg('lang', [['ar', 'ع'], ['en', 'EN']], st.lang) + '</div>' +
+        seg('lang', [['ar', '\u0639'], ['en', 'EN']], st.lang) + '</div>' +
       [['search', s().search], ['export', s().exportJ], ['import', s().importJ],
        ['ics', s().ics], ['clear', s().clearDone]].map(function (r) {
         return '<button class="optrow" data-do="' + r[0] + '">' + esc(r[1]) + '</button>';
@@ -867,7 +892,7 @@ html[dir="rtl"] .hcount::after{
     hitIdx = 0;
     $('hits').innerHTML = found.length ? found.map(function (i, n) {
       return '<button class="hit' + (n === 0 ? ' on' : '') + '" data-id="' + i.id + '">' +
-        '<span dir="auto">' + (i.done ? '· ' : '') + esc(i.title) + '</span><small>' + esc(rel(i.date)) + '</small></button>';
+        '<span dir="auto">' + (i.done ? '\u00b7 ' : '') + esc(i.title) + '</span><small>' + esc(rel(i.date)) + '</small></button>';
     }).join('') : '<div class="empty">' + esc(s().nores) + '</div>';
   }
   function jump(id) {
@@ -959,7 +984,7 @@ html[dir="rtl"] .hcount::after{
       if (!it || from === c.dataset.key) return;
       Store.update(id, { date: c.dataset.key });
       V.sel = c.dataset.key; render();
-      toast(s().moved + ' · ' + rel(c.dataset.key), s().undo, function () {
+      toast(s().moved + ' \u00b7 ' + rel(c.dataset.key), s().undo, function () {
         Store.update(id, { date: from }); render();
       });
     });
@@ -992,8 +1017,8 @@ html[dir="rtl"] .hcount::after{
   function seed() {
     if (Store.data.items.length || localStorage.getItem('nidham.seeded')) return;
     var ar = Store.data.settings.lang === 'ar', t = D.todayKey();
-    Store.add({ title: ar ? 'ساعة رياضيات' : 'One hour of math', date: t, time: '20:00', repeat: 'daily' });
-    Store.add({ title: ar ? 'مراجعة خطة الأسبوع' : 'Review the week', date: D.key(D.add(D.today(), 1)), time: '09:00', big: true });
+    Store.add({ title: ar ? '\u0633\u0627\u0639\u0629 \u0631\u064a\u0627\u0636\u064a\u0627\u062a' : 'One hour of math', date: t, time: '20:00', repeat: 'daily' });
+    Store.add({ title: ar ? '\u0645\u0631\u0627\u062c\u0639\u0629 \u062e\u0637\u0629 \u0627\u0644\u0623\u0633\u0628\u0648\u0639' : 'Review the week', date: D.key(D.add(D.today(), 1)), time: '09:00', big: true });
     try { localStorage.setItem('nidham.seeded', '1'); } catch (e) {}
   }
 

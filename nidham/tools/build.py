@@ -10,6 +10,27 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 DIST = ROOT / "dist"
 
 
+def js_ascii(src: str) -> str:
+    """JS source with every non-ASCII char escaped, so it survives any charset."""
+    out = []
+    for ch in src:
+        out.append(ch if ord(ch) < 128 else "".join("\\u%04x" % c for c in _units(ch)))
+    return "".join(out)
+
+
+def _units(ch: str):
+    n = ord(ch)
+    if n < 0x10000:
+        return (n,)
+    n -= 0x10000                       # astral plane -> surrogate pair
+    return (0xD800 + (n >> 10), 0xDC00 + (n & 0x3FF))
+
+
+def html_ascii(src: str) -> str:
+    """HTML with every non-ASCII char as a numeric entity."""
+    return "".join(ch if ord(ch) < 128 else "&#%d;" % ord(ch) for ch in src)
+
+
 def build() -> None:
     html = (ROOT / "index.html").read_text(encoding="utf-8")
     css = (ROOT / "assets/css/app.css").read_text(encoding="utf-8")
@@ -18,12 +39,15 @@ def build() -> None:
         for name in ("core", "app")
     )
 
-    single = html.replace(
+    if any(ord(c) > 127 for c in css):
+        raise SystemExit("app.css must stay ASCII-only so the bundle can be ASCII-only")
+
+    single = html_ascii(html).replace(
         '<link rel="stylesheet" href="assets/css/app.css">',
         "<style>\n" + css + "\n</style>",
     )
     single = re.sub(r'\s*<script src="assets/js/[^"]+"></script>', "", single)
-    single = single.replace("</body>", "<script>\n" + js + "\n</script>\n</body>")
+    single = single.replace("</body>", "<script>\n" + js_ascii(js) + "\n</script>\n</body>")
     # a bundled copy has no sibling files to cache or install from
     single = single.replace('<link rel="manifest" href="manifest.webmanifest">\n', "")
     single = single.replace('<link rel="icon" href="assets/icon.svg" type="image/svg+xml">\n', "")
@@ -41,8 +65,12 @@ def build() -> None:
     )
 
     for f in ("index.html", "embed.html"):
+        text = (DIST / f).read_text(encoding="utf-8")
+        bad = [c for c in text if ord(c) > 127]
         kb = (DIST / f).stat().st_size / 1024
-        print(f"dist/{f}  {kb:.1f} KB")
+        print(f"dist/{f}  {kb:.1f} KB  ascii-only={not bad}")
+        if bad:
+            raise SystemExit(f"{f} still holds non-ASCII: {bad[:5]}")
 
 
 if __name__ == "__main__":
