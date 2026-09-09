@@ -1,9 +1,9 @@
 /* NIDHAM service worker — cache-first shell so the app opens offline. */
-var CACHE = 'nidham-v1';
+var CACHE = 'nidham-v2';
 var SHELL = [
   './', './index.html',
   './assets/css/app.css',
-  './assets/js/core.js', './assets/js/ui.js', './assets/js/app.js',
+  './assets/js/core.js', './assets/js/app.js',
   './assets/icon.svg', './manifest.webmanifest'
 ];
 self.addEventListener('install', function (e) {

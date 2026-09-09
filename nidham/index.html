@@ -1,155 +1,107 @@
 <!doctype html>
-<html lang="ar" dir="rtl" data-theme="day">
+<html lang="ar" dir="rtl" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>NIDHAM · نِظام — تقويم ومهام</title>
-<meta name="description" content="تقويم شهري ومهام يومية في واجهة واحدة — يعمل بلا إنترنت، وبياناتك تبقى في جهازك.">
-<meta name="theme-color" content="#EFE4D2">
+<title>نِظام — تقويم ومهام</title>
+<meta name="description" content="تقويم ومهام في واجهة واحدة هادئة. يعمل بلا إنترنت، وبياناتك تبقى في جهازك.">
+<meta name="theme-color" content="#EDE3D3">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Cairo:wght@400;600;800;900&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/app.css">
 </head>
 <body>
 
-<div class="app">
-
-  <header class="topbar">
-    <div class="brand"><b class="display">NIDHAM</b><small id="tagline">تقويم ومهام</small></div>
-    <span class="spacer"></span>
-    <button class="icon-btn" id="btnSearch" title="/" aria-label="search">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
-    </button>
-    <button class="icon-btn" id="btnLang" aria-label="language">EN</button>
-    <button class="icon-btn" id="btnTheme" aria-label="theme">
-      <svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg>
-    </button>
-    <button class="icon-btn" id="btnData" aria-label="data">
-      <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v3h16v-3"/></svg>
-    </button>
-  </header>
-
-  <div class="grid">
-
-    <main>
-      <section class="card" id="calCard">
-        <button class="notch tr dark" id="notchToday" data-act="today">TODAY</button>
-        <div class="cal-head">
-          <h1 class="display month-title" id="monthTitle">—</h1>
-          <span class="spacer"></span>
-          <div class="views" id="views"></div>
-          <div class="nav">
-            <button class="icon-btn" data-act="prev" aria-label="previous">
-              <svg viewBox="0 0 24 24"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
-            </button>
-            <button class="icon-btn" data-act="next" aria-label="next">
-              <svg viewBox="0 0 24 24"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg>
-            </button>
-          </div>
-        </div>
-        <div id="calBody"></div>
-      </section>
-    </main>
-
-    <aside>
-      <section class="card lav" id="statsCard"></section>
-
-      <section class="card" id="dayCard">
-        <div class="panel-head">
-          <h2 class="display" id="dayTitle">—</h2>
-          <span class="sub" id="daySub"></span>
-        </div>
-
-        <div class="composer">
-          <input id="quick" autocomplete="off" placeholder="…">
-          <button class="go" id="quickGo" aria-label="add">
-            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-          </button>
-        </div>
-        <p class="hint" id="hint"></p>
-
-        <div class="filters" id="filters"></div>
-        <div id="list"></div>
-      </section>
-    </aside>
-
+<div class="wrap">
+  <div class="top">
+    <span class="mark"><i></i>نِظام</span>
+    <button class="dots-btn" id="menuBtn" aria-label="menu"></button>
   </div>
 
-  <footer class="foot">
-    <span>NIDHAM</span><i class="dot"></i>
-    <span>local-first · offline</span><i class="dot"></i>
-    <span>#92A9E1 · #2B2B2B</span>
-  </footer>
-</div>
-
-<!-- editor -->
-<div class="veil" id="editVeil" hidden role="dialog" aria-modal="true">
-  <div class="modal">
-    <h3 class="display" id="edTitleH">—</h3>
-
-    <div class="field"><label id="lKind">Kind</label><div class="seg" id="edKind"></div></div>
-    <div class="field"><label id="lTitle">Title</label><input id="edTitle" autocomplete="off"></div>
-    <div class="row2">
-      <div class="field"><label id="lDate">Date</label><input id="edDate" type="date"></div>
-      <div class="field"><label id="lTime">Time</label><input id="edTime" type="time"></div>
-    </div>
-    <div class="field" id="edEndWrap"><label id="lEnd">Until</label><input id="edEnd" type="time"></div>
-    <div class="field"><label id="lPrio">Priority</label><div class="seg" id="edPrio"></div></div>
-    <div class="row2">
-      <div class="field"><label id="lList">List</label><input id="edList" autocomplete="off" list="listNames">
-        <datalist id="listNames"><option value="general"><option value="work"><option value="study"><option value="personal"></datalist>
+  <div class="cols">
+    <section class="card pad">
+      <div class="cal-top">
+        <h1 class="month" id="month"></h1>
+        <button class="today-pill" id="todayPill" data-act="today" hidden></button>
+        <div class="step">
+          <button id="prevBtn" data-act="prev" aria-label="prev"></button>
+          <button id="nextBtn" data-act="next" aria-label="next"></button>
+        </div>
       </div>
-      <div class="field"><label id="lRepeat">Repeat</label><select id="edRepeat"></select></div>
-    </div>
-    <div class="field"><label id="lNotes">Notes</label><textarea id="edNotes"></textarea></div>
+      <div id="board"></div>
+    </section>
 
-    <div class="modal-foot">
-      <button class="btn primary" id="edSave">Save</button>
-      <button class="btn ghost" id="edCancel">Cancel</button>
-      <span class="spacer"></span>
-      <button class="btn warn" id="edDel">Delete</button>
+    <section class="card day">
+      <div class="head">
+        <div class="hblock">
+          <h2 id="dayName"></h2>
+          <p id="dayDate"></p>
+        </div>
+        <div class="hcount" id="count"></div>
+      </div>
+
+      <div class="list" id="list"></div>
+
+      <form class="compose" id="addForm">
+        <div class="box"><input id="quick" autocomplete="off"></div>
+        <button class="plus" id="addBtn" type="button" aria-label="new"></button>
+      </form>
+    </section>
+  </div>
+</div>
+
+<div class="veil" id="menuVeil" hidden>
+  <div class="sheet">
+    <div id="menuBody"></div>
+    <div class="foot"><button class="btn go" id="menuClose"></button></div>
+  </div>
+</div>
+
+<div class="veil" id="editVeil" hidden>
+  <div class="sheet">
+    <div class="f title"><label id="lTitle" class="sr"></label><input id="eTitle" autocomplete="off"></div>
+    <div class="two">
+      <div class="f"><label id="lDate"></label><input id="eDate" type="date"></div>
+      <div class="f"><label id="lTime"></label><input id="eTime" type="time"></div>
+    </div>
+    <div class="two">
+      <div class="f" id="endWrap" hidden><label id="lEnd"></label><input id="eEnd" type="time"></div>
+      <div class="f"><label id="lRepeat"></label><select id="eRepeat"></select></div>
+    </div>
+    <div class="f"><label id="lNote"></label><textarea id="eNote"></textarea></div>
+    <button class="toggle" id="eBig" type="button"></button>
+    <div class="foot">
+      <button class="btn go" id="eSave"></button>
+      <button class="btn quiet" id="eDel"></button>
     </div>
   </div>
 </div>
 
-<!-- search -->
-<div class="veil" id="searchVeil" hidden role="dialog" aria-modal="true">
+<div class="veil" id="searchVeil" hidden>
   <div class="search-wrap">
-    <input id="searchInput" autocomplete="off" placeholder="…">
-    <div class="results" id="searchResults"></div>
+    <input id="searchInput" autocomplete="off">
+    <div class="hits" id="hits"></div>
   </div>
 </div>
 
-<!-- data -->
-<div class="veil" id="dataVeil" hidden role="dialog" aria-modal="true">
-  <div class="modal">
-    <h3 class="display" id="dataTitleH">Data</h3>
-    <p class="hint" id="dataSubP" style="margin-top:-10px"></p>
-    <div class="field" style="margin-top:14px">
-      <label id="wsLabel">Week starts</label>
-      <select id="wsSel"></select>
+<div class="veil" id="dataVeil" hidden>
+  <div class="sheet">
+    <div class="f"><textarea id="dataBox" spellcheck="false"
+      style="min-height:180px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px"></textarea></div>
+    <div class="foot">
+      <button class="btn go" id="dataSave">↧</button>
+      <button class="btn quiet" id="dataCopy">⧉</button>
+      <button class="btn quiet" id="dataClose">✕</button>
     </div>
-    <div class="field">
-      <textarea id="dataBox" spellcheck="false" style="min-height:170px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px"></textarea>
-    </div>
-    <div class="seg">
-      <button class="btn ghost" id="btnExport">Export</button>
-      <button class="btn ghost" id="btnIcs">ICS</button>
-      <button class="btn ghost" id="btnCopy">Copy</button>
-      <button class="btn ghost" id="btnImport">Import</button>
-      <button class="btn ghost" id="btnClearDone">Clear done</button>
-    </div>
-    <div class="modal-foot"><button class="btn primary" id="dataClose">Close</button></div>
   </div>
 </div>
 
 <div class="toasts" id="toasts"></div>
 
 <script src="assets/js/core.js"></script>
-<script src="assets/js/ui.js"></script>
 <script src="assets/js/app.js"></script>
 </body>
 </html>

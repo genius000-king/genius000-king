@@ -1,409 +1,435 @@
-/* NIDHAM — wiring: events, modals, keyboard, drag & drop, backup. */
+/* NIDHAM — render + wiring. */
 (function (root) {
   'use strict';
-  var N = root.NID, D = N.D, Store = N.Store, UI = N.UI, V = UI.V;
+  var N = root.NID, D = N.D, Store = N.Store;
   var $ = function (id) { return document.getElementById(id); };
-  var editing = null;   /* id being edited, or a draft object */
 
-  /* ------------------------------ toasts ---------------------------------- */
-  function toast(msg, actionLabel, action) {
+  var V = { cursor: D.today(), sel: D.todayKey(), view: 'month' };
+  var editing = null;
+
+  function s() { return N.STR[Store.data.settings.lang] || N.STR.ar; }
+  function esc(x) {
+    return String(x == null ? '' : x).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function clock(t) { return Store.data.settings.lang === 'ar' ? D.clock(t) : D.clockEn(t); }
+  function dayName(key) { return s().dow[D.parse(key).getDay()]; }
+  function longDate(key) {
+    var d = D.parse(key);
+    return Store.data.settings.lang === 'ar'
+      ? d.getDate() + ' ' + s().months[d.getMonth()]
+      : s().months[d.getMonth()] + ' ' + d.getDate();
+  }
+  function rel(key) {
+    var n = D.diff(D.todayKey(), key);
+    if (n === 0) return s().today;
+    if (n === 1) return s().tomorrow;
+    if (n === -1) return s().yesterday;
+    return longDate(key);
+  }
+
+  var I = {
+    check: '<svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6"/></svg>',
+    plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+    left: '<svg viewBox="0 0 24 24"><path d="M14 6 8 12l6 6"/></svg>',
+    right: '<svg viewBox="0 0 24 24"><path d="M10 6l6 6-6 6"/></svg>',
+    more: '<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>',
+    repeat: '<svg viewBox="0 0 24 24"><path d="M4 9a6 6 0 0 1 6-6h10M20 15a6 6 0 0 1-6 6H4"/><path d="M17 1l3 2-3 2M7 19l-3 2 3 2"/></svg>'
+  };
+
+  /* ------------------------------- render -------------------------------- */
+  function rowHTML(it, showDate) {
+    var late = !it.done && it.date < D.todayKey();
+    var when = it.time ? clock(it.time) + (it.end ? ' – ' + clock(it.end) : '') : '';
+    if (showDate) when = (when ? when + ' · ' : '') + rel(it.date);
+    else if (late) when = (when ? when + ' · ' : '') + longDate(it.date);
+    return '<div class="row' + (it.done ? ' done' : '') + (it.big ? ' big' : '') + '" draggable="true" data-id="' + it.id + '">' +
+      '<button class="mark-btn" data-act="toggle" data-id="' + it.id + '" aria-label="' + esc(s().done) + '">' + I.check + '</button>' +
+      '<button class="t" dir="auto" data-act="open" data-id="' + it.id + '">' + esc(it.title) + '</button>' +
+      (it.repeat !== 'none' ? '<span class="rep">' + I.repeat + '</span>' : '') +
+      (when ? '<span class="when' + (late ? ' late' : '') + '">' + esc(when) + '</span>' : '') +
+      '</div>';
+  }
+
+  function renderMonth() {
+    var ws = Store.data.settings.weekStart, tk = D.todayKey(), cm = V.cursor.getMonth();
+    var days = D.grid(V.cursor, ws);
+    var dow = '', order = days.slice(0, 7);
+    order.forEach(function (d) { dow += '<span>' + esc(s().dow1[d.getDay()]) + '</span>'; });
+
+    var cells = days.map(function (d) {
+      var k = D.key(d), items = Store.onDay(k);
+      var pips = items.slice(0, 3).map(function (i) {
+        return '<i class="' + (i.done ? 'done' : '') + '"></i>';
+      }).join('');
+      return '<button class="cell' + (d.getMonth() !== cm ? ' out' : '') + (k === tk ? ' today' : '') +
+        (k === V.sel ? ' sel' : '') + '" data-act="day" data-key="' + k + '">' +
+        '<span class="n">' + d.getDate() + '</span><span class="pips">' + pips + '</span></button>';
+    }).join('');
+
+    $('board').innerHTML = '<div class="dow">' + dow + '</div><div class="grid">' + cells + '</div>';
+  }
+
+  function renderAgenda() {
+    var tk = D.todayKey();
+    var up = Store.data.items.filter(function (i) { return !i.done && i.date >= tk; });
+    var groups = {};
+    up.forEach(function (i) { (groups[i.date] = groups[i.date] || []).push(i); });
+    var keys = Object.keys(groups).sort().slice(0, 30);
+    $('board').innerHTML = keys.length
+      ? '<div class="agenda">' + keys.map(function (k) {
+          return '<h3><b>' + esc(rel(k)) + '</b>' + esc(dayName(k)) + '</h3>' +
+                 groups[k].sort(Store.order).map(function (i) { return rowHTML(i); }).join('');
+        }).join('') + '</div>'
+      : '<div class="empty">' + esc(s().empty) + '</div>';
+  }
+
+  function render() {
+    var st = Store.data.settings, tk = D.todayKey();
+    document.documentElement.lang = st.lang;
+    document.documentElement.dir = s().dir;
+    document.documentElement.dataset.theme = st.theme;
+
+    $('month').innerHTML = esc(s().months[V.cursor.getMonth()]) + '<span>' + V.cursor.getFullYear() + '</span>';
+    var offMonth = !(V.cursor.getFullYear() === D.today().getFullYear() && V.cursor.getMonth() === D.today().getMonth());
+    $('todayPill').hidden = !offMonth;
+    $('todayPill').textContent = s().today;
+
+    if (V.view === 'month') renderMonth(); else renderAgenda();
+
+    var items = Store.onDay(V.sel);
+    var open = items.filter(function (i) { return !i.done; });
+    /* anything still open from earlier days belongs on today's plan */
+    var late = V.sel === tk
+      ? Store.data.items.filter(function (i) { return !i.done && i.date < tk; }).sort(Store.order)
+      : [];
+
+    $('dayName').textContent = dayName(V.sel);
+    $('dayDate').textContent = longDate(V.sel) + (V.sel === tk ? ' · ' + s().today : '');
+    $('count').textContent = items.length ? (items.length - open.length) + '/' + items.length : '—';
+
+    var body = late.map(function (i) { return rowHTML(i, false); }).join('') +
+               items.map(function (i) { return rowHTML(i); }).join('');
+    $('list').innerHTML = body || '<div class="empty">' + esc(s().empty) + '</div>';
+    $('quick').placeholder = s().add;
+  }
+
+  /* -------------------------------- toast -------------------------------- */
+  function toast(msg, label, undo) {
     var el = document.createElement('div');
     el.className = 'toast';
-    el.innerHTML = '<span>' + UI.esc(msg) + '</span>';
-    if (action) {
+    el.innerHTML = '<span>' + esc(msg) + '</span>';
+    if (undo) {
       var b = document.createElement('button');
-      b.textContent = actionLabel;
-      b.onclick = function () { action(); el.remove(); };
+      b.textContent = label;
+      b.onclick = function () { undo(); el.remove(); };
       el.appendChild(b);
     }
     $('toasts').appendChild(el);
-    setTimeout(function () { el.remove(); }, action ? 6000 : 2600);
+    setTimeout(function () { el.remove(); }, undo ? 5500 : 2400);
   }
 
-  /* ---------------------------- theme / lang ------------------------------ */
-  function applyShell() {
-    var s = Store.data.settings, str = N.STR[s.lang];
-    document.documentElement.lang = s.lang;
-    document.documentElement.dir = str.dir;
-    document.documentElement.dataset.theme = s.theme === 'night' ? 'night' : 'day';
-    $('btnLang').textContent = s.lang === 'ar' ? 'EN' : 'ع';
-    $('btnTheme').classList.toggle('on', s.theme === 'night');
-  }
-
-  /* ------------------------------- editor --------------------------------- */
-  function openEditor(idOrDraft) {
-    var s = UI.t();
-    var it = typeof idOrDraft === 'string' ? Store.get(idOrDraft) : idOrDraft;
-    if (!it) return;
-    editing = it;
-    var isNew = !it.id;
-    $('edTitleH').textContent = isNew ? s.newItem : s.editItem;
-    $('edTitle').value = it.title || '';
-    $('edDate').value = it.date || '';
-    $('edTime').value = it.time || '';
-    $('edEnd').value = it.end || '';
-    $('edNotes').value = it.notes || '';
-    $('edList').value = it.list || 'general';
-    $('edRepeat').value = it.repeat || 'none';
-    paintSeg('edKind', it.kind || 'task');
-    paintSeg('edPrio', it.priority || 'normal');
-    $('edDel').style.display = isNew ? 'none' : '';
-    $('edEndWrap').style.display = (it.kind === 'event') ? '' : 'none';
-    labelEditor();
-    $('editVeil').hidden = false;
-    setTimeout(function () { $('edTitle').focus(); }, 30);
-  }
-  function labelEditor() {
-    var s = UI.t();
-    [['lTitle', s.title], ['lDate', s.date], ['lTime', s.time], ['lEnd', s.endTime], ['lNotes', s.notes],
-     ['lPrio', s.priority], ['lList', s.lists], ['lRepeat', s.repeat], ['lKind', s.kind]]
-      .forEach(function (p) { $(p[0]).textContent = p[1]; });
-    $('edKind').innerHTML = seg([['task', s.task], ['event', s.event]], currentSeg('edKind') || 'task');
-    $('edPrio').innerHTML = seg([['low', s.low], ['normal', s.normal], ['high', s.high]], currentSeg('edPrio') || 'normal');
-    $('edRepeat').innerHTML = [['none', s.none], ['daily', s.daily], ['weekdays', s.weekdays], ['weekly', s.weekly], ['monthly', s.monthly]]
-      .map(function (p) { return '<option value="' + p[0] + '">' + UI.esc(p[1]) + '</option>'; }).join('');
-    $('edSave').textContent = s.save; $('edCancel').textContent = s.cancel; $('edDel').textContent = s.del;
-  }
-  function seg(pairs, cur) {
-    return pairs.map(function (p) {
-      return '<button type="button" data-v="' + p[0] + '" class="' + (p[0] === cur ? 'on' : '') + '">' + UI.esc(p[1]) + '</button>';
+  /* ------------------------------- editor -------------------------------- */
+  function openEditor(item) {
+    editing = item;
+    $('eTitle').value = item.title || '';
+    $('eDate').value = item.date || V.sel;
+    $('eTime').value = item.time || '';
+    $('eEnd').value = item.end || '';
+    $('eNote').value = item.note || '';
+    $('eBig').classList.toggle('on', !!item.big);
+    $('eTitle').placeholder = s().title;
+    $('endWrap').hidden = !item.time;
+    $('eRepeat').value = item.repeat || 'none';
+    $('eDel').hidden = !item.id;
+    ['lTitle', 'lDate', 'lTime', 'lEnd', 'lNote', 'lRepeat'].forEach(function (id, n) {
+      $(id).textContent = [s().title, s().date, s().time, s().until, s().note, s().repeat][n];
+    });
+    $('eBig').textContent = s().important;
+    $('eSave').textContent = s().save;
+    $('eDel').textContent = s().del;
+    $('eRepeat').innerHTML = ['none', 'daily', 'workdays', 'weekly', 'monthly'].map(function (r) {
+      return '<option value="' + r + '">' + esc(s()[r]) + '</option>';
     }).join('');
+    $('eRepeat').value = item.repeat || 'none';
+    $('editVeil').hidden = false;
+    setTimeout(function () { $('eTitle').focus(); }, 30);
   }
-  function currentSeg(id) {
-    var on = $(id) && $(id).querySelector('.on');
-    return on ? on.dataset.v : null;
-  }
-  function paintSeg(id, val) {
-    var host = $(id);
-    if (!host.children.length) return;
-    Array.prototype.forEach.call(host.children, function (b) { b.classList.toggle('on', b.dataset.v === val); });
-  }
-  function closeEditor() { $('editVeil').hidden = true; editing = null; }
-
   function saveEditor() {
     if (!editing) return;
     var patch = {
-      title: $('edTitle').value.trim(),
-      date: $('edDate').value || null,
-      time: $('edTime').value || null,
-      end: $('edEnd').value || null,
-      notes: $('edNotes').value.trim(),
-      list: ($('edList').value || 'general').trim().toLowerCase(),
-      repeat: $('edRepeat').value,
-      kind: currentSeg('edKind') || 'task',
-      priority: currentSeg('edPrio') || 'normal'
+      title: $('eTitle').value.trim(),
+      date: $('eDate').value || V.sel,
+      time: $('eTime').value || null,
+      end: $('eEnd').value || null,
+      note: $('eNote').value.trim(),
+      big: $('eBig').classList.contains('on'),
+      repeat: $('eRepeat').value
     };
-    if (!patch.title) { $('edTitle').focus(); return; }
-    if (patch.kind === 'event' && !patch.date) patch.date = V.selected;
-    if (editing.id) Store.update(editing.id, patch);
-    else Store.add(patch);
-    if (patch.date) { V.selected = patch.date; V.cursor = D.parse(patch.date); V.filter = 'day'; }
-    closeEditor(); UI.render();
+    if (!patch.title) { $('eTitle').focus(); return; }
+    if (editing.id) Store.update(editing.id, patch); else Store.add(patch);
+    V.sel = patch.date; V.cursor = D.parse(patch.date);
+    $('editVeil').hidden = true; editing = null; render();
   }
 
-  /* ------------------------------ quick add -------------------------------- */
-  function quickAdd() {
-    var input = $('quick'), text = input.value.trim();
-    if (!text) return;
-    var base = V.filter === 'inbox' ? null : V.selected;
-    var parsed = N.parseQuick(text, base, Store.data.settings.lang);
-    var it = Store.add(parsed);
-    input.value = '';
-    if (it.date) { V.selected = it.date; V.cursor = D.parse(it.date); if (V.filter !== 'day') V.filter = 'day'; }
-    UI.render();
+  /* -------------------------------- menu --------------------------------- */
+  function seg(name, opts, cur) {
+    return '<div class="seg">' + opts.map(function (o) {
+      return '<button data-set="' + name + '" data-v="' + o[0] + '" class="' + (String(o[0]) === String(cur) ? 'on' : '') + '">' +
+        esc(o[1]) + '</button>';
+    }).join('') + '</div>';
+  }
+  function openMenu() {
+    var st = Store.data.settings;
+    $('menuBody').innerHTML =
+      '<div class="opt"><label>' + esc(s().view) + '</label>' +
+        seg('view', [['month', s().month], ['list', s().list]], V.view) + '</div>' +
+      '<div class="opt"><label>' + esc(s().weekStart) + '</label>' +
+        seg('weekStart', [[0, s().sun], [1, s().mon], [6, s().sat]], st.weekStart) + '</div>' +
+      '<div class="opt"><label>' + esc(s().theme) + '</label>' +
+        seg('theme', [['light', s().light], ['dark', s().dark]], st.theme) + '</div>' +
+      '<div class="opt"><label>' + esc(s().lang) + '</label>' +
+        seg('lang', [['ar', 'ع'], ['en', 'EN']], st.lang) + '</div>' +
+      [['search', s().search], ['export', s().exportJ], ['import', s().importJ],
+       ['ics', s().ics], ['clear', s().clearDone]].map(function (r) {
+        return '<button class="optrow" data-do="' + r[0] + '">' + esc(r[1]) + '</button>';
+      }).join('');
+    $('menuClose').textContent = s().close;
+    $('menuVeil').hidden = false;
   }
 
-  /* -------------------------------- search --------------------------------- */
-  var searchCur = 0;
-  function runSearch() {
-    var q = $('searchInput').value.trim().toLowerCase();
-    var host = $('searchResults');
-    if (!q) { host.innerHTML = ''; return; }
-    var hits = Store.data.items.filter(function (i) {
-      return (i.title + ' ' + (i.notes || '') + ' ' + (i.list || '')).toLowerCase().indexOf(q) >= 0;
-    }).sort(function (a, b) { return (b.date || '') > (a.date || '') ? 1 : -1; }).slice(0, 20);
-    searchCur = 0;
-    host.innerHTML = hits.length ? hits.map(function (i, n) {
-      return '<button class="res' + (n === 0 ? ' cur' : '') + '" data-id="' + i.id + '">' +
-        '<span>' + (i.done ? '✓ ' : '') + UI.esc(i.title) + '</span>' +
-        '<small>' + (i.date ? UI.esc(UI.fmtDay(i.date)) : '—') + '</small></button>';
-    }).join('') : '<div class="empty">' + UI.esc(UI.t().noItems) + '</div>';
-  }
-  function jumpTo(id) {
-    var it = Store.get(id);
-    if (!it) return;
-    $('searchVeil').hidden = true;
-    if (it.date) { V.selected = it.date; V.cursor = D.parse(it.date); V.filter = 'day'; }
-    else V.filter = 'inbox';
-    UI.render(); openEditor(it.id);
-  }
-
-  /* --------------------------- backup / export ----------------------------- */
-  function icsEscape(s) { return String(s).replace(/([,;\\])/g, '\\$1').replace(/\n/g, '\\n'); }
+  /* ------------------------------ backup --------------------------------- */
+  function icsEsc(x) { return String(x).replace(/([,;\\])/g, '\\$1').replace(/\n/g, '\\n'); }
   function toICS() {
-    var lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//NIDHAM//EN', 'CALSCALE:GREGORIAN'];
-    Store.data.items.filter(function (i) { return i.date; }).forEach(function (i) {
+    var out = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//NIDHAM//EN'];
+    Store.data.items.forEach(function (i) {
       var d = i.date.replace(/-/g, '');
-      lines.push('BEGIN:VEVENT', 'UID:' + i.id + '@nidham');
+      out.push('BEGIN:VEVENT', 'UID:' + i.id + '@nidham');
       if (i.time) {
-        var st = d + 'T' + i.time.replace(':', '') + '00';
-        var en = i.end ? d + 'T' + i.end.replace(':', '') + '00'
-                       : d + 'T' + String(Math.min(23, +i.time.slice(0, 2) + 1)).padStart(2, '0') + i.time.slice(3) + '00';
-        lines.push('DTSTART:' + st, 'DTEND:' + en);
-      } else {
-        lines.push('DTSTART;VALUE=DATE:' + d);
-      }
-      lines.push('SUMMARY:' + icsEscape(i.title));
-      if (i.notes) lines.push('DESCRIPTION:' + icsEscape(i.notes));
-      lines.push('END:VEVENT');
+        out.push('DTSTART:' + d + 'T' + i.time.replace(':', '') + '00');
+        out.push('DTEND:' + d + 'T' + (i.end || i.time).replace(':', '') + '00');
+      } else out.push('DTSTART;VALUE=DATE:' + d);
+      out.push('SUMMARY:' + icsEsc(i.title));
+      if (i.note) out.push('DESCRIPTION:' + icsEsc(i.note));
+      out.push('END:VEVENT');
     });
-    lines.push('END:VCALENDAR');
-    return lines.join('\r\n');
+    out.push('END:VCALENDAR');
+    return out.join('\r\n');
   }
-  function offerFile(name, text) {
+  function offer(name, text) {
     $('dataBox').value = text;
-    $('dataBox').dataset.name = name;
-    var saved = false;
+    $('dataVeil').hidden = false;
+    $('dataCopy').textContent = s().copied.replace(/.$/, '') && s().exportJ;
+    var ok = false;
     try {
       var url = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
-      var a = document.createElement('a');
-      a.href = url; a.download = name; a.click();
-      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-      saved = true;
-    } catch (e) { /* sandboxed host */ }
-    /* some hosts silently block downloads, so always leave the text copyable */
-    toast(saved ? name : UI.t().copyFallback);
+      var a = document.createElement('a'); a.href = url; a.download = name; a.click();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 800);
+      ok = true;
+    } catch (e) {}
+    if (!ok) toast(s().inBox);
   }
 
-  /* ------------------------------ first run -------------------------------- */
-  function seed() {
-    if (Store.data.items.length || localStorage.getItem('nidham.seeded')) return;
-    var ar = Store.data.settings.lang === 'ar';
-    var tk = D.todayKey(), tm = D.key(D.add(D.today(), 1));
-    Store.add({ title: ar ? 'راجع خطة اليوم' : 'Review today’s plan', date: tk, time: '09:00', priority: 'high' });
-    Store.add({ title: ar ? 'ساعة رياضيات' : 'One hour of math', date: tk, time: '20:00', repeat: 'daily', list: 'study' });
-    Store.add({ title: ar ? 'اجتماع المشروع' : 'Project sync', kind: 'event', date: tm, time: '15:00', end: '16:00', list: 'work' });
-    try { localStorage.setItem('nidham.seeded', '1'); } catch (e) {}
-  }
-
-  /* ------------------------------- events ---------------------------------- */
+  /* ------------------------------- events -------------------------------- */
   function onClick(e) {
-    var el = e.target.closest('[data-act]');
+    var el = e.target.closest('[data-act],[data-set],[data-do]');
     if (!el) return;
-    var act = el.dataset.act, s = UI.t();
 
-    if (act === 'day') { V.selected = el.dataset.key; V.filter = 'day'; UI.render(); return; }
-    if (act === 'view') { V.view = el.dataset.v; Store.data.settings.view = V.view; Store.save(); UI.render(); return; }
-    if (act === 'filter') { V.filter = el.dataset.f; UI.render(); return; }
-    if (act === 'edit') { openEditor(el.dataset.id); return; }
-
-    if (act === 'toggle') {
+    if (el.dataset.act === 'day') { V.sel = el.dataset.key; render(); return; }
+    if (el.dataset.act === 'prev') { V.cursor = D.addMonths(V.cursor, -1); render(); return; }
+    if (el.dataset.act === 'next') { V.cursor = D.addMonths(V.cursor, 1); render(); return; }
+    if (el.dataset.act === 'today') { V.cursor = D.today(); V.sel = D.todayKey(); render(); return; }
+    if (el.dataset.act === 'open') { openEditor(Store.get(el.dataset.id)); return; }
+    if (el.dataset.act === 'toggle') {
       var r = Store.toggle(el.dataset.id);
-      if (r) {
-        UI.render();
-        if (r.item.done) toast(s.completed + (r.spawned ? ' · ↻ ' + UI.fmtDay(r.spawned.date) : ''), s.undo, function () {
-          if (r.spawned) Store.remove(r.spawned.id);
-          Store.update(r.item.id, { done: false, doneAt: null });
-          UI.render();
-        });
+      render();
+      if (r && r.item.done && r.next) toast(rel(r.next.date), s().undo, function () {
+        Store.remove(r.next.id); Store.update(r.item.id, { done: false, doneAt: null }); render();
+      });
+      return;
+    }
+
+    if (el.dataset.set) {                                   /* menu segments */
+      var k = el.dataset.set, v = el.dataset.v;
+      if (k === 'view') { V.view = v; Store.data.settings.view = v; }
+      else Store.data.settings[k] = (k === 'weekStart') ? +v : v;
+      Store.save(); openMenu(); render(); return;
+    }
+
+    if (el.dataset.do) {
+      var d = el.dataset.do;
+      $('menuVeil').hidden = true;
+      if (d === 'search') { $('searchVeil').hidden = false; $('searchInput').value = ''; $('hits').innerHTML = '';
+        $('searchInput').placeholder = s().searchGo; setTimeout(function () { $('searchInput').focus(); }, 30); }
+      if (d === 'export') offer('nidham-' + D.todayKey() + '.json', JSON.stringify(Store.data, null, 2));
+      if (d === 'ics') offer('nidham-' + D.todayKey() + '.ics', toICS());
+      if (d === 'import') { $('dataBox').value = ''; $('dataVeil').hidden = false; setTimeout(function(){ $('dataBox').focus(); }, 30); }
+      if (d === 'clear') {
+        Store.data.items = Store.data.items.filter(function (i) { return !i.done; });
+        Store.save(); render();
       }
       return;
     }
-    if (act === 'del') {
-      var g = Store.remove(el.dataset.id);
-      if (g) {
-        UI.render();
-        toast(s.deleted, s.undo, function () { Store.insertAt(g.item, g.index); UI.render(); });
-      }
-      return;
-    }
-    if (act === 'prev') { V.cursor = V.view === 'week' ? D.add(V.cursor, -7) : D.addMonths(V.cursor, -1); UI.render(); return; }
-    if (act === 'next') { V.cursor = V.view === 'week' ? D.add(V.cursor, 7) : D.addMonths(V.cursor, 1); UI.render(); return; }
-    if (act === 'today') { V.cursor = D.today(); V.selected = D.todayKey(); V.filter = 'day'; UI.render(); return; }
+  }
+
+  function quickAdd() {
+    var t = $('quick').value.trim();
+    if (!t) return;
+    var it = Store.add(N.parseQuick(t, V.sel));
+    $('quick').value = '';
+    V.sel = it.date; V.cursor = D.parse(it.date);
+    render();
+  }
+
+  var hitIdx = 0;
+  function search() {
+    var q = $('searchInput').value.trim().toLowerCase();
+    if (!q) { $('hits').innerHTML = ''; return; }
+    var found = Store.data.items.filter(function (i) {
+      return (i.title + ' ' + i.note).toLowerCase().indexOf(q) >= 0;
+    }).sort(function (a, b) { return a.date < b.date ? 1 : -1; }).slice(0, 15);
+    hitIdx = 0;
+    $('hits').innerHTML = found.length ? found.map(function (i, n) {
+      return '<button class="hit' + (n === 0 ? ' on' : '') + '" data-id="' + i.id + '">' +
+        '<span dir="auto">' + (i.done ? '· ' : '') + esc(i.title) + '</span><small>' + esc(rel(i.date)) + '</small></button>';
+    }).join('') : '<div class="empty">' + esc(s().nores) + '</div>';
+  }
+  function jump(id) {
+    var it = Store.get(id); if (!it) return;
+    $('searchVeil').hidden = true;
+    V.sel = it.date; V.cursor = D.parse(it.date);
+    render(); openEditor(it);
   }
 
   function bind() {
     document.addEventListener('click', onClick);
+    $('menuBtn').onclick = openMenu;
+    $('menuClose').onclick = function () { $('menuVeil').hidden = true; };
+    $('addForm').onsubmit = function (e) { e.preventDefault(); quickAdd(); };
+    $('addBtn').onclick = function () { openEditor({ date: V.sel, repeat: 'none' }); };
 
-    $('quickGo').onclick = quickAdd;
-    $('quick').addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') { e.preventDefault(); quickAdd(); }
+    $('eSave').onclick = saveEditor;
+    $('eBig').onclick = function () { this.classList.toggle('on'); };
+    $('eTime').addEventListener('input', function () { $('endWrap').hidden = !this.value; });
+    $('eDel').onclick = function () {
+      if (editing && editing.id) {
+        var g = Store.remove(editing.id);
+        $('editVeil').hidden = true; editing = null; render();
+        toast(s().deleted, s().undo, function () { Store.put(g.item, g.at); render(); });
+      }
+    };
+    $('eTitle').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); saveEditor(); } });
+
+    $('searchInput').addEventListener('input', search);
+    $('searchInput').addEventListener('keydown', function (e) {
+      var hits = [].slice.call($('hits').querySelectorAll('.hit'));
+      if (!hits.length) return;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault(); hits[hitIdx].classList.remove('on');
+        hitIdx = (hitIdx + (e.key === 'ArrowDown' ? 1 : -1) + hits.length) % hits.length;
+        hits[hitIdx].classList.add('on'); hits[hitIdx].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') { e.preventDefault(); jump(hits[hitIdx].dataset.id); }
+    });
+    $('hits').addEventListener('click', function (e) {
+      var b = e.target.closest('.hit'); if (b) jump(b.dataset.id);
     });
 
-    $('btnLang').onclick = function () {
-      Store.data.settings.lang = Store.data.settings.lang === 'ar' ? 'en' : 'ar';
-      Store.save(); applyShell(); labelEditor(); UI.render();
+    $('dataSave').onclick = function () {
+      try {
+        var p = JSON.parse($('dataBox').value);
+        if (!p || !Array.isArray(p.items)) throw 0;
+        localStorage.setItem('nidham.v1', JSON.stringify(p));
+        Store.load(); $('dataVeil').hidden = true; render();
+      } catch (e) { toast(s().bad); }
     };
-    $('btnTheme').onclick = function () {
-      Store.data.settings.theme = Store.data.settings.theme === 'night' ? 'day' : 'night';
-      Store.save(); applyShell();
-    };
-    $('btnSearch').onclick = function () {
-      $('searchVeil').hidden = false; $('searchInput').value = ''; $('searchResults').innerHTML = '';
-      $('searchInput').placeholder = UI.t().search;
-      setTimeout(function () { $('searchInput').focus(); }, 30);
-    };
-    $('btnData').onclick = function () {
-      var s = UI.t();
-      $('dataTitleH').textContent = s.dataTitle;
-      $('dataSubP').textContent = s.dataSub;
-      $('dataBox').value = JSON.stringify(Store.data, null, 2);
-      $('btnExport').textContent = s.exportJson; $('btnIcs').textContent = s.exportIcs;
-      $('btnImport').textContent = s.importJson; $('btnCopy').textContent = s.copy;
-      $('btnClearDone').textContent = s.clearDone; $('dataClose').textContent = s.close;
-      $('wsLabel').textContent = s.weekStart;
-      $('wsSel').innerHTML = [[0, s.sunday], [1, s.monday], [6, s.saturday]].map(function (p) {
-        return '<option value="' + p[0] + '"' + (Store.data.settings.weekStart === p[0] ? ' selected' : '') + '>' + UI.esc(p[1]) + '</option>';
-      }).join('');
-      $('dataVeil').hidden = false;
-    };
-    $('wsSel').onchange = function () {
-      Store.data.settings.weekStart = +this.value; Store.save(); UI.render();
-    };
-    $('btnExport').onclick = function () { offerFile('nidham-backup-' + D.todayKey() + '.json', JSON.stringify(Store.data, null, 2)); };
-    $('btnIcs').onclick = function () { offerFile('nidham-' + D.todayKey() + '.ics', toICS()); };
-    $('btnCopy').onclick = function () {
+    $('dataCopy').onclick = function () {
       $('dataBox').select();
       try { document.execCommand('copy'); } catch (e) {}
       if (navigator.clipboard) navigator.clipboard.writeText($('dataBox').value).catch(function () {});
-      toast(UI.t().copied);
+      toast(s().copied);
     };
-    $('btnImport').onclick = function () {
-      try {
-        var parsed = JSON.parse($('dataBox').value);
-        if (!parsed || !Array.isArray(parsed.items)) throw new Error('shape');
-        Store.data = Object.assign(Store.data, parsed);
-        Store.save(); applyShell(); UI.render();
-        $('dataVeil').hidden = true; toast(UI.t().imported);
-      } catch (e) { toast(UI.t().badJson); }
-    };
-    $('btnClearDone').onclick = function () {
-      Store.data.items = Store.data.items.filter(function (i) { return !i.done; });
-      Store.save(); UI.render();
-    };
-
-    /* editor */
-    $('edSave').onclick = saveEditor;
-    $('edCancel').onclick = closeEditor;
-    $('edDel').onclick = function () {
-      if (editing && editing.id) { Store.remove(editing.id); closeEditor(); UI.render(); }
-    };
-    $('edKind').onclick = function (e) {
-      var b = e.target.closest('button'); if (!b) return;
-      paintSeg('edKind', b.dataset.v);
-      $('edEndWrap').style.display = b.dataset.v === 'event' ? '' : 'none';
-    };
-    $('edPrio').onclick = function (e) {
-      var b = e.target.closest('button'); if (b) paintSeg('edPrio', b.dataset.v);
-    };
-    $('edTitle').addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') { e.preventDefault(); saveEditor(); }
-    });
-
-    /* search */
-    $('searchInput').addEventListener('input', runSearch);
-    $('searchInput').addEventListener('keydown', function (e) {
-      var res = Array.prototype.slice.call($('searchResults').querySelectorAll('.res'));
-      if (!res.length) return;
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-        e.preventDefault();
-        res[searchCur].classList.remove('cur');
-        searchCur = (searchCur + (e.key === 'ArrowDown' ? 1 : -1) + res.length) % res.length;
-        res[searchCur].classList.add('cur');
-        res[searchCur].scrollIntoView({ block: 'nearest' });
-      } else if (e.key === 'Enter') { e.preventDefault(); jumpTo(res[searchCur].dataset.id); }
-    });
-    $('searchResults').addEventListener('click', function (e) {
-      var b = e.target.closest('.res'); if (b) jumpTo(b.dataset.id);
-    });
-
-    /* veils close on backdrop click */
-    ['editVeil', 'searchVeil', 'dataVeil'].forEach(function (id) {
-      $(id).addEventListener('mousedown', function (e) { if (e.target === this) this.hidden = true; });
-    });
     $('dataClose').onclick = function () { $('dataVeil').hidden = true; };
 
-    /* drag & drop: move an item to another day */
+    ['menuVeil', 'editVeil', 'searchVeil', 'dataVeil'].forEach(function (id) {
+      $(id).addEventListener('mousedown', function (e) { if (e.target === this) this.hidden = true; });
+    });
+
+    /* drag a task onto another day */
     var dragId = null;
     document.addEventListener('dragstart', function (e) {
-      var it = e.target.closest('.item,.chip-item'); if (!it) return;
-      dragId = it.dataset.id; it.classList.add('dragging');
+      var r = e.target.closest('.row'); if (!r) return;
+      dragId = r.dataset.id; r.classList.add('dragging');
       e.dataTransfer.effectAllowed = 'move';
-      try { e.dataTransfer.setData('text/plain', dragId); } catch (err) {}
+      try { e.dataTransfer.setData('text/plain', dragId); } catch (x) {}
     });
-    document.addEventListener('dragend', function (e) {
-      var it = e.target.closest('.item,.chip-item'); if (it) it.classList.remove('dragging');
+    document.addEventListener('dragend', function () {
       dragId = null;
-      Array.prototype.forEach.call(document.querySelectorAll('.drop'), function (n) { n.classList.remove('drop'); });
+      [].forEach.call(document.querySelectorAll('.dragging,.drop'), function (n) { n.classList.remove('dragging', 'drop'); });
     });
     document.addEventListener('dragover', function (e) {
-      var zone = e.target.closest('[data-act="day"],[data-act="dayzone"]');
-      if (!zone || !dragId) return;
-      e.preventDefault(); e.dataTransfer.dropEffect = 'move';
-      if (!zone.classList.contains('drop')) {
-        Array.prototype.forEach.call(document.querySelectorAll('.drop'), function (n) { n.classList.remove('drop'); });
-        zone.classList.add('drop');
+      var c = e.target.closest('.cell'); if (!c || !dragId) return;
+      e.preventDefault();
+      if (!c.classList.contains('drop')) {
+        [].forEach.call(document.querySelectorAll('.drop'), function (n) { n.classList.remove('drop'); });
+        c.classList.add('drop');
       }
     });
     document.addEventListener('drop', function (e) {
-      var zone = e.target.closest('[data-act="day"],[data-act="dayzone"]');
+      var c = e.target.closest('.cell');
       var id = dragId || (e.dataTransfer && e.dataTransfer.getData('text/plain'));
-      if (!zone || !id) return;
+      if (!c || !id) return;
       e.preventDefault();
       var it = Store.get(id), from = it && it.date;
-      if (!it || from === zone.dataset.key) return;
-      Store.update(id, { date: zone.dataset.key });
-      V.selected = zone.dataset.key;
-      UI.render();
-      toast(UI.t().moved + ' ' + UI.fmtDay(zone.dataset.key), UI.t().undo, function () {
-        Store.update(id, { date: from }); UI.render();
+      if (!it || from === c.dataset.key) return;
+      Store.update(id, { date: c.dataset.key });
+      V.sel = c.dataset.key; render();
+      toast(s().moved + ' · ' + rel(c.dataset.key), s().undo, function () {
+        Store.update(id, { date: from }); render();
       });
     });
 
-    /* keyboard */
     document.addEventListener('keydown', function (e) {
       var typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
       if (e.key === 'Escape') {
-        ['editVeil', 'searchVeil', 'dataVeil'].forEach(function (id) { $(id).hidden = true; });
+        ['menuVeil', 'editVeil', 'searchVeil', 'dataVeil'].forEach(function (id) { $(id).hidden = true; });
         if (typing) document.activeElement.blur();
         return;
       }
-      if (typing || e.ctrlKey || e.metaKey || e.altKey) {
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); $('btnSearch').click(); }
-        return;
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault(); $('searchVeil').hidden = false; $('searchInput').value = ''; $('hits').innerHTML = '';
+        setTimeout(function () { $('searchInput').focus(); }, 20); return;
       }
+      if (typing || e.ctrlKey || e.metaKey || e.altKey) return;
       var k = e.key.toLowerCase();
-      if (k === 'n') { e.preventDefault(); openEditor({ kind: 'task', date: V.filter === 'inbox' ? null : V.selected, priority: 'normal', list: 'general', repeat: 'none' }); }
-      else if (k === '/') { e.preventDefault(); $('btnSearch').click(); }
-      else if (k === 't') { V.cursor = D.today(); V.selected = D.todayKey(); V.filter = 'day'; UI.render(); }
-      else if (k === 'm') { V.view = 'month'; UI.render(); }
-      else if (k === 'w') { V.view = 'week'; UI.render(); }
-      else if (k === 'a') { V.view = 'agenda'; UI.render(); }
+      if (k === 'n') { e.preventDefault(); openEditor({ date: V.sel, repeat: 'none' }); }
+      else if (k === 't') { V.cursor = D.today(); V.sel = D.todayKey(); render(); }
       else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-        var rtl = document.documentElement.dir === 'rtl';
-        var fwd = (e.key === 'ArrowRight') !== rtl;
-        V.cursor = V.view === 'week' ? D.add(V.cursor, fwd ? 7 : -7) : D.addMonths(V.cursor, fwd ? 1 : -1);
-        UI.render();
+        var fwd = (e.key === 'ArrowRight') !== (document.documentElement.dir === 'rtl');
+        V.cursor = D.addMonths(V.cursor, fwd ? 1 : -1); render();
       }
     });
 
-    /* a session left open overnight should not keep yesterday as "today" */
     var boot = D.todayKey();
-    setInterval(function () { if (D.todayKey() !== boot) { boot = D.todayKey(); UI.render(); } }, 60000);
+    setInterval(function () { if (D.todayKey() !== boot) { boot = D.todayKey(); render(); } }, 60000);
   }
 
-  /* --------------------------------- init ---------------------------------- */
-  function init() {
+  function seed() {
+    if (Store.data.items.length || localStorage.getItem('nidham.seeded')) return;
+    var ar = Store.data.settings.lang === 'ar', t = D.todayKey();
+    Store.add({ title: ar ? 'ساعة رياضيات' : 'One hour of math', date: t, time: '20:00', repeat: 'daily' });
+    Store.add({ title: ar ? 'مراجعة خطة الأسبوع' : 'Review the week', date: D.key(D.add(D.today(), 1)), time: '09:00', big: true });
+    try { localStorage.setItem('nidham.seeded', '1'); } catch (e) {}
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
     Store.load();
     V.view = Store.data.settings.view || 'month';
-    applyShell();
-    seed();
-    bind();
-    labelEditor();
-    UI.render();
+    $('prevBtn').innerHTML = I.left; $('nextBtn').innerHTML = I.right;
+    $('menuBtn').innerHTML = I.more; $('addBtn').innerHTML = I.plus;
+    seed(); bind(); render();
     if (location.protocol.indexOf('http') === 0 && 'serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(function () {});
     }
-  }
-  document.addEventListener('DOMContentLoaded', init);
+  });
 })(window);

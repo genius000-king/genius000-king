@@ -15,7 +15,7 @@ def build() -> None:
     css = (ROOT / "assets/css/app.css").read_text(encoding="utf-8")
     js = "\n".join(
         (ROOT / f"assets/js/{name}.js").read_text(encoding="utf-8")
-        for name in ("core", "ui", "app")
+        for name in ("core", "app")
     )
 
     single = html.replace(
