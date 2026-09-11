@@ -1,0 +1,5 @@
+# Build outputs collected for delivery. These are produced by
+# `./gradlew :app:assembleDebug :app:assembleRelease :app:bundleRelease`
+# and belong on a GitHub Release, not in git history — the debug APK alone
+# is 25 MB and would be rewritten on every build.
+artifacts/
