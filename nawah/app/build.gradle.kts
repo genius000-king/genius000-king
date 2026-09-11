@@ -23,8 +23,8 @@ android {
         // :lorie's floor. Raising it would gain nothing; lowering it is not ours to do.
         minSdk = 24
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.1.1"
 
         // arm64 only: every Android device shipped since 2019 is arm64, and each
         // extra ABI roughly doubles the X server's native build time. Adding one

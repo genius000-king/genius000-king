@@ -5,6 +5,7 @@ import io.nawah.linux.core.model.MachineState
 import io.nawah.linux.core.oci.OciArch
 import io.nawah.linux.core.oci.OciClient
 import io.nawah.linux.core.oci.PullEvent
+import io.nawah.linux.core.runtime.Bind
 import io.nawah.linux.core.runtime.NativeTools
 import io.nawah.linux.core.runtime.ProotRequest
 import io.nawah.linux.core.runtime.ProotRunner
@@ -13,9 +14,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import java.io.File
+import java.io.IOException
 import java.io.InputStream
 
 /**
@@ -57,6 +61,7 @@ class ProotProvisioner(
         var machine = request.toMachine(MachineState.INSTALLING)
         store.put(machine)
 
+        var step = InstallStep.DOWNLOADING
         try {
             // 1 + 2 -- download, with the digest verified while streaming.
             val tarball = File(store.machineDir(id), "rootfs.tar.gz")
@@ -75,37 +80,56 @@ class ProotProvisioner(
             }
             emit(InstallProgress.Running(InstallStep.VERIFYING, 1f))
 
-            // 3 -- unpack through proot so links survive.
+            // 3 -- unpack, on this side of the container. Doing it through
+            // proot means proot resolves the unpacking command inside a rootfs
+            // that is still empty, which cannot work.
+            step = InstallStep.EXTRACTING
             currentCoroutineContext().ensureActive()
-            emit(InstallProgress.Running(InstallStep.EXTRACTING))
-            store.rootfsDir(id).mkdirs()
-            runGuest(
-                id, request,
-                "tar -xzf /rootfs.tar.gz -C / 2>&1 | tail -n 40",
-                extraBind = tarball.absolutePath to "/rootfs.tar.gz",
-                shell = tools.busybox.absolutePath,
-            ) { emitLine(InstallStep.EXTRACTING, it) }
+            val rootfs = store.rootfsDir(id)
+            rootfs.mkdirs()
+            // No progress callback: the layer is ~50 MB and unpacks in seconds,
+            // so an indeterminate bar is more honest than a bar that jumps.
+            val extracted = RootfsExtractor.extract(tarball, rootfs)
+            emit(InstallProgress.Running(InstallStep.EXTRACTING, 1f))
+            emitLine(
+                InstallStep.EXTRACTING,
+                "unpacked ${extracted.files} files, ${extracted.directories} directories, " +
+                    "${extracted.symlinks} symlinks, ${extracted.hardLinksCopied} hard links copied, " +
+                    "${extracted.skipped} skipped",
+            )
+            require(File(rootfs, "bin/sh").exists() || File(rootfs, "usr/bin/sh").exists()) {
+                "the unpacked image has no /bin/sh; it is not a usable rootfs"
+            }
             tarball.delete()
 
-            // 4 -- guest configuration, written from the host side.
+            // 4 -- guest configuration, written from this side.
+            step = InstallStep.BOOTSTRAPPING
             emit(InstallProgress.Running(InstallStep.BOOTSTRAPPING))
             writeBaseConfig(id, request)
             emitLine(InstallStep.BOOTSTRAPPING, "wrote resolv.conf, hosts, sources.list, apt config")
 
-            // 5 -- the long one.
+            // 5 -- the long one. Every command must actually succeed.
+            step = InstallStep.INSTALLING_PACKAGES
             val packages = (BASE_PACKAGES + request.desktop.packages).distinct()
-            runGuest(id, request, "apt-get update") { emitLine(InstallStep.INSTALLING_PACKAGES, it) }
-            runGuest(
-                id, request,
-                "DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ${packages.joinToString(" ")}",
-            ) { emitLine(InstallStep.INSTALLING_PACKAGES, it) }
+            runGuestChecked(id, request, "apt-get update") {
+                emitLine(InstallStep.INSTALLING_PACKAGES, it)
+            }
+            if (packages.isNotEmpty()) {
+                runGuestChecked(
+                    id, request,
+                    "DEBIAN_FRONTEND=noninteractive apt-get install -y " +
+                        "--no-install-recommends ${packages.joinToString(" ")}",
+                ) { emitLine(InstallStep.INSTALLING_PACKAGES, it) }
+            }
 
             // 6 -- the X11 bridge.
+            step = InstallStep.INSTALLING_X11_BRIDGE
             emit(InstallProgress.Running(InstallStep.INSTALLING_X11_BRIDGE))
             installBridge(id)
             emitLine(InstallStep.INSTALLING_X11_BRIDGE, "installed ${GuestScripts.BRIDGE_PATH}")
 
             // 7 -- session script and hand-over.
+            step = InstallStep.CONFIGURING
             emit(InstallProgress.Running(InstallStep.CONFIGURING))
             writeGuestFile(
                 id, GuestScripts.SESSION_PATH,
@@ -117,16 +141,21 @@ class ProotProvisioner(
             store.put(machine)
             emit(InstallProgress.Done(machine))
         } catch (e: Throwable) {
+            // NonCancellable: when the cause *is* cancellation, an ordinary
+            // suspend call here would be cancelled too and the machine would be
+            // left recorded as INSTALLING for ever.
+            withContext(NonCancellable) { store.put(machine.copy(state = MachineState.FAILED)) }
+            val tail = log.takeIf { it.isFile }?.readText().orEmpty().takeLast(8_000)
             if (e is kotlinx.coroutines.CancellationException) {
-                store.put(machine.copy(state = MachineState.FAILED))
+                // The terminal state for a cancellation is published by the
+                // caller: emitting from a cancelled flow throws instead.
                 throw e
             }
-            store.put(machine.copy(state = MachineState.FAILED))
             emit(
                 InstallProgress.Failed(
-                    step = InstallStep.ordered.first(),
+                    step = step,
                     message = e.message ?: e::class.java.simpleName,
-                    log = log.takeIf { it.isFile }?.readText().orEmpty().takeLast(8_000),
+                    log = tail,
                 ),
             )
         }
@@ -190,31 +219,41 @@ class ProotProvisioner(
         if (executable) file.setExecutable(true, false)
     }
 
-    private suspend fun runGuest(
+    /**
+     * Runs a shell command inside the container and fails if it fails.
+     *
+     * The command is resolved by proot *inside the rootfs*, so it must be a
+     * guest path. `/bin/sh` exists only after extraction, which is why nothing
+     * before that step goes through here.
+     */
+    private suspend fun runGuestChecked(
         id: String,
         request: InstallRequest,
         script: String,
-        extraBind: Pair<String, String>? = null,
-        shell: String? = null,
         onLine: suspend (String) -> Unit,
     ) {
-        val command = if (shell != null) {
-            listOf(shell, "sh", "-c", script)
-        } else {
-            listOf("/bin/sh", "-c", script)
-        }
         val req = ProotRequest(
             tools = tools,
             rootfs = store.rootfsDir(id),
             containerDir = store.containerDir(id),
+            cwd = "/",
             hostname = request.name.hostname(),
             bindStorage = false,
-            extraBinds = listOfNotNull(
-                extraBind?.let { io.nawah.linux.core.runtime.Bind(it.first, it.second) },
-            ),
-            command = command,
+            extraBinds = emptyList<Bind>(),
+            command = listOf("/bin/sh", "-c", script),
         )
-        runner.stream(req).collect(onLine)
+        val lastLines = ArrayDeque<String>()
+        val code = runner.exec(req) { line ->
+            lastLines.addLast(line)
+            while (lastLines.size > 12) lastLines.removeFirst()
+            onLine(line)
+        }
+        if (code != 0) {
+            throw IOException(
+                "command failed inside the container (exit $code): " +
+                    script.take(60) + "\n" + lastLines.joinToString("\n"),
+            )
+        }
     }
 
     private fun InstallRequest.toMachine(state: MachineState) = Machine(

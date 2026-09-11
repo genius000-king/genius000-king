@@ -13,6 +13,7 @@ activityCompose = "1.13.0"
 composeBom = "2026.09.00"
 navigation = "2.10.1"
 okhttp = "5.5.0"
+commonsCompress = "1.28.0"
 serialization = "1.11.0"
 junit = "4.13.2"
 truth = "1.4.5"
@@ -41,6 +42,7 @@ kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutine
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commonsCompress" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }

@@ -97,3 +97,44 @@ bridge on every clean checkout.
 2. Run `nawah-x11 :0` by hand from the app's terminal. "app_process is not
    visible" means the bind list; a signature message means run the repair.
 3. `adb logcat -s NawahSession` — the guest session's stdout.
+
+---
+
+## Post-mortem: the first on-device run
+
+The first build reached a device and failed. It is worth writing down, because
+the code that replaced it exists in the shape it does for these reasons.
+
+The log said, in order:
+
+```
+proot error: '/data/app/…/lib/arm64/libbusybox.so'
+wrote resolv.conf, hosts, sources.list, apt config
+proot error: '/bin/sh' not found (root = …/rootfs)
+fatal error: see `libproot.so --help`.
+```
+
+**Cause.** The installer unpacked the image by running busybox *through proot*
+and passed busybox's host path as the command. proot resolves the command it
+is given **inside the guest rootfs** — which, at that moment, was empty. The
+extraction never happened.
+
+**What made it much worse.** The pipeline collected each command's output but
+never looked at its exit code. So a step that had done nothing at all was
+marked complete, and the installer walked on through `apt-get update` into an
+empty filesystem. The user watched five green ticks accumulate over work that
+had not occurred.
+
+**Fixes, and what each one prevents:**
+
+| Fix | Prevents |
+|---|---|
+| `RootfsExtractor` unpacks on the Android side | the whole class of "guest path vs host path" errors — there is no guest yet at extraction time |
+| `ProotRunner.exec()` returns the exit code, and `runGuestChecked` throws on non-zero | a failed step ever being reported as done |
+| the installer asserts `/bin/sh` exists after extraction | reaching `apt` with an unusable rootfs |
+| `InstallService` publishes the terminal state on cancel | the screen freezing on its last frame, which read as "Cancel does nothing" |
+| `withContext(NonCancellable)` around the failure write | a cancelled install staying recorded as INSTALLING for ever |
+
+The general lesson is the second row. Streaming output is not the same as
+checking a result, and a progress UI that derives its ticks from "the step was
+reached" rather than "the step succeeded" will lie confidently.

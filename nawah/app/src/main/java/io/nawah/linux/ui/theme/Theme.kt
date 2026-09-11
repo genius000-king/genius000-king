@@ -1,6 +1,5 @@
 package io.nawah.linux.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -148,10 +147,17 @@ private val NawahDarkColors = darkColorScheme(
 /**
  * No dynamic colour. The palette is the product's identity and is not the
  * wallpaper's to decide.
+ *
+ * The app commits to one look: Merino ground, Venice Blue ink.
+ *
+ * Following the system into dark mode inverted the brand — cream text on a
+ * navy field — which is the opposite of the palette this product was designed
+ * around. A dark scheme is still defined and still correct, so passing
+ * `darkTheme = true` works; nothing reaches for it automatically.
  */
 @Composable
 fun NawahTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val colorScheme = if (darkTheme) NawahDarkColors else NawahLightColors

@@ -229,4 +229,8 @@
     <string name="wizard_step_resources">Resources</string>
     <string name="wizard_step_permissions">Permissions</string>
     <string name="x11_display_title">Linux desktop</string>
+    <string name="install_cancelled">Cancelled.</string>
+    <string name="lorie_app_name">Nawah</string>
+    <string name="not_connected">Waiting for the Linux session…</string>
+    <string name="lorie_notification_content_text">Pull down for display options</string>
 </resources>

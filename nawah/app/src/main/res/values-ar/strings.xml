@@ -226,4 +226,8 @@
     <string name="wizard_step_resources">الموارد</string>
     <string name="wizard_step_permissions">الصلاحيات</string>
     <string name="x11_display_title">سطح مكتب لينكس</string>
+    <string name="install_cancelled">أُلغي.</string>
+    <string name="lorie_app_name">نواة</string>
+    <string name="not_connected">بانتظار جلسة لينكس…</string>
+    <string name="lorie_notification_content_text">اسحب للأسفل لخيارات العرض</string>
 </resources>

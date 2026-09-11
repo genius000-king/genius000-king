@@ -10,13 +10,13 @@ import io.nawah.linux.NawahApplication
 import io.nawah.linux.R
 import io.nawah.linux.core.provision.InstallProgress
 import io.nawah.linux.core.provision.InstallRequest
+import io.nawah.linux.core.provision.InstallStep
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import kotlinx.coroutines.Dispatchers
@@ -45,7 +45,18 @@ class InstallService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_CANCEL -> {
+                // Publish a terminal state from *here*, not from inside the
+                // cancelled flow: once a coroutine is cancelled its `emit`
+                // throws, so a Failed emitted down there never arrives and the
+                // screen keeps rendering the last progress frame it saw. That
+                // is what "the Cancel button does nothing" looked like.
+                val at = (progress.value as? InstallProgress.Running)?.step
+                    ?: InstallStep.ordered.first()
                 job?.cancel()
+                progress.value = InstallProgress.Failed(
+                    at, getString(R.string.install_cancelled), "",
+                )
+                stopSelf()
                 return START_NOT_STICKY
             }
         }
@@ -65,9 +76,11 @@ class InstallService : Service() {
         )
 
         val provisioner = (application as NawahApplication).services.provisioner
+        // Cleared here rather than when the previous install ended: a terminal
+        // state has to survive until the user has seen it.
+        progress.value = null
         job = scope.launch {
             provisioner.install(request)
-                .onCompletion { progress.value = null }
                 .collect { update ->
                     progress.value = update
                     when (update) {

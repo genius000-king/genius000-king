@@ -20,6 +20,16 @@ interface ProotRunner {
 
     /** Runs to completion, keeping the tail of the output. */
     suspend fun run(request: ProotRequest): ProotResult
+
+    /**
+     * Streams output *and* returns the exit code.
+     *
+     * [stream] alone is not enough for anything that has to succeed: an early
+     * version of the installer collected it and marched on, so a container that
+     * never started produced a run of green ticks and a hang. Callers that need
+     * the command to have worked use this and check the result.
+     */
+    suspend fun exec(request: ProotRequest, onLine: suspend (String) -> Unit): Int
 }
 
 class ProcessProotRunner(
@@ -46,6 +56,27 @@ class ProcessProotRunner(
             pump.interrupt()
         }
     }.flowOn(Dispatchers.IO)
+
+    override suspend fun exec(
+        request: ProotRequest,
+        onLine: suspend (String) -> Unit,
+    ): Int = withContext(Dispatchers.IO) {
+        val process = start(request)
+        try {
+            process.inputStream.bufferedReader().use { reader ->
+                while (true) {
+                    val line = reader.readLine() ?: break
+                    onLine(line)
+                }
+            }
+            process.waitFor()
+        } catch (e: Throwable) {
+            // Includes cancellation: the process must not outlive the call.
+            process.destroy()
+            if (!process.waitFor(GRACE_MS, TimeUnit.MILLISECONDS)) process.destroyForcibly()
+            throw e
+        }
+    }
 
     override suspend fun run(request: ProotRequest): ProotResult = withContext(Dispatchers.IO) {
         val process = start(request)
