@@ -40,3 +40,43 @@ guest scripting: the argv, the bind list, the apt sequencing, the script
 contents. Those are pure functions over a `FileSystemFacts` and a fake
 `ProotRunner`, which is why they are shaped that way — it is the only way to
 test them without a phone.
+
+## What the device found that CI did not
+
+Three rounds of on-device testing produced three classes of bug that no unit
+test here had a chance of catching, and each one changed how the code is
+written rather than just what it does.
+
+**1. A host path passed as a guest command.** The installer unpacked through
+proot and handed it a path from the Android side. proot resolves commands
+inside the rootfs. Fixed by unpacking on the Android side entirely — the bug
+class disappears rather than being avoided.
+
+**2. Exit codes ignored.** Output was streamed but never checked, so five steps
+reported success over work that had not happened. `ProotRunner.exec()` now
+returns the code and the installer throws on non-zero.
+
+**3. API level claimed but not honoured.** `minSdk` said 24 while the code
+called `startForegroundService` and `java.nio.file.Files` — both API 26. Lint
+caught it once it was run; it had been in every build before that. `minSdk` is
+now 26, which is what the code actually requires.
+
+The third is the useful lesson: `assembleDebug` passing is not the same as
+`lintDebug` passing, and a manifest attribute is a claim the compiler does not
+check. Both run in CI now.
+
+## The install has to survive being interrupted
+
+A twenty-minute install on a phone gets interrupted: the connection drops, the
+user leaves, the system reclaims the process. None of these are exceptional and
+none of them should cost the work already done.
+
+- `InstallCheckpoint` records the finished steps and the original request after
+  every step, so a resume works from a cold process.
+- The blob download keeps a `.part` file and continues with an HTTP `Range`
+  request. `ResumableDownloadTest` hangs up a real socket mid-transfer and
+  asserts the retry asks for the remainder.
+- `apt` keeps its own state in dpkg, so re-running it after an interruption
+  resumes rather than re-fetching.
+- A failed machine offers **Resume** on the home screen. A greyed-out Run
+  button with no other action is a dead end, and that is what the user hit.

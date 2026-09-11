@@ -3,9 +3,11 @@ package io.nawah.linux.vm
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import io.nawah.linux.CrashLog
 import io.nawah.linux.NawahApplication
 import io.nawah.linux.core.model.*
 import io.nawah.linux.core.probe.ProbeResult
+import io.nawah.linux.core.provision.InstallCheckpoint
 import io.nawah.linux.core.provision.InstallRequest
 import io.nawah.linux.core.provision.InstallStep
 import io.nawah.linux.service.InstallService
@@ -43,6 +45,8 @@ class NawahViewModel(app: Application) : AndroidViewModel(app) {
                         distroName = services.catalog.distro(m.distroId)?.name ?: m.distroId,
                         desktopName = services.catalog.desktop(m.desktopId)?.name ?: m.desktopId,
                         diskUsageBytes = usage[m.id] ?: -1L,
+                        resumable = m.state == MachineState.FAILED &&
+                            InstallCheckpoint.load(services.machineStore.machineDir(m.id)) != null,
                     )
                 },
             )
@@ -56,6 +60,16 @@ class NawahViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun run(machineId: String) = SessionService.start(getApplication(), machineId)
+
+    /** Continues an interrupted install instead of starting it over. */
+    fun resumeInstall(machineId: String) {
+        val machine = services.machineStore.get(machineId) ?: return
+        _install.value = InstallUiState(
+            machineName = machine.name,
+            steps = InstallStep.ordered.map { it.toUi() },
+        )
+        InstallService.resume(getApplication(), machineId)
+    }
 
     fun delete(machineId: String) = viewModelScope.launch {
         services.provisioner.remove(machineId)
@@ -238,6 +252,11 @@ class NawahViewModel(app: Application) : AndroidViewModel(app) {
                     appendLine("nativeTools missing=${services.nativeTools.missingTools()}")
                     appendLine("probe=${_diagnostics.value.probe} ${_diagnostics.value.probeDetail.orEmpty()}")
                     appendLine()
+                    CrashLog.read(getApplication())?.let {
+                        appendLine("--- last crash")
+                        appendLine(it)
+                        appendLine()
+                    }
                     services.machineStore.machines.value.forEach { m ->
                         appendLine("--- ${m.name} (${m.id}) ${m.state} ${m.distroId}/${m.desktopId}")
                         val log = services.machineStore.logFile(m.id)

@@ -55,6 +55,12 @@ data class InstallRequest(
 
 interface Provisioner {
     fun install(request: InstallRequest): kotlinx.coroutines.flow.Flow<InstallProgress>
+
+    /**
+     * Continues an install that was interrupted, from the last step it
+     * finished. Null when there is no record to continue from.
+     */
+    fun resume(machineId: String): kotlinx.coroutines.flow.Flow<InstallProgress>?
     suspend fun remove(machineId: String)
     suspend fun repairX11Bridge(machineId: String)
 }

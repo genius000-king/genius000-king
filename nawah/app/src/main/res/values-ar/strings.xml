@@ -230,4 +230,5 @@
     <string name="lorie_app_name">نواة</string>
     <string name="not_connected">بانتظار جلسة لينكس…</string>
     <string name="lorie_notification_content_text">اسحب للأسفل لخيارات العرض</string>
+    <string name="action_resume">متابعة</string>
 </resources>

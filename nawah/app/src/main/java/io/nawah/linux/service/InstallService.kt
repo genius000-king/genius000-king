@@ -61,8 +61,21 @@ class InstallService : Service() {
             }
         }
 
-        val request = intent?.let { InstallRequestCodec.decode(it) }
-            ?: return START_NOT_STICKY.also { stopSelf() }
+        val services = (application as NawahApplication).services
+        val resumeId = intent?.takeIf { it.action == ACTION_RESUME }
+            ?.getStringExtra(EXTRA_MACHINE_ID)
+
+        val flow = if (resumeId != null) {
+            services.provisioner.resume(resumeId)
+                ?: return START_NOT_STICKY.also { stopSelf() }
+        } else {
+            val request = intent?.let { InstallRequestCodec.decode(it) }
+                ?: return START_NOT_STICKY.also { stopSelf() }
+            services.provisioner.install(request)
+        }
+        val label = resumeId?.let { services.machineStore.get(it)?.name }
+            ?: intent?.let { InstallRequestCodec.decode(it) }?.name
+            ?: getString(R.string.app_name)
 
         if (job?.isActive == true) return START_NOT_STICKY
 
@@ -70,30 +83,35 @@ class InstallService : Service() {
             Notifications.install(
                 this,
                 getString(R.string.install_preparing),
-                request.name,
+                label,
                 null,
             ),
         )
 
-        val provisioner = (application as NawahApplication).services.provisioner
         // Cleared here rather than when the previous install ended: a terminal
         // state has to survive until the user has seen it.
         progress.value = null
         job = scope.launch {
-            provisioner.install(request)
-                .collect { update ->
-                    progress.value = update
-                    when (update) {
-                        is InstallProgress.Running -> notify(
-                            title = update.step.label,
-                            text = update.line ?: request.name,
-                            percent = update.fraction?.let { (it * 100).toInt() },
-                        )
+            flow.collect { update ->
+                progress.value = update
+                when (update) {
+                    is InstallProgress.Running -> notify(
+                        title = update.step.label,
+                        text = update.line ?: label,
+                        percent = update.fraction?.let { (it * 100).toInt() },
+                    )
 
-                        is InstallProgress.Done -> stopSelf()
-                        is InstallProgress.Failed -> stopSelf()
+                    is InstallProgress.Done -> {
+                        notify(update.machine.name, getString(R.string.state_ready), 100, force = true)
+                        stopSelf()
+                    }
+
+                    is InstallProgress.Failed -> {
+                        notify(label, update.message, null, force = true)
+                        stopSelf()
                     }
                 }
+            }
         }
         // Not START_STICKY: a restarted service would have lost the request and
         // would silently do nothing. A killed install is resumed explicitly by
@@ -101,7 +119,18 @@ class InstallService : Service() {
         return START_NOT_STICKY
     }
 
-    private fun notify(title: String, text: String, percent: Int?) {
+    private var lastNotifyAt = 0L
+
+    /**
+     * Rate-limited on purpose. `apt` emits thousands of lines, and posting a
+     * notification for each one builds thousands of PendingIntents and pushes
+     * the system's notification limit — which is a good way to have the process
+     * killed in the middle of an install.
+     */
+    private fun notify(title: String, text: String, percent: Int?, force: Boolean = false) {
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (!force && now - lastNotifyAt < NOTIFY_INTERVAL_MS) return
+        lastNotifyAt = now
         val manager = getSystemService(android.app.NotificationManager::class.java)
         manager.notify(Notifications.ID_INSTALL, Notifications.install(this, title, text, percent))
     }
@@ -125,6 +154,11 @@ class InstallService : Service() {
 
     companion object {
         const val ACTION_CANCEL = "io.nawah.linux.action.CANCEL_INSTALL"
+        const val ACTION_RESUME = "io.nawah.linux.action.RESUME_INSTALL"
+        const val EXTRA_MACHINE_ID = "io.nawah.linux.extra.MACHINE_ID"
+
+        /** At most one notification per second, however fast the log scrolls. */
+        private const val NOTIFY_INTERVAL_MS = 1_000L
 
         /**
          * Progress of the install currently in flight, or null when idle.
@@ -138,6 +172,15 @@ class InstallService : Service() {
             val intent = Intent(context, InstallService::class.java)
             InstallRequestCodec.encode(intent, request)
             context.startForegroundService(intent)
+        }
+
+        /** Continues an interrupted install from its last completed step. */
+        fun resume(context: Context, machineId: String) {
+            context.startForegroundService(
+                Intent(context, InstallService::class.java)
+                    .setAction(ACTION_RESUME)
+                    .putExtra(EXTRA_MACHINE_ID, machineId),
+            )
         }
 
         fun cancel(context: Context) {

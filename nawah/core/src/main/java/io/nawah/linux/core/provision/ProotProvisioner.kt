@@ -47,11 +47,34 @@ class ProotProvisioner(
     private val openAsset: (String) -> InputStream,
 ) : Provisioner {
 
+    override fun resume(machineId: String): Flow<InstallProgress>? {
+        val checkpoint = InstallCheckpoint.load(store.machineDir(machineId)) ?: return null
+        return install(checkpoint.request)
+    }
+
     override fun install(request: InstallRequest): Flow<InstallProgress> = flow {
         val id = request.machineId
         val log = store.logFile(id)
-        store.machineDir(id).mkdirs()
-        log.writeText("")
+        val dir = store.machineDir(id).apply { mkdirs() }
+
+        // Resume rather than restart. A checkpoint from a previous attempt is
+        // only trusted when it describes the same machine and the same choices.
+        var checkpoint = InstallCheckpoint.load(dir)
+            ?.takeIf { it.request.machineId == request.machineId && it.request == request }
+            ?: InstallCheckpoint(request)
+        InstallCheckpoint.save(dir, checkpoint)
+
+        suspend fun finish(step: InstallStep) {
+            checkpoint = checkpoint.withCompleted(step)
+            InstallCheckpoint.save(dir, checkpoint)
+        }
+
+        // Appended to, not truncated: the log of the attempt that failed is
+        // what explains why this one is happening.
+        if (!log.isFile) log.writeText("")
+        if (checkpoint.completed.isNotEmpty()) {
+            log.appendText("--- resuming after ${checkpoint.completed.joinToString { it.name }}\n")
+        }
 
         suspend fun emitLine(step: InstallStep, line: String) {
             log.appendText(line + "\n")
@@ -63,9 +86,11 @@ class ProotProvisioner(
 
         var step = InstallStep.DOWNLOADING
         try {
-            // 1 + 2 -- download, with the digest verified while streaming.
-            val tarball = File(store.machineDir(id), "rootfs.tar.gz")
-            if (!tarball.isFile) {
+            // 1 + 2 -- download, with the digest verified while streaming. The
+            // client keeps a .part file and asks the registry to continue from
+            // it, so a dropped connection costs seconds rather than the blob.
+            val tarball = File(dir, "rootfs.tar.gz")
+            if (!checkpoint.isDone(InstallStep.VERIFYING) && !tarball.isFile) {
                 oci.pullLayer(request.distro.image, arch, tarball).collect { event ->
                     when (event) {
                         is PullEvent.Progress -> emit(
@@ -79,6 +104,8 @@ class ProotProvisioner(
                 }
             }
             emit(InstallProgress.Running(InstallStep.VERIFYING, 1f))
+            finish(InstallStep.DOWNLOADING)
+            finish(InstallStep.VERIFYING)
 
             // 3 -- unpack, on this side of the container. Doing it through
             // proot means proot resolves the unpacking command inside a rootfs
@@ -87,6 +114,9 @@ class ProotProvisioner(
             currentCoroutineContext().ensureActive()
             val rootfs = store.rootfsDir(id)
             rootfs.mkdirs()
+            if (checkpoint.isDone(step)) {
+                emit(InstallProgress.Running(step, 1f))
+            } else {
             // No progress callback: the layer is ~50 MB and unpacks in seconds,
             // so an indeterminate bar is more honest than a bar that jumps.
             val extracted = RootfsExtractor.extract(tarball, rootfs)
@@ -101,14 +131,20 @@ class ProotProvisioner(
                 "the unpacked image has no /bin/sh; it is not a usable rootfs"
             }
             tarball.delete()
+            finish(step)
+            }
 
-            // 4 -- guest configuration, written from this side.
+            // 4 -- guest configuration, written from this side. Cheap and
+            // idempotent, so it is redone on every resume rather than skipped.
             step = InstallStep.BOOTSTRAPPING
             emit(InstallProgress.Running(InstallStep.BOOTSTRAPPING))
             writeBaseConfig(id, request)
             emitLine(InstallStep.BOOTSTRAPPING, "wrote resolv.conf, hosts, sources.list, apt config")
+            finish(step)
 
-            // 5 -- the long one. Every command must actually succeed.
+            // 5 -- the long one. Every command must actually succeed. apt keeps
+            // its own state in dpkg, so re-running after an interruption picks
+            // up where it stopped instead of re-fetching what it already has.
             step = InstallStep.INSTALLING_PACKAGES
             val packages = (BASE_PACKAGES + request.desktop.packages).distinct()
             runGuestChecked(id, request, "apt-get update") {
@@ -121,12 +157,14 @@ class ProotProvisioner(
                         "--no-install-recommends ${packages.joinToString(" ")}",
                 ) { emitLine(InstallStep.INSTALLING_PACKAGES, it) }
             }
+            finish(step)
 
             // 6 -- the X11 bridge.
             step = InstallStep.INSTALLING_X11_BRIDGE
             emit(InstallProgress.Running(InstallStep.INSTALLING_X11_BRIDGE))
             installBridge(id)
             emitLine(InstallStep.INSTALLING_X11_BRIDGE, "installed ${GuestScripts.BRIDGE_PATH}")
+            finish(step)
 
             // 7 -- session script and hand-over.
             step = InstallStep.CONFIGURING
@@ -137,8 +175,10 @@ class ProotProvisioner(
                 executable = true,
             )
 
+            finish(step)
             machine = machine.copy(state = MachineState.READY)
             store.put(machine)
+            InstallCheckpoint.clear(dir)
             emit(InstallProgress.Done(machine))
         } catch (e: Throwable) {
             // NonCancellable: when the cause *is* cancellation, an ordinary

@@ -9,7 +9,8 @@ android {
     compileSdkMinor = 1
 
     defaultConfig {
-        minSdk = 24
+        // See app/build.gradle.kts: java.nio symlink APIs are API 26.
+        minSdk = 26
         testOptions.targetSdk = 37
         consumerProguardFiles("consumer-rules.pro")
     }

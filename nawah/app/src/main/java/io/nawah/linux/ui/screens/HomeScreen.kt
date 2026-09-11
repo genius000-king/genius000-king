@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,6 +31,7 @@ fun HomeScreen(
     state: HomeUiState,
     onCreate: () -> Unit,
     onRun: (String) -> Unit,
+    onResume: (String) -> Unit,
     onSettings: (String) -> Unit,
     onRepair: (String) -> Unit,
     onDelete: (String) -> Unit,
@@ -69,7 +71,7 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.spacedBy(Spacing.sm),
             ) {
                 items(state.machines, key = { it.id }) { item ->
-                    MachineCard(item, onRun, onSettings, onRepair, onDelete)
+                    MachineCard(item, onRun, onResume, onSettings, onRepair, onDelete)
                 }
             }
         }
@@ -106,6 +108,7 @@ private fun EmptyHome(modifier: Modifier, onCreate: () -> Unit) {
 private fun MachineCard(
     item: MachineListItem,
     onRun: (String) -> Unit,
+    onResume: (String) -> Unit,
     onSettings: (String) -> Unit,
     onRepair: (String) -> Unit,
     onDelete: (String) -> Unit,
@@ -172,10 +175,21 @@ private fun MachineCard(
                     )
                 }
                 Spacer(Modifier.weight(1f))
-                Button(onClick = { onRun(item.id) }, enabled = runnable) {
-                    Icon(Icons.Default.PlayArrow, null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(Spacing.xs))
-                    Text(stringResource(R.string.action_run))
+                // A half-installed machine offers the one action that helps.
+                // Leaving only a greyed-out Run button is a dead end: the user
+                // can see something is wrong and do nothing about it.
+                if (item.resumable) {
+                    Button(onClick = { onResume(item.id) }) {
+                        Icon(Icons.Default.Refresh, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(Spacing.xs))
+                        Text(stringResource(R.string.action_resume))
+                    }
+                } else {
+                    Button(onClick = { onRun(item.id) }, enabled = runnable) {
+                        Icon(Icons.Default.PlayArrow, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(Spacing.xs))
+                        Text(stringResource(R.string.action_run))
+                    }
                 }
             }
         }
@@ -185,13 +199,13 @@ private fun MachineCard(
 @Preview(name = "Home · empty")
 @Composable
 private fun PreviewHomeEmpty() = NawahTheme {
-    HomeScreen(HomeUiState(), {}, {}, {}, {}, {}, {})
+    HomeScreen(HomeUiState(), {}, {}, {}, {}, {}, {}, {})
 }
 
 @Preview(name = "Home · machines")
 @Composable
 private fun PreviewHome() = NawahTheme {
-    HomeScreen(HomeUiState(machines = previewMachines()), {}, {}, {}, {}, {}, {})
+    HomeScreen(HomeUiState(machines = previewMachines()), {}, {}, {}, {}, {}, {}, {})
 }
 
 internal fun previewMachines(): List<MachineListItem> = listOf(
@@ -200,8 +214,8 @@ internal fun previewMachines(): List<MachineListItem> = listOf(
         "Debian 13", "XFCE 4", 2_400_000_000,
     ),
     MachineListItem(
-        previewMachine("build", "Build box", MachineState.INSTALLING),
-        "Debian 12", "Command line only", -1,
+        previewMachine("build", "Build box", MachineState.FAILED),
+        "Debian 12", "Command line only", 172_000_000, resumable = true,
     ),
 )
 

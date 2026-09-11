@@ -15,6 +15,8 @@ data class MachineListItem(
     val desktopName: String,
     /** Bytes the machine occupies on disk; -1 when not measured yet. */
     val diskUsageBytes: Long = -1L,
+    /** A failed install that recorded how far it got can be continued. */
+    val resumable: Boolean = false,
 ) {
     val id: String get() = machine.id
     val name: String get() = machine.name

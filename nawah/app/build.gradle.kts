@@ -20,11 +20,14 @@ android {
 
     defaultConfig {
         applicationId = "io.nawah.linux"
-        // :lorie's floor. Raising it would gain nothing; lowering it is not ours to do.
-        minSdk = 24
+        // Android 8.0. Above :lorie's floor of 24 deliberately: the installer
+        // uses java.nio symlinks and startForegroundService, both API 26, and
+        // an unpacked rootfs is made of symlinks. Claiming 24 only meant
+        // crashing on a device that could never have run a desktop anyway.
+        minSdk = 26
         targetSdk = 37
-        versionCode = 2
-        versionName = "0.1.1"
+        versionCode = 3
+        versionName = "0.1.2"
 
         // arm64 only: every Android device shipped since 2019 is arm64, and each
         // extra ABI roughly doubles the X server's native build time. Adding one

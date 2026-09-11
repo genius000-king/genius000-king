@@ -233,4 +233,5 @@
     <string name="lorie_app_name">Nawah</string>
     <string name="not_connected">Waiting for the Linux session…</string>
     <string name="lorie_notification_content_text">Pull down for display options</string>
+    <string name="action_resume">Resume</string>
 </resources>

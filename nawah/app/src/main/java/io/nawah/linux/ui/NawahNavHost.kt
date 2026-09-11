@@ -44,6 +44,7 @@ fun NawahNavHost(
                 state = state,
                 onCreate = { vm.startWizard(); nav.navigate(Routes.WIZARD) },
                 onRun = vm::run,
+                onResume = { vm.resumeInstall(it); nav.navigate(Routes.INSTALL) },
                 onSettings = { vm.openSettings(it); nav.navigate(Routes.settings(it)) },
                 onRepair = { vm.repair(it) },
                 onDelete = { vm.delete(it) },

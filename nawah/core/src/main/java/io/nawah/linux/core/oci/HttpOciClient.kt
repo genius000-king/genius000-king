@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.emitAll
@@ -113,77 +114,131 @@ public class HttpOciClient(
         val url = registryBaseUrl.newBuilder()
             .addPathSegments("v2/${layer.repository}/blobs/${layer.digest}")
             .build()
-        val call = callFactory.newCall(
-            Request.Builder()
+
+        // Downloaded into a sidecar file and renamed on success. A phone loses
+        // its connection halfway through a 50 MB blob all the time, and the
+        // first version deleted the partial file on every failure — so every
+        // retry started from zero. The prefix is kept and the next attempt asks
+        // the registry to continue from where it stopped.
+        val part = File(target.path + ".part")
+
+        var attempt = 0
+        while (true) {
+            val digest = MessageDigest.getInstance("SHA-256")
+            var written = 0L
+
+            // Re-hash whatever survived. Cheap next to re-downloading it, and it
+            // is the only way a resumed stream can still be verified end to end.
+            if (part.isFile && part.length() > 0 && (layer.sizeBytes <= 0 || part.length() < layer.sizeBytes)) {
+                part.inputStream().use { existing ->
+                    val buffer = ByteArray(DOWNLOAD_BUFFER)
+                    while (true) {
+                        val read = existing.read(buffer)
+                        if (read < 0) break
+                        digest.update(buffer, 0, read)
+                        written += read
+                    }
+                }
+                emit(PullEvent.Progress(written, layer.sizeBytes))
+            } else {
+                part.delete()
+            }
+
+            val request = Request.Builder()
                 .url(url)
                 .header("Authorization", "Bearer $token")
                 .header("Accept", "*/*")
-                .build(),
-        )
+                .apply { if (written > 0) header("Range", "bytes=$written-") }
+                .build()
 
-        // A partial file from an interrupted earlier attempt is never resumed:
-        // we cannot verify a prefix, and the digest is only meaningful over the
-        // whole blob.
-        target.delete()
-
-        val digest = MessageDigest.getInstance("SHA-256")
-        var written = 0L
-        val response = call.await()
-        try {
-            if (!response.isSuccessful) {
-                throw OciException("blob ${layer.digest} returned HTTP ${response.code}")
+            val response = try {
+                callFactory.newCall(request).await()
+            } catch (io: IOException) {
+                // Keep the prefix: that is the whole point.
+                if (++attempt > MAX_ATTEMPTS) throw io
+                delay(backoffMillis(attempt))
+                continue
             }
-            emit(PullEvent.Progress(0L, layer.sizeBytes))
-            response.body.byteStream().use { input ->
-                FileOutputStream(target).use { output ->
-                    val buffer = ByteArray(DOWNLOAD_BUFFER)
-                    var lastEmit = 0L
-                    while (true) {
-                        currentCoroutineContext().ensureActive()
-                        val read = input.read(buffer)
-                        if (read < 0) break
-                        if (read == 0) continue
-                        digest.update(buffer, 0, read)
-                        output.write(buffer, 0, read)
-                        written += read
-                        if (layer.sizeBytes in 1 until written) {
-                            throw OciException(
-                                "blob ${layer.digest} is longer than its declared ${layer.sizeBytes} bytes",
-                            )
-                        }
-                        // Throttle: a 60 MB rootfs at 32 KB a read is ~2000 events,
-                        // which would spam a progress bar redrawing at 60 Hz.
-                        if (written - lastEmit >= PROGRESS_STEP) {
-                            lastEmit = written
-                            emit(PullEvent.Progress(written, layer.sizeBytes))
-                        }
-                    }
-                    output.flush()
-                    output.fd.sync()
+
+            try {
+                // A server that ignores Range answers 200 with the whole blob;
+                // the prefix is then meaningless and we start over.
+                if (written > 0 && response.code != 206) {
+                    written = 0
+                    part.delete()
+                    digest.reset()
                 }
+                if (!response.isSuccessful) {
+                    throw OciException("blob ${layer.digest} returned HTTP ${response.code}")
+                }
+                emit(PullEvent.Progress(written, layer.sizeBytes))
+
+                response.body.byteStream().use { input ->
+                    FileOutputStream(part, written > 0).use { output ->
+                        val buffer = ByteArray(DOWNLOAD_BUFFER)
+                        var lastEmit = written
+                        while (true) {
+                            currentCoroutineContext().ensureActive()
+                            val read = input.read(buffer)
+                            if (read < 0) break
+                            if (read == 0) continue
+                            digest.update(buffer, 0, read)
+                            output.write(buffer, 0, read)
+                            written += read
+                            if (layer.sizeBytes in 1 until written) {
+                                throw OciException(
+                                    "blob ${layer.digest} is longer than its declared " +
+                                        "${layer.sizeBytes} bytes",
+                                )
+                            }
+                            // Throttle: a 60 MB rootfs at 32 KB a read is ~2000
+                            // events, which would spam a progress bar at 60 Hz.
+                            if (written - lastEmit >= PROGRESS_STEP) {
+                                lastEmit = written
+                                emit(PullEvent.Progress(written, layer.sizeBytes))
+                            }
+                        }
+                        output.flush()
+                        output.fd.sync()
+                    }
+                }
+            } catch (io: IOException) {
+                response.closeQuietly()
+                if (++attempt > MAX_ATTEMPTS) throw io
+                delay(backoffMillis(attempt))
+                continue
+            } finally {
+                response.closeQuietly()
             }
-        } catch (t: Throwable) {
-            target.delete()
-            throw t
-        } finally {
-            response.closeQuietly()
-        }
 
-        val actual = Digests.format(digest.digest())
-        if (!MessageDigest.isEqual(actual.toByteArray(), layer.digest.toByteArray())) {
-            target.delete()
-            throw OciException(
-                "digest mismatch for ${layer.repository}: manifest said ${layer.digest}, blob hashed to $actual",
-            )
-        }
-        if (layer.sizeBytes > 0 && written != layer.sizeBytes) {
-            target.delete()
-            throw OciException("blob ${layer.digest} is $written bytes, manifest said ${layer.sizeBytes}")
-        }
+            val actual = Digests.format(digest.digest())
+            if (!MessageDigest.isEqual(actual.toByteArray(), layer.digest.toByteArray())) {
+                // Corrupt rather than incomplete: resuming would never fix it.
+                part.delete()
+                throw OciException(
+                    "digest mismatch for ${layer.repository}: manifest said ${layer.digest}, " +
+                        "blob hashed to $actual",
+                )
+            }
+            if (layer.sizeBytes > 0 && written != layer.sizeBytes) {
+                part.delete()
+                throw OciException(
+                    "blob ${layer.digest} is $written bytes, manifest said ${layer.sizeBytes}",
+                )
+            }
 
-        emit(PullEvent.Progress(written, if (layer.sizeBytes > 0) layer.sizeBytes else written))
-        emit(PullEvent.Completed(layer.copy(sizeBytes = written), target))
+            target.delete()
+            if (!part.renameTo(target)) {
+                throw OciException("could not move the downloaded blob into place")
+            }
+            emit(PullEvent.Progress(written, if (layer.sizeBytes > 0) layer.sizeBytes else written))
+            emit(PullEvent.Completed(layer.copy(sizeBytes = written), target))
+            return@flow
+        }
     }.flowOn(io)
+
+    private fun backoffMillis(attempt: Int): Long =
+        minOf(RETRY_BASE_MS shl (attempt - 1), RETRY_MAX_MS)
 
     // ---- registry plumbing ---------------------------------------------------
 
@@ -259,6 +314,11 @@ public class HttpOciClient(
         const val MAX_INDEX_HOPS: Int = 2
         const val DOWNLOAD_BUFFER: Int = 64 * 1024
         const val PROGRESS_STEP: Long = 256 * 1024
+
+        /** Attempts per blob before the failure is reported to the user. */
+        const val MAX_ATTEMPTS: Int = 6
+        const val RETRY_BASE_MS: Long = 1_000
+        const val RETRY_MAX_MS: Long = 15_000
     }
 }
 
