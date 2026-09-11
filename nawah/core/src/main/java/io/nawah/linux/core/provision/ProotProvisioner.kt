@@ -1,0 +1,246 @@
+package io.nawah.linux.core.provision
+
+import io.nawah.linux.core.model.Machine
+import io.nawah.linux.core.model.MachineState
+import io.nawah.linux.core.oci.OciArch
+import io.nawah.linux.core.oci.OciClient
+import io.nawah.linux.core.oci.PullEvent
+import io.nawah.linux.core.runtime.NativeTools
+import io.nawah.linux.core.runtime.ProotRequest
+import io.nawah.linux.core.runtime.ProotRunner
+import io.nawah.linux.core.store.MachineStore
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import java.io.File
+import java.io.InputStream
+
+/**
+ * Turns an [InstallRequest] into a working Debian machine.
+ *
+ * Two decisions here are not stylistic:
+ *
+ *  1. The rootfs is unpacked **through proot**, by busybox running inside it.
+ *     A tarball from a container registry is full of hard links and device
+ *     nodes; Android's filesystem allows neither. `--link2symlink` turns the
+ *     hard links into something that survives, and without it `apt` fails
+ *     later in ways that look nothing like an extraction bug.
+ *  2. apt's `_apt` sandbox user is disabled. It drops privileges to a user
+ *     that cannot traverse a proot rootfs, so every download fails with a
+ *     permission error that blames the mirror.
+ */
+class ProotProvisioner(
+    private val store: MachineStore,
+    private val runner: ProotRunner,
+    private val tools: NativeTools,
+    private val oci: OciClient,
+    private val applicationId: String,
+    private val arch: OciArch,
+    /** Reads a file out of the app's assets. Injected so the pipeline stays testable. */
+    private val openAsset: (String) -> InputStream,
+) : Provisioner {
+
+    override fun install(request: InstallRequest): Flow<InstallProgress> = flow {
+        val id = request.machineId
+        val log = store.logFile(id)
+        store.machineDir(id).mkdirs()
+        log.writeText("")
+
+        suspend fun emitLine(step: InstallStep, line: String) {
+            log.appendText(line + "\n")
+            emit(InstallProgress.Running(step, null, line))
+        }
+
+        var machine = request.toMachine(MachineState.INSTALLING)
+        store.put(machine)
+
+        try {
+            // 1 + 2 -- download, with the digest verified while streaming.
+            val tarball = File(store.machineDir(id), "rootfs.tar.gz")
+            if (!tarball.isFile) {
+                oci.pullLayer(request.distro.image, arch, tarball).collect { event ->
+                    when (event) {
+                        is PullEvent.Progress -> emit(
+                            InstallProgress.Running(InstallStep.DOWNLOADING, event.fraction),
+                        )
+                        is PullEvent.Completed -> emitLine(
+                            InstallStep.VERIFYING,
+                            "verified ${event.layer.digest} (${event.file.length()} bytes)",
+                        )
+                    }
+                }
+            }
+            emit(InstallProgress.Running(InstallStep.VERIFYING, 1f))
+
+            // 3 -- unpack through proot so links survive.
+            currentCoroutineContext().ensureActive()
+            emit(InstallProgress.Running(InstallStep.EXTRACTING))
+            store.rootfsDir(id).mkdirs()
+            runGuest(
+                id, request,
+                "tar -xzf /rootfs.tar.gz -C / 2>&1 | tail -n 40",
+                extraBind = tarball.absolutePath to "/rootfs.tar.gz",
+                shell = tools.busybox.absolutePath,
+            ) { emitLine(InstallStep.EXTRACTING, it) }
+            tarball.delete()
+
+            // 4 -- guest configuration, written from the host side.
+            emit(InstallProgress.Running(InstallStep.BOOTSTRAPPING))
+            writeBaseConfig(id, request)
+            emitLine(InstallStep.BOOTSTRAPPING, "wrote resolv.conf, hosts, sources.list, apt config")
+
+            // 5 -- the long one.
+            val packages = (BASE_PACKAGES + request.desktop.packages).distinct()
+            runGuest(id, request, "apt-get update") { emitLine(InstallStep.INSTALLING_PACKAGES, it) }
+            runGuest(
+                id, request,
+                "DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ${packages.joinToString(" ")}",
+            ) { emitLine(InstallStep.INSTALLING_PACKAGES, it) }
+
+            // 6 -- the X11 bridge.
+            emit(InstallProgress.Running(InstallStep.INSTALLING_X11_BRIDGE))
+            installBridge(id)
+            emitLine(InstallStep.INSTALLING_X11_BRIDGE, "installed ${GuestScripts.BRIDGE_PATH}")
+
+            // 7 -- session script and hand-over.
+            emit(InstallProgress.Running(InstallStep.CONFIGURING))
+            writeGuestFile(
+                id, GuestScripts.SESSION_PATH,
+                GuestScripts.session(request.desktop, request.profile, request.permissions.audioOut),
+                executable = true,
+            )
+
+            machine = machine.copy(state = MachineState.READY)
+            store.put(machine)
+            emit(InstallProgress.Done(machine))
+        } catch (e: Throwable) {
+            if (e is kotlinx.coroutines.CancellationException) {
+                store.put(machine.copy(state = MachineState.FAILED))
+                throw e
+            }
+            store.put(machine.copy(state = MachineState.FAILED))
+            emit(
+                InstallProgress.Failed(
+                    step = InstallStep.ordered.first(),
+                    message = e.message ?: e::class.java.simpleName,
+                    log = log.takeIf { it.isFile }?.readText().orEmpty().takeLast(8_000),
+                ),
+            )
+        }
+    }.flowOn(Dispatchers.IO)
+
+    override suspend fun remove(machineId: String) = store.delete(machineId)
+
+    /**
+     * Re-installs the guest half of the X11 bridge.
+     *
+     * Needed whenever the app is rebuilt with a different signing key: the
+     * `loader.apk` already inside a rootfs carries the old certificate hash and
+     * will refuse to load the new app.
+     */
+    override suspend fun repairX11Bridge(machineId: String) {
+        installBridge(machineId)
+        store.get(machineId)
+            ?.takeIf { it.state == MachineState.NEEDS_REPAIR }
+            ?.let { store.put(it.copy(state = MachineState.READY)) }
+    }
+
+    // -- internals ----------------------------------------------------------
+
+    private fun installBridge(id: String) {
+        val loader = File(store.rootfsDir(id), GuestScripts.LOADER_PATH.trimStart('/'))
+        loader.parentFile?.mkdirs()
+        openAsset(ASSET_LOADER).use { input -> loader.outputStream().use { input.copyTo(it) } }
+        loader.setReadable(true, false)
+        writeGuestFile(id, GuestScripts.BRIDGE_PATH, GuestScripts.bridge(applicationId), executable = true)
+    }
+
+    private fun writeBaseConfig(id: String, request: InstallRequest) {
+        val hostname = request.name.hostname()
+        writeGuestFile(id, "/etc/resolv.conf", request.dnsServers.joinToString("\n") { "nameserver $it" } + "\n")
+        writeGuestFile(id, "/etc/hostname", "$hostname\n")
+        writeGuestFile(id, "/etc/hosts", "127.0.0.1 localhost $hostname\n::1 localhost ip6-localhost\n")
+        writeGuestFile(
+            id, "/etc/apt/sources.list",
+            "deb ${request.distro.aptMirror} ${request.distro.codename} main contrib non-free non-free-firmware\n" +
+                "deb ${request.distro.aptMirror} ${request.distro.codename}-updates main contrib non-free non-free-firmware\n",
+        )
+        writeGuestFile(
+            id, "/etc/apt/apt.conf.d/99nawah",
+            // The sandbox user cannot traverse a proot rootfs; leaving it on
+            // makes every download fail as if the mirror were unreachable.
+            """
+            APT::Sandbox::User "root";
+            Acquire::Retries "3";
+            Dpkg::Options { "--force-confold"; };
+            APT::Install-Recommends "false";
+            """.trimIndent() + "\n",
+        )
+        File(store.rootfsDir(id), "root").mkdirs()
+        File(store.rootfsDir(id), "tmp").apply { mkdirs(); setWritable(true, false) }
+    }
+
+    private fun writeGuestFile(id: String, guestPath: String, content: String, executable: Boolean = false) {
+        val file = File(store.rootfsDir(id), guestPath.trimStart('/'))
+        file.parentFile?.mkdirs()
+        file.writeText(content)
+        if (executable) file.setExecutable(true, false)
+    }
+
+    private suspend fun runGuest(
+        id: String,
+        request: InstallRequest,
+        script: String,
+        extraBind: Pair<String, String>? = null,
+        shell: String? = null,
+        onLine: suspend (String) -> Unit,
+    ) {
+        val command = if (shell != null) {
+            listOf(shell, "sh", "-c", script)
+        } else {
+            listOf("/bin/sh", "-c", script)
+        }
+        val req = ProotRequest(
+            tools = tools,
+            rootfs = store.rootfsDir(id),
+            containerDir = store.containerDir(id),
+            hostname = request.name.hostname(),
+            bindStorage = false,
+            extraBinds = listOfNotNull(
+                extraBind?.let { io.nawah.linux.core.runtime.Bind(it.first, it.second) },
+            ),
+            command = command,
+        )
+        runner.stream(req).collect(onLine)
+    }
+
+    private fun InstallRequest.toMachine(state: MachineState) = Machine(
+        id = machineId,
+        name = name,
+        distroId = distro.id,
+        desktopId = desktop.id,
+        profile = profile,
+        permissions = permissions,
+        displayWidth = displayWidth,
+        displayHeight = displayHeight,
+        createdAtEpochMs = System.currentTimeMillis(),
+        state = state,
+    )
+
+    private companion object {
+        const val ASSET_LOADER = "x11/loader.apk"
+
+        /** Always present: the bridge and any desktop depend on these. */
+        val BASE_PACKAGES = listOf(
+            "dbus-x11", "xkeyboard-config", "x11-xserver-utils", "xterm",
+            "locales", "ca-certificates", "procps",
+        )
+    }
+}
+
+private fun String.hostname(): String =
+    map { if (it.isLetterOrDigit() && it.code < 128) it else '-' }
+        .joinToString("").trim('-').take(32).ifEmpty { "nawah" }

@@ -1,0 +1,54 @@
+# Third-party components
+
+Nawah is licensed under the GNU General Public License v3.0 (see `LICENSE`).
+That is not a preference — it follows from the components below. `proot` and
+`busybox` are GPL-2.0-or-later, and the `lorie` X server is GPL-3.0, so any
+work that bundles them and is distributed must be GPL-3.0 and its source
+published.
+
+Everything here is the work of other people, and the app would not exist
+without it.
+
+## Vendored source
+
+**termux-x11** — https://github.com/termux/termux-x11 — GPL-3.0
+Included as a git submodule at `vendor/termux-x11`, unmodified. The `lorie`
+module is the X server that renders the desktop; `shell-loader` provides the
+guest-side `Loader` class and the Android internal-API stubs it compiles
+against. Upstream deliberately parameterised the embedding, which is why no
+fork was needed.
+
+## Bundled binaries
+
+Taken from the Termux package repository (https://packages.termux.dev), pinned
+by version and SHA-256 in `tools/native/native.lock.json`.
+
+| Component | Upstream | Licence |
+|---|---|---|
+| proot (and its loader) | https://github.com/termux/proot | GPL-2.0-or-later |
+| busybox | https://git.busybox.net/busybox | GPL-2.0 |
+| libtalloc | https://gitlab.com/samba-team/samba | LGPL-3.0-or-later |
+| libandroid-shmem | https://github.com/termux/libandroid-shmem | MIT |
+| libandroid-selinux | https://github.com/termux/termux-packages | Public domain |
+| PCRE2 | https://github.com/PCRE2Project/pcre2 | BSD-3-Clause |
+
+`tools/native/fetch.py` renames and re-links these; the transformation is
+described in `docs/native-binaries.md`. No source is modified.
+
+## Downloaded at runtime
+
+Debian system images are pulled from the Docker Hub `library/debian` repository
+at install time and are not redistributed with the app. Debian is a trademark of
+Software in the Public Interest, Inc.
+
+## Design owed to proot-distro
+
+The proot invocation — the extension flags, the bind list, the fake `/proc`
+contents — was read from `proot-distro` 5.8.0 (https://github.com/termux/proot-distro,
+GPL-3.0) and reimplemented in Kotlin. The fake `/proc` file contents in
+`core/.../runtime/SysData.kt` are copied from its `sysdata.py` byte for byte.
+
+## Artwork
+
+The penguin mark is supplied by the project author. Tux, the Linux mascot, was
+originally created by Larry Ewing.

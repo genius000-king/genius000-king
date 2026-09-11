@@ -1,0 +1,22 @@
+[
+  {
+    "id": "xfce4",
+    "name": "XFCE 4",
+    "packages": [
+      "xfce4",
+      "xfce4-terminal",
+      "xfce4-taskmanager"
+    ],
+    "startCommand": "startxfce4",
+    "installedBytes": 950000000,
+    "enabled": true
+  },
+  {
+    "id": "none",
+    "name": "Command line only",
+    "packages": [],
+    "startCommand": "",
+    "installedBytes": 0,
+    "enabled": true
+  }
+]

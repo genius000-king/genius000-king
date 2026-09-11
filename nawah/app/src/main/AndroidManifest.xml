@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Requested per machine, at the moment the user enables the microphone
+         switch in that machine's permissions. Never requested at startup. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <!-- Pulled in by the vendored :lorie library for its optional key-intercept
+         accessibility service. It is a signature|privileged permission, so an
+         ordinary install simply never receives it and the feature stays off. -->
+    <uses-permission
+        android:name="android.permission.WRITE_SECURE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- 64-bit only: see ndk.abiFilters in app/build.gradle.kts. -->
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
+    <application
+        android:name=".NawahApplication"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Nawah"
+        tools:ignore="DataExtractionRules">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.Nawah">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+          The X display itself is com.termux.x11.MainActivity, merged in from
+          the vendored :lorie library. We re-declare it with tools:node="replace"
+          for exactly one reason: upstream marks it MAIN/LAUNCHER because there
+          it *is* the whole app, and merging that unchanged would put a second,
+          confusing launcher icon on the user's home screen. Every other
+          attribute is kept verbatim — singleInstance in particular, because
+          the X server owns a surface and must not be duplicated.
+        -->
+        <activity
+            android:name="com.termux.x11.MainActivity"
+            android:exported="false"
+            android:label="@string/x11_display_title"
+            android:theme="@style/LorieAppTheme"
+            android:taskAffinity=".MainActivity"
+            android:launchMode="singleInstance"
+            android:supportsPictureInPicture="true"
+            android:resizeableActivity="true"
+            android:windowSoftInputMode="stateHidden|adjustNothing"
+            android:configChanges="fontScale|orientation|screenSize|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|screenLayout|touchscreen|uiMode|smallestScreenSize|density"
+            tools:node="replace" />
+
+        <!-- Exports the diagnostics bundle. Scoped to the cache directory, so
+             nothing else in the app's storage is reachable through it. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- Installs a machine: downloads the rootfs, extracts it through proot
+             and runs apt. Ten to twenty-five minutes of work that must survive
+             the user leaving the app, hence a foreground service. -->
+        <service
+            android:name=".service.InstallService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <!-- Holds a running machine: the proot process tree and the X session.
+             specialUse because no standard type describes "is running an
+             operating system"; the justification below is what Play review
+             reads. -->
+        <service
+            android:name=".service.SessionService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Keeps the user's Linux environment and its graphical session running while the app is in the background." />
+        </service>
+    </application>
+</manifest>

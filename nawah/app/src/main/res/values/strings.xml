@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- The product name is a proper noun and stays Latin here; values-ar
+         carries the Arabic form. -->
+    <string name="app_name">Nawah</string>
+
+    <!-- ================= Shared actions ================= -->
+    <string name="action_back">Back</string>
+    <string name="action_next">Next</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_install">Install</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_save">Save</string>
+    <string name="action_run">Run</string>
+    <string name="action_close">Close</string>
+    <string name="action_retry">Try again</string>
+    <string name="cd_navigate_back">Go back</string>
+    <string name="cd_more_options">More options</string>
+
+    <!-- ================= Home ================= -->
+    <string name="home_tagline">Debian Linux with a real desktop, running on your phone.</string>
+    <string name="home_create_first">Create a system</string>
+    <string name="home_create_another">Create another system</string>
+    <string name="home_systems_header">Your systems</string>
+    <string name="home_diagnostics">Diagnostics</string>
+    <string name="home_loading">Loading your systems…</string>
+
+    <!-- distro · desktop, e.g. "Debian 13 · XFCE 4" -->
+    <string name="machine_subtitle">%1$s · %2$s</string>
+    <string name="machine_disk_usage">%1$s on disk</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_repair">Repair X11 bridge</string>
+    <string name="menu_delete">Delete system</string>
+
+    <string name="machine_state_installing">Installing</string>
+    <string name="machine_state_ready">Ready</string>
+    <string name="machine_state_failed">Failed</string>
+    <string name="machine_state_needs_repair">Needs repair</string>
+
+    <!-- ================= Wizard ================= -->
+    <string name="wizard_title">New system</string>
+    <string name="wizard_step_of">Step %1$d of %2$d</string>
+
+    <string name="wizard_distro_title">Choose a distribution</string>
+    <string name="wizard_distro_subtitle">The Linux system underneath everything else.</string>
+    <string name="wizard_desktop_title">Choose a desktop</string>
+    <string name="wizard_desktop_subtitle">The windows, panel and menu you will actually use.</string>
+    <string name="wizard_resources_title">Name and resources</string>
+    <string name="wizard_resources_subtitle">Name the system and pick how heavy it should be.</string>
+    <string name="wizard_permissions_title">Permissions</string>
+    <string name="wizard_permissions_subtitle">Decide what this system may reach on your phone.</string>
+
+    <string name="compat_good">Good fit</string>
+    <string name="compat_tight">Tight fit</string>
+    <string name="compat_blocked">Not supported</string>
+    <string name="compat_signals_title">This device</string>
+    <string name="compat_proot_ok">proot verified on this device</string>
+    <string name="compat_proot_failed">proot is blocked on this device</string>
+    <string name="compat_proot_unknown">proot not verified yet — run the probe in Diagnostics</string>
+
+    <string name="distro_sizes">%1$s download · about %2$s installed</string>
+    <string name="desktop_size">About %1$s once installed</string>
+
+    <string name="field_name_label">System name</string>
+    <string name="field_name_placeholder">My Debian</string>
+    <string name="name_error_empty">Give the system a name.</string>
+    <string name="name_error_too_long">That name is too long.</string>
+    <string name="name_error_duplicate">You already have a system with that name.</string>
+    <string name="name_error_illegal">Use letters, numbers, spaces, dashes.</string>
+
+    <string name="profile_title">Resource profile</string>
+    <string name="profile_light">Light</string>
+    <string name="profile_balanced">Balanced</string>
+    <string name="profile_full">Full</string>
+    <string name="profile_light_desc">Minimal package set, compositing off, lower resolution.</string>
+    <string name="profile_balanced_desc">Standard desktop packages, light compositing, medium resolution.</string>
+    <string name="profile_full_desc">Full desktop with applications, compositing on, highest resolution.</string>
+    <string name="profile_note">This only changes the package set, compositing and resolution. proot cannot cap memory without root, so none of these options limit RAM.</string>
+
+    <string name="resolution_title">Display resolution</string>
+    <string name="storage_title">Storage</string>
+    <string name="storage_summary">Needs about %1$s · %2$s free</string>
+    <string name="storage_estimate_note">An estimate used for warnings, not an enforced quota.</string>
+    <string name="storage_tight_warning">Free space is close to the estimate. The install may run out partway through.</string>
+    <string name="storage_insufficient_warning">There is not enough free space for this install.</string>
+
+    <string name="permissions_note">Each switch maps to a real bind or service. Anything you leave off is simply not wired up.</string>
+    <string name="perm_audio_title">Audio output</string>
+    <string name="perm_audio_desc">Sends sound from Linux to your phone speaker.</string>
+    <string name="perm_mic_title">Microphone</string>
+    <string name="perm_mic_desc">Lets Linux apps record. Android will ask for the microphone permission.</string>
+    <string name="perm_storage_title">Your files</string>
+    <string name="perm_storage_desc">Mounts your internal storage at /sdcard inside the system.</string>
+    <string name="perm_network_title">Network</string>
+    <string name="perm_network_desc">Lets the system reach the internet and install packages.</string>
+
+    <string name="summary_title">Summary</string>
+    <string name="summary_name">Name</string>
+    <string name="summary_distro">Distribution</string>
+    <string name="summary_desktop">Desktop</string>
+    <string name="summary_profile">Profile</string>
+    <string name="summary_resolution">Resolution</string>
+    <string name="summary_size">Estimated size</string>
+    <string name="summary_permissions">Permissions</string>
+    <string name="summary_permissions_none">None</string>
+
+    <!-- ================= Install ================= -->
+    <string name="install_title">Installing</string>
+    <string name="install_installing_name">Installing %1$s</string>
+    <string name="install_steps_title">Steps</string>
+    <string name="install_log_title">Log</string>
+    <string name="install_log_empty">Waiting for the first line…</string>
+    <string name="install_cancel">Cancel install</string>
+    <string name="install_cancelling">Cancelling…</string>
+    <string name="install_failed_title">Install failed</string>
+    <string name="install_failed_at">Failed at: %1$s</string>
+    <string name="install_copy_log">Copy log</string>
+    <string name="install_done_title">Ready</string>
+    <string name="install_done_body">%1$s is installed and ready to run.</string>
+    <string name="install_open">Run it</string>
+    <string name="cd_step_done">Done</string>
+    <string name="cd_step_current">In progress</string>
+    <string name="cd_step_pending">Not started</string>
+    <string name="cd_step_failed">Failed</string>
+
+    <!-- ================= Machine settings ================= -->
+    <string name="settings_title">System settings</string>
+    <string name="settings_name_header">Name</string>
+    <string name="settings_system_header">System</string>
+    <string name="settings_permissions_header">Permissions</string>
+    <string name="settings_display_header">Display</string>
+    <string name="settings_storage_header">Storage</string>
+    <string name="settings_storage_used">%1$s used by this system</string>
+    <string name="settings_storage_measuring">Measuring…</string>
+    <string name="settings_maintenance_header">Maintenance</string>
+    <string name="settings_repair_title">Repair X11 bridge</string>
+    <string name="settings_repair_desc">Reinstalls the loader inside the system if the desktop stops appearing.</string>
+    <string name="settings_repair_running">Repairing…</string>
+    <string name="settings_delete_title">Delete system</string>
+    <string name="settings_delete_desc">Removes the whole filesystem. This cannot be undone.</string>
+    <string name="delete_dialog_title">Delete “%1$s”?</string>
+    <string name="delete_dialog_body">The filesystem and everything inside it is erased permanently.</string>
+
+    <!-- ================= Diagnostics ================= -->
+    <string name="diagnostics_title">Diagnostics</string>
+    <string name="diag_device_header">Device</string>
+    <string name="diag_abi">CPU architecture</string>
+    <string name="diag_ram">Total memory</string>
+    <string name="diag_storage">Free storage</string>
+    <string name="diag_api">Android API level</string>
+    <string name="diag_cores">CPU cores</string>
+    <string name="diag_probe_header">Live proot probe</string>
+    <string name="diag_probe_desc">Runs proot against a tiny filesystem to confirm this device allows ptrace. This is the difference between a guess and a fact.</string>
+    <string name="diag_probe_run">Run probe</string>
+    <string name="diag_probe_rerun">Run again</string>
+    <string name="diag_probe_unknown">Not run yet</string>
+    <string name="diag_probe_running">Running…</string>
+    <string name="diag_probe_passed">Passed — proot works on this device</string>
+    <string name="diag_probe_failed">Failed — this device blocks proot</string>
+    <string name="diag_export">Export diagnostics</string>
+    <string name="diag_exporting">Exporting…</string>
+
+    <string name="action_copy_log">Copy log</string>
+    <string name="action_create_system">Create a system</string>
+    <string name="action_delete_system">Delete this system</string>
+    <string name="action_diagnostics">Diagnostics</string>
+    <string name="action_done">Done</string>
+    <string name="action_export_diagnostics">Export diagnostics</string>
+    <string name="action_more">More</string>
+    <string name="action_repair_bridge">Repair X11 bridge</string>
+    <string name="action_repairing">Repairing…</string>
+    <string name="action_run_probe">Run the check</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_stop">Stop</string>
+    <string name="channel_install">Installation</string>
+    <string name="channel_session">Running system</string>
+    <string name="delete_title">Delete this system?</string>
+    <string name="delete_body">%1$s and everything inside it will be removed. This cannot be undone.</string>
+    <string name="desktop_none_hint">Terminal only, no desktop</string>
+    <string name="diagnostics_device">This device</string>
+    <string name="diagnostics_export">Support bundle</string>
+    <string name="diagnostics_export_help">Writes device details and the install logs to a file you can share when reporting a problem.</string>
+    <string name="diagnostics_probe">Container check</string>
+    <string name="diagnostics_probe_help">Starts the bundled proot for real and runs a command inside it. Some manufacturers disable the kernel feature it needs, and this is the only way to know for certain.</string>
+    <string name="home_empty_title">No systems yet</string>
+    <string name="home_empty_body">Create a Linux system and run it right here on your phone.</string>
+    <string name="install_preparing">Preparing</string>
+    <string name="label_abi">CPU type</string>
+    <string name="label_api">Android API</string>
+    <string name="label_cores">Cores</string>
+    <string name="label_disk_usage">Disk used</string>
+    <string name="label_download">download</string>
+    <string name="label_estimated_size">Estimated size</string>
+    <string name="label_free_space">Free space</string>
+    <string name="label_installed">installed</string>
+    <string name="label_machine_name">Name</string>
+    <string name="label_measuring">measuring…</string>
+    <string name="label_memory">Memory</string>
+    <string name="label_profile">Resource profile</string>
+    <string name="label_resolution">Screen resolution</string>
+    <string name="label_storage">Storage</string>
+    <string name="label_summary">Summary</string>
+    <string name="perm_audio">Sound</string>
+    <string name="perm_audio_help">Lets the system play audio through your phone\'s speaker.</string>
+    <string name="perm_mic">Microphone</string>
+    <string name="perm_mic_help">Lets the system record from your phone\'s microphone.</string>
+    <string name="perm_network">Network</string>
+    <string name="perm_network_help">Lets the system reach the internet.</string>
+    <string name="perm_storage">Shared storage</string>
+    <string name="perm_storage_help">Mounts your phone\'s shared storage at /sdcard inside the system.</string>
+    <string name="probe_unknown">Not checked yet</string>
+    <string name="probe_running">Checking…</string>
+    <string name="probe_passed">The container starts on this device</string>
+    <string name="probe_failed">The container could not start</string>
+    <string name="profile_light_help">Fewer packages, no window effects, lower resolution. Note: this cannot limit memory — that needs root — it changes what actually runs.</string>
+    <string name="profile_balanced_help">The usual desktop with window effects off. Note: this cannot limit memory — that needs root — it changes what actually runs.</string>
+    <string name="profile_full_help">Everything on, including window effects. Heaviest on memory and battery.</string>
+    <string name="repair_bridge_help">Reinstalls the display bridge inside this system. Needed if the app was reinstalled from a different source and the desktop stopped starting.</string>
+    <string name="session_running">Running</string>
+    <string name="settings_maintenance">Maintenance</string>
+    <string name="settings_system">System</string>
+    <string name="state_ready">Ready</string>
+    <string name="state_installing">Installing</string>
+    <string name="state_failed">Failed</string>
+    <string name="state_needs_repair">Needs repair</string>
+    <string name="wizard_step_distro">Distribution</string>
+    <string name="wizard_step_desktop">Desktop</string>
+    <string name="wizard_step_resources">Resources</string>
+    <string name="wizard_step_permissions">Permissions</string>
+    <string name="x11_display_title">Linux desktop</string>
+</resources>

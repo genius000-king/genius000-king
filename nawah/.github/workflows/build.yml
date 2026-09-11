@@ -1,0 +1,55 @@
+name: build
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+defaults:
+  run:
+    working-directory: nawah
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Not optional. The X server is sixteen nested submodules; without
+          # this the native build fails with missing headers and no hint why.
+          submodules: recursive
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: android-actions/setup-android@v3
+
+      # The vendored X server builds xserver, pixman, libepoxy and xkbcomp from
+      # source, which needs more than the NDK alone.
+      - name: Install native build dependencies
+        run: sudo apt-get update && sudo apt-get install -y bison cmake ninja-build patch patchelf
+        working-directory: .
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Verify bundled native binaries
+        run: python3 tools/native/verify.py
+
+      - name: Build and test
+        run: ./gradlew :app:assembleDebug :core:test :app:lintDebug --stacktrace
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nawah-debug-apk
+          path: nawah/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: reports
+          path: |
+            nawah/app/build/reports/
+            nawah/core/build/reports/

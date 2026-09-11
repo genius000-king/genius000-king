@@ -1,0 +1,136 @@
+package io.nawah.linux.service
+
+import android.app.Service
+import android.content.Context
+import android.content.Intent
+import android.content.pm.ServiceInfo
+import android.os.Build
+import android.os.IBinder
+import io.nawah.linux.NawahApplication
+import io.nawah.linux.R
+import io.nawah.linux.core.provision.InstallProgress
+import io.nawah.linux.core.provision.InstallRequest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.Dispatchers
+
+/**
+ * Runs one machine installation to completion.
+ *
+ * This is a foreground service and not a coroutine in a ViewModel because the
+ * work is ten to twenty-five minutes of downloading, extracting and `apt`, and
+ * the user will certainly leave the app during it. Anything less and Android
+ * reclaims the process mid-`dpkg`, which leaves a rootfs that is neither
+ * installed nor removable.
+ */
+class InstallService : Service() {
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private var job: Job? = null
+
+    override fun onBind(intent: Intent?): IBinder? = null
+
+    override fun onCreate() {
+        super.onCreate()
+        Notifications.ensureChannels(this)
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        when (intent?.action) {
+            ACTION_CANCEL -> {
+                job?.cancel()
+                return START_NOT_STICKY
+            }
+        }
+
+        val request = intent?.let { InstallRequestCodec.decode(it) }
+            ?: return START_NOT_STICKY.also { stopSelf() }
+
+        if (job?.isActive == true) return START_NOT_STICKY
+
+        startForegroundCompat(
+            Notifications.install(
+                this,
+                getString(R.string.install_preparing),
+                request.name,
+                null,
+            ),
+        )
+
+        val provisioner = (application as NawahApplication).services.provisioner
+        job = scope.launch {
+            provisioner.install(request)
+                .onCompletion { progress.value = null }
+                .collect { update ->
+                    progress.value = update
+                    when (update) {
+                        is InstallProgress.Running -> notify(
+                            title = update.step.label,
+                            text = update.line ?: request.name,
+                            percent = update.fraction?.let { (it * 100).toInt() },
+                        )
+
+                        is InstallProgress.Done -> stopSelf()
+                        is InstallProgress.Failed -> stopSelf()
+                    }
+                }
+        }
+        // Not START_STICKY: a restarted service would have lost the request and
+        // would silently do nothing. A killed install is resumed explicitly by
+        // the user, from a machine that is recorded as FAILED.
+        return START_NOT_STICKY
+    }
+
+    private fun notify(title: String, text: String, percent: Int?) {
+        val manager = getSystemService(android.app.NotificationManager::class.java)
+        manager.notify(Notifications.ID_INSTALL, Notifications.install(this, title, text, percent))
+    }
+
+    private fun startForegroundCompat(notification: android.app.Notification) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(
+                Notifications.ID_INSTALL,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
+            )
+        } else {
+            startForeground(Notifications.ID_INSTALL, notification)
+        }
+    }
+
+    override fun onDestroy() {
+        scope.cancel()
+        super.onDestroy()
+    }
+
+    companion object {
+        const val ACTION_CANCEL = "io.nawah.linux.action.CANCEL_INSTALL"
+
+        /**
+         * Progress of the install currently in flight, or null when idle.
+         * A process-wide value rather than a bound-service callback: the UI may
+         * be destroyed and recreated many times during a single install.
+         */
+        val progress: MutableStateFlow<InstallProgress?> = MutableStateFlow(null)
+        val current: StateFlow<InstallProgress?> get() = progress
+
+        fun start(context: Context, request: InstallRequest) {
+            val intent = Intent(context, InstallService::class.java)
+            InstallRequestCodec.encode(intent, request)
+            context.startForegroundService(intent)
+        }
+
+        fun cancel(context: Context) {
+            context.startService(
+                Intent(context, InstallService::class.java).setAction(ACTION_CANCEL),
+            )
+        }
+    }
+}

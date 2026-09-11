@@ -1,0 +1,70 @@
+{
+  "repository": "https://packages.termux.dev/apt/termux-main",
+  "abis": {
+    "arm64-v8a": {
+      "termuxArch": "aarch64",
+      "packages": [
+        {
+          "package": "proot",
+          "version": "5.1.107.92",
+          "filename": "pool/main/p/proot/proot_5.1.107.92_aarch64.deb",
+          "sha256": "1f1c983509701f6826f568482c70673ee453a9ba38c9f5fa445a472d6b7524e9",
+          "license": "GPL-2.0",
+          "source": "https://github.com/termux/proot"
+        },
+        {
+          "package": "libtalloc",
+          "version": "2.4.3",
+          "filename": "pool/main/libt/libtalloc/libtalloc_2.4.3_aarch64.deb",
+          "sha256": "ac81ad623d74c209718b9f3acb2dd702cc8a88c431e820d212229910b4db29da",
+          "license": "LGPL-3.0",
+          "source": "https://gitlab.com/samba-team/samba"
+        },
+        {
+          "package": "libandroid-shmem",
+          "version": "0.7",
+          "filename": "pool/main/liba/libandroid-shmem/libandroid-shmem_0.7_aarch64.deb",
+          "sha256": "0da3a24d558b93c92bcf8d611e0826a99ff96e396b148e6cdf33b47c47c57ff6",
+          "license": "MIT",
+          "source": "https://github.com/termux/libandroid-shmem"
+        },
+        {
+          "package": "busybox",
+          "version": "1.38.0-1",
+          "filename": "pool/main/b/busybox/busybox_1.38.0-1_aarch64.deb",
+          "sha256": "1bb7f1d4c00cadd0e1117b6dd7110311b8bf749ef00b486e96cfdc11c98f8fd9",
+          "license": "GPL-2.0",
+          "source": "https://git.busybox.net/busybox"
+        },
+        {
+          "package": "libandroid-selinux",
+          "version": "14.0.0.11-1",
+          "filename": "pool/main/liba/libandroid-selinux/libandroid-selinux_14.0.0.11-1_aarch64.deb",
+          "sha256": "00afd8c34087c2864737b51fd9d104dc5e955f6ec3c0f50c0c7ef5b4a56866b9",
+          "license": "Public Domain",
+          "source": "https://github.com/termux/termux-packages"
+        },
+        {
+          "package": "pcre2",
+          "version": "10.47",
+          "filename": "pool/main/p/pcre2/pcre2_10.47_aarch64.deb",
+          "sha256": "51f915d22de639bfca6ec029ae613987bbe3bc73626eede13319fd2e95f50b63",
+          "license": "BSD-3-Clause",
+          "source": "https://github.com/PCRE2Project/pcre2"
+        }
+      ]
+    }
+  },
+  "produced": {
+    "arm64-v8a": {
+      "libandroid-selinux.so": "4321c1876b31dd3c0b058da9a4dda5b808da788888802123c46b6ba7223724e1",
+      "libandroid-shmem.so": "ba3d1f9bf0b8324ad9dd0cae289730381556cca63a932bb5fe4f18a34db85139",
+      "libbusybox.so": "f6023a6f15513f837deb24c07fb64c54d16177813f7ec3b9f80c24af1a0b5cb5",
+      "libbusybox_1_38_0.so": "d5f133dfef2bfc481fd2aa02c2d7aba0f7ecd26255aa27ab255b0fb5c40f4316",
+      "libpcre2-8.so": "62c27fc52975d023586f796c74462541fdd280f9631dd70bee7c55284c1657f7",
+      "libproot-loader.so": "44ef39c1e1a18c09f6e4c4b5d6f8bba82d30596598bd155ec162d05c5122ff04",
+      "libproot.so": "426ec95806ffec0ca8bffb23dd8405404cff742b50c58debcbe4d9d7f1a7f36d",
+      "libtalloc.so": "26fb9c09695ddaac51c1b484423b80fc7100ea699869cd2623a94c312074f628"
+    }
+  }
+}

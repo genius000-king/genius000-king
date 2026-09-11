@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The three brand values, exactly as supplied. -->
+    <color name="brand_merino">#F5EEDD</color>
+    <color name="brand_rock_blue">#84B3CE</color>
+    <color name="brand_venice_blue">#16587B</color>
+    <!-- Venice Blue darkened for the dark-theme ground. -->
+    <color name="brand_venice_deep">#0C3247</color>
+</resources>

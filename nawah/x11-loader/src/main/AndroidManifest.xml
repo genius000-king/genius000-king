@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  This APK is never installed on a device. It is copied into the Linux rootfs
+  and executed by /system/bin/app_process, which only needs its dex. The
+  manifest exists because the Android build system requires one.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" />

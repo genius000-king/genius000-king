@@ -1,0 +1,26 @@
+name: native-verify
+
+on:
+  push:
+    paths:
+      - "nawah/app/src/main/jniLibs/**"
+      - "nawah/tools/native/**"
+  pull_request:
+    paths:
+      - "nawah/app/src/main/jniLibs/**"
+      - "nawah/tools/native/**"
+
+defaults:
+  run:
+    working-directory: nawah
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y patchelf
+        working-directory: .
+      # Fails on a drifted hash or an unresolved DT_NEEDED -- the two ways a
+      # bad native binary reaches a device as "proot: not found".
+      - run: python3 tools/native/verify.py

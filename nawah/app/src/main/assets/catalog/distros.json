@@ -1,0 +1,22 @@
+[
+  {
+    "id": "debian-trixie",
+    "name": "Debian 13",
+    "codename": "trixie",
+    "image": "library/debian:trixie",
+    "downloadBytes": 49700000,
+    "installedBytes": 125000000,
+    "aptMirror": "http://deb.debian.org/debian",
+    "enabled": true
+  },
+  {
+    "id": "debian-bookworm",
+    "name": "Debian 12",
+    "codename": "bookworm",
+    "image": "library/debian:bookworm",
+    "downloadBytes": 48300000,
+    "installedBytes": 120000000,
+    "aptMirror": "http://deb.debian.org/debian",
+    "enabled": true
+  }
+]

@@ -1,0 +1,74 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+defaults:
+  run:
+    working-directory: nawah
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install native build dependencies
+        run: sudo apt-get update && sudo apt-get install -y bison cmake ninja-build patch patchelf
+        working-directory: .
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # Decoded from secrets and deleted afterwards; never echoed. If the
+      # secrets are absent the build falls back to the committed debug key,
+      # which is fine for a pre-release but must not ship to a store.
+      - name: Restore signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > signing/release.jks
+            {
+              echo "storeFile=signing/release.jks"
+              echo "storePassword=$KEYSTORE_PASSWORD"
+              echo "keyAlias=$KEY_ALIAS"
+              echo "keyPassword=$KEY_PASSWORD"
+            } > signing/release.properties
+          fi
+
+      - name: Build release
+        run: ./gradlew :app:assembleRelease :app:bundleRelease
+
+      - name: Checksums
+        run: |
+          cd app/build/outputs
+          find . -name '*.apk' -o -name '*.aab' | xargs sha256sum > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Remove signing material
+        if: always()
+        run: rm -f signing/release.jks signing/release.properties
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            nawah/app/build/outputs/apk/release/*.apk
+            nawah/app/build/outputs/bundle/release/*.aab
+            nawah/app/build/outputs/SHA256SUMS
+          generate_release_notes: true

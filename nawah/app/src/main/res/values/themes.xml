@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Compose owns the real theming; this exists so the window has the right
+         background before the first frame and the splash is not white. -->
+    <style name="Theme.Nawah" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/brand_merino</item>
+        <item name="android:statusBarColor">@color/brand_merino</item>
+        <item name="android:navigationBarColor">@color/brand_merino</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>

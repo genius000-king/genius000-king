@@ -1,0 +1,141 @@
+import java.util.Properties
+
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
+}
+
+// Single source of truth for the NDK version, owned by :lorie. Reading it here
+// keeps :app and :lorie on one CMake configuration; letting AGP pick its own
+// default would compile the X server's native code twice.
+apply(from = rootProject.file("vendor/termux-x11/lorie/version.gradle"))
+val lorieNdkVersion = extra["termuxX11NdkVersion"] as String
+
+android {
+    namespace = "io.nawah.linux"
+    compileSdk = 37
+    compileSdkMinor = 1
+    ndkVersion = lorieNdkVersion
+
+    defaultConfig {
+        applicationId = "io.nawah.linux"
+        // :lorie's floor. Raising it would gain nothing; lowering it is not ours to do.
+        minSdk = 24
+        targetSdk = 37
+        versionCode = 1
+        versionName = "0.1.0"
+
+        // arm64 only: every Android device shipped since 2019 is arm64, and each
+        // extra ABI roughly doubles the X server's native build time. Adding one
+        // is a single line here plus a re-run of tools/native/fetch.sh.
+        ndk.abiFilters += listOf("arm64-v8a")
+    }
+
+    signingConfigs {
+        // A fixed, committed debug key. The guest-side loader verifies the host
+        // app's signing certificate (see docs/x11-bridge.md), so a key that
+        // changed between builds would silently break the X11 bridge inside
+        // every already-installed machine.
+        getByName("debug") {
+            storeFile = rootProject.file("signing/nawah-debug.jks")
+            storePassword = "nawahdebug"
+            keyAlias = "nawah"
+            keyPassword = "nawahdebug"
+        }
+        // Release signing is supplied out-of-band; see docs/release.md.
+        create("release") {
+            val props = Properties().apply {
+                val f = rootProject.file("signing/release.properties")
+                if (f.exists()) f.inputStream().use { load(it) }
+            }
+            val store = props.getProperty("storeFile")
+            if (store != null) {
+                storeFile = rootProject.file(store)
+                storePassword = props.getProperty("storePassword")
+                keyAlias = props.getProperty("keyAlias")
+                keyPassword = props.getProperty("keyPassword")
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("debug")
+        }
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // Falls back to the debug key when signing/release.properties is
+            // absent, so a release build is always producible locally.
+            signingConfig = signingConfigs.getByName("release").takeIf { it.storeFile != null }
+                ?: signingConfigs.getByName("debug")
+        }
+    }
+
+    packaging {
+        // MUST stay true. With legacy packaging off, native libraries are kept
+        // compressed inside the APK and never written to nativeLibraryDir --
+        // and nativeLibraryDir is the only place on Android 10+ from which an
+        // app may execute a binary. No extracted libproot.so, no Linux.
+        jniLibs.useLegacyPackaging = true
+        resources.excludes += setOf(
+            "/META-INF/{AL2.0,LGPL2.1}",
+            "/META-INF/DEPENDENCIES",
+            "/META-INF/LICENSE*",
+        )
+    }
+
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    testOptions.unitTests {
+        isIncludeAndroidResources = true
+        isReturnDefaultValues = true
+    }
+}
+
+
+// The guest-side loader APK is a build artefact of :x11-loader, not a checked-in
+// blob: it embeds this build's application id and signing certificate hash.
+val copyLoaderApk = tasks.register<Copy>("copyLoaderApk") {
+    dependsOn(":x11-loader:assembleDebug")
+    from(project(":x11-loader").layout.buildDirectory.file("outputs/apk/debug/loader.apk"))
+    into(layout.projectDirectory.dir("src/main/assets/x11"))
+}
+tasks.named("preBuild") { dependsOn(copyLoaderApk) }
+
+dependencies {
+    implementation(project(":core"))
+    implementation(project(":lorie"))
+
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.service)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.serialization.json)
+
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.graphics)
+    implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons.extended)
+    debugImplementation(libs.compose.ui.tooling)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.kotlinx.coroutines.test)
+}
