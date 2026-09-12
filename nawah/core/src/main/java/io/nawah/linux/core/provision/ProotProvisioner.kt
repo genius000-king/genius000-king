@@ -159,8 +159,14 @@ class ProotProvisioner(
             // up where it stopped instead of re-fetching what it already has.
             step = InstallStep.INSTALLING_PACKAGES
             val packages = (BASE_PACKAGES + request.desktop.packages).distinct()
-            runGuestChecked(id, request, "apt-get update") {
-                emitLine(InstallStep.INSTALLING_PACKAGES, it)
+            // ~10 MB of index. Re-downloading it on every retry is the kind of
+            // waste a user on mobile data notices.
+            if (aptListsAreStale(id)) {
+                runGuestChecked(id, request, "apt-get update") {
+                    emitLine(InstallStep.INSTALLING_PACKAGES, it)
+                }
+            } else {
+                emitLine(InstallStep.INSTALLING_PACKAGES, "package lists are current, skipping update")
             }
             if (packages.isNotEmpty()) {
                 runGuestChecked(
@@ -244,11 +250,7 @@ class ProotProvisioner(
         writeGuestFile(id, "/etc/resolv.conf", request.dnsServers.joinToString("\n") { "nameserver $it" } + "\n")
         writeGuestFile(id, "/etc/hostname", "$hostname\n")
         writeGuestFile(id, "/etc/hosts", "127.0.0.1 localhost $hostname\n::1 localhost ip6-localhost\n")
-        writeGuestFile(
-            id, "/etc/apt/sources.list",
-            "deb ${request.distro.aptMirror} ${request.distro.codename} main contrib non-free non-free-firmware\n" +
-                "deb ${request.distro.aptMirror} ${request.distro.codename}-updates main contrib non-free non-free-firmware\n",
-        )
+        writeAptSources(id, request)
         writeGuestFile(
             id, "/etc/apt/apt.conf.d/99nawah",
             // The sandbox user cannot traverse a proot rootfs; leaving it on
@@ -262,6 +264,33 @@ class ProotProvisioner(
         )
         File(store.rootfsDir(id), "root").mkdirs()
         File(store.rootfsDir(id), "tmp").apply { mkdirs(); setWritable(true, false) }
+    }
+
+    /**
+     * Leaves the image's own apt sources alone when it has them.
+     *
+     * A modern Debian image ships `/etc/apt/sources.list.d/debian.sources` in
+     * deb822 format, already pointing at main plus the security suite. Writing
+     * a second, older-style `sources.list` on top of it does not add anything —
+     * it makes apt fetch every target twice and warn about each one. The legacy
+     * file is only written when the image has no sources at all.
+     */
+    private fun writeAptSources(id: String, request: InstallRequest) {
+        val rootfs = store.rootfsDir(id)
+        val deb822 = File(rootfs, "etc/apt/sources.list.d/debian.sources")
+        val legacy = File(rootfs, "etc/apt/sources.list")
+        if (deb822.isFile) {
+            // Remove one an earlier attempt of ours may have left behind.
+            legacy.delete()
+            return
+        }
+        writeGuestFile(
+            id, "/etc/apt/sources.list",
+            "deb ${request.distro.aptMirror} ${request.distro.codename} " +
+                "main contrib non-free non-free-firmware\n" +
+                "deb ${request.distro.aptMirror} ${request.distro.codename}-updates " +
+                "main contrib non-free non-free-firmware\n",
+        )
     }
 
     private fun writeGuestFile(id: String, guestPath: String, content: String, executable: Boolean = false) {
@@ -308,6 +337,16 @@ class ProotProvisioner(
         }
     }
 
+    /** True when apt has no package lists, or they are older than a day. */
+    private fun aptListsAreStale(id: String): Boolean {
+        val lists = File(store.rootfsDir(id), "var/lib/apt/lists")
+        val newest = lists.listFiles()
+            ?.filter { it.isFile && it.name.endsWith("_Packages") }
+            ?.maxOfOrNull { it.lastModified() }
+            ?: return true
+        return System.currentTimeMillis() - newest > APT_LIST_MAX_AGE_MS
+    }
+
     private fun InstallRequest.toMachine(state: MachineState) = Machine(
         id = machineId,
         name = name,
@@ -321,12 +360,20 @@ class ProotProvisioner(
         state = state,
     )
 
-    private companion object {
+    internal companion object {
         const val ASSET_LOADER = "x11/loader.apk"
+        const val APT_LIST_MAX_AGE_MS = 24L * 60 * 60 * 1000
 
-        /** Always present: the bridge and any desktop depend on these. */
+        /**
+         * Always present: the bridge and any desktop depend on these.
+         *
+         * These are **binary** package names. `xkeyboard-config` was here once
+         * and broke every install with "Unable to locate package" — it is the
+         * *source* package; the binary Debian ships is `xkb-data`. The names
+         * are pinned by BasePackagesTest against the real trixie index.
+         */
         val BASE_PACKAGES = listOf(
-            "dbus-x11", "xkeyboard-config", "x11-xserver-utils", "xterm",
+            "dbus-x11", "xkb-data", "x11-xserver-utils", "xterm",
             "locales", "ca-certificates", "procps",
         )
     }

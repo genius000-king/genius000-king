@@ -80,3 +80,20 @@ none of them should cost the work already done.
   resumes rather than re-fetching.
 - A failed machine offers **Resume** on the home screen. A greyed-out Run
   button with no other action is a dead end, and that is what the user hit.
+
+## Names the compiler cannot check
+
+Two categories of value in this project are strings the build will happily
+accept and the world will reject:
+
+- **Debian package names.** `xkeyboard-config` sat in the base list and failed
+  every install with `E: Unable to locate package`. It is the *source* package
+  name; the binary Debian publishes is `xkb-data`. `BasePackagesTest` now
+  checks every name against a real `Packages` index, and CI fetches one.
+- **Guest paths and commands.** proot resolves them inside the rootfs, so a
+  host path that exists is still wrong. `ProotArgsBuilderTest` and
+  `GuestScriptsTest` pin those.
+
+Both are opt-in-free in CI and neither can be verified by reading the code.
+When adding a package or a guest command, add it to a test that consults the
+thing that actually decides.

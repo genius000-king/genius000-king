@@ -37,7 +37,18 @@ jobs:
       - name: Verify bundled native binaries
         run: python3 tools/native/verify.py
 
+      # Package names cannot be checked by a compiler. `xkeyboard-config`
+      # shipped once and broke every install: it is a source package, and the
+      # binary Debian publishes is `xkb-data`. Only the archive knows.
+      - name: Fetch the Debian package index
+        run: |
+          curl -sSf -o /tmp/Packages.gz \
+            https://deb.debian.org/debian/dists/trixie/main/binary-arm64/Packages.gz
+        working-directory: .
+
       - name: Build and test
+        env:
+          NAWAH_TEST_PACKAGES: /tmp/Packages.gz
         run: ./gradlew :app:assembleDebug :core:test :app:lintDebug --stacktrace
 
       - uses: actions/upload-artifact@v4
