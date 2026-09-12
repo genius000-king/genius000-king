@@ -97,3 +97,39 @@ accept and the world will reject:
 Both are opt-in-free in CI and neither can be verified by reading the code.
 When adding a package or a guest command, add it to a test that consults the
 thing that actually decides.
+
+## A script is a program, so run it
+
+The session script broke every start with
+
+```
+/usr/local/bin/nawah-session: line 19: NAWAH_START: unbound variable
+```
+
+A leftover line referenced a variable nothing defined, and `set -u` made that
+fatal. Meanwhile six tests asserted the script *contained* the right strings,
+and all six were green. Checking that a program contains certain text is not
+checking that it runs.
+
+`GuestScriptExecutionTest` executes the generated scripts in a real bash
+against a faked guest — stub `nawah-x11`, stub `app_process`, stub desktop
+command — and asserts behaviour: exit codes, which branch was taken, what
+reached the log. It reproduced the device failure on the first run, before the
+fix.
+
+Every failure path is forced deliberately, because each one is a different
+answer to the same symptom:
+
+| Forced condition | What the user must be told |
+|---|---|
+| loader.apk absent | the bridge is not installed |
+| `app_process` absent | the Android system bind mounts are missing |
+| bridge exits at once | the bridge died, with its status |
+| socket never appears | the app side never answered |
+| desktop exits non-zero | the session's real status |
+
+The rule this leaves behind: **anything generated that will later be executed —
+a shell script, an argv, a config file — is tested by executing it, not by
+reading it.** `ProotArgsBuilderTest` gets away with string assertions only
+because proot itself is what consumes the argv and cannot run here; everything
+that bash consumes, bash now checks.

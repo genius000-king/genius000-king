@@ -73,7 +73,6 @@ object GuestScripts {
             appendLine("  fail=1")
             appendLine("}")
             appendLine("command -v dbus-launch >/dev/null || echo \"nawah: dbus-launch not found\"")
-            appendLine("command -v ${'$'}{NAWAH_START%% *} >/dev/null 2>&1 || true")
             appendLine("[ \"\$fail\" = 0 ] || { echo \"nawah: preflight failed, not starting X\"; exit 1; }")
             appendLine()
             appendLine("export DISPLAY=:0")
