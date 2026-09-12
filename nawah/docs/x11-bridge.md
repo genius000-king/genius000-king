@@ -138,3 +138,46 @@ had not occurred.
 The general lesson is the second row. Streaming output is not the same as
 checking a result, and a progress UI that derives its ticks from "the step was
 reached" rather than "the step succeeded" will lie confidently.
+
+## Post-mortem: the crash at step 5
+
+The install reached "Configuring base system" and the process died, twice.
+Android reported it as a bug in the app, which it was.
+
+**Cause.** `ProotProvisioner.install` was a `flow { }`. `ProotRunner.exec` reads
+the child's output inside its own `withContext(Dispatchers.IO)` and calls back
+per line, and the installer's callback emitted progress. That emission happens
+in a *different coroutine* than the flow builder, which `flow {}` forbids:
+
+```
+IllegalStateException: Flow invariant is violated:
+  Emission from another coroutine is detected.
+```
+
+It is not a dispatcher question — the flow already ran on IO — it is the Job
+that differs. And the failure could only appear at step 5, because that is the
+first step whose output comes back through the runner rather than being emitted
+directly from the builder. Everything before it emitted from the right place.
+
+**Why it killed the process rather than showing an error.** The exception left
+`exec`, left `runGuestChecked`, and reached the installer's own catch — which
+tried to `emit` a Failed state, on a collector that was already poisoned. That
+threw again, escaped `collect`, and landed in a `launch` with no exception
+handler. An exception escaping a launched coroutine takes the process with it.
+
+**Fixes:**
+
+| Fix | Prevents |
+|---|---|
+| `install()` is a `channelFlow` and sends rather than emits | the invariant violation; channelFlow exists for concurrent emission |
+| both services carry a `CoroutineExceptionHandler` | *any* future escape becoming a crash instead of a Failed state |
+| `CrashLog` surfaces the last uncaught exception in Diagnostics | the next report being "it closed by itself" instead of a stack trace |
+
+`FlowEmissionContextTest` pins all three: it reproduces the violation, shows
+channelFlow accepting the same emission, and exercises the runner-callback
+shape end to end.
+
+The general lesson, again the second row: the bug was one line, but what made
+it a crash instead of a message was the absence of a handler. A long-running
+service should never be one unhandled exception away from taking the app down,
+whatever the bug turns out to be.

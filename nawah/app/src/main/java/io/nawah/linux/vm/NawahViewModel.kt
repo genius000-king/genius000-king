@@ -225,8 +225,14 @@ class NawahViewModel(app: Application) : AndroidViewModel(app) {
                     cpuCores = f.cpuCores,
                     apiLevel = f.apiLevel,
                 ),
+                lastCrash = CrashLog.read(getApplication()),
             )
         }
+    }
+
+    fun clearCrash() {
+        CrashLog.clear(getApplication())
+        _diagnostics.update { it.copy(lastCrash = null) }
     }
 
     fun runProbe() = viewModelScope.launch {

@@ -231,4 +231,7 @@
     <string name="not_connected">بانتظار جلسة لينكس…</string>
     <string name="lorie_notification_content_text">اسحب للأسفل لخيارات العرض</string>
     <string name="action_resume">متابعة</string>
+    <string name="diagnostics_crash">آخر انهيار</string>
+    <string name="action_dismiss">تجاهل</string>
+    <string name="diagnostics_crash_help">أُغلق التطبيق بشكل غير متوقع. انسخ هذا وأرسله مع بلاغك — فيه سبب العطل بالضبط.</string>
 </resources>

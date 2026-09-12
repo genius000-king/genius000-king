@@ -26,4 +26,6 @@ data class DiagnosticsUiState(
     /** Optional one-line detail from the probe, e.g. an errno or a kernel message. */
     val probeDetail: String? = null,
     val exporting: Boolean = false,
+    /** The last uncaught exception, if the app died since it was last cleared. */
+    val lastCrash: String? = null,
 )

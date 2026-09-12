@@ -11,6 +11,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.nawah.linux.R
 import io.nawah.linux.core.model.Compatibility
+import io.nawah.linux.ui.components.LogPane
 import io.nawah.linux.ui.components.SectionHeader
 import io.nawah.linux.ui.components.SignalRow
 import io.nawah.linux.ui.state.DeviceFacts
@@ -27,6 +28,8 @@ fun DiagnosticsScreen(
     onBack: () -> Unit,
     onRunProbe: () -> Unit,
     onExport: () -> Unit,
+    onCopyCrash: () -> Unit = {},
+    onClearCrash: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -67,6 +70,26 @@ fun DiagnosticsScreen(
                 enabled = state.probe != ProbeStatus.RUNNING,
                 modifier = Modifier.fillMaxWidth().height(48.dp),
             ) { Text(stringResource(R.string.action_run_probe)) }
+
+            state.lastCrash?.let { crash ->
+                SectionHeader(stringResource(R.string.diagnostics_crash))
+                Text(
+                    stringResource(R.string.diagnostics_crash_help),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = NawahTheme.status.bad,
+                )
+                Spacer(Modifier.height(Spacing.sm))
+                LogPane(crash, Modifier.fillMaxWidth().height(180.dp))
+                Spacer(Modifier.height(Spacing.sm))
+                Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                    Button(onClick = onCopyCrash, modifier = Modifier.weight(1f)) {
+                        Text(stringResource(R.string.action_copy_log))
+                    }
+                    OutlinedButton(onClick = onClearCrash, modifier = Modifier.weight(1f)) {
+                        Text(stringResource(R.string.action_dismiss))
+                    }
+                }
+            }
 
             SectionHeader(stringResource(R.string.diagnostics_export))
             Text(

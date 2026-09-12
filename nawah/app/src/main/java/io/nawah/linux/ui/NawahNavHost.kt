@@ -118,6 +118,8 @@ fun NawahNavHost(
                 onExport = {
                     scope.launch { vm.exportDiagnostics()?.let(onShare) }
                 },
+                onCopyCrash = { state.lastCrash?.let(context::copyToClipboard) },
+                onClearCrash = vm::clearCrash,
             )
         }
     }

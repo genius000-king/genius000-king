@@ -12,6 +12,8 @@ import io.nawah.linux.core.runtime.ProotRunner
 import io.nawah.linux.core.store.MachineStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -52,7 +54,17 @@ class ProotProvisioner(
         return install(checkpoint.request)
     }
 
-    override fun install(request: InstallRequest): Flow<InstallProgress> = flow {
+    /**
+     * channelFlow, not flow.
+     *
+     * `ProotRunner.exec` reads the child's output inside its own
+     * `withContext(IO)` and calls back per line, so the emission that the line
+     * triggers happens in a *different coroutine* than this builder. `flow {}`
+     * forbids that outright — "Flow invariant is violated" — and the exception
+     * escaped collect and killed the process the first time any command ran
+     * through proot. channelFlow exists for exactly this shape.
+     */
+    override fun install(request: InstallRequest): Flow<InstallProgress> = channelFlow {
         val id = request.machineId
         val log = store.logFile(id)
         val dir = store.machineDir(id).apply { mkdirs() }
@@ -78,7 +90,7 @@ class ProotProvisioner(
 
         suspend fun emitLine(step: InstallStep, line: String) {
             log.appendText(line + "\n")
-            emit(InstallProgress.Running(step, null, line))
+            send(InstallProgress.Running(step, null, line))
         }
 
         var machine = request.toMachine(MachineState.INSTALLING)
@@ -93,7 +105,7 @@ class ProotProvisioner(
             if (!checkpoint.isDone(InstallStep.VERIFYING) && !tarball.isFile) {
                 oci.pullLayer(request.distro.image, arch, tarball).collect { event ->
                     when (event) {
-                        is PullEvent.Progress -> emit(
+                        is PullEvent.Progress -> send(
                             InstallProgress.Running(InstallStep.DOWNLOADING, event.fraction),
                         )
                         is PullEvent.Completed -> emitLine(
@@ -103,7 +115,7 @@ class ProotProvisioner(
                     }
                 }
             }
-            emit(InstallProgress.Running(InstallStep.VERIFYING, 1f))
+            send(InstallProgress.Running(InstallStep.VERIFYING, 1f))
             finish(InstallStep.DOWNLOADING)
             finish(InstallStep.VERIFYING)
 
@@ -115,12 +127,12 @@ class ProotProvisioner(
             val rootfs = store.rootfsDir(id)
             rootfs.mkdirs()
             if (checkpoint.isDone(step)) {
-                emit(InstallProgress.Running(step, 1f))
+                send(InstallProgress.Running(step, 1f))
             } else {
             // No progress callback: the layer is ~50 MB and unpacks in seconds,
             // so an indeterminate bar is more honest than a bar that jumps.
             val extracted = RootfsExtractor.extract(tarball, rootfs)
-            emit(InstallProgress.Running(InstallStep.EXTRACTING, 1f))
+            send(InstallProgress.Running(InstallStep.EXTRACTING, 1f))
             emitLine(
                 InstallStep.EXTRACTING,
                 "unpacked ${extracted.files} files, ${extracted.directories} directories, " +
@@ -137,7 +149,7 @@ class ProotProvisioner(
             // 4 -- guest configuration, written from this side. Cheap and
             // idempotent, so it is redone on every resume rather than skipped.
             step = InstallStep.BOOTSTRAPPING
-            emit(InstallProgress.Running(InstallStep.BOOTSTRAPPING))
+            send(InstallProgress.Running(InstallStep.BOOTSTRAPPING))
             writeBaseConfig(id, request)
             emitLine(InstallStep.BOOTSTRAPPING, "wrote resolv.conf, hosts, sources.list, apt config")
             finish(step)
@@ -161,14 +173,14 @@ class ProotProvisioner(
 
             // 6 -- the X11 bridge.
             step = InstallStep.INSTALLING_X11_BRIDGE
-            emit(InstallProgress.Running(InstallStep.INSTALLING_X11_BRIDGE))
+            send(InstallProgress.Running(InstallStep.INSTALLING_X11_BRIDGE))
             installBridge(id)
             emitLine(InstallStep.INSTALLING_X11_BRIDGE, "installed ${GuestScripts.BRIDGE_PATH}")
             finish(step)
 
             // 7 -- session script and hand-over.
             step = InstallStep.CONFIGURING
-            emit(InstallProgress.Running(InstallStep.CONFIGURING))
+            send(InstallProgress.Running(InstallStep.CONFIGURING))
             writeGuestFile(
                 id, GuestScripts.SESSION_PATH,
                 GuestScripts.session(request.desktop, request.profile, request.permissions.audioOut),
@@ -179,7 +191,7 @@ class ProotProvisioner(
             machine = machine.copy(state = MachineState.READY)
             store.put(machine)
             InstallCheckpoint.clear(dir)
-            emit(InstallProgress.Done(machine))
+            send(InstallProgress.Done(machine))
         } catch (e: Throwable) {
             // NonCancellable: when the cause *is* cancellation, an ordinary
             // suspend call here would be cancelled too and the machine would be
@@ -191,7 +203,7 @@ class ProotProvisioner(
                 // caller: emitting from a cancelled flow throws instead.
                 throw e
             }
-            emit(
+            send(
                 InstallProgress.Failed(
                     step = step,
                     message = e.message ?: e::class.java.simpleName,

@@ -11,6 +11,7 @@ import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
 import io.nawah.linux.NawahApplication
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -31,7 +32,14 @@ import kotlinx.coroutines.plus
  */
 class SessionService : Service() {
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    // A session that dies badly stops the session, not the app.
+    private val crashGuard = CoroutineExceptionHandler { _, error ->
+        Log.e(TAG, "session failed", error)
+        running.value = null
+        stopSelf()
+    }
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default + crashGuard)
     private var job: Job? = null
     private var wakeLock: PowerManager.WakeLock? = null
 

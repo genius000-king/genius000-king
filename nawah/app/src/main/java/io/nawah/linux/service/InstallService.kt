@@ -11,6 +11,8 @@ import io.nawah.linux.R
 import io.nawah.linux.core.provision.InstallProgress
 import io.nawah.linux.core.provision.InstallRequest
 import io.nawah.linux.core.provision.InstallStep
+import android.util.Log
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -32,7 +34,29 @@ import kotlinx.coroutines.Dispatchers
  */
 class InstallService : Service() {
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    /**
+     * The handler is not belt-and-braces; it is the difference between a bug
+     * and a crash.
+     *
+     * Anything thrown out of the install flow lands in `collect`, and an
+     * exception escaping a launched coroutine with no handler takes the whole
+     * process down — which is what the user saw as "the app closed by itself",
+     * twenty minutes into an install. With a handler it becomes a Failed state
+     * on the screen, and the machine keeps its checkpoint.
+     */
+    private val crashGuard = CoroutineExceptionHandler { _, error ->
+        Log.e(TAG, "install failed", error)
+        val at = (progress.value as? InstallProgress.Running)?.step
+            ?: InstallStep.ordered.first()
+        progress.value = InstallProgress.Failed(
+            at,
+            error.message ?: error::class.java.simpleName,
+            error.stackTraceToString().take(4_000),
+        )
+        stopSelf()
+    }
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default + crashGuard)
     private var job: Job? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -153,6 +177,7 @@ class InstallService : Service() {
     }
 
     companion object {
+        private const val TAG = "NawahInstall"
         const val ACTION_CANCEL = "io.nawah.linux.action.CANCEL_INSTALL"
         const val ACTION_RESUME = "io.nawah.linux.action.RESUME_INSTALL"
         const val EXTRA_MACHINE_ID = "io.nawah.linux.extra.MACHINE_ID"
