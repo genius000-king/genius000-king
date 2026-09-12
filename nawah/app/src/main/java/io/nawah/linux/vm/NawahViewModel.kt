@@ -59,7 +59,43 @@ class NawahViewModel(app: Application) : AndroidViewModel(app) {
         diskUsage.value = sizes
     }
 
-    fun run(machineId: String) = SessionService.start(getApplication(), machineId)
+    // -- session ------------------------------------------------------------
+
+    private val _sessionMachine = MutableStateFlow<String?>(null)
+
+    /** Name, log tail and whether the container is still up. */
+    val sessionLog: StateFlow<Triple<String, List<String>, Boolean>> =
+        combine(
+            _sessionMachine,
+            SessionService.lastLog,
+            SessionService.running,
+        ) { id, lines, runningId ->
+            val name = id?.let { services.machineStore.get(it)?.name }.orEmpty()
+            Triple(name, lines, runningId != null && runningId == id)
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000),
+            Triple("", emptyList(), false),
+        )
+
+    fun run(machineId: String) {
+        _sessionMachine.value = machineId
+        SessionService.start(getApplication(), machineId)
+    }
+
+    fun openSessionLog(machineId: String) {
+        _sessionMachine.value = machineId
+    }
+
+    /** Brings the X display forward without restarting anything. */
+    fun openDisplay() = services.sessionLauncher.openDisplay()
+
+    /** Session output already written to disk, for a machine that has stopped. */
+    fun storedSessionLog(machineId: String): List<String> =
+        services.machineStore.sessionLogFile(machineId)
+            .takeIf { it.isFile }
+            ?.runCatching { readLines() }?.getOrNull()
+            .orEmpty()
 
     /** Continues an interrupted install instead of starting it over. */
     fun resumeInstall(machineId: String) {

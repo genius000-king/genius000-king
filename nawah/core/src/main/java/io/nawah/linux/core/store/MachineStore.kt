@@ -21,6 +21,9 @@ interface MachineStore {
     fun rootfsDir(id: String): File
     fun containerDir(id: String): File
     fun logFile(id: String): File
+
+    /** Output of the most recent run. Replaced each time the machine starts. */
+    fun sessionLogFile(id: String): File
 }
 
 /**
@@ -45,6 +48,7 @@ class FileMachineStore(private val rootDir: File) : MachineStore {
     override fun rootfsDir(id: String): File = File(machineDir(id), "rootfs")
     override fun containerDir(id: String): File = File(machineDir(id), "container")
     override fun logFile(id: String): File = File(machineDir(id), "install.log")
+    override fun sessionLogFile(id: String): File = File(machineDir(id), "session.log")
     override fun get(id: String): Machine? = _machines.value.firstOrNull { it.id == id }
 
     override suspend fun put(machine: Machine) = withContext(Dispatchers.IO) {

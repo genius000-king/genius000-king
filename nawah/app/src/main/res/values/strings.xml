@@ -237,4 +237,8 @@
     <string name="diagnostics_crash">Last crash</string>
     <string name="action_dismiss">Dismiss</string>
     <string name="diagnostics_crash_help">The app closed unexpectedly. Copy this and send it with your report — it says exactly what went wrong.</string>
+    <string name="session_log_title">%1$s · session log</string>
+    <string name="action_open_display">Open display</string>
+    <string name="session_stopped">Not running</string>
+    <string name="action_session_log">Session log</string>
 </resources>

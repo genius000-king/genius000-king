@@ -234,4 +234,8 @@
     <string name="diagnostics_crash">آخر انهيار</string>
     <string name="action_dismiss">تجاهل</string>
     <string name="diagnostics_crash_help">أُغلق التطبيق بشكل غير متوقع. انسخ هذا وأرسله مع بلاغك — فيه سبب العطل بالضبط.</string>
+    <string name="session_log_title">%1$s · سجل الجلسة</string>
+    <string name="action_open_display">فتح الشاشة</string>
+    <string name="session_stopped">متوقف</string>
+    <string name="action_session_log">سجل الجلسة</string>
 </resources>

@@ -81,11 +81,25 @@ class SessionService : Service() {
         acquireWakeLock()
         running.value = machineId
 
+        // Written to disk as it arrives. When the desktop does not appear, this
+        // file is the only thing that says why -- the X activity itself can
+        // only show a black rectangle.
+        val log = services.machineStore.sessionLogFile(machineId)
+        runCatching { log.writeText("") }
+        lastLog.value = emptyList()
+
         job = scope.launch {
             services.sessionLauncher.start(machine)
-                .catch { t -> Log.e(TAG, "session for ${machine.id} failed", t) }
+                .catch { t ->
+                    Log.e(TAG, "session for ${machine.id} failed", t)
+                    record(log, "nawah: session failed: ${t.message ?: t::class.java.simpleName}")
+                }
                 .onCompletion { running.value = null }
-                .collect { line -> Log.d(TAG, line) }
+                .collect { line ->
+                    Log.d(TAG, line)
+                    record(log, line)
+                }
+            record(log, "nawah: the container exited")
             stopSelf()
         }
 
@@ -94,6 +108,11 @@ class SessionService : Service() {
         // answers, so the two halves do not need to be sequenced.
         services.sessionLauncher.openDisplay()
         return START_NOT_STICKY
+    }
+
+    private fun record(log: java.io.File, line: String) {
+        runCatching { log.appendText(line + "\n") }
+        lastLog.value = (lastLog.value + line).takeLast(MAX_LOG_LINES)
     }
 
     private fun stopSession() {
@@ -152,8 +171,13 @@ class SessionService : Service() {
         /** Eight hours; renewed on user interaction rather than held forever. */
         private const val SESSION_WAKELOCK_TIMEOUT_MS = 8L * 60 * 60 * 1000
 
+        private const val MAX_LOG_LINES = 400
+
         /** Id of the machine currently running, or null. */
         val running = MutableStateFlow<String?>(null)
+
+        /** Tail of the running session's output, for the in-app log view. */
+        val lastLog = MutableStateFlow<List<String>>(emptyList())
 
         fun start(context: Context, machineId: String) {
             context.startForegroundService(

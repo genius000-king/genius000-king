@@ -23,6 +23,7 @@ private object Routes {
     const val INSTALL = "install"
     const val SETTINGS = "settings/{id}"
     const val DIAGNOSTICS = "diagnostics"
+    const val SESSION = "session"
     fun settings(id: String) = "settings/$id"
 }
 
@@ -43,7 +44,7 @@ fun NawahNavHost(
             HomeScreen(
                 state = state,
                 onCreate = { vm.startWizard(); nav.navigate(Routes.WIZARD) },
-                onRun = vm::run,
+                onRun = { vm.run(it); nav.navigate(Routes.SESSION) },
                 onResume = { vm.resumeInstall(it); nav.navigate(Routes.INSTALL) },
                 onSettings = { vm.openSettings(it); nav.navigate(Routes.settings(it)) },
                 onRepair = { vm.repair(it) },
@@ -106,6 +107,18 @@ fun NawahNavHost(
                     },
                     onDismissDelete = vm::dismissDelete,
                 ),
+            )
+        }
+
+        composable(Routes.SESSION) {
+            val session by vm.sessionLog.collectAsStateWithLifecycle()
+            SessionLogScreen(
+                machineName = session.first,
+                lines = session.second,
+                running = session.third,
+                onBack = { nav.popBackStack() },
+                onCopy = { context.copyToClipboard(session.second.joinToString("\n")) },
+                onOpenDisplay = vm::openDisplay,
             )
         }
 

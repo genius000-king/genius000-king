@@ -89,10 +89,57 @@ class GuestScriptsTest {
     }
 
     @Test
-    fun `a desktop with no start command falls back to a login shell`() {
+    fun `a desktop with no start command still gets a visible client`() {
+        // "Command line only" used to start a login shell with no terminal, so
+        // X came up with nothing drawn on it: a black screen and no explanation.
         val none = DesktopSpec("none", "None", emptyList(), "", 0)
-        assertThat(GuestScripts.session(none, ResourceProfile.FULL, false))
-            .contains("/bin/bash -l")
+        val script = GuestScripts.session(none, ResourceProfile.FULL, false)
+
+        assertThat(script).contains("xterm")
+        assertThat(script).doesNotContain("dbus-launch --exit-with-session \n")
+    }
+
+    @Test
+    fun `the session refuses to start X when app_process is not reachable`() {
+        // The single most confusing failure in the project: without the Android
+        // system bind mounts the bridge cannot run, and the only symptom is a
+        // black rectangle. The script now says so in words.
+        val script = GuestScripts.session(xfce, ResourceProfile.FULL, false)
+
+        assertThat(script).contains("/system/bin/app_process")
+        assertThat(script).contains("preflight failed, not starting X")
+    }
+
+    @Test
+    fun `the session checks the bridge and loader are actually installed`() {
+        val script = GuestScripts.session(xfce, ResourceProfile.FULL, false)
+
+        assertThat(script).contains(GuestScripts.BRIDGE_PATH)
+        assertThat(script).contains(GuestScripts.LOADER_PATH)
+        assertThat(script).contains("MISSING")
+    }
+
+    @Test
+    fun `a bridge that dies early is reported rather than waited out`() {
+        val script = GuestScripts.session(xfce, ResourceProfile.FULL, false)
+
+        assertThat(script).contains("the display bridge exited before X came up")
+        assertThat(script).contains("X socket never appeared")
+    }
+
+    @Test
+    fun `the session reports how it ended`() {
+        val script = GuestScripts.session(xfce, ResourceProfile.FULL, false)
+
+        assertThat(script).contains("session ended with status")
+    }
+
+    @Test
+    fun `the X socket directory is created with the right permissions`() {
+        // xtrans refuses a world-writable directory without the sticky bit.
+        val script = GuestScripts.session(xfce, ResourceProfile.FULL, false)
+
+        assertThat(script).contains("chmod 1777 /tmp /tmp/.X11-unix")
     }
 
     @Test
