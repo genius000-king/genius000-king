@@ -9,6 +9,7 @@ import io.nawah.linux.core.oci.OciArch
 import io.nawah.linux.core.oci.OciClient
 import io.nawah.linux.core.probe.AndroidDeviceProbe
 import io.nawah.linux.core.probe.DeviceProbe
+import io.nawah.linux.core.provision.GuestFileWriter
 import io.nawah.linux.core.provision.ProotProvisioner
 import io.nawah.linux.core.provision.Provisioner
 import io.nawah.linux.core.runtime.AndroidNativeTools
@@ -36,6 +37,10 @@ class Services(context: Context) {
     val deviceProbe: DeviceProbe by lazy { AndroidDeviceProbe(app, nativeTools, prootRunner) }
     val ociClient: OciClient by lazy { HttpOciClient() }
 
+    private val guestFiles by lazy {
+        GuestFileWriter(machineStore, BuildConfig.APPLICATION_ID) { app.assets.open(it) }
+    }
+
     val provisioner: Provisioner by lazy {
         ProotProvisioner(
             store = machineStore,
@@ -48,10 +53,13 @@ class Services(context: Context) {
             arch = Build.SUPPORTED_ABIS.firstNotNullOfOrNull { OciArch.fromAbi(it) }
                 ?: error("no system image is published for ${Build.SUPPORTED_ABIS.joinToString()}"),
             openAsset = { path -> app.assets.open(path) },
+            desktopFor = { id -> catalog.desktop(id) },
         )
     }
 
     val sessionLauncher: SessionLauncher by lazy {
-        SessionLauncher(app, nativeTools, machineStore, prootRunner)
+        SessionLauncher(
+            app, nativeTools, machineStore, prootRunner, guestFiles,
+        ) { id -> catalog.desktop(id) }
     }
 }

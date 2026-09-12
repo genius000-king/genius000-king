@@ -82,3 +82,30 @@ Not in the UI, and not in the install pipeline. It is in three places:
 
 Each has a document of its own, and each has tests that exist specifically to
 fail when someone simplifies it.
+
+## App-owned files are refreshed on every launch
+
+Three files inside a machine's filesystem belong to the app, not to Debian:
+
+```
+/usr/libexec/nawah-x11/loader.apk   the guest half of the X11 bridge
+/usr/bin/nawah-x11                  the script that execs app_process
+/usr/local/bin/nawah-session        the script that starts the desktop
+```
+
+`GuestFileWriter` rewrites all three **every time a machine starts**, not once
+at install time.
+
+The difference is not an optimisation. Written only at install, a one-line fix
+to the session script could reach an existing machine by exactly one route:
+reinstalling the whole distribution. Twenty minutes and a gigabyte, to deliver
+a corrected line of shell. That happened twice before it was fixed, and it is
+why a user asked whether every new build meant reinstalling Linux again.
+
+The answer has to be no. An app update must be enough, or the feedback loop is
+too slow to debug anything.
+
+The same call also repairs the signature mismatch case: a differently-signed
+build leaves a `loader.apk` the new app cannot load, and the launch replaces it
+before it matters. The loader is only rewritten when its bytes differ, so the
+check costs nothing on an ordinary start.

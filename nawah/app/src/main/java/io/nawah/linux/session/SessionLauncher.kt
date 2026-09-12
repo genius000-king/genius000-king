@@ -2,7 +2,9 @@ package io.nawah.linux.session
 
 import android.content.Context
 import android.content.Intent
+import io.nawah.linux.core.model.DesktopSpec
 import io.nawah.linux.core.model.Machine
+import io.nawah.linux.core.provision.GuestFileWriter
 import io.nawah.linux.core.model.ResourceProfile
 import io.nawah.linux.core.runtime.Bind
 import io.nawah.linux.core.runtime.NativeTools
@@ -31,6 +33,8 @@ class SessionLauncher(
     private val tools: NativeTools,
     private val store: MachineStore,
     private val runner: ProotRunner,
+    private val guestFiles: GuestFileWriter,
+    private val desktopFor: (String) -> DesktopSpec?,
 ) {
 
     /** Brings the X display to the foreground. Safe to call when already open. */
@@ -48,7 +52,13 @@ class SessionLauncher(
      * The caller is expected to be a foreground service: this flow lives for as
      * long as the desktop does, and cancelling it tears the session down.
      */
-    fun start(machine: Machine): Flow<String> = runner.stream(request(machine))
+    fun start(machine: Machine): Flow<String> {
+        // Rewritten every launch, never only at install time. A fix to the
+        // session script must reach an existing machine through an app update,
+        // not through reinstalling a gigabyte of Debian to deliver one line.
+        guestFiles.refresh(machine, desktopFor(machine.desktopId))
+        return runner.stream(request(machine))
+    }
 
     internal fun request(machine: Machine): ProotRequest {
         val env = buildMap {

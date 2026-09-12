@@ -1,6 +1,7 @@
 package io.nawah.linux.core.provision
 
 import io.nawah.linux.core.model.Machine
+import io.nawah.linux.core.model.DesktopSpec
 import io.nawah.linux.core.model.MachineState
 import io.nawah.linux.core.oci.OciArch
 import io.nawah.linux.core.oci.OciClient
@@ -47,7 +48,11 @@ class ProotProvisioner(
     private val arch: OciArch,
     /** Reads a file out of the app's assets. Injected so the pipeline stays testable. */
     private val openAsset: (String) -> InputStream,
+    /** Resolves a machine's desktop id against the catalog. */
+    private val desktopFor: (String) -> DesktopSpec?,
 ) : Provisioner {
+
+    private val guestFiles = GuestFileWriter(store, applicationId, openAsset)
 
     override fun resume(machineId: String): Flow<InstallProgress>? {
         val checkpoint = InstallCheckpoint.load(store.machineDir(machineId)) ?: return null
@@ -180,18 +185,15 @@ class ProotProvisioner(
             // 6 -- the X11 bridge.
             step = InstallStep.INSTALLING_X11_BRIDGE
             send(InstallProgress.Running(InstallStep.INSTALLING_X11_BRIDGE))
-            installBridge(id)
+            guestFiles.install(machine, request.desktop)
             emitLine(InstallStep.INSTALLING_X11_BRIDGE, "installed ${GuestScripts.BRIDGE_PATH}")
             finish(step)
 
             // 7 -- session script and hand-over.
             step = InstallStep.CONFIGURING
             send(InstallProgress.Running(InstallStep.CONFIGURING))
-            writeGuestFile(
-                id, GuestScripts.SESSION_PATH,
-                GuestScripts.session(request.desktop, request.profile, request.permissions.audioOut),
-                executable = true,
-            )
+            // The session script is also written here, but it is rewritten on
+            // every launch too -- see GuestFileWriter.
 
             finish(step)
             machine = machine.copy(state = MachineState.READY)
@@ -229,21 +231,14 @@ class ProotProvisioner(
      * will refuse to load the new app.
      */
     override suspend fun repairX11Bridge(machineId: String) {
-        installBridge(machineId)
+        val machine = store.get(machineId) ?: return
+        guestFiles.refresh(machine, desktopFor(machine.desktopId))
         store.get(machineId)
             ?.takeIf { it.state == MachineState.NEEDS_REPAIR }
             ?.let { store.put(it.copy(state = MachineState.READY)) }
     }
 
     // -- internals ----------------------------------------------------------
-
-    private fun installBridge(id: String) {
-        val loader = File(store.rootfsDir(id), GuestScripts.LOADER_PATH.trimStart('/'))
-        loader.parentFile?.mkdirs()
-        openAsset(ASSET_LOADER).use { input -> loader.outputStream().use { input.copyTo(it) } }
-        loader.setReadable(true, false)
-        writeGuestFile(id, GuestScripts.BRIDGE_PATH, GuestScripts.bridge(applicationId), executable = true)
-    }
 
     private fun writeBaseConfig(id: String, request: InstallRequest) {
         val hostname = request.name.hostname()
