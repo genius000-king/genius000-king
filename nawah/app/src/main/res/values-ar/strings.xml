@@ -157,4 +157,11 @@
     <string name="install_step_packages">تثبيت حزم سطح المكتب</string>
     <string name="install_step_scripts">كتابة سكربت الإقلاع</string>
     <string name="install_step_configuring">اللمسات الأخيرة</string>
+    <string name="app_settings_title">الإعدادات</string>
+    <string name="app_settings_storage_used">ما تشغله أنظمتك</string>
+    <string name="app_settings_storage_systems">%1$d أنظمة</string>
+    <string name="wizard_step_desktop_hint">كل شيء يُرسم برمجيًا هنا — كلما خفّ سطح المكتب كان إحساسه أفضل.</string>
+    <string name="weight_light">خفيف</string>
+    <string name="weight_medium">متوسط</string>
+    <string name="weight_heavy">ثقيل</string>
 </resources>

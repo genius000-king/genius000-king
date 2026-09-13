@@ -2,13 +2,92 @@
   {
     "id": "xfce4",
     "name": "XFCE 4",
-    "packages": [
-      "xfce4",
-      "xfce4-terminal",
-      "xfce4-taskmanager"
-    ],
+    "packages": ["xfce4", "xfce4-terminal", "xfce4-taskmanager"],
     "startCommand": "startxfce4",
     "installedBytes": 950000000,
+    "weight": "MEDIUM",
+    "note": {
+      "en": "A complete desktop that still runs without a GPU. The safe first choice.",
+      "ar": "سطح مكتب كامل يعمل رغم غياب كرت الشاشة. الخيار الأول الآمن."
+    },
+    "enabled": true
+  },
+  {
+    "id": "lxqt",
+    "name": "LXQt",
+    "packages": ["lxqt-core", "qterminal"],
+    "startCommand": "startlxqt",
+    "installedBytes": 700000000,
+    "weight": "LIGHT",
+    "note": {
+      "en": "Lighter than XFCE and noticeably quicker on a modest phone.",
+      "ar": "أخف من XFCE وأسرع بوضوح على جهاز متوسط."
+    },
+    "enabled": true
+  },
+  {
+    "id": "mate",
+    "name": "MATE",
+    "packages": ["mate-desktop-environment-core", "mate-terminal"],
+    "startCommand": "mate-session",
+    "installedBytes": 900000000,
+    "weight": "MEDIUM",
+    "note": {
+      "en": "The classic GNOME 2 layout, kept alive and kept light.",
+      "ar": "تخطيط جنوم 2 الكلاسيكي، ما زال حيًّا وما زال خفيفًا."
+    },
+    "enabled": true
+  },
+  {
+    "id": "i3",
+    "name": "i3",
+    "packages": ["i3-wm", "i3status", "suckless-tools", "xterm"],
+    "startCommand": "i3",
+    "installedBytes": 180000000,
+    "weight": "LIGHT",
+    "note": {
+      "en": "Keyboard-driven tiling, no desktop at all. Fastest by a wide margin, and close to unusable without a physical keyboard.",
+      "ar": "تبليط بلوحة المفاتيح، بلا سطح مكتب أصلًا. الأسرع بفارق كبير، ويكاد يكون بلا فائدة دون لوحة مفاتيح حقيقية."
+    },
+    "enabled": true
+  },
+  {
+    "id": "openbox",
+    "name": "Openbox",
+    "packages": ["openbox", "tint2", "xterm"],
+    "startCommand": "openbox-session",
+    "installedBytes": 150000000,
+    "weight": "LIGHT",
+    "note": {
+      "en": "A window manager and a taskbar, nothing more. The smallest thing that still feels like a desktop.",
+      "ar": "مدير نوافذ وشريط مهام، لا أكثر. أصغر شيء ما زال يشبه سطح المكتب."
+    },
+    "enabled": true
+  },
+  {
+    "id": "kde",
+    "name": "KDE Plasma",
+    "packages": ["kde-plasma-desktop", "konsole"],
+    "startCommand": "startplasma-x11",
+    "installedBytes": 1600000000,
+    "weight": "HEAVY",
+    "note": {
+      "en": "Expects a GPU. It will start and it will be slow — expect single-digit frame rates while anything animates.",
+      "ar": "يتوقع كرت شاشة. سيبدأ وسيكون بطيئًا — توقّع أقل من عشرة إطارات في الثانية مع أي حركة."
+    },
+    "enabled": true
+  },
+  {
+    "id": "gnome",
+    "name": "GNOME",
+    "packages": ["gnome-core", "gnome-terminal"],
+    "startCommand": "gnome-session",
+    "installedBytes": 2200000000,
+    "weight": "HEAVY",
+    "note": {
+      "en": "The heaviest option by far. GNOME Shell is built on OpenGL, and every frame of it is drawn by the CPU here. Two gigabytes, and slower than anything else on this list.",
+      "ar": "الأثقل بفارق واضح. صدفة جنوم مبنية على OpenGL، وكل إطار منها يُرسم بالمعالج هنا. جيجابايتان، وأبطأ من أي خيار آخر في هذه القائمة."
+    },
     "enabled": true
   },
   {
@@ -20,6 +99,11 @@
     "packages": [],
     "startCommand": "",
     "installedBytes": 0,
+    "weight": "LIGHT",
+    "note": {
+      "en": "A terminal on a blank screen. Everything a compiler, git or Python needs, and nothing more.",
+      "ar": "طرفية على شاشة فارغة. كل ما يحتاجه مترجم أو git أو بايثون، ولا شيء زيادة."
+    },
     "enabled": true
   }
 ]

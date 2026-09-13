@@ -167,4 +167,11 @@
     <string name="install_step_packages">Installing desktop packages</string>
     <string name="install_step_scripts">Writing the startup script</string>
     <string name="install_step_configuring">Finishing up</string>
+    <string name="app_settings_title">Settings</string>
+    <string name="app_settings_storage_used">Used by your systems</string>
+    <string name="app_settings_storage_systems">%1$d systems</string>
+    <string name="wizard_step_desktop_hint">Everything is drawn in software here — the lighter the desktop, the better it feels.</string>
+    <string name="weight_light">Light</string>
+    <string name="weight_medium">Medium</string>
+    <string name="weight_heavy">Heavy</string>
 </resources>

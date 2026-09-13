@@ -1,5 +1,6 @@
 package io.nawah.linux.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,6 +14,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -60,25 +64,57 @@ fun HomeScreen(
             }
         },
     ) { padding ->
-        when {
-            state.loading -> Box(Modifier.fillMaxSize().padding(padding), Alignment.Center) {
-                CircularProgressIndicator()
-            }
+        Box(Modifier.fillMaxSize().padding(padding)) {
+            TuxWatermark(Modifier.align(Alignment.Center))
 
-            state.isEmpty -> EmptyHome(Modifier.padding(padding), onCreate)
+            when {
+                state.loading -> Box(Modifier.fillMaxSize(), Alignment.Center) {
+                    CircularProgressIndicator()
+                }
 
-            else -> LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(padding),
-                contentPadding = PaddingValues(Spacing.md, Spacing.md, Spacing.md, 96.dp),
-                verticalArrangement = Arrangement.spacedBy(Spacing.sm),
-            ) {
-                items(state.machines, key = { it.id }) { item ->
-                    MachineCard(item, onRun, onResume, onSettings, onRepair, onDelete)
+                state.isEmpty -> EmptyHome(Modifier, onCreate)
+
+                else -> LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(Spacing.md, Spacing.md, Spacing.md, 96.dp),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.sm),
+                ) {
+                    items(state.machines, key = { it.id }) { item ->
+                        MachineCard(item, onRun, onResume, onSettings, onRepair, onDelete)
+                    }
                 }
             }
         }
     }
 }
+
+/**
+ * Tux, sitting in the empty half of the home screen.
+ *
+ * Behind everything and outside the layout: it is drawn in a Box under the
+ * list, so a long list simply covers it and a short one leaves it visible.
+ * `contentDescription = null` and no pointer input at all — a screen reader has
+ * nothing to say about wallpaper, and a watermark that swallows a tap on the
+ * card above it is a bug.
+ *
+ * The mark itself is the upstream Tux, unmodified.
+ */
+@Composable
+private fun TuxWatermark(modifier: Modifier = Modifier) {
+    Image(
+        painter = painterResource(R.drawable.tux),
+        contentDescription = null,
+        contentScale = ContentScale.Fit,
+        modifier = modifier
+            .fillMaxWidth(TUX_WIDTH_FRACTION)
+            .padding(top = 72.dp)
+            .alpha(TUX_ALPHA),
+    )
+}
+
+/** Present enough to be the app's face, faint enough not to fight a card. */
+private const val TUX_ALPHA = 0.32f
+private const val TUX_WIDTH_FRACTION = 0.62f
 
 @Composable
 private fun EmptyHome(modifier: Modifier, onCreate: () -> Unit) {

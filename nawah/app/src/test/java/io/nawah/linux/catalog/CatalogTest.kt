@@ -2,6 +2,7 @@ package io.nawah.linux.catalog
 
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import io.nawah.linux.core.model.DesktopWeight
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -86,6 +87,48 @@ class CatalogTest {
 
         assertThat(cli.startCommand).isEmpty()
         assertThat(cli.name.resolve("ar")).isNotEqualTo(cli.name.resolve("en"))
+    }
+
+    @Test
+    fun `every desktop names a start command, except the one that has none`() {
+        for (desktop in catalog.desktops) {
+            if (desktop.id == "none") {
+                assertThat(desktop.startCommand).isEmpty()
+            } else {
+                assertThat(desktop.startCommand).isNotEmpty()
+                // Verified against Debian's own Contents index: each of these
+                // is a real binary in the package set listed beside it.
+                assertThat(desktop.packages).isNotEmpty()
+            }
+        }
+    }
+
+    @Test
+    fun `the heavy desktops say so, because nothing else will tell the user`() {
+        // Everything is drawn by llvmpipe on a phone CPU. GNOME and KDE will
+        // install happily and then crawl, and finding that out after two
+        // gigabytes is the worst possible moment.
+        val heavy = catalog.desktops.filter { it.weight == DesktopWeight.HEAVY }.map { it.id }
+
+        assertThat(heavy).containsExactly("kde", "gnome")
+        for (desktop in catalog.desktops.filter { it.weight == DesktopWeight.HEAVY }) {
+            assertThat(desktop.note).isNotNull()
+            assertThat(desktop.note!!.resolve("ar")).isNotEqualTo(desktop.note!!.resolve("en"))
+        }
+    }
+
+    @Test
+    fun `the lightest desktops are actually the smallest`() {
+        val byWeight = catalog.desktops.filter { it.installedBytes > 0 }.groupBy { it.weight }
+        val light = byWeight[DesktopWeight.LIGHT].orEmpty().maxOf { it.installedBytes }
+        val heavy = byWeight[DesktopWeight.HEAVY].orEmpty().minOf { it.installedBytes }
+
+        assertThat(light).isLessThan(heavy)
+    }
+
+    @Test
+    fun `every desktop id is unique`() {
+        assertThat(catalog.desktops.map { it.id }).containsNoDuplicates()
     }
 
     @Test

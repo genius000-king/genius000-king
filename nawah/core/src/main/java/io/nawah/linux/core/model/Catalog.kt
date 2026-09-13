@@ -65,6 +65,17 @@ data class DistroSpec(
  * [startCommand] is what the container's `startup.sh` execs once the X server is
  * listening, so a new desktop needs no installer change at all.
  */
+/**
+ * How hard a desktop leans on a GPU that is not there.
+ *
+ * Everything is drawn by `llvmpipe`, in software, on a phone CPU. That is the
+ * single fact that decides whether a desktop is pleasant or unusable, and it is
+ * not something a user can be expected to know — so it is stated on the card
+ * rather than discovered twenty minutes into an install.
+ */
+@Serializable
+enum class DesktopWeight { LIGHT, MEDIUM, HEAVY }
+
 @Serializable
 data class DesktopSpec(
     /** Stable identifier, e.g. `"xfce4"`. Referenced by [Machine.desktopId]. */
@@ -77,6 +88,13 @@ data class DesktopSpec(
     val startCommand: String,
     /** Extra installed bytes on top of the base rootfs. */
     val installedBytes: Long,
+    /** Drives the badge on the card. See [DesktopWeight]. */
+    val weight: DesktopWeight = DesktopWeight.MEDIUM,
+    /**
+     * One honest line about this desktop on this hardware, in the user's
+     * language. Null when there is nothing to warn about.
+     */
+    val note: LocalizedText? = null,
     /** See [DistroSpec.enabled]. */
     val enabled: Boolean = true,
 )

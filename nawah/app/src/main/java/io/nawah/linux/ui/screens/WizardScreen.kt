@@ -242,7 +242,13 @@ private fun LtsChip() {
 
 @Composable
 private fun StepDesktop(state: WizardUiState, actions: WizardActions) {
+    val language = LocalContext.current.currentLanguage()
     Text(stringResource(R.string.wizard_step_desktop), style = MaterialTheme.typography.titleLarge)
+    Text(
+        stringResource(R.string.wizard_step_desktop_hint),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
     Spacer(Modifier.height(Spacing.md))
     Column(
         verticalArrangement = Arrangement.spacedBy(Spacing.sm),
@@ -254,22 +260,53 @@ private fun StepDesktop(state: WizardUiState, actions: WizardActions) {
                 enabled = true,
                 onClick = { actions.onDesktop(spec.id) },
             ) {
-                Text(
-                    spec.name.resolve(LocalContext.current.currentLanguage()),
-                    style = MaterialTheme.typography.titleMedium,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        spec.name.resolve(language),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f),
+                    )
+                    WeightChip(spec.weight)
+                }
+                spec.note?.let {
+                    Spacer(Modifier.height(Spacing.xs))
+                    Text(
+                        it.resolve(language),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Spacer(Modifier.height(Spacing.xs))
                 Text(
                     if (spec.installedBytes > 0) {
                         formatBytes(spec.installedBytes) + " " + stringResource(R.string.label_installed)
                     } else {
                         stringResource(R.string.desktop_none_hint)
                     },
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
     }
+}
+
+/**
+ * How hard this desktop leans on a GPU that is not there.
+ *
+ * Everything is drawn in software on a phone CPU, and that single fact decides
+ * whether a desktop is pleasant or unusable. Saying it on the card is cheaper
+ * than letting someone find out two gigabytes into an install.
+ */
+@Composable
+private fun WeightChip(weight: DesktopWeight) {
+    val colors = NawahTheme.status
+    val (label, container, content) = when (weight) {
+        DesktopWeight.LIGHT -> Triple(R.string.weight_light, colors.goodContainer, colors.good)
+        DesktopWeight.MEDIUM -> Triple(R.string.weight_medium, colors.warnContainer, colors.warn)
+        DesktopWeight.HEAVY -> Triple(R.string.weight_heavy, colors.badContainer, colors.bad)
+    }
+    StateChip(stringResource(label), content, container)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
