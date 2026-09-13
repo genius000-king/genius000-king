@@ -2,6 +2,7 @@ package io.nawah.linux.core.provision
 
 import com.google.common.truth.Truth.assertThat
 import io.nawah.linux.core.model.DesktopSpec
+import io.nawah.linux.core.model.LocalizedText
 import io.nawah.linux.core.model.DistroSpec
 import io.nawah.linux.core.model.MachinePermissions
 import io.nawah.linux.core.model.ResourceProfile
@@ -23,10 +24,11 @@ class InstallCheckpointTest {
         machineId = id,
         name = "Linux-1",
         distro = DistroSpec(
-            "debian-trixie", "Debian 13", "trixie", "library/debian:trixie",
-            49_700_000, 125_000_000, "http://deb.debian.org/debian",
+            id = "debian-trixie", name = "Debian 13", version = "13", codename = "trixie",
+            image = "library/debian:trixie", downloadBytes = 49_700_000,
+            installedBytes = 125_000_000, aptMirror = "http://deb.debian.org/debian",
         ),
-        desktop = DesktopSpec("none", "Command line only", emptyList(), "", 0),
+        desktop = DesktopSpec("none", LocalizedText.of("Command line only"), emptyList(), "", 0),
         profile = ResourceProfile.BALANCED,
         permissions = MachinePermissions(),
         displayWidth = 1280,

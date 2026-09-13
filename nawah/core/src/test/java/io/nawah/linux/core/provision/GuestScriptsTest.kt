@@ -2,6 +2,7 @@ package io.nawah.linux.core.provision
 
 import com.google.common.truth.Truth.assertThat
 import io.nawah.linux.core.model.DesktopSpec
+import io.nawah.linux.core.model.LocalizedText
 import io.nawah.linux.core.model.ResourceProfile
 import org.junit.Test
 
@@ -12,7 +13,7 @@ import org.junit.Test
  */
 class GuestScriptsTest {
 
-    private val xfce = DesktopSpec("xfce4", "XFCE 4", listOf("xfce4"), "startxfce4", 1)
+    private val xfce = DesktopSpec("xfce4", LocalizedText.of("XFCE 4"), listOf("xfce4"), "startxfce4", 1)
 
     @Test
     fun `session exports DISPLAY`() {
@@ -42,7 +43,7 @@ class GuestScriptsTest {
     fun `a desktop with no start command still gets a visible client`() {
         // "Command line only" used to start a login shell with no terminal, so
         // X came up with nothing drawn on it: a black screen and no explanation.
-        val none = DesktopSpec("none", "None", emptyList(), "", 0)
+        val none = DesktopSpec("none", LocalizedText.of("None"), emptyList(), "", 0)
         val script = GuestScripts.session(none, ResourceProfile.FULL, false)
 
         assertThat(script).contains("xterm")

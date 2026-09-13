@@ -13,7 +13,10 @@
   },
   {
     "id": "none",
-    "name": "Command line only",
+    "name": {
+      "en": "Command line only",
+      "ar": "سطر الأوامر فقط"
+    },
     "packages": [],
     "startCommand": "",
     "installedBytes": 0,

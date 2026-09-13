@@ -2,6 +2,7 @@ package io.nawah.linux.core.provision
 
 import com.google.common.truth.Truth.assertThat
 import io.nawah.linux.core.model.DesktopSpec
+import io.nawah.linux.core.model.LocalizedText
 import io.nawah.linux.core.model.ResourceProfile
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -27,8 +28,8 @@ class GuestScriptExecutionTest {
 
     @get:Rule val tmp = TemporaryFolder()
 
-    private val xfce = DesktopSpec("xfce4", "XFCE 4", listOf("xfce4"), "startxfce4", 1)
-    private val cli = DesktopSpec("none", "Command line only", emptyList(), "", 0)
+    private val xfce = DesktopSpec("xfce4", LocalizedText.of("XFCE 4"), listOf("xfce4"), "startxfce4", 1)
+    private val cli = DesktopSpec("none", LocalizedText.of("Command line only"), emptyList(), "", 0)
 
     private lateinit var root: File
     private lateinit var bin: File

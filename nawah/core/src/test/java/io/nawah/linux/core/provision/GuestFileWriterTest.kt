@@ -2,6 +2,7 @@ package io.nawah.linux.core.provision
 
 import com.google.common.truth.Truth.assertThat
 import io.nawah.linux.core.model.DesktopSpec
+import io.nawah.linux.core.model.LocalizedText
 import io.nawah.linux.core.model.Machine
 import io.nawah.linux.core.model.MachinePermissions
 import io.nawah.linux.core.model.MachineState
@@ -28,8 +29,8 @@ class GuestFileWriterTest {
     private lateinit var store: FileMachineStore
     private lateinit var writer: GuestFileWriter
 
-    private val xfce = DesktopSpec("xfce4", "XFCE 4", listOf("xfce4"), "startxfce4", 1)
-    private val cli = DesktopSpec("none", "Command line only", emptyList(), "", 0)
+    private val xfce = DesktopSpec("xfce4", LocalizedText.of("XFCE 4"), listOf("xfce4"), "startxfce4", 1)
+    private val cli = DesktopSpec("none", LocalizedText.of("Command line only"), emptyList(), "", 0)
 
     private val machine = Machine(
         id = "m1", name = "Linux", distroId = "debian-trixie", desktopId = "xfce4",

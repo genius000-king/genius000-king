@@ -10,9 +10,11 @@ import io.nawah.linux.core.probe.ProbeResult
 import io.nawah.linux.core.provision.InstallCheckpoint
 import io.nawah.linux.core.provision.InstallRequest
 import io.nawah.linux.core.provision.InstallStep
+import io.nawah.linux.settings.AppLanguage
 import io.nawah.linux.service.InstallService
 import io.nawah.linux.service.SessionService
 import io.nawah.linux.ui.state.*
+import io.nawah.linux.ui.util.currentLanguage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -43,7 +45,9 @@ class NawahViewModel(app: Application) : AndroidViewModel(app) {
                     MachineListItem(
                         machine = m,
                         distroName = services.catalog.distro(m.distroId)?.name ?: m.distroId,
-                        desktopName = services.catalog.desktop(m.desktopId)?.name ?: m.desktopId,
+                        desktopName = services.catalog.desktop(m.desktopId)?.name
+                            ?.resolve(getApplication<Application>().currentLanguage())
+                            ?: m.desktopId,
                         diskUsageBytes = usage[m.id] ?: -1L,
                         resumable = m.state == MachineState.FAILED &&
                             InstallCheckpoint.load(services.machineStore.machineDir(m.id)) != null,
@@ -88,7 +92,11 @@ class NawahViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /** Brings the X display forward without restarting anything. */
-    fun openDisplay() = services.sessionLauncher.openDisplay()
+    /** Brings the running machine's display forward, at its own resolution. */
+    fun openDisplay() {
+        val machine = SessionService.running.value?.let { services.machineStore.get(it) }
+        services.sessionLauncher.openDisplay(machine, appSettings.keepScreenOn)
+    }
 
     /** Session output already written to disk, for a machine that has stopped. */
     fun storedSessionLog(machineId: String): List<String> =
@@ -117,6 +125,51 @@ class NawahViewModel(app: Application) : AndroidViewModel(app) {
         _settings.update { it.copy(repairing = false) }
     }
 
+    // -- app settings --------------------------------------------------------
+
+    private val appSettings get() = getApplication<NawahApplication>().settings
+
+    private val _appSettings = MutableStateFlow(AppSettingsUiState())
+    val settingsApp: StateFlow<AppSettingsUiState> = _appSettings.asStateFlow()
+
+    fun loadAppSettings() {
+        _appSettings.value = AppSettingsUiState(
+            language = AppLanguage.fromTag(appSettings.languageTag),
+            keepScreenOn = appSettings.keepScreenOn,
+            openDisplayOnRun = appSettings.openDisplayOnRun,
+            machineCount = services.machineStore.machines.value.size,
+            freeBytes = services.deviceProbe.facts().availableStorageBytes,
+        )
+        viewModelScope.launch(Dispatchers.IO) {
+            val used = services.machineStore.machines.value
+                .sumOf { services.machineStore.machineDir(it.id).sizeOnDisk() }
+            _appSettings.update { it.copy(usedBytes = used) }
+        }
+    }
+
+    /**
+     * Returns true when the screen has to be recreated for the change to show.
+     *
+     * The caller does the recreating rather than this: a ViewModel that reaches
+     * for an Activity to restart it is a ViewModel that leaks one.
+     */
+    fun setLanguage(language: AppLanguage): Boolean {
+        if (AppLanguage.fromTag(appSettings.languageTag) == language) return false
+        appSettings.languageTag = language.tag
+        _appSettings.update { it.copy(language = language) }
+        return true
+    }
+
+    fun setKeepScreenOn(value: Boolean) {
+        appSettings.keepScreenOn = value
+        _appSettings.update { it.copy(keepScreenOn = value) }
+    }
+
+    fun setOpenDisplayOnRun(value: Boolean) {
+        appSettings.openDisplayOnRun = value
+        _appSettings.update { it.copy(openDisplayOnRun = value) }
+    }
+
     // -- wizard -------------------------------------------------------------
 
     private val _wizard = MutableStateFlow(WizardUiState())
@@ -124,16 +177,45 @@ class NawahViewModel(app: Application) : AndroidViewModel(app) {
 
     fun startWizard() {
         val facts = services.deviceProbe.facts()
-        val distros = services.catalog.distros.map { spec ->
-            DistroOption(spec, services.deviceProbe.report(spec, services.catalog.desktops.firstOrNull()))
+        val language = getApplication<Application>().currentLanguage()
+        val heaviestDesktop = services.catalog.desktops.firstOrNull()
+        val families = services.catalog.families.map { family ->
+            FamilyOption(
+                id = family.id,
+                name = family.name,
+                tagline = family.tagline.resolve(language),
+                versions = family.versions.map { spec ->
+                    DistroOption(spec, services.deviceProbe.report(spec, heaviestDesktop))
+                },
+            )
         }
+        // Nothing is pre-selected and no family is open: step one asks one
+        // question — which distribution — and answering it is what reveals the
+        // releases. Pre-opening one would put the wall of rows straight back.
         _wizard.value = WizardUiState(
-            distros = distros,
+            families = families,
             desktops = services.catalog.desktops,
-            selectedDistroId = distros.firstOrNull { it.selectable }?.spec?.id,
             availableStorageBytes = facts.availableStorageBytes,
             machineName = defaultName(),
         )
+    }
+
+    /**
+     * Opens a family's releases, selecting its default.
+     *
+     * Tapping the family a second time closes it again rather than doing
+     * nothing: a list that can only ever open is a list that fills the screen.
+     */
+    fun openFamily(id: String) = _wizard.update { state ->
+        if (state.openFamilyId == id) {
+            state.copy(openFamilyId = null)
+        } else {
+            val family = state.families.firstOrNull { it.id == id }
+            state.copy(
+                openFamilyId = id,
+                selectedDistroId = family?.default?.spec?.id ?: state.selectedDistroId,
+            )
+        }
     }
 
     fun wizardBack() = _wizard.update { it.copy(step = (it.step - 1).coerceAtLeast(1)) }
@@ -202,7 +284,9 @@ class NawahViewModel(app: Application) : AndroidViewModel(app) {
             machineId = m.id,
             name = m.name,
             distroName = services.catalog.distro(m.distroId)?.name ?: m.distroId,
-            desktopName = services.catalog.desktop(m.desktopId)?.name ?: m.desktopId,
+            desktopName = services.catalog.desktop(m.desktopId)?.name
+                ?.resolve(getApplication<Application>().currentLanguage())
+                ?: m.desktopId,
             state = m.state,
             permissions = m.permissions,
             selectedResolution = DefaultResolutions

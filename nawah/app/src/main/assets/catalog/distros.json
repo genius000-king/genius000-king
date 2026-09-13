@@ -1,22 +1,76 @@
 [
   {
-    "id": "debian-trixie",
-    "name": "Debian 13",
-    "codename": "trixie",
-    "image": "library/debian:trixie",
-    "downloadBytes": 49700000,
-    "installedBytes": 125000000,
-    "aptMirror": "http://deb.debian.org/debian",
+    "id": "debian",
+    "name": "Debian",
+    "tagline": {
+      "en": "The stable classic. Runs anything, changes slowly.",
+      "ar": "الكلاسيكي المستقر. يشغّل كل شيء، ويتغيّر ببطء."
+    },
+    "versions": [
+      {
+        "id": "debian-trixie",
+        "name": "Debian 13",
+        "version": "13 · Trixie",
+        "codename": "trixie",
+        "image": "library/debian:trixie",
+        "downloadBytes": 49700000,
+        "installedBytes": 125000000,
+        "aptMirror": "http://deb.debian.org/debian",
+        "aptComponents": ["main", "contrib", "non-free", "non-free-firmware"],
+        "lts": true,
+        "enabled": true
+      },
+      {
+        "id": "debian-bookworm",
+        "name": "Debian 12",
+        "version": "12 · Bookworm",
+        "codename": "bookworm",
+        "image": "library/debian:bookworm",
+        "downloadBytes": 48300000,
+        "installedBytes": 120000000,
+        "aptMirror": "http://deb.debian.org/debian",
+        "aptComponents": ["main", "contrib", "non-free", "non-free-firmware"],
+        "lts": false,
+        "enabled": true
+      }
+    ],
     "enabled": true
   },
   {
-    "id": "debian-bookworm",
-    "name": "Debian 12",
-    "codename": "bookworm",
-    "image": "library/debian:bookworm",
-    "downloadBytes": 48300000,
-    "installedBytes": 120000000,
-    "aptMirror": "http://deb.debian.org/debian",
+    "id": "ubuntu",
+    "name": "Ubuntu",
+    "tagline": {
+      "en": "Newer software, the largest package archive, the most answers online.",
+      "ar": "برامج أحدث، وأكبر مستودع حزم، وأكثر إجابات على الإنترنت."
+    },
+    "versions": [
+      {
+        "id": "ubuntu-noble",
+        "name": "Ubuntu 24.04 LTS",
+        "version": "24.04 LTS · Noble",
+        "codename": "noble",
+        "image": "library/ubuntu:noble",
+        "downloadBytes": 28900000,
+        "installedBytes": 101000000,
+        "aptMirror": "http://ports.ubuntu.com/ubuntu-ports",
+        "aptComponents": ["main", "universe", "restricted", "multiverse"],
+        "lts": true,
+        "enabled": true
+      },
+      {
+        "id": "ubuntu-jammy",
+        "name": "Ubuntu 22.04 LTS",
+        "version": "22.04 LTS · Jammy",
+        "codename": "jammy",
+        "image": "library/ubuntu:jammy",
+        "downloadBytes": 27700000,
+        "installedBytes": 95000000,
+        "aptMirror": "http://ports.ubuntu.com/ubuntu-ports",
+        "aptComponents": ["main", "universe", "restricted", "multiverse"],
+        "lts": true,
+        "enabled": true
+      }
+    ],
     "enabled": true
   }
 ]

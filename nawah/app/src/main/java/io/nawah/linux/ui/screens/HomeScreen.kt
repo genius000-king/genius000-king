@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,14 +37,15 @@ fun HomeScreen(
     onRepair: (String) -> Unit,
     onDelete: (String) -> Unit,
     onDiagnostics: () -> Unit,
+    onAppSettings: () -> Unit,
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },
                 actions = {
-                    TextButton(onClick = onDiagnostics) {
-                        Text(stringResource(R.string.action_diagnostics))
+                    IconButton(onClick = onAppSettings) {
+                        Icon(Icons.Default.Settings, stringResource(R.string.action_settings))
                     }
                 },
             )
@@ -199,13 +201,13 @@ private fun MachineCard(
 @Preview(name = "Home · empty")
 @Composable
 private fun PreviewHomeEmpty() = NawahTheme {
-    HomeScreen(HomeUiState(), {}, {}, {}, {}, {}, {}, {})
+    HomeScreen(HomeUiState(), {}, {}, {}, {}, {}, {}, {}, {})
 }
 
 @Preview(name = "Home · machines")
 @Composable
 private fun PreviewHome() = NawahTheme {
-    HomeScreen(HomeUiState(machines = previewMachines()), {}, {}, {}, {}, {}, {}, {})
+    HomeScreen(HomeUiState(machines = previewMachines()), {}, {}, {}, {}, {}, {}, {}, {})
 }
 
 internal fun previewMachines(): List<MachineListItem> = listOf(

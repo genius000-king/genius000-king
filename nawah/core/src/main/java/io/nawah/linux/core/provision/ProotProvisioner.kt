@@ -259,31 +259,12 @@ class ProotProvisioner(
         File(store.rootfsDir(id), "tmp").apply { mkdirs(); setWritable(true, false) }
     }
 
-    /**
-     * Leaves the image's own apt sources alone when it has them.
-     *
-     * A modern Debian image ships `/etc/apt/sources.list.d/debian.sources` in
-     * deb822 format, already pointing at main plus the security suite. Writing
-     * a second, older-style `sources.list` on top of it does not add anything —
-     * it makes apt fetch every target twice and warn about each one. The legacy
-     * file is only written when the image has no sources at all.
-     */
+    /** See [AptSources] — the decision, and why it is not a per-distro branch. */
     private fun writeAptSources(id: String, request: InstallRequest) {
         val rootfs = store.rootfsDir(id)
-        val deb822 = File(rootfs, "etc/apt/sources.list.d/debian.sources")
-        val legacy = File(rootfs, "etc/apt/sources.list")
-        if (deb822.isFile) {
-            // Remove one an earlier attempt of ours may have left behind.
-            legacy.delete()
-            return
-        }
-        writeGuestFile(
-            id, "/etc/apt/sources.list",
-            "deb ${request.distro.aptMirror} ${request.distro.codename} " +
-                "main contrib non-free non-free-firmware\n" +
-                "deb ${request.distro.aptMirror} ${request.distro.codename}-updates " +
-                "main contrib non-free non-free-firmware\n",
-        )
+        val plan = AptSources.plan(rootfs, request.distro)
+        if (plan.deleteLegacyList) File(rootfs, "etc/apt/sources.list").delete()
+        plan.write?.let { writeGuestFile(id, "/etc/apt/sources.list", it) }
     }
 
     private fun writeGuestFile(id: String, guestPath: String, content: String, executable: Boolean = false) {

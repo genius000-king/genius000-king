@@ -1,6 +1,7 @@
 package io.nawah.linux.core.provision
 
 import io.nawah.linux.core.model.DesktopSpec
+import io.nawah.linux.core.model.LocalizedText
 import io.nawah.linux.core.model.Machine
 import io.nawah.linux.core.model.ResourceProfile
 import io.nawah.linux.core.store.MachineStore
@@ -56,7 +57,7 @@ class GuestFileWriter(
         /** A machine whose desktop id is no longer in the catalog still starts. */
         val FALLBACK_DESKTOP = DesktopSpec(
             id = "none",
-            name = "Command line only",
+            name = LocalizedText.of("Command line only"),
             packages = emptyList(),
             startCommand = "",
             installedBytes = 0,

@@ -9,13 +9,39 @@ import io.nawah.linux.core.model.MachinePermissions
 import io.nawah.linux.core.model.ResourceProfile
 import io.nawah.linux.ui.util.formatResolution
 
-/** A distribution together with this device's verdict on it. */
+/** One release of a distribution, together with this device's verdict on it. */
 @Immutable
 data class DistroOption(
     val spec: DistroSpec,
     val report: CompatReport,
 ) {
     val selectable: Boolean get() = spec.enabled && report.overall != Compatibility.BLOCKED
+}
+
+/**
+ * A distribution and its releases, as the picker shows them.
+ *
+ * Two levels because one flat list of every distribution times every release is
+ * a wall of near-identical rows, and nobody reads a wall. A person looks for a
+ * name they recognise first, and only then cares which release.
+ */
+@Immutable
+data class FamilyOption(
+    val id: String,
+    val name: String,
+    val tagline: String,
+    val versions: List<DistroOption>,
+) {
+    /** The worst-case badge for the family: what the best release can manage. */
+    val bestVerdict: Compatibility
+        get() = versions.minOfOrNull { it.report.overall } ?: Compatibility.BLOCKED
+
+    val selectable: Boolean get() = versions.any { it.selectable }
+
+    /** Newest LTS, else newest. The default a user accepts without reading. */
+    val default: DistroOption?
+        get() = versions.firstOrNull { it.selectable && it.spec.lts }
+            ?: versions.firstOrNull { it.selectable }
 }
 
 /** One entry of the display-resolution dropdown. */
@@ -44,7 +70,9 @@ enum class NameError { EMPTY, TOO_LONG, DUPLICATE, ILLEGAL_CHARS }
 data class WizardUiState(
     /** 1-based, 1..[TOTAL_STEPS]. */
     val step: Int = 1,
-    val distros: List<DistroOption> = emptyList(),
+    val families: List<FamilyOption> = emptyList(),
+    /** The family whose releases are open. Null until one is tapped. */
+    val openFamilyId: String? = null,
     val selectedDistroId: String? = null,
     val desktops: List<DesktopSpec> = emptyList(),
     val selectedDesktopId: String? = null,
@@ -60,8 +88,15 @@ data class WizardUiState(
 ) {
     val totalSteps: Int get() = TOTAL_STEPS
 
+    /** Every release of every family, flattened. */
+    val distros: List<DistroOption> get() = families.flatMap { it.versions }
+
     val selectedDistro: DistroOption?
         get() = distros.firstOrNull { it.spec.id == selectedDistroId }
+
+    /** The family the selected release belongs to, for the summary line. */
+    val selectedFamily: FamilyOption?
+        get() = families.firstOrNull { f -> f.versions.any { it.spec.id == selectedDistroId } }
 
     val selectedDesktop: DesktopSpec?
         get() = desktops.firstOrNull { it.id == selectedDesktopId }

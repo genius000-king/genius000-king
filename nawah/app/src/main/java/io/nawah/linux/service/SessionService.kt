@@ -64,7 +64,8 @@ class SessionService : Service() {
         }
         if (running.value == machineId) {
             // Already up: just bring the display forward.
-            services().sessionLauncher.openDisplay()
+            val machine = services().machineStore.get(machineId)
+            services().sessionLauncher.openDisplay(machine, settings().keepScreenOn)
             return START_NOT_STICKY
         }
 
@@ -103,10 +104,12 @@ class SessionService : Service() {
             stopSelf()
         }
 
-        // The X server surface lives in its own activity; bring it up now. The
-        // guest side re-broadcasts its Binder once a second until this activity
-        // answers, so the two halves do not need to be sequenced.
-        services.sessionLauncher.openDisplay()
+        // The X server surface lives in its own activity. Bringing it up is the
+        // default, and turning it off is for when something is going wrong:
+        // the session log is then the screen you actually want.
+        if (settings().openDisplayOnRun) {
+            services.sessionLauncher.openDisplay(machine, settings().keepScreenOn)
+        }
         return START_NOT_STICKY
     }
 
@@ -127,6 +130,8 @@ class SessionService : Service() {
     }
 
     private fun services() = (application as NawahApplication).services
+
+    private fun settings() = (application as NawahApplication).settings
 
     private fun stopPendingIntent(): PendingIntent = PendingIntent.getService(
         this,

@@ -1,14 +1,21 @@
 package io.nawah.linux.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.nawah.linux.R
@@ -17,6 +24,7 @@ import io.nawah.linux.ui.components.*
 import io.nawah.linux.ui.state.*
 import io.nawah.linux.ui.theme.NawahTheme
 import io.nawah.linux.ui.theme.Spacing
+import io.nawah.linux.ui.util.currentLanguage
 import io.nawah.linux.ui.util.formatBytes
 
 /** Callbacks the wizard needs. Grouped so the screen signature stays readable. */
@@ -24,6 +32,8 @@ data class WizardActions(
     val onBack: () -> Unit = {},
     val onNext: () -> Unit = {},
     val onCancel: () -> Unit = {},
+    /** Opens (or closes) a distribution's list of releases. */
+    val onFamily: (String) -> Unit = {},
     val onDistro: (String) -> Unit = {},
     val onDesktop: (String) -> Unit = {},
     val onName: (String) -> Unit = {},
@@ -96,40 +106,137 @@ fun WizardScreen(state: WizardUiState, actions: WizardActions) {
 @Composable
 private fun StepDistro(state: WizardUiState, actions: WizardActions) {
     Text(stringResource(R.string.wizard_step_distro), style = MaterialTheme.typography.titleLarge)
+    Text(
+        stringResource(R.string.wizard_step_distro_hint),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
     Spacer(Modifier.height(Spacing.md))
-    Column(
-        verticalArrangement = Arrangement.spacedBy(Spacing.sm),
-        modifier = Modifier.selectableGroup(),
+    Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+        state.families.forEach { family ->
+            FamilyCard(
+                family = family,
+                open = family.id == state.openFamilyId,
+                selectedVersionId = state.selectedDistroId,
+                onOpen = { actions.onFamily(family.id) },
+                onVersion = actions.onDistro,
+            )
+        }
+    }
+}
+
+/**
+ * One distribution, with its releases folded away until it is tapped.
+ *
+ * The releases live inside the family's own card rather than on a second screen
+ * so that choosing a different distribution costs one tap, not a back press
+ * and a re-scroll. Only one family is ever open.
+ */
+@Composable
+private fun FamilyCard(
+    family: FamilyOption,
+    open: Boolean,
+    selectedVersionId: String?,
+    onOpen: () -> Unit,
+    onVersion: (String) -> Unit,
+) {
+    val chosen = family.versions.firstOrNull { it.spec.id == selectedVersionId }
+    SelectableCard(
+        selected = chosen != null,
+        enabled = family.selectable,
+        onClick = onOpen,
     ) {
-        state.distros.forEach { option ->
-            val selected = option.spec.id == state.selectedDistroId
-            SelectableCard(
-                selected = selected,
-                enabled = option.selectable,
-                onClick = { actions.onDistro(option.spec.id) },
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text(option.spec.name, style = MaterialTheme.typography.titleMedium)
-                        Text(
-                            formatBytes(option.spec.downloadBytes) + " " +
-                                stringResource(R.string.label_download),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    CompatBadge(option.report.overall)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(family.name, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    // Once a release is chosen the tagline has done its job and
+                    // the useful thing to show is the answer, not the pitch.
+                    chosen?.spec?.version ?: family.tagline,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            CompatBadge(family.bestVerdict)
+            Icon(
+                imageVector = if (open) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = Spacing.sm),
+            )
+        }
+
+        AnimatedVisibility(visible = open) {
+            Column(Modifier.selectableGroup()) {
+                Spacer(Modifier.height(Spacing.sm))
+                HorizontalDivider()
+                family.versions.forEach { option ->
+                    VersionRow(
+                        option = option,
+                        selected = option.spec.id == selectedVersionId,
+                        onClick = { onVersion(option.spec.id) },
+                    )
                 }
-                if (selected) {
+                // The badge above is the family's best case; the signals below
+                // belong to the release actually chosen.
+                chosen?.report?.signals?.let { signals ->
                     Spacer(Modifier.height(Spacing.sm))
                     HorizontalDivider()
                     Spacer(Modifier.height(Spacing.sm))
-                    option.report.signals.forEach {
-                        SignalRow(it.label, it.detail, it.verdict)
-                    }
+                    signals.forEach { SignalRow(it.label, it.detail, it.verdict) }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun VersionRow(option: DistroOption, selected: Boolean, onClick: () -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .selectable(
+                selected = selected,
+                enabled = option.selectable,
+                role = Role.RadioButton,
+                onClick = onClick,
+            )
+            .padding(vertical = Spacing.sm),
+    ) {
+        RadioButton(selected = selected, onClick = null, enabled = option.selectable)
+        Spacer(Modifier.width(Spacing.sm))
+        Column(Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(option.spec.version, style = MaterialTheme.typography.bodyLarge)
+                if (option.spec.lts) {
+                    Spacer(Modifier.width(Spacing.sm))
+                    LtsChip()
+                }
+            }
+            Text(
+                formatBytes(option.spec.downloadBytes) + " " + stringResource(R.string.label_download),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        CompatBadge(option.report.overall)
+    }
+}
+
+/** Marks the release a first-time user should take. */
+@Composable
+private fun LtsChip() {
+    Surface(
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        shape = MaterialTheme.shapes.small,
+    ) {
+        Text(
+            stringResource(R.string.label_lts),
+            style = MaterialTheme.typography.labelSmall,
+            modifier = Modifier.padding(horizontal = Spacing.sm, vertical = 2.dp),
+        )
     }
 }
 
@@ -147,7 +254,10 @@ private fun StepDesktop(state: WizardUiState, actions: WizardActions) {
                 enabled = true,
                 onClick = { actions.onDesktop(spec.id) },
             ) {
-                Text(spec.name, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    spec.name.resolve(LocalContext.current.currentLanguage()),
+                    style = MaterialTheme.typography.titleMedium,
+                )
                 Text(
                     if (spec.installedBytes > 0) {
                         formatBytes(spec.installedBytes) + " " + stringResource(R.string.label_installed)
@@ -289,7 +399,7 @@ private fun StepPermissions(state: WizardUiState, actions: WizardActions) {
             )
             SignalRow(
                 stringResource(R.string.wizard_step_desktop),
-                state.selectedDesktop?.name.orEmpty(), Compatibility.GOOD,
+                state.selectedDesktop?.name?.resolve(LocalContext.current.currentLanguage()).orEmpty(), Compatibility.GOOD,
             )
             SignalRow(
                 stringResource(R.string.label_resolution),
@@ -342,10 +452,13 @@ private fun PreviewWizard4() = NawahTheme {
 
 private fun previewWizard(step: Int): WizardUiState {
     val distro = DistroSpec(
-        "debian-trixie", "Debian 13", "trixie", "library/debian:trixie",
-        49_700_000, 125_000_000, "http://deb.debian.org/debian",
+        id = "debian-trixie", name = "Debian 13", version = "13 · Trixie", codename = "trixie",
+        image = "library/debian:trixie", downloadBytes = 49_700_000,
+        installedBytes = 125_000_000, aptMirror = "http://deb.debian.org/debian", lts = true,
     )
-    val desktop = DesktopSpec("xfce4", "XFCE 4", listOf("xfce4"), "startxfce4", 950_000_000)
+    val desktop = DesktopSpec(
+        "xfce4", LocalizedText.of("XFCE 4"), listOf("xfce4"), "startxfce4", 950_000_000,
+    )
     val report = CompatReport(
         Compatibility.GOOD,
         listOf(
@@ -357,7 +470,10 @@ private fun previewWizard(step: Int): WizardUiState {
     )
     return WizardUiState(
         step = step,
-        distros = listOf(DistroOption(distro, report)),
+        families = listOf(
+            FamilyOption("debian", "Debian", "The stable classic.", listOf(DistroOption(distro, report))),
+        ),
+        openFamilyId = "debian",
         selectedDistroId = distro.id,
         desktops = listOf(desktop),
         selectedDesktopId = desktop.id,

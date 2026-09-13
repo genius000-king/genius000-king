@@ -52,9 +52,18 @@ class SessionLauncher(
 ) {
 
     private val bridge = X11Bridge(context, tools)
+    private val display = LorieSettings(context)
 
-    /** Brings the X display to the foreground. Safe to call when already open. */
-    fun openDisplay() {
+    /**
+     * Brings the X display to the foreground. Safe to call when already open.
+     *
+     * [machine] is applied to the display's preferences first, because the X
+     * activity reads its screen size when it creates its surface — after that
+     * point a change costs a restart of the desktop.
+     */
+    fun openDisplay(machine: Machine? = null, keepScreenOn: Boolean = false) {
+        machine?.let { display.applyResolution(it.displayWidth, it.displayHeight) }
+        display.applyKeepScreenOn(keepScreenOn)
         val intent = Intent().apply {
             setClassName(context.packageName, X11_ACTIVITY)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -154,8 +163,6 @@ class SessionLauncher(
             // directory outright. The session script creates this one 0700.
             put("XDG_RUNTIME_DIR", GuestScripts.RUNTIME_DIR)
             put("XDG_SESSION_TYPE", "x11")
-            put("NAWAH_DISPLAY_WIDTH", machine.displayWidth.toString())
-            put("NAWAH_DISPLAY_HEIGHT", machine.displayHeight.toString())
             if (machine.permissions.audioOut || machine.permissions.microphone) {
                 // PulseAudio runs on the Android side and is reached over
                 // loopback TCP; there is no shared /run between the two worlds.

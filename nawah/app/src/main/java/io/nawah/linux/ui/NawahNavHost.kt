@@ -6,12 +6,14 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.activity.compose.LocalActivity
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
+import io.nawah.linux.BuildConfig
 import io.nawah.linux.ui.screens.*
 import io.nawah.linux.vm.NawahViewModel
 import kotlinx.coroutines.launch
@@ -24,6 +26,8 @@ private object Routes {
     const val SETTINGS = "settings/{id}"
     const val DIAGNOSTICS = "diagnostics"
     const val SESSION = "session"
+    const val APP_SETTINGS = "app-settings"
+    const val ABOUT = "about"
     fun settings(id: String) = "settings/$id"
 }
 
@@ -50,6 +54,33 @@ fun NawahNavHost(
                 onRepair = { vm.repair(it) },
                 onDelete = { vm.delete(it) },
                 onDiagnostics = { vm.loadDiagnostics(); nav.navigate(Routes.DIAGNOSTICS) },
+                onAppSettings = { vm.loadAppSettings(); nav.navigate(Routes.APP_SETTINGS) },
+            )
+        }
+
+        composable(Routes.APP_SETTINGS) {
+            val state by vm.settingsApp.collectAsStateWithLifecycle()
+            val activity = LocalActivity.current
+            AppSettingsScreen(
+                state = state,
+                onBack = { nav.popBackStack() },
+                // The language reaches the screen through the Activity's base
+                // context, which is built once in attachBaseContext -- so the
+                // Activity has to be recreated for a change to appear at all.
+                onLanguage = { if (vm.setLanguage(it)) activity?.recreate() },
+                onKeepScreenOn = vm::setKeepScreenOn,
+                onOpenDisplayOnRun = vm::setOpenDisplayOnRun,
+                onDiagnostics = { vm.loadDiagnostics(); nav.navigate(Routes.DIAGNOSTICS) },
+                onAbout = { nav.navigate(Routes.ABOUT) },
+            )
+        }
+
+        composable(Routes.ABOUT) {
+            AboutScreen(
+                versionName = BuildConfig.VERSION_NAME,
+                sourceUrl = SOURCE_URL,
+                onBack = { nav.popBackStack() },
+                onOpenUrl = context::openUrl,
             )
         }
 
@@ -61,6 +92,7 @@ fun NawahNavHost(
                     onBack = vm::wizardBack,
                     onNext = vm::wizardNext,
                     onCancel = { nav.popBackStack(Routes.HOME, false) },
+                    onFamily = vm::openFamily,
                     onDistro = vm::selectDistro,
                     onDesktop = vm::selectDesktop,
                     onName = vm::setName,
@@ -135,6 +167,18 @@ fun NawahNavHost(
                 onClearCrash = vm::clearCrash,
             )
         }
+    }
+}
+
+/** Where the source lives. Shown in About, and the licence requires it. */
+private const val SOURCE_URL = "https://github.com/genius000-king/nawah"
+
+private fun Context.openUrl(url: String) {
+    runCatching {
+        startActivity(
+            android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
+                .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK),
+        )
     }
 }
 
