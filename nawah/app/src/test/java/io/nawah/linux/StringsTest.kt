@@ -18,6 +18,9 @@ class StringsTest {
     private val english = read("app/src/main/res/values/strings.xml")
     private val arabic = read("app/src/main/res/values-ar/strings.xml")
 
+    private operator fun Map<String, String>.plus(other: Map<String, String>): List<Pair<String, String>> =
+        toList() + other.toList()
+
     private fun read(path: String): Map<String, String> {
         val file = File(path).takeIf { it.isFile } ?: File("../$path")
         val text = file.readText()
@@ -44,6 +47,19 @@ class StringsTest {
             .filter { english[it] == arabic[it] && english.getValue(it).count { c -> c == ' ' } >= 3 }
 
         assertThat(untranslated).isEmpty()
+    }
+
+    @Test
+    fun `every apostrophe is escaped`() {
+        // An unescaped apostrophe is not a warning: aapt refuses to flatten the
+        // resource and the whole build fails with "Invalid unicode escape
+        // sequence in string" — a message that names neither the quote nor the
+        // word it is in. It has cost this project three builds.
+        val unescaped = (english + arabic)
+            .filter { (_, value) -> Regex("""(?<!\\)'""").containsMatchIn(value) }
+            .map { it.first }
+
+        assertThat(unescaped).isEmpty()
     }
 
     @Test

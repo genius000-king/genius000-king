@@ -27,6 +27,8 @@ data class MachineSettingsActions(
     val onSaveName: () -> Unit = {},
     val onPermissions: (MachinePermissions) -> Unit = {},
     val onResolution: (ResolutionOption) -> Unit = {},
+    /** Opens the list of software that can be added to this machine. */
+    val onSoftware: () -> Unit = {},
     val onRepair: () -> Unit = {},
     val onRequestDelete: () -> Unit = {},
     val onConfirmDelete: () -> Unit = {},
@@ -107,6 +109,20 @@ fun MachineSettingsScreen(state: MachineSettingsUiState, actions: MachineSetting
             ExplainedSwitch(stringResource(R.string.perm_storage),
                 stringResource(R.string.perm_storage_help), p.storage) {
                 actions.onPermissions(p.copy(storage = it))
+            }
+
+            SectionHeader(stringResource(R.string.software_title))
+            Text(
+                stringResource(R.string.software_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(Spacing.sm))
+            OutlinedButton(
+                onClick = actions.onSoftware,
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+            ) {
+                Text(stringResource(R.string.software_title))
             }
 
             SectionHeader(stringResource(R.string.settings_maintenance))

@@ -2,6 +2,8 @@ package io.nawah.linux.core.provision
 
 import io.nawah.linux.core.model.Machine
 import io.nawah.linux.core.model.DesktopSpec
+import io.nawah.linux.core.model.DistroSpec
+import io.nawah.linux.core.model.LocalizedText
 import io.nawah.linux.core.model.MachineState
 import io.nawah.linux.core.oci.OciArch
 import io.nawah.linux.core.oci.OciClient
@@ -46,9 +48,19 @@ class ProotProvisioner(
     private val arch: OciArch,
     /** Resolves a machine's desktop id against the catalog. */
     private val desktopFor: (String) -> DesktopSpec?,
+    /** Resolves a machine's distribution id against the catalog. */
+    private val distroFor: (String) -> DistroSpec?,
 ) : Provisioner {
 
     private val guestFiles = GuestFileWriter(store)
+
+    private val FALLBACK_DESKTOP = DesktopSpec(
+        id = "none",
+        name = LocalizedText.of("Command line only"),
+        packages = emptyList(),
+        startCommand = "",
+        installedBytes = 0,
+    )
 
     override fun resume(machineId: String): Flow<InstallProgress>? {
         val checkpoint = InstallCheckpoint.load(store.machineDir(machineId)) ?: return null
@@ -159,7 +171,7 @@ class ProotProvisioner(
             // its own state in dpkg, so re-running after an interruption picks
             // up where it stopped instead of re-fetching what it already has.
             step = InstallStep.INSTALLING_PACKAGES
-            val packages = (BASE_PACKAGES + request.desktop.packages).distinct()
+            val packages = (BASE_PACKAGES + request.desktop.packages + request.appPackages).distinct()
             // ~10 MB of index. Re-downloading it on every retry is the kind of
             // waste a user on mobile data notices.
             if (aptListsAreStale(id)) {
@@ -217,6 +229,71 @@ class ProotProvisioner(
             )
         }
     }.flowOn(Dispatchers.IO)
+
+    /**
+     * Adds packages to an installed machine. See [Provisioner.installApps].
+     *
+     * Reported through the same [InstallProgress] the first install uses, so
+     * the screen that shows it needs no second shape — but only one step is
+     * ever reached, because nothing here downloads an image or unpacks a
+     * filesystem.
+     */
+    override fun installApps(
+        machineId: String,
+        appIds: List<String>,
+        packages: List<String>,
+    ): Flow<InstallProgress> = channelFlow {
+        val machine = store.get(machineId)
+        if (machine == null || packages.isEmpty()) {
+            send(InstallProgress.Failed(InstallStep.INSTALLING_PACKAGES, "no such system", ""))
+            return@channelFlow
+        }
+        val request = machine.toInstallRequest()
+        val step = InstallStep.INSTALLING_PACKAGES
+        send(InstallProgress.Running(step))
+        try {
+            if (aptListsAreStale(machineId)) {
+                runGuestChecked(machineId, request, "apt-get update") {
+                    send(InstallProgress.Running(step, line = it))
+                }
+            }
+            runGuestChecked(
+                machineId, request,
+                "DEBIAN_FRONTEND=noninteractive apt-get install -y " +
+                    "--no-install-recommends ${packages.joinToString(" ")}",
+            ) { send(InstallProgress.Running(step, line = it)) }
+
+            val updated = machine.copy(appIds = (machine.appIds + appIds).distinct())
+            store.put(updated)
+            send(InstallProgress.Done(updated))
+        } catch (e: Throwable) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            send(
+                InstallProgress.Failed(
+                    step,
+                    e.message ?: e::class.java.simpleName,
+                    "",
+                ),
+            )
+        }
+    }.flowOn(Dispatchers.IO)
+
+    /**
+     * Enough of an [InstallRequest] to run a command in an existing machine.
+     *
+     * The runtime only reads the distro's identity and the machine's own
+     * settings from it; the download and desktop fields are never consulted
+     * once a rootfs exists.
+     */
+    private fun Machine.toInstallRequest(): InstallRequest = InstallRequest(
+        machineId = id,
+        name = name,
+        distro = requireNotNull(distroFor(distroId)) { "unknown distribution $distroId" },
+        desktop = desktopFor(desktopId) ?: FALLBACK_DESKTOP,
+        profile = profile,
+        permissions = permissions,
+        displayScalePercent = displayScalePercent,
+    )
 
     override suspend fun remove(machineId: String) = store.delete(machineId)
 
@@ -329,6 +406,7 @@ class ProotProvisioner(
         profile = profile,
         permissions = permissions,
         displayScalePercent = displayScalePercent,
+        appIds = appIds,
         createdAtEpochMs = System.currentTimeMillis(),
         state = state,
     )

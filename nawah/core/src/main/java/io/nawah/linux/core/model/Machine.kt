@@ -86,6 +86,8 @@ data class Machine(
      */
     val displayWidth: Int = 0,
     val displayHeight: Int = 0,
+    /** Optional software installed into this machine, by catalog id. */
+    val appIds: List<String> = emptyList(),
     val createdAtEpochMs: Long,
     val state: MachineState,
 )

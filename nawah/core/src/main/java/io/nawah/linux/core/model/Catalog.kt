@@ -135,3 +135,40 @@ data class DistroFamily(
         get() = versions.firstOrNull { it.enabled && it.lts }
             ?: versions.firstOrNull { it.enabled }
 }
+
+
+/** Where an optional app sits in the picker. */
+@Serializable
+enum class AppCategory { BROWSER, DEVELOPMENT, HARDWARE, LOOKS, UTILITIES }
+
+/**
+ * Software offered on top of a desktop.
+ *
+ * A desktop is installed with `--no-install-recommends`, which is what keeps it
+ * under a gigabyte and is also why a fresh XFCE has no browser at all. Rather
+ * than quietly dragging in a few hundred megabytes nobody asked for, the choice
+ * is offered.
+ *
+ * ### Why [packages] is keyed by distribution family
+ * Because one list is not right everywhere, and the difference is not cosmetic.
+ * On Ubuntu, `firefox` and `chromium-browser` are transitional packages that
+ * pull a **snap**, and snaps do not run in a proot container: installing them
+ * would look like success and produce a browser that cannot start. Both are
+ * therefore Debian-only here, and an app with no entry for a family is simply
+ * not offered on it.
+ */
+@Serializable
+data class AppSpec(
+    val id: String,
+    val name: LocalizedText,
+    val category: AppCategory,
+    val description: LocalizedText,
+    /** Family id (`debian`, `ubuntu`) to the packages to install there. */
+    val packages: Map<String, List<String>>,
+    val installedBytes: Long,
+    /** See [DistroSpec.enabled]. */
+    val enabled: Boolean = true,
+) {
+    /** Null when this app has nothing that works on [familyId]. */
+    fun packagesFor(familyId: String): List<String>? = packages[familyId]?.takeIf { it.isNotEmpty() }
+}

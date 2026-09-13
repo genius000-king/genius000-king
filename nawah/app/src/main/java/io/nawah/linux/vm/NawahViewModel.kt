@@ -172,6 +172,42 @@ class NawahViewModel(app: Application) : AndroidViewModel(app) {
         _appSettings.update { it.copy(openDisplayOnRun = value) }
     }
 
+    // -- software on an existing machine -------------------------------------
+
+    private val _software = MutableStateFlow(SoftwareUiState())
+    val software: StateFlow<SoftwareUiState> = _software.asStateFlow()
+
+    fun openSoftware(machineId: String) {
+        val machine = services.machineStore.get(machineId) ?: return
+        _software.value = SoftwareUiState(
+            machineId = machine.id,
+            machineName = machine.name,
+            apps = services.catalog.appsFor(machine.distroId),
+            installedIds = machine.appIds.toSet(),
+        )
+    }
+
+    fun toggleSoftware(id: String, on: Boolean) = _software.update {
+        it.copy(selectedIds = if (on) it.selectedIds + id else it.selectedIds - id)
+    }
+
+    /** Returns false when there is nothing to do. */
+    fun installSoftware(): Boolean {
+        val state = _software.value
+        val machine = services.machineStore.get(state.machineId) ?: return false
+        val family = services.catalog.familyOf(machine.distroId)?.id ?: return false
+        val chosen = state.apps.filter { it.id in state.selectedIds && it.id !in state.installedIds }
+        val packages = chosen.flatMap { it.packagesFor(family).orEmpty() }
+        if (packages.isEmpty()) return false
+
+        _install.value = InstallUiState(
+            machineName = machine.name,
+            steps = listOf(InstallStep.INSTALLING_PACKAGES.toUi()),
+        )
+        InstallService.installSoftware(getApplication(), machine.id, chosen.map { it.id }, packages)
+        return true
+    }
+
     // -- usb -----------------------------------------------------------------
 
     private val usbDevices by lazy { UsbDevices(getApplication()) }
@@ -235,17 +271,28 @@ class NawahViewModel(app: Application) : AndroidViewModel(app) {
             state.copy(openFamilyId = null)
         } else {
             val family = state.families.firstOrNull { it.id == id }
+            val chosen = family?.default?.spec?.id ?: state.selectedDistroId
             state.copy(
                 openFamilyId = id,
-                selectedDistroId = family?.default?.spec?.id ?: state.selectedDistroId,
+                selectedDistroId = chosen,
+                // The software list depends on the release: an app with no
+                // package that works on this distribution is not offered.
+                apps = chosen?.let { services.catalog.appsFor(it) }.orEmpty(),
+                selectedAppIds = state.selectedAppIds,
             )
         }
     }
 
     fun wizardBack() = _wizard.update { it.copy(step = (it.step - 1).coerceAtLeast(1)) }
     fun wizardNext() = _wizard.update { it.copy(step = (it.step + 1).coerceAtMost(it.totalSteps)) }
-    fun selectDistro(id: String) = _wizard.update { it.copy(selectedDistroId = id) }
+    fun selectDistro(id: String) = _wizard.update {
+        it.copy(selectedDistroId = id, apps = services.catalog.appsFor(id))
+    }
     fun selectDesktop(id: String) = _wizard.update { it.copy(selectedDesktopId = id) }
+
+    fun toggleApp(id: String, on: Boolean) = _wizard.update {
+        it.copy(selectedAppIds = if (on) it.selectedAppIds + id else it.selectedAppIds - id)
+    }
     fun selectProfile(p: ResourceProfile) = _wizard.update { it.copy(profile = p) }
     fun selectResolution(r: ResolutionOption) = _wizard.update { it.copy(selectedResolution = r) }
     fun setPermissions(p: MachinePermissions) = _wizard.update { it.copy(permissions = p) }
@@ -269,6 +316,10 @@ class NawahViewModel(app: Application) : AndroidViewModel(app) {
             profile = s.profile,
             permissions = s.permissions,
             displayScalePercent = s.selectedResolution.percent,
+            appPackages = s.selectedApps.flatMap {
+                it.packagesFor(s.selectedFamily?.id.orEmpty()).orEmpty()
+            },
+            appIds = s.selectedApps.map { it.id },
         )
         _install.value = InstallUiState(
             machineName = request.name,

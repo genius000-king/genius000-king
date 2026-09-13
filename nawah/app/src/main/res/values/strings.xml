@@ -187,4 +187,17 @@
     <string name="settings_section_hardware">Hardware</string>
     <string name="scale_native">Full screen</string>
     <string name="scale_percent">%1$d%% — lighter to draw</string>
+    <string name="wizard_step_software">Software</string>
+    <string name="wizard_step_software_hint">A fresh desktop comes with nothing extra — not even a browser. Pick what you want now.</string>
+    <string name="wizard_software_later">You can add any of this later, from the system\'s settings.</string>
+    <string name="app_category_browser">Browser</string>
+    <string name="app_category_development">Development</string>
+    <string name="app_category_hardware">Hardware</string>
+    <string name="app_category_looks">Appearance</string>
+    <string name="app_category_utilities">Utilities</string>
+    <string name="software_title">Software</string>
+    <string name="software_desc">Add a browser, a compiler or tools to this system.</string>
+    <string name="software_installed">Installed</string>
+    <string name="software_install">Install selected</string>
+    <string name="software_none_selected">Nothing selected</string>
 </resources>

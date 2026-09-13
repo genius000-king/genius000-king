@@ -39,6 +39,8 @@ private object Routes {
     const val APP_SETTINGS = "app-settings"
     const val ABOUT = "about"
     const val USB = "usb"
+    const val SOFTWARE = "software/{id}"
+    fun software(id: String) = "software/$id"
     fun settings(id: String) = "settings/$id"
 }
 
@@ -87,6 +89,23 @@ fun NawahNavHost(
             )
         }
 
+        composable(Routes.SOFTWARE) {
+            val state by vm.software.collectAsStateWithLifecycle()
+            SoftwareScreen(
+                machineName = state.machineName,
+                apps = state.apps,
+                installedIds = state.installedIds,
+                selectedIds = state.selectedIds,
+                onBack = { nav.popBackStack() },
+                onToggle = vm::toggleSoftware,
+                onInstall = {
+                    if (vm.installSoftware()) {
+                        nav.navigate(Routes.INSTALL) { popUpTo(Routes.HOME) { inclusive = false } }
+                    }
+                },
+            )
+        }
+
         composable(Routes.USB) {
             val devices by vm.usb.collectAsStateWithLifecycle()
             LaunchedEffect(Unit) { vm.refreshUsb() }
@@ -119,6 +138,7 @@ fun NawahNavHost(
                     onFamily = vm::openFamily,
                     onDistro = vm::selectDistro,
                     onDesktop = vm::selectDesktop,
+                    onApp = vm::toggleApp,
                     onName = vm::setName,
                     onProfile = vm::selectProfile,
                     onResolution = vm::selectResolution,
@@ -154,6 +174,10 @@ fun NawahNavHost(
                     onSaveName = { vm.saveSettings() },
                     onPermissions = rememberMicrophoneGate(state.permissions, vm::settingsPermissions),
                     onResolution = vm::settingsResolution,
+                    onSoftware = {
+                        vm.openSoftware(state.machineId)
+                        nav.navigate(Routes.software(state.machineId))
+                    },
                     onRepair = { vm.repair(state.machineId) },
                     onRequestDelete = vm::requestDelete,
                     onConfirmDelete = {

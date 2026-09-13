@@ -5,10 +5,6 @@ on:
     branches: ["**"]
   pull_request:
 
-defaults:
-  run:
-    working-directory: nawah
-
 jobs:
   apk:
     runs-on: ubuntu-latest
@@ -30,7 +26,6 @@ jobs:
       # source, which needs more than the NDK alone.
       - name: Install native build dependencies
         run: sudo apt-get update && sudo apt-get install -y bison cmake ninja-build patch patchelf
-        working-directory: .
 
       - uses: gradle/actions/setup-gradle@v4
 
@@ -44,7 +39,6 @@ jobs:
         run: |
           curl -sSf -o /tmp/Packages.gz \
             https://deb.debian.org/debian/dists/trixie/main/binary-arm64/Packages.gz
-        working-directory: .
 
       - name: Build and test
         env:
@@ -54,7 +48,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: nawah-debug-apk
-          path: nawah/app/build/outputs/apk/debug/*.apk
+          path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v4
@@ -62,5 +56,5 @@ jobs:
         with:
           name: reports
           path: |
-            nawah/app/build/reports/
-            nawah/core/build/reports/
+            app/build/reports/
+            core/build/reports/

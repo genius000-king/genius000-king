@@ -177,4 +177,17 @@
     <string name="settings_section_hardware">العتاد</string>
     <string name="scale_native">ملء الشاشة</string>
     <string name="scale_percent">%1$d%% — أخفّ في الرسم</string>
+    <string name="wizard_step_software">البرامج</string>
+    <string name="wizard_step_software_hint">سطح المكتب الجديد يأتي بلا أي إضافة — ولا حتى متصفح. اختر ما تريده الآن.</string>
+    <string name="wizard_software_later">تستطيع إضافة أي من هذا لاحقًا من إعدادات النظام.</string>
+    <string name="app_category_browser">متصفح</string>
+    <string name="app_category_development">برمجة</string>
+    <string name="app_category_hardware">عتاد</string>
+    <string name="app_category_looks">المظهر</string>
+    <string name="app_category_utilities">أدوات</string>
+    <string name="software_title">البرامج</string>
+    <string name="software_desc">أضف متصفحًا أو مترجمًا أو أدوات إلى هذا النظام.</string>
+    <string name="software_installed">مثبّت</string>
+    <string name="software_install">تثبيت المحدَّد</string>
+    <string name="software_none_selected">لم تختر شيئًا</string>
 </resources>

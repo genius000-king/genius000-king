@@ -89,8 +89,18 @@ class InstallService : Service() {
         val services = (application as NawahApplication).services
         val resumeId = intent?.takeIf { it.action == ACTION_RESUME }
             ?.getStringExtra(EXTRA_MACHINE_ID)
+        val softwareId = intent?.takeIf { it.action == ACTION_SOFTWARE }
+            ?.getStringExtra(EXTRA_MACHINE_ID)
 
-        val flow = if (resumeId != null) {
+        val flow = if (softwareId != null) {
+            // Adding to a system that already exists. The answer to "my system
+            // has no browser" cannot be "install the system again".
+            services.provisioner.installApps(
+                machineId = softwareId,
+                appIds = intent.getStringArrayListExtra(EXTRA_APP_IDS).orEmpty(),
+                packages = intent.getStringArrayListExtra(EXTRA_PACKAGES).orEmpty(),
+            )
+        } else if (resumeId != null) {
             services.provisioner.resume(resumeId)
                 ?: return START_NOT_STICKY.also { stopSelf() }
         } else {
@@ -98,7 +108,7 @@ class InstallService : Service() {
                 ?: return START_NOT_STICKY.also { stopSelf() }
             services.provisioner.install(request)
         }
-        val label = resumeId?.let { services.machineStore.get(it)?.name }
+        val label = (softwareId ?: resumeId)?.let { services.machineStore.get(it)?.name }
             ?: intent?.let { InstallRequestCodec.decode(it) }?.name
             ?: getString(R.string.app_name)
 
@@ -181,7 +191,10 @@ class InstallService : Service() {
         private const val TAG = "NawahInstall"
         const val ACTION_CANCEL = "io.nawah.linux.action.CANCEL_INSTALL"
         const val ACTION_RESUME = "io.nawah.linux.action.RESUME_INSTALL"
+        const val ACTION_SOFTWARE = "io.nawah.linux.action.INSTALL_SOFTWARE"
         const val EXTRA_MACHINE_ID = "io.nawah.linux.extra.MACHINE_ID"
+        const val EXTRA_APP_IDS = "io.nawah.linux.extra.APP_IDS"
+        const val EXTRA_PACKAGES = "io.nawah.linux.extra.PACKAGES"
 
         /** At most one notification per second, however fast the log scrolls. */
         private const val NOTIFY_INTERVAL_MS = 1_000L
@@ -206,6 +219,22 @@ class InstallService : Service() {
                 Intent(context, InstallService::class.java)
                     .setAction(ACTION_RESUME)
                     .putExtra(EXTRA_MACHINE_ID, machineId),
+            )
+        }
+
+        /** Adds software to an installed machine. See Provisioner.installApps. */
+        fun installSoftware(
+            context: Context,
+            machineId: String,
+            appIds: List<String>,
+            packages: List<String>,
+        ) {
+            context.startForegroundService(
+                Intent(context, InstallService::class.java)
+                    .setAction(ACTION_SOFTWARE)
+                    .putExtra(EXTRA_MACHINE_ID, machineId)
+                    .putStringArrayListExtra(EXTRA_APP_IDS, ArrayList(appIds))
+                    .putStringArrayListExtra(EXTRA_PACKAGES, ArrayList(packages)),
             )
         }
 

@@ -57,6 +57,10 @@ data class InstallRequest(
     val permissions: MachinePermissions,
     /** Percentage of the phone's screen; 100 is native. See [Machine]. */
     val displayScalePercent: Int = 100,
+    /** Optional software chosen in the wizard, already resolved for this distro. */
+    val appPackages: List<String> = emptyList(),
+    /** The ids behind [appPackages], recorded on the machine. */
+    val appIds: List<String> = emptyList(),
     val dnsServers: List<String> = listOf("1.1.1.1", "8.8.8.8"),
 )
 
@@ -68,6 +72,22 @@ interface Provisioner {
      * finished. Null when there is no record to continue from.
      */
     fun resume(machineId: String): kotlinx.coroutines.flow.Flow<InstallProgress>?
+    /**
+     * Installs more software into a machine that already exists.
+     *
+     * The answer to "my system has no browser" cannot be "install the system
+     * again". A desktop is installed with `--no-install-recommends` and comes
+     * with nothing extra by design, so adding to it later is a first-class
+     * operation rather than a repair.
+     *
+     * @param packages already resolved for this machine's distribution family.
+     */
+    fun installApps(
+        machineId: String,
+        appIds: List<String>,
+        packages: List<String>,
+    ): kotlinx.coroutines.flow.Flow<InstallProgress>
+
     suspend fun remove(machineId: String)
     suspend fun repairX11Bridge(machineId: String)
 }

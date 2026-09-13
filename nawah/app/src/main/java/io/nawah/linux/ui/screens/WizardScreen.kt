@@ -36,6 +36,7 @@ data class WizardActions(
     val onFamily: (String) -> Unit = {},
     val onDistro: (String) -> Unit = {},
     val onDesktop: (String) -> Unit = {},
+    val onApp: (String, Boolean) -> Unit = { _, _ -> },
     val onName: (String) -> Unit = {},
     val onProfile: (ResourceProfile) -> Unit = {},
     val onResolution: (ResolutionOption) -> Unit = {},
@@ -95,7 +96,8 @@ fun WizardScreen(state: WizardUiState, actions: WizardActions) {
             when (state.step) {
                 1 -> StepDistro(state, actions)
                 2 -> StepDesktop(state, actions)
-                3 -> StepResources(state, actions)
+                3 -> StepSoftware(state, actions)
+                4 -> StepResources(state, actions)
                 else -> StepPermissions(state, actions)
             }
             Spacer(Modifier.height(Spacing.xl))
@@ -321,6 +323,86 @@ private fun WeightChip(weight: DesktopWeight) {
         DesktopWeight.HEAVY -> Triple(R.string.weight_heavy, colors.badContainer, colors.bad)
     }
     StateChip(stringResource(label), content, container)
+}
+
+/**
+ * Optional software.
+ *
+ * It exists because a desktop installed with `--no-install-recommends` has no
+ * browser at all, and the first thing anyone does on a new system is look for
+ * one. Offering the choice is better than quietly adding three hundred
+ * megabytes nobody asked for — and better than the discovery that there is
+ * nothing there.
+ */
+@Composable
+private fun StepSoftware(state: WizardUiState, actions: WizardActions) {
+    val language = LocalContext.current.currentLanguage()
+    Text(stringResource(R.string.wizard_step_software), style = MaterialTheme.typography.titleLarge)
+    Text(
+        stringResource(R.string.wizard_step_software_hint),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    Spacer(Modifier.height(Spacing.md))
+
+    AppCategory.entries.forEach { category ->
+        val inCategory = state.apps.filter { it.category == category }
+        if (inCategory.isEmpty()) return@forEach
+        SectionHeader(stringResource(categoryLabel(category)))
+        Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+            inCategory.forEach { app ->
+                AppRow(
+                    app = app,
+                    language = language,
+                    checked = app.id in state.selectedAppIds,
+                    onCheckedChange = { actions.onApp(app.id, it) },
+                )
+            }
+        }
+    }
+    Spacer(Modifier.height(Spacing.md))
+    Text(
+        stringResource(R.string.wizard_software_later),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
+@Composable
+private fun AppRow(
+    app: AppSpec,
+    language: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    SelectableCard(selected = checked, enabled = true, onClick = { onCheckedChange(!checked) }) {
+        Row(verticalAlignment = Alignment.Top) {
+            Checkbox(checked = checked, onCheckedChange = null)
+            Spacer(Modifier.width(Spacing.sm))
+            Column(Modifier.weight(1f)) {
+                Text(app.name.resolve(language), style = MaterialTheme.typography.titleSmall)
+                Text(
+                    app.description.resolve(language),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Spacer(Modifier.width(Spacing.sm))
+            Text(
+                formatBytes(app.installedBytes),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+internal fun categoryLabel(category: AppCategory): Int = when (category) {
+    AppCategory.BROWSER -> R.string.app_category_browser
+    AppCategory.DEVELOPMENT -> R.string.app_category_development
+    AppCategory.HARDWARE -> R.string.app_category_hardware
+    AppCategory.LOOKS -> R.string.app_category_looks
+    AppCategory.UTILITIES -> R.string.app_category_utilities
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

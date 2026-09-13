@@ -4,10 +4,6 @@ on:
   push:
     tags: ["v*"]
 
-defaults:
-  run:
-    working-directory: nawah
-
 permissions:
   contents: write
 
@@ -28,7 +24,6 @@ jobs:
 
       - name: Install native build dependencies
         run: sudo apt-get update && sudo apt-get install -y bison cmake ninja-build patch patchelf
-        working-directory: .
 
       - uses: gradle/actions/setup-gradle@v4
 
@@ -68,7 +63,7 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           files: |
-            nawah/app/build/outputs/apk/release/*.apk
-            nawah/app/build/outputs/bundle/release/*.aab
-            nawah/app/build/outputs/SHA256SUMS
+            app/build/outputs/apk/release/*.apk
+            app/build/outputs/bundle/release/*.aab
+            app/build/outputs/SHA256SUMS
           generate_release_notes: true

@@ -132,6 +132,58 @@ class CatalogTest {
     }
 
     @Test
+    fun `no app installs a snap wrapper, which cannot run in a container`() {
+        // The trap this exists for: on Ubuntu, `firefox` and `chromium-browser`
+        // are transitional packages that pull a snap, and snaps do not run in a
+        // proot container. Offering them there would install successfully and
+        // produce a browser that cannot start.
+        val snapTraps = setOf("firefox", "chromium-browser")
+        val ubuntuPackages = catalog.apps.flatMap { it.packages["ubuntu"].orEmpty() }
+
+        assertThat(ubuntuPackages).containsNoneIn(snapTraps)
+        // And they are still offered where they are real debs.
+        assertThat(catalog.apps.flatMap { it.packages["debian"].orEmpty() })
+            .containsAtLeast("firefox-esr", "chromium")
+    }
+
+    @Test
+    fun `every app offers at least one distribution, and none offers an empty list`() {
+        for (app in catalog.apps) {
+            assertThat(app.packages).isNotEmpty()
+            for ((family, packages) in app.packages) {
+                assertThat(packages).isNotEmpty()
+                // A family nobody ships means an app that can never be chosen.
+                assertThat(catalog.families.map { it.id }).contains(family)
+            }
+        }
+    }
+
+    @Test
+    fun `an app with nothing for this distribution is not offered on it`() {
+        val onUbuntu = catalog.appsFor("ubuntu-noble").map { it.id }
+        val onDebian = catalog.appsFor("debian-trixie").map { it.id }
+
+        assertThat(onDebian).containsAtLeast("firefox", "chromium", "falkon")
+        assertThat(onUbuntu).contains("falkon")
+        assertThat(onUbuntu).doesNotContain("firefox")
+        assertThat(onUbuntu).doesNotContain("chromium")
+    }
+
+    @Test
+    fun `every app is described in both languages`() {
+        for (app in catalog.apps) {
+            assertThat(app.description.resolve("ar")).isNotEmpty()
+            assertThat(app.description.resolve("ar")).isNotEqualTo(app.description.resolve("en"))
+            assertThat(app.installedBytes).isGreaterThan(0L)
+        }
+    }
+
+    @Test
+    fun `every app id is unique`() {
+        assertThat(catalog.apps.map { it.id }).containsNoDuplicates()
+    }
+
+    @Test
     fun `a release can be found from the id a machine stores`() {
         assertThat(catalog.distro("ubuntu-noble")?.name).isEqualTo("Ubuntu 24.04 LTS")
         assertThat(catalog.familyOf("ubuntu-noble")?.name).isEqualTo("Ubuntu")

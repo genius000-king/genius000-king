@@ -49,6 +49,7 @@ class Services(context: Context) {
             arch = Build.SUPPORTED_ABIS.firstNotNullOfOrNull { OciArch.fromAbi(it) }
                 ?: error("no system image is published for ${Build.SUPPORTED_ABIS.joinToString()}"),
             desktopFor = { id -> catalog.desktop(id) },
+            distroFor = { id -> catalog.distro(id) },
         )
     }
 

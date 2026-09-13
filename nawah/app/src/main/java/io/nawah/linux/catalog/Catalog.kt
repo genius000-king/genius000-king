@@ -1,6 +1,7 @@
 package io.nawah.linux.catalog
 
 import android.content.Context
+import io.nawah.linux.core.model.AppSpec
 import io.nawah.linux.core.model.DesktopSpec
 import io.nawah.linux.core.model.DistroFamily
 import io.nawah.linux.core.model.DistroSpec
@@ -20,11 +21,19 @@ import kotlinx.serialization.json.Json
 class Catalog private constructor(
     val families: List<DistroFamily>,
     val desktops: List<DesktopSpec>,
+    val apps: List<AppSpec>,
 ) {
     /** Every enabled version across every enabled family, in catalog order. */
     val distros: List<DistroSpec> = families.flatMap { it.versions }
 
     fun distro(id: String): DistroSpec? = distros.firstOrNull { it.id == id }
+    fun app(id: String): AppSpec? = apps.firstOrNull { it.id == id }
+
+    /** The apps installable on a given release, in catalog order. */
+    fun appsFor(distroId: String): List<AppSpec> {
+        val family = familyOf(distroId)?.id ?: return emptyList()
+        return apps.filter { it.packagesFor(family) != null }
+    }
     fun desktop(id: String): DesktopSpec? = desktops.firstOrNull { it.id == id }
 
     /** The family a version belongs to, for showing a machine's origin. */
@@ -49,7 +58,11 @@ class Catalog private constructor(
                 json.decodeFromString<List<DesktopSpec>>(it)
             }.filter { it.enabled }
 
-            return Catalog(families, desktops)
+            val apps = read("catalog/apps.json") {
+                json.decodeFromString<List<AppSpec>>(it)
+            }.filter { it.enabled }
+
+            return Catalog(families, desktops, apps)
         }
     }
 }

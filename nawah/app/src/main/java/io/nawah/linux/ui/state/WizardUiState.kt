@@ -1,6 +1,7 @@
 package io.nawah.linux.ui.state
 
 import androidx.compose.runtime.Immutable
+import io.nawah.linux.core.model.AppSpec
 import io.nawah.linux.core.model.Compatibility
 import io.nawah.linux.core.model.CompatReport
 import io.nawah.linux.core.model.DesktopSpec
@@ -79,6 +80,9 @@ data class WizardUiState(
     val selectedDistroId: String? = null,
     val desktops: List<DesktopSpec> = emptyList(),
     val selectedDesktopId: String? = null,
+    /** Optional software available for the chosen release. */
+    val apps: List<AppSpec> = emptyList(),
+    val selectedAppIds: Set<String> = emptySet(),
     val machineName: String = "",
     val nameError: NameError? = null,
     val profile: ResourceProfile = ResourceProfile.BALANCED,
@@ -104,10 +108,14 @@ data class WizardUiState(
     val selectedDesktop: DesktopSpec?
         get() = desktops.firstOrNull { it.id == selectedDesktopId }
 
-    /** Base rootfs + desktop packages. An estimate, and labelled as one in the UI. */
+    val selectedApps: List<AppSpec>
+        get() = apps.filter { it.id in selectedAppIds }
+
+    /** Base rootfs + desktop packages + chosen software. Labelled an estimate. */
     val estimatedInstalledBytes: Long
         get() = (selectedDistro?.spec?.installedBytes ?: 0L) +
-            (selectedDesktop?.installedBytes ?: 0L)
+            (selectedDesktop?.installedBytes ?: 0L) +
+            selectedApps.sumOf { it.installedBytes }
 
     val estimatedDownloadBytes: Long
         get() = selectedDistro?.spec?.downloadBytes ?: 0L
@@ -129,13 +137,14 @@ data class WizardUiState(
         get() = !submitting && when (step) {
             1 -> selectedDistro?.selectable == true
             2 -> selectedDesktop != null
-            3 -> machineName.isNotBlank() && nameError == null
+            3 -> true
+            4 -> machineName.isNotBlank() && nameError == null
             else -> true
         }
 
     val isLastStep: Boolean get() = step == TOTAL_STEPS
 
     companion object {
-        const val TOTAL_STEPS: Int = 4
+        const val TOTAL_STEPS: Int = 5
     }
 }

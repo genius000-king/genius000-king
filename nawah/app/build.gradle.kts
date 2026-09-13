@@ -26,8 +26,8 @@ android {
         // crashing on a device that could never have run a desktop anyway.
         minSdk = 26
         targetSdk = 37
-        versionCode = 14
-        versionName = "0.5.1"
+        versionCode = 15
+        versionName = "0.6.0"
 
         // arm64 only: every Android device shipped since 2019 is arm64, and each
         // extra ABI roughly doubles the X server's native build time. Adding one

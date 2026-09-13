@@ -20,7 +20,9 @@
 ### ما الذي يعمل فعلًا
 
 - تثبيت **دبيان 12/13** أو **أوبنتو 22.04/24.04**، تُسحب صورتها من سجلّ الحاويات ويُتحقق من بصمتها أثناء التنزيل
-- سطح مكتب XFCE 4 كامل يُرسم داخل التطبيق
+- **سبعة أسطح مكتب**: XFCE · LXQt · MATE · i3 · Openbox · KDE · جنوم — لكلٍّ وزن معلن، لأن كل شيء يُرسم برمجيًا هنا
+- **منفذ USB حقيقي**: لوحة أردوينو أو ESP تظهر داخل لينكس كـ `/dev/ttyUSB0`، فتعمل `screen` و`avrdude` و`arduino-cli` بلا تعديل
+- **برامج اختيارية**: متصفح ومترجم وأدوات عتاد تُختار عند الإنشاء أو تُضاف لاحقًا
 - اللمس ولوحة المفاتيح والفأرة
 - الصوت والميكروفون: خادم PulseAudio داخل النظام يصبّ في مصرف صامت، والتطبيق يقرأ مراقبه عبر loopback ويشغّله
 - الوصول إلى `/sdcard` داخل النظام
@@ -63,7 +65,9 @@ distribution, a desktop, resources and permissions, press Install, then Run.
 ### What actually works
 
 Debian 12/13 and Ubuntu 22.04/24.04, installed from a digest-verified system
-image · a full XFCE 4 desktop · touch, keyboard and mouse · sound and
+image · seven desktops, each with its weight stated · a real serial port:
+an Arduino or ESP board appears inside Linux as `/dev/ttyUSB0` · optional
+software picked at install or added later · touch, keyboard and mouse · sound and
 microphone, through a PulseAudio server inside the system whose null-sink
 monitor the app reads over loopback · `/sdcard` access · several named systems
 side by side · Arabic and English, switchable in the app.

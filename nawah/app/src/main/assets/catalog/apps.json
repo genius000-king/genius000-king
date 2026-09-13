@@ -1,0 +1,113 @@
+[
+  {
+    "id": "firefox",
+    "name": "Firefox",
+    "category": "BROWSER",
+    "description": {
+      "en": "The full browser. Heavy, and the one most sites are tested against.",
+      "ar": "المتصفح الكامل. ثقيل، وهو الذي تُختبر عليه أكثر المواقع."
+    },
+    "packages": { "debian": ["firefox-esr"] },
+    "installedBytes": 290000000
+  },
+  {
+    "id": "chromium",
+    "name": "Chromium",
+    "category": "BROWSER",
+    "description": {
+      "en": "Chrome without the Google parts. Also heavy.",
+      "ar": "كروم بلا أجزاء جوجل. ثقيل أيضًا."
+    },
+    "packages": { "debian": ["chromium"] },
+    "installedBytes": 350000000
+  },
+  {
+    "id": "falkon",
+    "name": "Falkon",
+    "category": "BROWSER",
+    "description": {
+      "en": "A small Qt browser on the same engine as Chrome. The one to take on a phone.",
+      "ar": "متصفح Qt صغير على محرك كروم نفسه. الأنسب على هاتف."
+    },
+    "packages": { "debian": ["falkon"], "ubuntu": ["falkon"] },
+    "installedBytes": 130000000
+  },
+  {
+    "id": "build",
+    "name": "C and C++ toolchain",
+    "category": "DEVELOPMENT",
+    "description": {
+      "en": "gcc, g++, make and git. Everything a compiler needs, nothing graphical.",
+      "ar": "‏gcc وg++ وmake وgit. كل ما يحتاجه مترجم، بلا أي شيء رسومي."
+    },
+    "packages": { "debian": ["build-essential", "git"], "ubuntu": ["build-essential", "git"] },
+    "installedBytes": 420000000
+  },
+  {
+    "id": "python",
+    "name": "Python 3",
+    "category": "DEVELOPMENT",
+    "description": {
+      "en": "The interpreter, pip and venv.",
+      "ar": "المفسّر وpip وvenv."
+    },
+    "packages": {
+      "debian": ["python3", "python3-pip", "python3-venv"],
+      "ubuntu": ["python3", "python3-pip", "python3-venv"]
+    },
+    "installedBytes": 130000000
+  },
+  {
+    "id": "geany",
+    "name": "Geany",
+    "category": "DEVELOPMENT",
+    "description": {
+      "en": "A small editor that compiles and runs what you write. Far lighter than an IDE.",
+      "ar": "محرّر صغير يترجم ويشغّل ما تكتبه. أخفّ بكثير من بيئة تطوير كاملة."
+    },
+    "packages": { "debian": ["geany"], "ubuntu": ["geany"] },
+    "installedBytes": 35000000
+  },
+  {
+    "id": "electronics",
+    "name": "Microcontrollers",
+    "category": "HARDWARE",
+    "description": {
+      "en": "avrdude, pyserial and a serial terminal — for the board on the USB cable.",
+      "ar": "‏avrdude وpyserial وطرفية تسلسلية — للوحة الموصولة بكيبل USB."
+    },
+    "packages": {
+      "debian": ["avrdude", "python3-serial", "picocom", "minicom"],
+      "ubuntu": ["avrdude", "python3-serial", "picocom", "minicom"]
+    },
+    "installedBytes": 25000000
+  },
+  {
+    "id": "looks",
+    "name": "Icons and cursors",
+    "category": "LOOKS",
+    "description": {
+      "en": "A proper cursor and a full icon set. Small, and it is most of what makes the desktop look finished.",
+      "ar": "مؤشّر لائق وطقم أيقونات كامل. صغير، وهو أكثر ما يجعل سطح المكتب يبدو مكتملًا."
+    },
+    "packages": {
+      "debian": ["dmz-cursor-theme", "adwaita-icon-theme"],
+      "ubuntu": ["dmz-cursor-theme", "adwaita-icon-theme"]
+    },
+    "installedBytes": 40000000
+  },
+  {
+    "id": "tools",
+    "name": "Command-line basics",
+    "category": "UTILITIES",
+    "description": {
+      "en": "nano, htop, curl, wget, unzip, less — the things whose absence you notice first.",
+      "ar": "‏nano وhtop وcurl وwget وunzip وless — ما يُلاحَظ غيابه أولًا."
+    },
+    "packages": {
+      "debian": ["nano", "htop", "curl", "wget", "unzip", "less"],
+      "ubuntu": ["nano", "htop", "curl", "wget", "unzip", "less"]
+    },
+    "installedBytes": 20000000
+  }
+]
