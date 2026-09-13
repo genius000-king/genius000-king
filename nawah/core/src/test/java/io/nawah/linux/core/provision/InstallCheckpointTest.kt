@@ -31,8 +31,7 @@ class InstallCheckpointTest {
         desktop = DesktopSpec("none", LocalizedText.of("Command line only"), emptyList(), "", 0),
         profile = ResourceProfile.BALANCED,
         permissions = MachinePermissions(),
-        displayWidth = 1280,
-        displayHeight = 720,
+        displayScalePercent = 125,
     )
 
     @Test

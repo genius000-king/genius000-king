@@ -55,8 +55,8 @@ data class InstallRequest(
     val desktop: DesktopSpec,
     val profile: ResourceProfile,
     val permissions: MachinePermissions,
-    val displayWidth: Int,
-    val displayHeight: Int,
+    /** Percentage of the phone's screen; 100 is native. See [Machine]. */
+    val displayScalePercent: Int = 100,
     val dnsServers: List<String> = listOf("1.1.1.1", "8.8.8.8"),
 )
 

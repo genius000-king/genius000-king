@@ -66,7 +66,7 @@ class SessionLauncher(
      * point a change costs a restart of the desktop.
      */
     fun openDisplay(machine: Machine? = null, keepScreenOn: Boolean = false) {
-        machine?.let { display.applyResolution(it.displayWidth, it.displayHeight) }
+        machine?.let { display.applyScale(it.displayScalePercent) }
         display.applyKeepScreenOn(keepScreenOn)
         val intent = Intent().apply {
             setClassName(context.packageName, X11_ACTIVITY)
@@ -82,10 +82,19 @@ class SessionLauncher(
      * long as the desktop does, and cancelling it tears the session down.
      */
     fun start(machine: Machine): Flow<String> = channelFlow {
+        // Every stage is timed, and the times are in the log.
+        //
+        // "It takes a very long time to start" is not something to answer with
+        // a guess -- three of this project's worst rounds were spent fixing the
+        // wrong thing confidently. One launch of this build says exactly where
+        // the seconds went.
+        val clock = Stopwatch { line -> trySend(line) }
+
         // Rewritten every launch, never only at install time. A fix to the
         // session script must reach an existing machine through an app update,
         // not through reinstalling a gigabyte of Debian to deliver one line.
         guestFiles.refresh(machine, desktopFor(machine.desktopId))
+        clock.mark("wrote the startup files")
 
         val rootfs = store.rootfsDir(machine.id)
 
@@ -93,11 +102,19 @@ class SessionLauncher(
         // display server cannot start without. The answer to that is not
         // "reinstall Debian"; it is eight megabytes and one apt run, once.
         val wantsAudio = machine.permissions.audioOut || machine.permissions.microphone
-        if (!installMissingPrerequisites(rootfs, machine, wantsAudio)) return@channelFlow
+
+        // The display's packages are fatal; the audio one is not, and treating
+        // them alike was a bug: a machine with sound switched on and no
+        // pulseaudio could not start a desktop at all, and retried an apt run
+        // -- with an `apt-get update` fallback that fetches ten megabytes of
+        // index -- on every single launch. Sound is worth less than a desktop.
+        if (!installMissingPrerequisites(rootfs, machine, audio = false)) return@channelFlow
+        if (wantsAudio) installMissingPrerequisites(rootfs, machine, audio = true)
 
         // The X server first, on this side of the container. Its output is
         // merged into the same log: when the desktop does not appear, the
         // reason is almost always in these lines.
+        clock.mark("checked the system's packages")
         send("nawah: starting the display server")
         val started = bridge.start(rootfs, DISPLAY) { line ->
             trySend(line)
@@ -111,6 +128,7 @@ class SessionLauncher(
             bridge.stop()
             return@channelFlow
         }
+        clock.mark("the display server is answering")
         send("nawah: display server ready, starting the container")
 
         // Started before the container, and patient: the guest's audio server
@@ -130,9 +148,17 @@ class SessionLauncher(
         // bind exists from the first moment, and never fatal: a missing cable
         // must not cost a desktop.
         val serialPort = attachUsb()
+        clock.mark("attached audio and USB")
 
         try {
-            runner.stream(request(machine, serialPort)).collect { send(it) }
+            var first = true
+            runner.stream(request(machine, serialPort)).collect {
+                if (first) {
+                    first = false
+                    clock.mark("the container answered")
+                }
+                send(it)
+            }
         } finally {
             // The desktop is gone; the server has nothing left to draw.
             bridge.stop()

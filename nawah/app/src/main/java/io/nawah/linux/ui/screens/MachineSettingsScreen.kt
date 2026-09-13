@@ -85,7 +85,7 @@ fun MachineSettingsScreen(state: MachineSettingsUiState, actions: MachineSetting
                             FilterChip(
                                 selected = res == state.selectedResolution,
                                 onClick = { actions.onResolution(res) },
-                                label = { Text(res.label) },
+                                label = { Text(scaleLabel(res)) },
                                 modifier = Modifier.weight(1f),
                             )
                         }

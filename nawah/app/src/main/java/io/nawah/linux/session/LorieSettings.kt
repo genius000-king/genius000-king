@@ -24,19 +24,32 @@ internal class LorieSettings(context: Context) {
     )
 
     /**
-     * Pins the display to [width] x [height].
+     * Sets the display size as a percentage of the phone's own screen.
      *
-     * `custom` rather than `exact`: `exact` is a list preference whose values
-     * come from a fixed array in the vendored module, so a size the wizard
-     * offers but that array does not contain would be silently ignored.
-     * `custom` is a free string and is parsed as `WxH`.
+     * ### Why not a pixel size
+     * Because a pixel size was wrong, and shipped. Writing `custom` with
+     * `1280x720` pinned the X screen to a 16:9 box on a 19.5:9 phone: the
+     * desktop stopped filling the screen, gained black bars on every side, and
+     * was then scaled up to the panel — which is what "it went blurry" was.
+     *
+     * `native` is the vendored module's own default and means "exactly the
+     * surface", so the aspect ratio is right by construction. `scaled` divides
+     * that by a percentage: 100 is native, 150 makes everything half again as
+     * large on a screen two-thirds the pixels — lighter to draw, and readable
+     * on a phone, with the aspect ratio still correct and the screen still
+     * full.
+     *
+     * @param percent 100 for native; larger for a smaller, lighter X screen.
      */
-    fun applyResolution(width: Int, height: Int) {
-        if (width <= 0 || height <= 0) return
-        prefs.edit()
-            .putString(KEY_RESOLUTION_MODE, MODE_CUSTOM)
-            .putString(KEY_RESOLUTION_CUSTOM, "${width}x$height")
-            .apply()
+    fun applyScale(percent: Int) {
+        val editor = prefs.edit()
+        if (percent <= NATIVE_PERCENT) {
+            editor.putString(KEY_RESOLUTION_MODE, MODE_NATIVE)
+        } else {
+            editor.putString(KEY_RESOLUTION_MODE, MODE_SCALED)
+            editor.putInt(KEY_SCALE, percent)
+        }
+        editor.apply()
     }
 
     /**
@@ -53,9 +66,11 @@ internal class LorieSettings(context: Context) {
 
     internal companion object {
         const val KEY_RESOLUTION_MODE = "displayResolutionMode"
-        const val KEY_RESOLUTION_CUSTOM = "displayResolutionCustom"
+        const val KEY_SCALE = "displayScale"
         const val KEY_SCREEN_IDLE = "screenIdleTimeout"
-        const val MODE_CUSTOM = "custom"
+        const val MODE_NATIVE = "native"
+        const val MODE_SCALED = "scaled"
+        const val NATIVE_PERCENT = 100
         const val IDLE_NEVER = "never"
         const val IDLE_SYSTEM = "system"
     }

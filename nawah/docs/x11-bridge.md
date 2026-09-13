@@ -153,6 +153,27 @@ the container. The earlier version checked that a file was there, which is why
 a machine worked exactly once and then never again: the first launch ran on a
 clean `/tmp` and every later one found its own leftovers.
 
+## The display size is a percentage, never a pixel size
+
+The X server's `displayResolutionMode` has four values and only two of them can
+be right on an arbitrary phone:
+
+| Mode | What it does | Usable here |
+|---|---|---|
+| `native` | the surface's own size | yes — the default |
+| `scaled` | surface ÷ `displayScale`% | yes |
+| `exact`, `custom` | a fixed `WxH` | **no** |
+
+A fixed size was shipped once. `1280x720` on a 19.5:9 panel is a 16:9 box: the
+desktop stopped filling the screen, gained black bars on every side, and was
+then scaled up to the panel — reported, accurately, as "it went blurry".
+
+`LorieSettings.applyScale` writes `native` at 100% and `scaled` above it.
+100 is the panel's own resolution; 150 is a screen two-thirds the pixels drawn
+at the same physical size — lighter to draw, and readable on a phone, with the
+aspect ratio right by construction. `LorieSettingsTest` holds the rule that
+neither `exact` nor `custom` is reachable from this app again.
+
 ## Packages the display server cannot start without
 
 Two, and neither failure names a package:
@@ -208,6 +229,31 @@ carries both sides, interleaved. Read it top to bottom.
 | `exists but the display refuses connections` | a socket left by an earlier session; the new server never bound |
 | `Server is already active for display 0` | a stale `.X0-lock` whose pid Android has reused |
 | `<command> is not installed in this system` | the desktop package set never finished installing |
+
+## Every launch is timed
+
+`Stopwatch` writes a line per stage into the session log, with the time that
+stage took and the running total:
+
+```
+nawah: wrote the startup files — 0.04s (0.04s total)
+nawah: checked the system's packages — 0.31s (0.35s total)
+nawah: the display server is answering — 2.80s (3.15s total)
+nawah: attached audio and USB — 0.02s (3.17s total)
+nawah: the container answered — 1.90s (5.07s total)
+nawah: the display is answering on :0 — 1.60s into the session
+nawah: launching startxfce4 — 1.80s into the session
+```
+
+It is there because "starting takes a very long time" has no useful answer
+without it, and this project has already spent several rounds confidently
+fixing the wrong thing. One log now says which stage owns the seconds.
+
+The guest side reads bash's `EPOCHREALTIME` builtin rather than calling `date`:
+every process started inside the container is started under proot's ptrace, and
+the readiness loop was itself paying that cost four times a second against the
+startup it was waiting for. It now stats the socket first and only runs `xset`
+once that exists.
 
 ---
 

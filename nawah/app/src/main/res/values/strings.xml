@@ -185,4 +185,6 @@
     <string name="usb_limit_title">What it cannot do</string>
     <string name="usb_limit_body">A Linux pseudo-terminal carries no DTR or RTS line — the kernel simply does not implement it for these devices. So avrdude and esptool cannot reset a board through the port. Reset it from inside Linux first:\n\n  nawah-usb reset        an Arduino\n  nawah-usb reset-esp    an ESP32\n\nthen run the tool with its own no-reset option.</string>
     <string name="settings_section_hardware">Hardware</string>
+    <string name="scale_native">Full screen</string>
+    <string name="scale_percent">%1$d%% — lighter to draw</string>
 </resources>

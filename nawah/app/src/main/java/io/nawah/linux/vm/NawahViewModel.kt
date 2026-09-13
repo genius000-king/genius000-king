@@ -268,8 +268,7 @@ class NawahViewModel(app: Application) : AndroidViewModel(app) {
             desktop = desktop,
             profile = s.profile,
             permissions = s.permissions,
-            displayWidth = s.selectedResolution.width,
-            displayHeight = s.selectedResolution.height,
+            displayScalePercent = s.selectedResolution.percent,
         )
         _install.value = InstallUiState(
             machineName = request.name,
@@ -314,7 +313,7 @@ class NawahViewModel(app: Application) : AndroidViewModel(app) {
             state = m.state,
             permissions = m.permissions,
             selectedResolution = DefaultResolutions
-                .firstOrNull { it.width == m.displayWidth && it.height == m.displayHeight }
+                .firstOrNull { it.percent == m.displayScalePercent }
                 ?: DefaultResolutions.first(),
         )
         viewModelScope.launch(Dispatchers.IO) {
@@ -334,8 +333,7 @@ class NawahViewModel(app: Application) : AndroidViewModel(app) {
             m.copy(
                 name = s.name.trim(),
                 permissions = s.permissions,
-                displayWidth = s.selectedResolution.width,
-                displayHeight = s.selectedResolution.height,
+                displayScalePercent = s.selectedResolution.percent,
             ),
         )
     }

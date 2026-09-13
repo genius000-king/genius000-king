@@ -7,7 +7,6 @@ import io.nawah.linux.core.model.DesktopSpec
 import io.nawah.linux.core.model.DistroSpec
 import io.nawah.linux.core.model.MachinePermissions
 import io.nawah.linux.core.model.ResourceProfile
-import io.nawah.linux.ui.util.formatResolution
 
 /** One release of a distribution, together with this device's verdict on it. */
 @Immutable
@@ -44,23 +43,27 @@ data class FamilyOption(
             ?: versions.firstOrNull { it.selectable }
 }
 
-/** One entry of the display-resolution dropdown. */
+/**
+ * One entry of the display-size list, as a percentage of the phone's screen.
+ *
+ * A percentage and not a pixel size. Pixel sizes were tried and were wrong:
+ * 1280x720 on a 19.5:9 phone is a 16:9 box with black bars on every side,
+ * scaled up to the panel. A percentage keeps the aspect ratio right by
+ * construction and always fills the screen; 100 is the panel's own resolution
+ * and anything larger is a smaller, lighter X screen drawn at the same
+ * physical size.
+ */
 @Immutable
-data class ResolutionOption(val width: Int, val height: Int) {
-    val label: String get() = formatResolution(width, height)
-    val key: String get() = "${width}x$height"
+data class ResolutionOption(val percent: Int) {
+    val key: String get() = percent.toString()
 }
 
-/**
- * The resolutions offered. Deliberately short: these are the sizes the X11
- * bridge is known to drive without tearing, and a free-form field would only
- * invite a value the compositor cannot handle.
- */
+/** Native, then three steps of "smaller and lighter, and easier to read". */
 val DefaultResolutions: List<ResolutionOption> = listOf(
-    ResolutionOption(1280, 720),
-    ResolutionOption(1600, 900),
-    ResolutionOption(1920, 1080),
-    ResolutionOption(2560, 1440),
+    ResolutionOption(100),
+    ResolutionOption(125),
+    ResolutionOption(150),
+    ResolutionOption(200),
 )
 
 /** Why a name was rejected. Rendered through string resources by the screen. */

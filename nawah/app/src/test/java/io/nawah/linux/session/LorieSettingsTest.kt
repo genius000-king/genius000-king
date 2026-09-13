@@ -8,12 +8,15 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 /**
- * The resolution the wizard asks for used to go nowhere.
+ * The display size has now been wrong twice, in opposite directions.
  *
- * It was exported into the container as `NAWAH_DISPLAY_WIDTH`, which nothing
- * reads — the screen size belongs to the X server on this side. These tests pin
- * the contract with the vendored module's preference store, which is the only
- * thing that makes the setting real.
+ * First it went nowhere: the wizard's answer was exported into the container as
+ * `NAWAH_DISPLAY_WIDTH`, which nothing reads. Then it went somewhere worse — a
+ * pixel size in the X server's `custom` mode, which pinned a 16:9 desktop onto
+ * a 19.5:9 phone and scaled it up to the panel.
+ *
+ * A percentage of the panel is right by construction: the aspect ratio cannot
+ * be wrong and the screen is always full. These tests hold that.
  */
 @RunWith(RobolectricTestRunner::class)
 class LorieSettingsTest {
@@ -26,30 +29,43 @@ class LorieSettingsTest {
         get() = context.getSharedPreferences("${context.packageName}_preferences", Context.MODE_PRIVATE)
 
     @Test
-    fun `a resolution is written where the X server reads it`() {
-        settings.applyResolution(1920, 1080)
+    fun `the default fills the screen, at the panel's own resolution`() {
+        // The bug this replaced: a pixel size was written into the X server's
+        // `custom` mode, pinning the desktop to a 16:9 box on a 19.5:9 phone.
+        // Black bars on every side, and the result scaled up to the panel --
+        // which is what "it went blurry" was.
+        settings.applyScale(100)
 
-        assertThat(prefs.getString(LorieSettings.KEY_RESOLUTION_MODE, null)).isEqualTo("custom")
-        assertThat(prefs.getString(LorieSettings.KEY_RESOLUTION_CUSTOM, null)).isEqualTo("1920x1080")
+        assertThat(prefs.getString(LorieSettings.KEY_RESOLUTION_MODE, null)).isEqualTo("native")
     }
 
     @Test
-    fun `custom is used rather than the fixed list`() {
-        // `exact` is a list preference backed by an array inside the vendored
-        // module. A size the wizard offers but that array lacks would be
-        // dropped without a word.
-        settings.applyResolution(2560, 1440)
+    fun `a lighter display is a percentage, never a pixel size`() {
+        settings.applyScale(150)
 
-        assertThat(prefs.getString(LorieSettings.KEY_RESOLUTION_MODE, null))
-            .isEqualTo(LorieSettings.MODE_CUSTOM)
+        assertThat(prefs.getString(LorieSettings.KEY_RESOLUTION_MODE, null)).isEqualTo("scaled")
+        assertThat(prefs.getInt(LorieSettings.KEY_SCALE, 0)).isEqualTo(150)
     }
 
     @Test
-    fun `a nonsense resolution is ignored rather than written`() {
-        settings.applyResolution(1280, 720)
-        settings.applyResolution(0, -5)
+    fun `no fixed resolution is ever written`() {
+        // `custom` and `exact` both take a WxH, and a WxH cannot be right on
+        // every screen. Neither mode may be reachable from this app again.
+        for (percent in listOf(0, 50, 100, 125, 150, 200, 400)) {
+            settings.applyScale(percent)
+            assertThat(prefs.getString(LorieSettings.KEY_RESOLUTION_MODE, null))
+                .isAnyOf("native", "scaled")
+        }
+        assertThat(prefs.contains("displayResolutionCustom")).isFalse()
+        assertThat(prefs.contains("displayResolutionExact")).isFalse()
+    }
 
-        assertThat(prefs.getString(LorieSettings.KEY_RESOLUTION_CUSTOM, null)).isEqualTo("1280x720")
+    @Test
+    fun `a nonsense percentage falls back to filling the screen`() {
+        settings.applyScale(150)
+        settings.applyScale(0)
+
+        assertThat(prefs.getString(LorieSettings.KEY_RESOLUTION_MODE, null)).isEqualTo("native")
     }
 
     @Test

@@ -66,8 +66,26 @@ data class Machine(
     val desktopId: String,
     val profile: ResourceProfile,
     val permissions: MachinePermissions,
-    val displayWidth: Int,
-    val displayHeight: Int,
+    /**
+     * Display size as a percentage of the phone's screen. 100 is native.
+     *
+     * Larger means a smaller X screen drawn at the same physical size: lighter
+     * on the CPU and readable on a phone, with the aspect ratio still correct
+     * and the screen still full.
+     */
+    val displayScalePercent: Int = 100,
+    /**
+     * Legacy, and inert.
+     *
+     * A pixel size was the wrong shape for this setting from the start. For
+     * most of the app's life nothing read it; then it was wired to the X
+     * server's `custom` mode and pinned the desktop to a 16:9 box on a
+     * 19.5:9 phone — black bars on every side, and the result scaled up to the
+     * panel, which is what "it went blurry" was. Kept only so machines written
+     * by older builds still load.
+     */
+    val displayWidth: Int = 0,
+    val displayHeight: Int = 0,
     val createdAtEpochMs: Long,
     val state: MachineState,
 )

@@ -328,8 +328,7 @@ class ProotProvisioner(
         desktopId = desktop.id,
         profile = profile,
         permissions = permissions,
-        displayWidth = displayWidth,
-        displayHeight = displayHeight,
+        displayScalePercent = displayScalePercent,
         createdAtEpochMs = System.currentTimeMillis(),
         state = state,
     )

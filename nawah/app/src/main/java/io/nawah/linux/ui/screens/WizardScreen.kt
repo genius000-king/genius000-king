@@ -103,6 +103,20 @@ fun WizardScreen(state: WizardUiState, actions: WizardActions) {
     }
 }
 
+/**
+ * "Full screen" or "150% — lighter", never a pixel size.
+ *
+ * The number is what the X server is asked for as a percentage of the panel,
+ * so the desktop always fills the screen and the aspect ratio is never wrong.
+ */
+@Composable
+internal fun scaleLabel(option: ResolutionOption): String =
+    if (option.percent <= 100) {
+        stringResource(R.string.scale_native)
+    } else {
+        stringResource(R.string.scale_percent, option.percent)
+    }
+
 @Composable
 private fun StepDistro(state: WizardUiState, actions: WizardActions) {
     Text(stringResource(R.string.wizard_step_distro), style = MaterialTheme.typography.titleLarge)
@@ -352,7 +366,7 @@ private fun StepResources(state: WizardUiState, actions: WizardActions) {
                     FilterChip(
                         selected = res == state.selectedResolution,
                         onClick = { actions.onResolution(res) },
-                        label = { Text(res.label) },
+                        label = { Text(scaleLabel(res)) },
                         modifier = Modifier.weight(1f),
                     )
                 }
@@ -436,7 +450,7 @@ private fun StepPermissions(state: WizardUiState, actions: WizardActions) {
             )
             SignalRow(
                 stringResource(R.string.label_resolution),
-                state.selectedResolution.label, Compatibility.GOOD,
+                scaleLabel(state.selectedResolution), Compatibility.GOOD,
             )
             SignalRow(
                 stringResource(R.string.label_download),

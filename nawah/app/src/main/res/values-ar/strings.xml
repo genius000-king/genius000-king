@@ -175,4 +175,6 @@
     <string name="usb_limit_title">ما لا يستطيعه</string>
     <string name="usb_limit_body">الطرفية الوهمية في لينكس لا تحمل خطَّي DTR وRTS — النواة ببساطة لا تنفّذهما لهذا النوع. لذلك لا يستطيع avrdude ولا esptool إعادة تشغيل اللوحة عبر المنفذ. أعد تشغيلها من داخل لينكس أولًا:\n\n  nawah-usb reset        لأردوينو\n  nawah-usb reset-esp    لـ ESP32\n\nثم شغّل الأداة بخيار «بلا إعادة تشغيل» الخاص بها.</string>
     <string name="settings_section_hardware">العتاد</string>
+    <string name="scale_native">ملء الشاشة</string>
+    <string name="scale_percent">%1$d%% — أخفّ في الرسم</string>
 </resources>
