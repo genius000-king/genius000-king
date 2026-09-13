@@ -5,7 +5,7 @@ import android.content.Intent
 import io.nawah.linux.core.model.DesktopSpec
 import io.nawah.linux.core.model.Machine
 import io.nawah.linux.core.model.ResourceProfile
-import io.nawah.linux.core.provision.DisplayPrerequisites
+import io.nawah.linux.core.provision.GuestPrerequisites
 import io.nawah.linux.core.provision.GuestFileWriter
 import io.nawah.linux.core.provision.GuestScripts
 import io.nawah.linux.core.runtime.Bind
@@ -53,6 +53,7 @@ class SessionLauncher(
 
     private val bridge = X11Bridge(context, tools)
     private val display = LorieSettings(context)
+    private var audio: AudioBridge? = null
 
     /**
      * Brings the X display to the foreground. Safe to call when already open.
@@ -88,7 +89,8 @@ class SessionLauncher(
         // A machine installed by an older build can be missing a package the
         // display server cannot start without. The answer to that is not
         // "reinstall Debian"; it is eight megabytes and one apt run, once.
-        if (!installMissingPrerequisites(rootfs, machine)) return@channelFlow
+        val wantsAudio = machine.permissions.audioOut || machine.permissions.microphone
+        if (!installMissingPrerequisites(rootfs, machine, wantsAudio)) return@channelFlow
 
         // The X server first, on this side of the container. Its output is
         // merged into the same log: when the desktop does not appear, the
@@ -108,11 +110,25 @@ class SessionLauncher(
         }
         send("nawah: display server ready, starting the container")
 
+        // Started before the container, and patient: the guest's audio server
+        // does not exist yet, so both pumps retry while it comes up. A failure
+        // here is logged and nothing more -- a silent desktop beats no desktop.
+        if (wantsAudio) {
+            audio = AudioBridge(context) { line -> trySend(line) }.also {
+                it.start(
+                    speakerOut = machine.permissions.audioOut,
+                    microphoneIn = machine.permissions.microphone,
+                )
+            }
+        }
+
         try {
             runner.stream(request(machine)).collect { send(it) }
         } finally {
             // The desktop is gone; the server has nothing left to draw.
             bridge.stop()
+            audio?.stop()
+            audio = null
         }
     }
 
@@ -126,16 +142,17 @@ class SessionLauncher(
     private suspend fun ProducerScope<String>.installMissingPrerequisites(
         rootfs: File,
         machine: Machine,
+        audio: Boolean,
     ): Boolean {
-        val missing = DisplayPrerequisites.missing(rootfs)
+        val missing = GuestPrerequisites.missing(rootfs, audio)
         if (missing.isEmpty()) return true
 
-        for (name in missing) send("nawah: $name is missing — ${DisplayPrerequisites.reason(name)}")
+        for (name in missing) send("nawah: $name is missing — ${GuestPrerequisites.reason(name)}")
         send("nawah: installing ${missing.joinToString(", ")}; this happens once")
 
         val status = runner.exec(
             request(machine).copy(
-                command = listOf("/bin/sh", "-lc", DisplayPrerequisites.installCommand(missing)),
+                command = listOf("/bin/sh", "-lc", GuestPrerequisites.installCommand(missing)),
             ),
         ) { line -> trySend(line) }
 
@@ -144,7 +161,7 @@ class SessionLauncher(
             send("nawah: the desktop cannot start without it; check the network and try again")
             return false
         }
-        val stillMissing = DisplayPrerequisites.missing(rootfs)
+        val stillMissing = GuestPrerequisites.missing(rootfs, audio)
         if (stillMissing.isNotEmpty()) {
             send("nawah: ${stillMissing.joinToString(", ")} still missing after apt reported success")
             return false
@@ -153,8 +170,12 @@ class SessionLauncher(
         return true
     }
 
-    /** Stops the X server. The container is torn down by cancelling the flow. */
-    fun stopDisplay() = bridge.stop()
+    /** Stops the X server and the audio pumps. */
+    fun stopDisplay() {
+        bridge.stop()
+        audio?.stop()
+        audio = null
+    }
 
     internal fun request(machine: Machine): ProotRequest {
         val env = buildMap {
@@ -163,11 +184,10 @@ class SessionLauncher(
             // directory outright. The session script creates this one 0700.
             put("XDG_RUNTIME_DIR", GuestScripts.RUNTIME_DIR)
             put("XDG_SESSION_TYPE", "x11")
-            if (machine.permissions.audioOut || machine.permissions.microphone) {
-                // PulseAudio runs on the Android side and is reached over
-                // loopback TCP; there is no shared /run between the two worlds.
-                put("PULSE_SERVER", "tcp:127.0.0.1:$PULSE_PORT")
-            }
+            // PULSE_SERVER is deliberately absent. It used to be set to
+            // tcp:127.0.0.1:4713 with nothing listening there; the audio server
+            // now runs inside the machine and its clients find it the ordinary
+            // way, through XDG_RUNTIME_DIR.
             // A profile cannot cap memory -- proot has no cgroups and that needs
             // root. What it can do is change what actually gets started, so the
             // session script reads this and turns compositing and extras off.
@@ -190,7 +210,6 @@ class SessionLauncher(
     private companion object {
         const val X11_ACTIVITY = "com.termux.x11.MainActivity"
         const val DISPLAY = ":0"
-        const val PULSE_PORT = 4713
         const val SESSION_SCRIPT = "exec /usr/local/bin/nawah-session"
     }
 }

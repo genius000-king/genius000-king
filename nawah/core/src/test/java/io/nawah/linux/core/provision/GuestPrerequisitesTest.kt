@@ -13,7 +13,7 @@ import java.io.File
  * default font` and exits, which arrives in the app as a black screen. Neither
  * failure names a package, so the app has to name it instead.
  */
-class DisplayPrerequisitesTest {
+class GuestPrerequisitesTest {
 
     @get:Rule val tmp = TemporaryFolder()
 
@@ -29,7 +29,7 @@ class DisplayPrerequisitesTest {
 
     @Test
     fun `a complete machine needs nothing`() {
-        assertThat(DisplayPrerequisites.missing(rootfs(*complete))).isEmpty()
+        assertThat(GuestPrerequisites.missing(rootfs(*complete))).isEmpty()
     }
 
     @Test
@@ -38,12 +38,12 @@ class DisplayPrerequisitesTest {
         // the base list. It must not be told to reinstall Debian.
         val root = rootfs("usr/share/X11/xkb/rules")
 
-        assertThat(DisplayPrerequisites.missing(root)).containsExactly("xfonts-base")
+        assertThat(GuestPrerequisites.missing(root)).containsExactly("xfonts-base")
     }
 
     @Test
     fun `an empty machine is missing both, in install order`() {
-        assertThat(DisplayPrerequisites.missing(rootfs()))
+        assertThat(GuestPrerequisites.missing(rootfs()))
             .containsExactly("xkb-data", "xfonts-base").inOrder()
     }
 
@@ -54,19 +54,19 @@ class DisplayPrerequisitesTest {
         // fonts and no way to open any of them.
         val root = rootfs("usr/share/X11/xkb/rules", "usr/share/fonts/X11/misc")
 
-        assertThat(DisplayPrerequisites.missing(root)).containsExactly("xfonts-base")
+        assertThat(GuestPrerequisites.missing(root)).containsExactly("xfonts-base")
     }
 
     @Test
     fun `every package has a reason written for the log`() {
-        for (name in DisplayPrerequisites.missing(rootfs())) {
-            assertThat(DisplayPrerequisites.reason(name)).isNotEmpty()
+        for (name in GuestPrerequisites.missing(rootfs())) {
+            assertThat(GuestPrerequisites.reason(name)).isNotEmpty()
         }
     }
 
     @Test
     fun `the install command retries behind an update rather than always updating`() {
-        val command = DisplayPrerequisites.installCommand(listOf("xfonts-base"))
+        val command = GuestPrerequisites.installCommand(listOf("xfonts-base"))
 
         assertThat(command).startsWith("DEBIAN_FRONTEND=noninteractive apt-get install")
         assertThat(command).contains("|| { apt-get update &&")
@@ -82,7 +82,7 @@ class DisplayPrerequisitesTest {
         // a font path entry it cannot read.
         File(root, "usr/share/fonts/X11/100dpi").mkdirs()
 
-        val path = DisplayPrerequisites.fontPath(root)
+        val path = GuestPrerequisites.fontPath(root)
 
         assertThat(path).isNotNull()
         assertThat(path!!).endsWith("/usr/share/fonts/X11/misc")
@@ -93,7 +93,7 @@ class DisplayPrerequisitesTest {
     fun `a machine with no usable font directory gets no font path at all`() {
         // Better than a path the server will reject: the launch says so, and
         // the prerequisite check has already offered to fix it.
-        assertThat(DisplayPrerequisites.fontPath(rootfs())).isNull()
+        assertThat(GuestPrerequisites.fontPath(rootfs())).isNull()
     }
 
     @Test
@@ -104,7 +104,7 @@ class DisplayPrerequisitesTest {
             File(root, "usr/share/fonts/X11/$dir/fonts.dir").writeText("0\n")
         }
 
-        val parts = DisplayPrerequisites.fontPath(root)!!.split(",").map { it.substringAfterLast('/') }
+        val parts = GuestPrerequisites.fontPath(root)!!.split(",").map { it.substringAfterLast('/') }
 
         assertThat(parts).containsExactly("misc", "100dpi", "75dpi").inOrder()
     }

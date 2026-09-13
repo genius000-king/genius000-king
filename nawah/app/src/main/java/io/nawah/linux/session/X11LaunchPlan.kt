@@ -1,6 +1,6 @@
 package io.nawah.linux.session
 
-import io.nawah.linux.core.provision.DisplayPrerequisites
+import io.nawah.linux.core.provision.GuestPrerequisites
 import java.io.File
 
 /**
@@ -105,7 +105,7 @@ internal object X11LaunchPlan {
         // the search succeeds, the font path is unusable, and the server dies
         // with "could not open default font". Naming the real directories, and
         // only the ones that carry a fonts.dir, removes the guess.
-        val fontPath = DisplayPrerequisites.fontPath(rootfs)
+        val fontPath = GuestPrerequisites.fontPath(rootfs)
 
         return X11Launch(
             command = buildList {

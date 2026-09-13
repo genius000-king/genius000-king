@@ -163,7 +163,7 @@ Two, and neither failure names a package:
 | `xfonts-base` | `could not open default font`, server aborts |
 
 Both are in `ProotProvisioner.BASE_PACKAGES`, and both are **re-checked at every
-launch** by `DisplayPrerequisites`. A machine installed by an older build of the
+launch** by `GuestPrerequisites`. A machine installed by an older build of the
 app is missing them, and the only acceptable answer to eight missing megabytes
 is one `apt-get install`, not reinstalling a gigabyte of Debian. `SessionLauncher`
 runs that install before starting the server and refuses to start the server if
@@ -184,7 +184,7 @@ for isolation, don't.
 |---|---|
 | `app/.../com/termux/x11/NawahEntryPoint.java` | loads `libXlorie.so` from disk, then upstream's startup |
 | `app/.../session/X11LaunchPlan.kt` | the argv and environment, as a pure function |
-| `core/.../provision/DisplayPrerequisites.kt` | the packages and the font path, checked at every launch |
+| `core/.../provision/GuestPrerequisites.kt` | the packages and the font path, checked at every launch |
 | `app/.../session/X11Bridge.kt` | starts, watches and stops the server process |
 | `app/.../session/SessionLauncher.kt` | orders the three parts and owns the lifetime |
 | `core/.../provision/GuestScripts.kt` | generates `nawah-session` |

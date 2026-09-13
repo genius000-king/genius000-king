@@ -380,10 +380,6 @@ private fun StepPermissions(state: WizardUiState, actions: WizardActions) {
         stringResource(R.string.perm_storage), stringResource(R.string.perm_storage_help),
         p.storage,
     ) { actions.onPermissions(p.copy(storage = it)) }
-    ExplainedSwitch(
-        stringResource(R.string.perm_network), stringResource(R.string.perm_network_help),
-        p.network,
-    ) { actions.onPermissions(p.copy(network = it)) }
 
     SectionHeader(stringResource(R.string.label_summary))
     Surface(

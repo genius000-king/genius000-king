@@ -22,13 +22,17 @@ class GuestScriptsTest {
     }
 
     @Test
-    fun `audio is reached over loopback TCP, since there is no shared socket`() {
+    fun `the audio server is started inside the machine, where the clients are`() {
+        // The previous arrangement pointed clients at a TCP port on the Android
+        // side that nothing had ever listened on. The server lives in the guest
+        // now and its clients reach it the ordinary way.
         val on = GuestScripts.session(xfce, ResourceProfile.FULL, audio = true)
-        assertThat(on).contains("PULSE_SERVER")
-        assertThat(on).contains("tcp:127.0.0.1:4713")
+        assertThat(on).contains("pulseaudio --daemonize=no")
+        assertThat(on).contains(GuestScripts.PULSE_CONFIG_PATH)
+        assertThat(on).doesNotContain("export PULSE_SERVER")
 
         val off = GuestScripts.session(xfce, ResourceProfile.FULL, audio = false)
-        assertThat(off).doesNotContain("PULSE_SERVER")
+        assertThat(off).doesNotContain("pulseaudio")
     }
 
     @Test

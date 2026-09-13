@@ -350,7 +350,7 @@ class ProotProvisioner(
             // xfonts-base: supplies the core font "fixed" and the cursor font.
             //   Without it the server aborts with "could not open default
             //   font", which reaches the user as a black screen and nothing
-            //   else. DisplayPrerequisites re-checks both at every launch.
+            //   else. GuestPrerequisites re-checks both at every launch.
             "dbus-x11", "xkb-data", "xfonts-base", "x11-xserver-utils", "xterm",
             "locales", "ca-certificates", "procps",
         )

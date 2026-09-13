@@ -92,8 +92,6 @@
     <string name="perm_mic_desc">Lets Linux apps record. Android will ask for the microphone permission.</string>
     <string name="perm_storage_title">Your files</string>
     <string name="perm_storage_desc">Mounts your internal storage at /sdcard inside the system.</string>
-    <string name="perm_network_title">Network</string>
-    <string name="perm_network_desc">Lets the system reach the internet and install packages.</string>
 
     <string name="summary_title">Summary</string>
     <string name="summary_name">Name</string>
@@ -202,11 +200,9 @@
     <string name="label_storage">Storage</string>
     <string name="label_summary">Summary</string>
     <string name="perm_audio">Sound</string>
-    <string name="perm_audio_help">Lets the system play audio through your phone\'s speaker.</string>
+    <string name="perm_audio_help">Sound from the system plays through your phone. Adds an audio server to the system the first time it is used.</string>
     <string name="perm_mic">Microphone</string>
-    <string name="perm_mic_help">Lets the system record from your phone\'s microphone.</string>
-    <string name="perm_network">Network</string>
-    <string name="perm_network_help">Lets the system reach the internet.</string>
+    <string name="perm_mic_help">Lets the system record from your phone\'s microphone. Android will ask for permission.</string>
     <string name="perm_storage">Shared storage</string>
     <string name="perm_storage_help">Mounts your phone\'s shared storage at /sdcard inside the system.</string>
     <string name="probe_unknown">Not checked yet</string>

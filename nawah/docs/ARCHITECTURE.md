@@ -50,7 +50,7 @@ OciClient pulls library/debian:trixie, verifying the digest while streaming
 **Run.** `SessionService` → `SessionLauncher`:
 
 ```
-DisplayPrerequisites checks the machine has xkb-data and xfonts-base,
+GuestPrerequisites checks the machine has xkb-data and xfonts-base,
   installing them if an older build of the app left them out
   → X11Bridge starts the X server on the Android side, socket in <rootfs>/tmp
   → the socket is waited for, not assumed
@@ -61,6 +61,33 @@ DisplayPrerequisites checks the machine has xkb-data and xfonts-base,
 
 The X server runs **outside** the container. See `docs/x11-bridge.md` — that
 one sentence is the subject of a post-mortem there.
+
+## Sound
+
+There is no audio device inside a proot container and there cannot be one:
+ALSA has nothing to open, and Android's output is reachable only from the
+Android side.
+
+```
+guest: pulseaudio -> module-null-sink "nawah_out"
+                 -> module-simple-protocol-tcp record=true  :4713
+android:            AudioBridge reads raw s16le PCM      -> AudioTrack
+
+android:            AudioRecord                          -> :4714
+guest: module-simple-protocol-tcp playback=true -> null-sink "nawah_mic"
+                 -> applications record from nawah_mic.monitor
+```
+
+Loopback needs no bind and no forwarding, because proot creates no network
+namespace: `127.0.0.1` inside the container is `127.0.0.1` on the phone.
+
+`pulseaudio` is not in the base package set — ten megabytes of audio daemon has
+no business on a machine that will never play a sound — so `GuestPrerequisites`
+installs it at the first launch of a machine with sound enabled.
+
+What this replaced was a lie: the app exported `PULSE_SERVER=tcp:127.0.0.1:4713`
+into every machine with sound on, and nothing anywhere had ever listened on that
+port.
 
 ## State
 

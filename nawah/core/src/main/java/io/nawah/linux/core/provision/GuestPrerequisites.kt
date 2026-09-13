@@ -3,17 +3,17 @@ package io.nawah.linux.core.provision
 import java.io.File
 
 /**
- * The packages a machine must have before an X server can draw into it.
+ * The packages a machine needs before a session can work.
  *
- * Both entries here are fatal in the same invisible way: the X server prints
+ * The display entries are fatal in the same invisible way: the X server prints
  * one line and exits, the desktop never appears, and the user is looking at a
  * black rectangle. Neither failure mentions a package.
  *
- * This is checked at **launch**, not only at install, for a plain reason: a
- * machine installed by an older build of the app does not have them, and the
- * answer to a missing 8 MB package cannot be "reinstall Debian".
+ * Checked at **launch**, not only at install, for a plain reason: a machine
+ * installed by an older build of the app does not have them, and the answer to
+ * a missing few megabytes cannot be "reinstall Debian".
  */
-object DisplayPrerequisites {
+object GuestPrerequisites {
 
     /**
      * A file that exists only once the package is installed *and configured*.
@@ -38,13 +38,30 @@ object DisplayPrerequisites {
         ),
     )
 
-    /** Packages missing from [rootfs], in install order. Empty is the normal case. */
-    fun missing(rootfs: File): List<String> =
-        prerequisites.filterNot { File(rootfs, it.marker).exists() }.map { it.packageName }
+    /**
+     * Needed only by a machine with sound turned on, so asked for separately —
+     * ten megabytes of audio daemon has no business on a machine that will
+     * never play a sound.
+     */
+    private val audioPrerequisite = Prerequisite(
+        packageName = "pulseaudio",
+        marker = "usr/bin/pulseaudio",
+        why = "sound has nowhere to go without an audio server inside the system",
+    )
+
+    /**
+     * Packages missing from [rootfs], in install order. Empty is the normal case.
+     *
+     * @param audio include the audio server, for a machine that has sound on.
+     */
+    fun missing(rootfs: File, audio: Boolean = false): List<String> =
+        (prerequisites + listOfNotNull(audioPrerequisite.takeIf { audio }))
+            .filterNot { File(rootfs, it.marker).exists() }
+            .map { it.packageName }
 
     /** Why each package is needed, for the session log. */
     fun reason(packageName: String): String =
-        prerequisites.first { it.packageName == packageName }.why
+        (prerequisites + audioPrerequisite).first { it.packageName == packageName }.why
 
     /**
      * The command that installs [packages] inside the guest.

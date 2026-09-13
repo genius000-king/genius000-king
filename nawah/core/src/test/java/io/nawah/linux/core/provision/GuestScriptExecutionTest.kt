@@ -75,6 +75,8 @@ class GuestScriptExecutionTest {
             .replace("/usr/local/bin/", "${root.path}/bin/")
             .replace("/tmp/.X11-unix", "${root.path}/tmp/.X11-unix")
             .replace("/run/user/0", "${root.path}/run/user/0")
+            .replace("/etc/pulse/nawah.pa", "${root.path}/etc/pulse/nawah.pa")
+            .replace("/tmp/nawah-pulse.log", "${root.path}/nawah-pulse.log")
             .replace("chmod 1777 ${root.path}/tmp ", "chmod 1777 ")
 
         val file = File(root, "session.sh").apply {
@@ -220,6 +222,61 @@ class GuestScriptExecutionTest {
 
         assertThat(result.output).contains("DESKTOP RUNNING")
         assertThat(result.exitCode).isEqualTo(0)
+    }
+
+    @Test
+    fun `the audio server is started and reported when sound is on`() {
+        socket()
+        // pactl fails until pulseaudio has run, the way it does on a real
+        // machine -- otherwise the script only ever sees "already running".
+        stub("pulseaudio", "touch \"${root.path}/pulse-up\"; sleep 5")
+        stub("pactl", "[ -e \"${root.path}/pulse-up\" ]")
+        stub("startxfce4", "exit 0")
+        stub("dbus-launch", "shift; exec \"\$@\"")
+
+        val result = run(GuestScripts.session(xfce, ResourceProfile.FULL, audio = true))
+
+        assertThat(result.output).contains("audio server started")
+        assertThat(result.exitCode).isEqualTo(0)
+    }
+
+    @Test
+    fun `a machine with no audio server says so instead of being silently mute`() {
+        // pulseaudio deliberately absent. The desktop must still start.
+        socket()
+        stub("startxfce4", "echo DESKTOP RUNNING; exit 0")
+        stub("dbus-launch", "shift; exec \"\$@\"")
+
+        val result = run(GuestScripts.session(xfce, ResourceProfile.FULL, audio = true))
+
+        assertThat(result.output).contains("pulseaudio is not installed")
+        assertThat(result.output).contains("DESKTOP RUNNING")
+        assertThat(result.exitCode).isEqualTo(0)
+    }
+
+    @Test
+    fun `an audio server that refuses to start never blocks the desktop`() {
+        // Sound is worth less than a desktop. This used to be the difference
+        // between a working session and a black screen.
+        socket()
+        stub("pulseaudio", "exit 1")
+        stub("pactl", "exit 1")
+        stub("startxfce4", "echo DESKTOP RUNNING; exit 0")
+        stub("dbus-launch", "shift; exec \"\$@\"")
+
+        val result = run(GuestScripts.session(xfce, ResourceProfile.FULL, audio = true), timeoutSeconds = 60)
+
+        assertThat(result.output).contains("the audio server did not start")
+        assertThat(result.output).contains("DESKTOP RUNNING")
+        assertThat(result.exitCode).isEqualTo(0)
+    }
+
+    @Test
+    fun `PULSE_SERVER is never exported, because nothing ever listened there`() {
+        val script = GuestScripts.session(xfce, ResourceProfile.FULL, audio = true)
+
+        assertThat(script).doesNotContain("export PULSE_SERVER")
+        assertThat(script).doesNotContain("tcp:127.0.0.1:4713")
     }
 
     @Test

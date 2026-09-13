@@ -1,19 +1,28 @@
 package io.nawah.linux.ui
 
+import android.Manifest
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.pm.PackageManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import io.nawah.linux.BuildConfig
+import io.nawah.linux.core.model.MachinePermissions
 import io.nawah.linux.ui.screens.*
 import io.nawah.linux.vm.NawahViewModel
 import kotlinx.coroutines.launch
@@ -98,7 +107,7 @@ fun NawahNavHost(
                     onName = vm::setName,
                     onProfile = vm::selectProfile,
                     onResolution = vm::selectResolution,
-                    onPermissions = vm::setPermissions,
+                    onPermissions = rememberMicrophoneGate(state.permissions, vm::setPermissions),
                     onInstall = {
                         if (vm.submitWizard() != null) {
                             nav.navigate(Routes.INSTALL) {
@@ -128,7 +137,7 @@ fun NawahNavHost(
                     onBack = { nav.popBackStack() },
                     onName = vm::settingsName,
                     onSaveName = { vm.saveSettings() },
-                    onPermissions = vm::settingsPermissions,
+                    onPermissions = rememberMicrophoneGate(state.permissions, vm::settingsPermissions),
                     onResolution = vm::settingsResolution,
                     onRepair = { vm.repair(state.machineId) },
                     onRequestDelete = vm::requestDelete,
@@ -166,6 +175,43 @@ fun NawahNavHost(
                 onCopyCrash = { state.lastCrash?.let(context::copyToClipboard) },
                 onClearCrash = vm::clearCrash,
             )
+        }
+    }
+}
+
+/**
+ * Wraps a permissions callback so turning the microphone on asks Android first.
+ *
+ * Without this the switch would be another control that promises something it
+ * cannot deliver: `RECORD_AUDIO` is declared in the manifest but a runtime
+ * permission has to be granted, and a denied one leaves `AudioRecord` failing
+ * to initialise with nothing on screen to explain it. A refusal puts the switch
+ * back where it was, which is the truth.
+ */
+@Composable
+private fun rememberMicrophoneGate(
+    current: MachinePermissions,
+    apply: (MachinePermissions) -> Unit,
+): (MachinePermissions) -> Unit {
+    val context = LocalContext.current
+    var pending by remember { mutableStateOf<MachinePermissions?>(null) }
+    val request = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        pending?.let { apply(it.copy(microphone = granted)) }
+        pending = null
+    }
+    return { wanted ->
+        val turningMicOn = wanted.microphone && !current.microphone
+        val alreadyGranted = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.RECORD_AUDIO,
+        ) == PackageManager.PERMISSION_GRANTED
+        if (turningMicOn && !alreadyGranted) {
+            pending = wanted
+            request.launch(Manifest.permission.RECORD_AUDIO)
+        } else {
+            apply(wanted)
         }
     }
 }

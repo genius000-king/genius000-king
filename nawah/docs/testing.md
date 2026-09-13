@@ -132,7 +132,7 @@ The X server's own launch is not a script, so it is pinned differently:
 Every display failure this project has shipped was a wrong entry in one of
 those two lists, and each test there names the device symptom it prevents.
 
-`DisplayPrerequisitesTest` covers the other half: the two packages whose
+`GuestPrerequisitesTest` covers the other half: the two packages whose
 absence the X server reports only as a black screen, and the rootfs states that
 look installed and are not — fonts unpacked but never configured, which is a
 directory full of fonts and no way to open one.

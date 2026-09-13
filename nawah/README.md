@@ -19,12 +19,13 @@
 
 ### ما الذي يعمل فعلًا
 
-- تثبيت دبيان 12 أو 13، تُسحب صورتها من سجلّ الحاويات ويُتحقق من بصمتها أثناء التنزيل
+- تثبيت **دبيان 12/13** أو **أوبنتو 22.04/24.04**، تُسحب صورتها من سجلّ الحاويات ويُتحقق من بصمتها أثناء التنزيل
 - سطح مكتب XFCE 4 كامل يُرسم داخل التطبيق
 - اللمس ولوحة المفاتيح والفأرة
-- الصوت والميكروفون عبر PulseAudio
+- الصوت والميكروفون: خادم PulseAudio داخل النظام يصبّ في مصرف صامت، والتطبيق يقرأ مراقبه عبر loopback ويشغّله
 - الوصول إلى `/sdcard` داخل النظام
 - أكثر من نظام بأسماء مختلفة، لكل واحد إعداداته
+- واجهة عربية وإنجليزية، تُبدَّل من داخل التطبيق
 
 ### ما الذي لا يعمل — وهذا مقصود قوله بصراحة
 
@@ -33,6 +34,7 @@
 | **تحديد الذاكرة (RAM)** | مستحيل. `proot` بلا cgroups، وتحديد الذاكرة يحتاج صلاحية جذر. "ملف الموارد" في التطبيق يغيّر مجموعة الحزم ومؤثرات النوافذ ودقة الشاشة — أشياء تغيّر الاستهلاك فعلًا — ولا يدّعي حدًّا وهميًّا. |
 | **تحديد المساحة** | الـ rootfs مجلد عادي لا صورة قرص. الأرقام المعروضة **تقدير وتحذير**، لا حصّة مفروضة. |
 | **الكاميرا** | `/dev/video*` غير متاح لتطبيقات أندرويد أصلًا. غير ممكن. |
+| **قطع الشبكة عن نظام** | يحتاج فضاء أسماء شبكة، وهذا يحتاج روت. كان في التطبيق مفتاح لهذا لا يفعل شيئًا، وقد حُذف. |
 | **الأداء** | `proot` يعترض نداءات النظام عبر `ptrace`، وهذا يكلّف ~1.5–3× في الأحمال الثقيلة. XFCE على `llvmpipe` في جهاز متوسط ≈ 15–30 إطارًا/ث. |
 | **متجر Google Play** | الرفض شبه مؤكد: التطبيق ينزّل كودًا وينفّذه (سابقة حذف Termux). التوزيع عبر GitHub Releases أو F-Droid أو APK مباشر. |
 
@@ -60,9 +62,11 @@ distribution, a desktop, resources and permissions, press Install, then Run.
 
 ### What actually works
 
-Debian 12/13 install with a digest-verified system image · a full XFCE 4
-desktop · touch, keyboard and mouse · audio and microphone via PulseAudio ·
-`/sdcard` access · several named systems side by side.
+Debian 12/13 and Ubuntu 22.04/24.04, installed from a digest-verified system
+image · a full XFCE 4 desktop · touch, keyboard and mouse · sound and
+microphone, through a PulseAudio server inside the system whose null-sink
+monitor the app reads over loopback · `/sdcard` access · several named systems
+side by side · Arabic and English, switchable in the app.
 
 ### What does not, and why
 
@@ -73,6 +77,8 @@ desktop · touch, keyboard and mouse · audio and microphone via PulseAudio ·
 - **Disk quotas** — the rootfs is a directory, not an image. The figures shown
   are estimates and warnings.
 - **Camera** — `/dev/video*` is not exposed to Android apps at all.
+- **Cutting a system off the network** — needs a network namespace, which needs
+  root. There was a switch for this that did nothing; it has been removed.
 - **Performance** — `proot` intercepts syscalls with `ptrace`, costing roughly
   1.5–3× on syscall-heavy work. XFCE on `llvmpipe` runs about 15–30 fps on a
   mid-range device.

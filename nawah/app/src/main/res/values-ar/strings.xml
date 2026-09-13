@@ -89,8 +89,6 @@
     <string name="perm_mic_desc">يتيح لتطبيقات لينكس التسجيل. سيطلب أندرويد إذن الميكروفون.</string>
     <string name="perm_storage_title">ملفاتك</string>
     <string name="perm_storage_desc">يربط وحدة التخزين الداخلية بالمسار /sdcard داخل النظام.</string>
-    <string name="perm_network_title">الشبكة</string>
-    <string name="perm_network_desc">يسمح للنظام بالوصول إلى الإنترنت وتثبيت الحزم.</string>
 
     <string name="summary_title">الملخّص</string>
     <string name="summary_name">الاسم</string>
@@ -199,11 +197,9 @@
     <string name="label_storage">التخزين</string>
     <string name="label_summary">الملخص</string>
     <string name="perm_audio">الصوت</string>
-    <string name="perm_audio_help">يسمح للنظام بتشغيل الصوت عبر سماعة جوالك.</string>
+    <string name="perm_audio_help">صوت النظام يخرج من جوالك. يضيف خادم صوت داخل النظام عند أول استخدام.</string>
     <string name="perm_mic">الميكروفون</string>
-    <string name="perm_mic_help">يسمح للنظام بالتسجيل من ميكروفون جوالك.</string>
-    <string name="perm_network">الشبكة</string>
-    <string name="perm_network_help">يسمح للنظام بالوصول إلى الإنترنت.</string>
+    <string name="perm_mic_help">يسمح للنظام بالتسجيل من ميكروفون جوالك. سيطلب أندرويد الإذن.</string>
     <string name="perm_storage">التخزين المشترك</string>
     <string name="perm_storage_help">يربط تخزين جوالك المشترك بالمسار ‎/sdcard داخل النظام.</string>
     <string name="probe_unknown">لم يُفحص بعد</string>

@@ -31,6 +31,14 @@ class GuestFileWriter(
      */
     fun refresh(machine: Machine, desktop: DesktopSpec?) {
         val rootfs = store.rootfsDir(machine.id)
+        if (machine.permissions.audioOut || machine.permissions.microphone) {
+            write(
+                rootfs,
+                GuestScripts.PULSE_CONFIG_PATH,
+                GuestScripts.pulseConfig(microphone = machine.permissions.microphone),
+                executable = false,
+            )
+        }
         write(
             rootfs,
             GuestScripts.SESSION_PATH,

@@ -23,12 +23,24 @@ enum class ResourceProfile { LIGHT, BALANCED, FULL }
  */
 @Serializable
 data class MachinePermissions(
-    /** PulseAudio sink on the Android side, reached over `tcp:127.0.0.1:4713`. */
+    /**
+     * Sound out. PulseAudio runs *inside* the machine playing into a null sink,
+     * whose monitor the app reads over loopback and feeds to an `AudioTrack`.
+     */
     val audioOut: Boolean = true,
-    /** Needs Android's `RECORD_AUDIO` runtime permission. */
+    /** Sound in, the same path backwards. Needs Android's `RECORD_AUDIO`. */
     val microphone: Boolean = false,
     /** Binds `/storage/emulated/0` to `/sdcard` inside the guest. */
     val storage: Boolean = false,
+    /**
+     * Inert, and kept only so machines written by older builds still load.
+     *
+     * It was a switch with nothing behind it. Cutting a container off the
+     * network means a network namespace, a namespace means `unshare`, and that
+     * means root — which is the one thing this app does not have. Nothing read
+     * this field, and the UI no longer offers it.
+     */
+    @Deprecated("No effect; see the comment above.")
     val network: Boolean = true,
 )
 
