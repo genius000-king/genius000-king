@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <string name="app_name">نواة</string>
 
@@ -12,149 +12,32 @@
     <string name="action_save">حفظ</string>
     <string name="action_run">تشغيل</string>
     <string name="action_close">إغلاق</string>
-    <string name="action_retry">إعادة المحاولة</string>
-    <string name="cd_navigate_back">رجوع</string>
-    <string name="cd_more_options">خيارات إضافية</string>
 
     <!-- ================= الرئيسية ================= -->
-    <string name="home_tagline">دبيان لينكس بسطح مكتب حقيقي، يعمل داخل هاتفك.</string>
-    <string name="home_create_first">أنشئ نظامًا</string>
-    <string name="home_create_another">أنشئ نظامًا آخر</string>
-    <string name="home_systems_header">أنظمتك</string>
-    <string name="home_diagnostics">التشخيص</string>
-    <string name="home_loading">جارٍ تحميل أنظمتك…</string>
-
-    <string name="machine_subtitle">%1$s · %2$s</string>
-    <string name="machine_disk_usage">%1$s على القرص</string>
-    <string name="menu_settings">الإعدادات</string>
-    <string name="menu_repair">إصلاح ملفات النظام</string>
-    <string name="menu_delete">حذف النظام</string>
-
-    <string name="machine_state_installing">جارٍ التثبيت</string>
-    <string name="machine_state_ready">جاهز</string>
-    <string name="machine_state_failed">فشل</string>
-    <string name="machine_state_needs_repair">يحتاج إصلاحًا</string>
 
     <!-- ================= المعالج ================= -->
     <string name="wizard_title">نظام جديد</string>
-    <string name="wizard_step_of">الخطوة %1$d من %2$d</string>
 
-    <string name="wizard_distro_title">اختر التوزيعة</string>
-    <string name="wizard_distro_subtitle">نظام لينكس الذي يقوم عليه كل ما سواه.</string>
-    <string name="wizard_desktop_title">اختر سطح المكتب</string>
-    <string name="wizard_desktop_subtitle">النوافذ واللوحة والقائمة التي ستستعملها فعلًا.</string>
-    <string name="wizard_resources_title">الاسم والموارد</string>
-    <string name="wizard_resources_subtitle">سمِّ النظام واختر مدى ثقله.</string>
-    <string name="wizard_permissions_title">الأذونات</string>
-    <string name="wizard_permissions_subtitle">حدِّد ما يُسمح لهذا النظام بالوصول إليه في هاتفك.</string>
-
-    <string name="compat_good">مناسب</string>
-    <string name="compat_tight">على الحافة</string>
-    <string name="compat_blocked">غير مدعوم</string>
-    <string name="compat_signals_title">هذا الجهاز</string>
-    <string name="compat_proot_ok">تم التحقق من عمل proot على هذا الجهاز</string>
-    <string name="compat_proot_failed">هذا الجهاز يمنع proot</string>
-    <string name="compat_proot_unknown">لم يُتحقق من proot بعد — شغّل الفحص من شاشة التشخيص</string>
-
-    <string name="distro_sizes">التنزيل %1$s · نحو %2$s بعد التثبيت</string>
-    <string name="desktop_size">نحو %1$s بعد التثبيت</string>
-
-    <string name="field_name_label">اسم النظام</string>
-    <string name="field_name_placeholder">دبيان الخاص بي</string>
     <string name="name_error_empty">أعطِ النظام اسمًا.</string>
     <string name="name_error_too_long">هذا الاسم طويل أكثر من اللازم.</string>
     <string name="name_error_duplicate">لديك نظام بهذا الاسم بالفعل.</string>
     <string name="name_error_illegal">استخدم حروفًا وأرقامًا ومسافات وشُرَطًا.</string>
 
-    <string name="profile_title">نمط الموارد</string>
     <string name="profile_light">خفيف</string>
     <string name="profile_balanced">متوازن</string>
     <string name="profile_full">كامل</string>
-    <string name="profile_light_desc">أقل مجموعة حزم، بلا تركيب رسومي، ودقة أخفض.</string>
-    <string name="profile_balanced_desc">حزم سطح المكتب المعتادة، تركيب رسومي خفيف، ودقة متوسطة.</string>
-    <string name="profile_full_desc">سطح مكتب كامل مع تطبيقاته، تركيب رسومي مفعّل، وأعلى دقة.</string>
-    <string name="profile_note">هذا الخيار يغيّر مجموعة الحزم والتركيب الرسومي والدقة فقط. لا يستطيع proot تحديد سقف للذاكرة بدون صلاحيات الجذر، فلا شيء هنا يحدّ من استهلاك الذاكرة.</string>
 
-    <string name="resolution_title">دقة العرض</string>
-    <string name="storage_title">التخزين</string>
-    <string name="storage_summary">يحتاج نحو %1$s · المتاح %2$s</string>
     <string name="storage_estimate_note">رقم تقديري للتنبيه فقط، وليس حصة مفروضة.</string>
-    <string name="storage_tight_warning">المساحة الحرة قريبة من التقدير، وقد ينفد المكان أثناء التثبيت.</string>
-    <string name="storage_insufficient_warning">لا توجد مساحة حرة كافية لهذا التثبيت.</string>
-
-    <string name="permissions_note">كل مفتاح هنا يقابل ربطًا أو خدمة حقيقية. وما تتركه مغلقًا لا يُوصَل أصلًا.</string>
-    <string name="perm_audio_title">إخراج الصوت</string>
-    <string name="perm_audio_desc">يوجّه صوت لينكس إلى مكبّر صوت الهاتف.</string>
-    <string name="perm_mic_title">الميكروفون</string>
-    <string name="perm_mic_desc">يتيح لتطبيقات لينكس التسجيل. سيطلب أندرويد إذن الميكروفون.</string>
-    <string name="perm_storage_title">ملفاتك</string>
-    <string name="perm_storage_desc">يربط وحدة التخزين الداخلية بالمسار /sdcard داخل النظام.</string>
-
-    <string name="summary_title">الملخّص</string>
-    <string name="summary_name">الاسم</string>
-    <string name="summary_distro">التوزيعة</string>
-    <string name="summary_desktop">سطح المكتب</string>
-    <string name="summary_profile">النمط</string>
-    <string name="summary_resolution">الدقة</string>
-    <string name="summary_size">الحجم التقديري</string>
-    <string name="summary_permissions">الأذونات</string>
-    <string name="summary_permissions_none">لا شيء</string>
 
     <!-- ================= التثبيت ================= -->
     <string name="install_title">التثبيت</string>
-    <string name="install_installing_name">جارٍ تثبيت %1$s</string>
-    <string name="install_steps_title">الخطوات</string>
-    <string name="install_log_title">السجل</string>
-    <string name="install_log_empty">في انتظار أول سطر…</string>
-    <string name="install_cancel">إلغاء التثبيت</string>
-    <string name="install_cancelling">جارٍ الإلغاء…</string>
-    <string name="install_failed_title">فشل التثبيت</string>
-    <string name="install_failed_at">توقّف عند: %1$s</string>
-    <string name="install_copy_log">نسخ السجل</string>
-    <string name="install_done_title">جاهز</string>
-    <string name="install_done_body">تم تثبيت %1$s وهو جاهز للتشغيل.</string>
-    <string name="install_open">شغّله</string>
-    <string name="cd_step_done">تم</string>
-    <string name="cd_step_current">جارٍ التنفيذ</string>
-    <string name="cd_step_pending">لم تبدأ</string>
-    <string name="cd_step_failed">فشلت</string>
 
     <!-- ================= إعدادات النظام ================= -->
     <string name="settings_title">إعدادات النظام</string>
-    <string name="settings_name_header">الاسم</string>
-    <string name="settings_system_header">النظام</string>
-    <string name="settings_permissions_header">الأذونات</string>
-    <string name="settings_display_header">العرض</string>
-    <string name="settings_storage_header">التخزين</string>
     <string name="settings_storage_used">%1$s يشغلها هذا النظام</string>
-    <string name="settings_storage_measuring">جارٍ القياس…</string>
-    <string name="settings_maintenance_header">الصيانة</string>
-    <string name="settings_repair_title">إصلاح ملفات النظام</string>
-    <string name="settings_repair_desc">يعيد كتابة سكربت الإقلاع داخل النظام. جرّبه إذا توقّف نظام عن العمل بعد تعديل داخله.</string>
-    <string name="settings_repair_running">جارٍ الإصلاح…</string>
-    <string name="settings_delete_title">حذف النظام</string>
-    <string name="settings_delete_desc">يزيل نظام الملفات بأكمله. لا يمكن التراجع عن ذلك.</string>
-    <string name="delete_dialog_title">حذف “%1$s”؟</string>
-    <string name="delete_dialog_body">سيُمحى نظام الملفات وكل ما بداخله نهائيًا.</string>
 
     <!-- ================= التشخيص ================= -->
     <string name="diagnostics_title">التشخيص</string>
-    <string name="diag_device_header">الجهاز</string>
-    <string name="diag_abi">معمارية المعالج</string>
-    <string name="diag_ram">إجمالي الذاكرة</string>
-    <string name="diag_storage">التخزين المتاح</string>
-    <string name="diag_api">مستوى واجهة أندرويد</string>
-    <string name="diag_cores">أنوية المعالج</string>
-    <string name="diag_probe_header">فحص proot الحيّ</string>
-    <string name="diag_probe_desc">يشغّل proot على نظام ملفات صغير للتأكد من أن هذا الجهاز يسمح بـ ptrace. هذا هو الفرق بين التخمين واليقين.</string>
-    <string name="diag_probe_run">شغّل الفحص</string>
-    <string name="diag_probe_rerun">أعد الفحص</string>
-    <string name="diag_probe_unknown">لم يُشغَّل بعد</string>
-    <string name="diag_probe_running">جارٍ الفحص…</string>
-    <string name="diag_probe_passed">نجح — proot يعمل على هذا الجهاز</string>
-    <string name="diag_probe_failed">فشل — هذا الجهاز يمنع proot</string>
-    <string name="diag_export">تصدير التشخيص</string>
-    <string name="diag_exporting">جارٍ التصدير…</string>
 
     <string name="action_copy_log">نسخ السجل</string>
     <string name="action_create_system">إنشاء نظام</string>
@@ -223,9 +106,9 @@
     <string name="wizard_step_permissions">الصلاحيات</string>
     <string name="x11_display_title">سطح مكتب لينكس</string>
     <string name="install_cancelled">أُلغي.</string>
-    <string name="lorie_app_name">نواة</string>
-    <string name="not_connected">بانتظار جلسة لينكس…</string>
-    <string name="lorie_notification_content_text">اسحب للأسفل لخيارات العرض</string>
+    <string name="lorie_app_name" tools:ignore="UnusedResources">نواة</string>
+    <string name="not_connected" tools:ignore="UnusedResources">بانتظار جلسة لينكس…</string>
+    <string name="lorie_notification_content_text" tools:ignore="UnusedResources">اسحب للأسفل لخيارات العرض</string>
     <string name="action_resume">متابعة</string>
     <string name="diagnostics_crash">آخر انهيار</string>
     <string name="action_dismiss">تجاهل</string>
@@ -233,12 +116,10 @@
     <string name="session_log_title">%1$s · سجل الجلسة</string>
     <string name="action_open_display">فتح الشاشة</string>
     <string name="session_stopped">متوقف</string>
-    <string name="action_session_log">سجل الجلسة</string>
     <string name="wizard_step_distro_hint">اختر التوزيعة، ثم الإصدار الذي تريده.</string>
     <string name="label_lts">دعم طويل</string>
     <string name="action_about">عن التطبيق</string>
     <string name="settings_section_appearance">اللغة والمظهر</string>
-    <string name="settings_language">اللغة</string>
     <string name="settings_language_system">حسب إعدادات الجهاز</string>
     <string name="settings_language_ar">العربية</string>
     <string name="settings_language_en">English</string>
@@ -269,4 +150,11 @@
     <string name="about_source">الشيفرة المصدرية</string>
     <string name="about_version">الإصدار</string>
     <string name="about_report">الإبلاغ عن مشكلة</string>
+    <string name="install_step_downloading">تنزيل صورة النظام</string>
+    <string name="install_step_verifying">التحقق من الصورة</string>
+    <string name="install_step_extracting">فكّ نظام الملفات</string>
+    <string name="install_step_bootstrapping">تهيئة النظام الأساسي</string>
+    <string name="install_step_packages">تثبيت حزم سطح المكتب</string>
+    <string name="install_step_scripts">كتابة سكربت الإقلاع</string>
+    <string name="install_step_configuring">اللمسات الأخيرة</string>
 </resources>

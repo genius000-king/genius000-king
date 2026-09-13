@@ -76,6 +76,14 @@ android {
         }
     }
 
+    bundle {
+        // MUST stay off. With language splits on, an App Bundle installed on an
+        // English phone never downloads the Arabic resources — so the in-app
+        // language switch would change the setting and nothing on screen. The
+        // cost is a slightly larger download for two languages.
+        language { enableSplit = false }
+    }
+
     packaging {
         // MUST stay true. With legacy packaging off, native libraries are kept
         // compressed inside the APK and never written to nativeLibraryDir --

@@ -7,7 +7,13 @@ import io.nawah.linux.core.model.MachinePermissions
 import io.nawah.linux.core.model.ResourceProfile
 import kotlinx.serialization.Serializable
 
-/** The ordered stages of an install. Order is the contract the UI renders. */
+/**
+ * The ordered stages of an install. Order is the contract the UI renders.
+ *
+ * [label] is a fallback and a log line, never what the user reads: the app maps
+ * each step to a string resource, because :core has no resources and a
+ * hardcoded English sentence in here would stay English on an Arabic screen.
+ */
 @Serializable
 enum class InstallStep(val order: Int, val label: String) {
     DOWNLOADING(1, "Downloading system image"),
@@ -15,7 +21,8 @@ enum class InstallStep(val order: Int, val label: String) {
     EXTRACTING(3, "Unpacking filesystem"),
     BOOTSTRAPPING(4, "Configuring base system"),
     INSTALLING_PACKAGES(5, "Installing desktop packages"),
-    INSTALLING_X11_BRIDGE(6, "Installing display bridge"),
+    /** Writes the session script. It was a guest-side bridge once; see docs. */
+    INSTALLING_X11_BRIDGE(6, "Writing the startup script"),
     CONFIGURING(7, "Finishing up");
 
     companion object {

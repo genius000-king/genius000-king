@@ -6,10 +6,12 @@ import kotlinx.serialization.Serializable
  * How much of the device we let a machine use.
  *
  * Honest about what proot can do: there are no cgroups without root, so this
- * cannot cap RAM or CPU. What it *does* change is real — the package set, the
- * compositor, and the X display resolution — which is what actually moves the
- * resident set on a phone. Naming it a "profile" rather than a "memory limit"
- * is the whole point.
+ * cannot cap RAM or CPU.
+ *
+ * What it changes today is the compositor — [LIGHT] and [BALANCED] start the
+ * desktop with compositing off, which is a real saving on a phone. It used to
+ * claim it changed the package set too; it never did, and the claim is gone
+ * rather than the code quietly gaining a branch to match it.
  */
 enum class ResourceProfile { LIGHT, BALANCED, FULL }
 

@@ -13,15 +13,15 @@ import io.nawah.linux.core.provision.InstallStep
  * (`order`, `label`); [toUi] is the only bridge and it touches nothing else.
  */
 @Immutable
-data class InstallStepUi(val order: Int, val label: String)
+data class InstallStepUi(val order: Int, val step: InstallStep)
 
-fun InstallStep.toUi(): InstallStepUi = InstallStepUi(order = order, label = label)
+fun InstallStep.toUi(): InstallStepUi = InstallStepUi(order = order, step = this)
 
 enum class StepStatus { DONE, CURRENT, PENDING, FAILED }
 
 @Immutable
 data class InstallFailure(
-    val stepLabel: String,
+    val step: InstallStep,
     val message: String,
     /** The full log, as handed over by `InstallProgress.Failed.log`. */
     val log: String,
@@ -94,7 +94,7 @@ fun InstallUiState.reduce(progress: InstallProgress): InstallUiState = when (pro
     is InstallProgress.Failed -> copy(
         currentOrder = progress.step.order,
         failure = InstallFailure(
-            stepLabel = progress.step.label,
+            step = progress.step,
             message = progress.message,
             log = progress.log,
         ),

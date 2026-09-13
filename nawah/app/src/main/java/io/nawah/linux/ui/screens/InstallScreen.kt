@@ -17,6 +17,7 @@ import io.nawah.linux.ui.components.LogPane
 import io.nawah.linux.ui.state.*
 import io.nawah.linux.ui.theme.NawahTheme
 import io.nawah.linux.ui.theme.Spacing
+import io.nawah.linux.ui.util.labelRes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,7 +79,7 @@ fun InstallScreen(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Column(Modifier.padding(Spacing.md)) {
-                        Text(failure.stepLabel, style = MaterialTheme.typography.titleSmall,
+                        Text(stringResource(failure.step.labelRes), style = MaterialTheme.typography.titleSmall,
                             color = NawahTheme.status.bad)
                         Text(failure.message, style = MaterialTheme.typography.bodySmall)
                     }
@@ -108,7 +109,7 @@ private fun StepRow(step: InstallStepUi, status: StepStatus) {
         }
         Spacer(Modifier.width(Spacing.sm))
         Text(
-            step.label,
+            stringResource(step.step.labelRes),
             style = MaterialTheme.typography.bodyMedium,
             color = when (status) {
                 StepStatus.PENDING -> MaterialTheme.colorScheme.onSurfaceVariant
@@ -147,7 +148,7 @@ private fun PreviewInstallFailed() = NawahTheme {
             steps = InstallStep.ordered.map { it.toUi() },
             currentOrder = 3,
             failure = InstallFailure(
-                "Unpacking filesystem",
+                InstallStep.EXTRACTING,
                 "tar: write error: No space left on device",
                 "tar: write error: No space left on device",
             ),

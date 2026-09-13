@@ -11,6 +11,7 @@ import io.nawah.linux.R
 import io.nawah.linux.core.provision.InstallProgress
 import io.nawah.linux.core.provision.InstallRequest
 import io.nawah.linux.core.provision.InstallStep
+import io.nawah.linux.ui.util.labelRes
 import android.util.Log
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -120,7 +121,7 @@ class InstallService : Service() {
                 progress.value = update
                 when (update) {
                     is InstallProgress.Running -> notify(
-                        title = update.step.label,
+                        title = getString(update.step.labelRes),
                         text = update.line ?: label,
                         percent = update.fraction?.let { (it * 100).toInt() },
                     )
