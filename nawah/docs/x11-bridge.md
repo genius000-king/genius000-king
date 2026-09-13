@@ -9,6 +9,24 @@ An X client inside a Debian container has to draw onto an Android surface.
 There is no shared display server between the two worlds and no network
 involved — the connection is a file descriptor passed across a Binder call.
 
+## Where the X server runs
+
+**Outside the container.** This is the single most important fact on this page,
+and getting it wrong cost three releases. Upstream's README says it plainly:
+
+> Example, run in a Termux shell (**not inside the proot container**):
+> ```
+> termux-x11 :1 &
+> proot-distro login ubuntu --shared-tmp
+> ```
+
+The X server is an Android process. proot is a ptrace sandbox for *Linux*
+binaries; putting an Android runtime inside it does not make the runtime more
+available, it makes it unusable. Our version is simpler than Termux's, because
+we do not need `--shared-tmp` at all: the server writes its socket into
+`<rootfs>/tmp`, which **is** the container's `/tmp`. Nothing is bound, nothing
+is shared, both sides are looking at one directory on disk.
+
 ## The handshake
 
 ```
@@ -16,87 +34,157 @@ involved — the connection is a file descriptor passed across a Binder call.
  ────────────                                  ──────────────────────────
  SessionService.start(machine)
       │
-      ├─► SessionLauncher.openDisplay()
-      │     starts com.termux.x11.MainActivity
-      │     (from the vendored :lorie module —
-      │      this activity *is* the X server)
+      ├─► X11Bridge.start(rootfs, ":0")
+      │     /system/bin/app_process -Xnoimage-dex2oat /
+      │        --nice-name=nawah-x11
+      │        com.termux.x11.NawahEntryPoint :0
+      │     CLASSPATH   = our own APK
+      │     TMPDIR      = <rootfs>/tmp
+      │     NAWAH_XLORIE= <nativeLibDir>/libXlorie.so
+      │          │
+      │          ├─ System.load(NAWAH_XLORIE)
+      │          ├─ CmdEntryPoint.ctx = createContext()
+      │          └─ new CmdEntryPoint(":0")
+      │                 └─ binds <rootfs>/tmp/.X11-unix/X0
       │
-      └─► ProotRunner.stream(...)  ───────────►  /usr/local/bin/nawah-session
-                                                       │
-                                                       ├─► /usr/bin/nawah-x11 :0
-                                                       │      CLASSPATH=/usr/libexec/nawah-x11/loader.apk
-                                                       │      exec /system/bin/app_process … com.termux.x11.Loader
-                                                       │
-                                                       │   Loader.main()
-                                                       │     1. looks up package io.nawah.linux
-                                                       │     2. checks its signing certificate
-                                                       │        against a hash compiled into itself
-                                                       │     3. PathClassLoader(host apk)
-                                                       │     4. CmdEntryPoint.main()
-                                                       │
-      LorieBroadcastReceiver  ◄──── ACTION_START ───────┤   broadcasts an ICmdEntryInterface Binder,
-              │                                         │   re-sending once a second until answered
-              ▼                                         │
-      MainActivity.onReceiveConnection()                │
-        service.getXConnection() ──► ParcelFileDescriptor
-        LorieView.connect(fd)                           │
-                                                        └─► dbus-launch startxfce4
+      ├─► X11Bridge.awaitSocket(":0")   ← waits for that socket
+      │
+      ├─► ProotRunner.stream(...) ──────────►  /usr/local/bin/nawah-session
+      │                                              │  waits for /tmp/.X11-unix/X0
+      │                                              │  (the same file)
+      │                                              │
+      └─► SessionLauncher.openDisplay()              │
+            com.termux.x11.MainActivity              │
+                    ▲                                │
+ LorieBroadcastReceiver ◄── ACTION_START ────────────┤ the server re-broadcasts its
+            │                                        │ ICmdEntryInterface Binder once
+            ▼                                        │ a second until the activity answers
+ MainActivity.onReceiveConnection()                  │
+   service.getXConnection() ──► ParcelFileDescriptor │
+   LorieView.connect(fd)                             │
+                                                     └─► dbus-launch startxfce4
 ```
 
-Because `CmdEntryPoint` keeps re-broadcasting, the two halves do not have to be
-started in order. `SessionService` fires both and lets them find each other.
+The server and the activity do **not** need sequencing — that is what the
+once-a-second rebroadcast is for. The server and the *container* do: the
+session script would otherwise start clients against a display that is not
+listening yet, so it waits for the socket and says so if it never appears.
 
-## Why `--bind=/system` is load-bearing
+## Why we cannot use `CmdEntryPoint.main`
 
-Step three execs `/system/bin/app_process` **from inside the container**. proot
-shows the guest only what it is told to bind, so without
+Upstream's entry point loads its own native library from inside the APK:
+
+```java
+String path = "lib/" + Build.SUPPORTED_ABIS[0] + "/libXlorie.so";
+URL res = loader.getResource(path);
+System.load(res.getFile().replace("file:", ""));   // /data/app/…/base.apk!/lib/…
+```
+
+That works only when the library is stored **uncompressed and page-aligned**
+inside the APK, which is why `lorie/build.gradle` sets
+`jniLibs.useLegacyPackaging false`.
+
+We must set it `true`. Since API 29, Android will execute a binary only from
+`nativeLibraryDir`, and legacy packaging is precisely the switch that extracts
+`lib*.so` there. Without it `libproot.so` is never written to disk and there is
+no Linux to display at all. The two requirements are opposites and ours wins.
+
+So `com.termux.x11.NawahEntryPoint` (in `app/src/main/java/com/termux/x11/`)
+replaces `initEntryPoint`: it loads the already-extracted library by absolute
+path, then replays upstream's startup verbatim. It is written in Java because
+`CmdEntryPoint.handler` and its constructor are package-private.
+
+Symptom if this is ever broken: the session log says
+`the display server exited with status 134`.
+
+## The environment and argv that decide everything
+
+| Setting | Value | What breaks without it |
+|---|---|---|
+| `TMPDIR` | `<rootfs>/tmp` | the socket lands somewhere the container cannot see, and the session times out after 20s |
+| `NAWAH_XLORIE` | `<nativeLibDir>/libXlorie.so` | status 134, "could not load" |
+| `XKB_CONFIG_ROOT` | `<rootfs>/usr/share/X11/xkb` | the server exits: "$XKB_CONFIG_ROOT is not set" |
+| `-fp` | the `usr/share/fonts/X11/*` directories that have a `fonts.dir` | the server aborts: "could not open default font" |
+
+`TMPDIR` does a second job that is easy to miss. The X server treats
+`dirname($TMPDIR)` as the container root and derives two paths from it
+(`cmdentrypoint.cpp`, the branch commented "chroot case"):
+
+* `XKB_CONFIG_ROOT` → `<root>/usr/share/X11/xkb`. **Without a keyboard map the
+  server refuses to start**, and the user sees a black screen.
+* the default font path → `<root>/usr/share/fonts/X11`.
+
+Pointing `TMPDIR` at `<rootfs>/tmp` therefore places the socket and the keymap
+correctly in one move, and `X11LaunchPlan` sets `XKB_CONFIG_ROOT` explicitly on
+top of that, saying so in the log when the directory is not there.
+
+The font half of that search is **not** trusted, and this is worth spelling
+out. The server tries `<root>/etc/X11/fonts` before `<root>/usr/share/fonts/X11`.
+On Debian the first one exists — `xfonts-base` ships alias *sources* there —
+but it has no `fonts.dir` and no readable font, so the search succeeds and
+yields a font path the server cannot use. It then aborts with
 
 ```
---bind=/system  --bind=/apex  --bind=/vendor  --bind=/linkerconfig/ld.config.txt
+Fatal server error: could not open default font
 ```
 
-that path does not exist, `nawah-x11` exits, and the desktop never appears —
-with nothing in the log but "not found". `ProotArgsBuilder` adds these for every
-session and the comment there says so. If you are ever tempted to trim the bind
-list for isolation, this is the line that breaks.
+which arrives in the app as a black screen. `X11LaunchPlan` passes `-fp` with
+the directories that actually carry a `fonts.dir`, which overrides the search
+entirely.
 
-## The signature trap
+## Packages the display server cannot start without
 
-`Loader` verifies the host app's signing certificate against
-`BuildConfig.SIGNATURE`, a hash baked into `loader.apk` at build time by
-`x11-loader/build.gradle.kts`. This is a real security property: the loader
-runs before any of our code and refuses to load a replaced APK.
+Two, and neither failure names a package:
 
-The consequence is easy to hit during development. `loader.apk` lives **inside
-each machine's rootfs**, copied there at install time. Rebuild the app with a
-different signing key and every already-installed machine still holds a loader
-that trusts the *old* certificate — so X stops starting, and only for existing
-machines.
+| Package | Without it |
+|---|---|
+| `xkb-data` | `$XKB_CONFIG_ROOT is not set`, server exits |
+| `xfonts-base` | `could not open default font`, server aborts |
 
-The fix is `Provisioner.repairX11Bridge(machineId)`, surfaced in the UI as
-**Repair X11 bridge**: it re-copies `loader.apk` and rewrites
-`/usr/bin/nawah-x11`. This is why the debug keystore at `signing/nawah-debug.jks`
-is committed rather than generated — a per-machine debug key would break the
-bridge on every clean checkout.
+Both are in `ProotProvisioner.BASE_PACKAGES`, and both are **re-checked at every
+launch** by `DisplayPrerequisites`. A machine installed by an older build of the
+app is missing them, and the only acceptable answer to eight missing megabytes
+is one `apt-get install`, not reinstalling a gigabyte of Debian. `SessionLauncher`
+runs that install before starting the server and refuses to start the server if
+it fails — a black screen with no explanation is worse than an error.
+
+## Why `--bind=/system` is still load-bearing
+
+`app_process` no longer runs inside the container, so the binds are not needed
+*for the bridge* any more. They stay because a Debian desktop reaches for
+Android's graphics and device nodes through `/dev`, `/proc`, `/sys`, `/apex`,
+`/system` and `/linkerconfig` in several places, and because removing them has
+never been the thing that fixed anything. If you are tempted to trim the list
+for isolation, don't.
 
 ## Files involved
 
 | File | Role |
 |---|---|
-| `x11-loader/build.gradle.kts` | builds `loader.apk` with our id and certificate hash |
-| `core/.../provision/GuestScripts.kt` | generates `nawah-x11` and `nawah-session` |
-| `core/.../provision/ProotProvisioner.kt` | installs both into the rootfs |
-| `core/.../runtime/ProotArgsBuilder.kt` | the bind list that makes `app_process` reachable |
-| `app/.../session/SessionLauncher.kt` | starts the activity and the guest session |
-| `vendor/termux-x11/lorie` | the X server itself (unmodified) |
+| `app/.../com/termux/x11/NawahEntryPoint.java` | loads `libXlorie.so` from disk, then upstream's startup |
+| `app/.../session/X11LaunchPlan.kt` | the argv and environment, as a pure function |
+| `core/.../provision/DisplayPrerequisites.kt` | the packages and the font path, checked at every launch |
+| `app/.../session/X11Bridge.kt` | starts, watches and stops the server process |
+| `app/.../session/SessionLauncher.kt` | orders the three parts and owns the lifetime |
+| `core/.../provision/GuestScripts.kt` | generates `nawah-session` |
+| `core/.../runtime/ProotArgsBuilder.kt` | the bind list |
+| `vendor/termux-x11/lorie` | the X server itself (never edited) |
 
 ## Debugging checklist
 
-1. `adb logcat -s "Nawah X11 loader"` — the loader's own messages, including
-   signature failures.
-2. Run `nawah-x11 :0` by hand from the app's terminal. "app_process is not
-   visible" means the bind list; a signature message means run the repair.
-3. `adb logcat -s NawahSession` — the guest session's stdout.
+The session log (Diagnostics → session log, or `machines/<id>/session.log`)
+carries both sides, interleaved. Read it top to bottom.
+
+| Line | Meaning |
+|---|---|
+| `the display server exited with status 134` | `libXlorie.so` did not load — see above |
+| `$XKB_CONFIG_ROOT is not set` | the machine has no `xkb-data` package |
+| `no keyboard map in the machine` | same, caught before the server starts |
+| `could not open default font` | `xfonts-base` is missing or unconfigured |
+| `xfonts-base is missing — …` | the launch caught it and is installing it |
+| `the display server did not create its socket` | the server died during startup; its own output is directly above |
+| `no X socket at /tmp/.X11-unix/X0 after 20s` | the container cannot see the socket — `TMPDIR` and the rootfs have diverged |
+| `<command> is not installed in this system` | the desktop package set never finished installing |
 
 ---
 
@@ -181,3 +269,40 @@ The general lesson, again the second row: the bug was one line, but what made
 it a crash instead of a message was the absence of a handler. A long-running
 service should never be one unhandled exception away from taking the app down,
 whatever the bug turns out to be.
+
+## Post-mortem: the X server inside the container
+
+Three releases in a row shipped an X11 bridge that ran `app_process` **inside**
+proot. The last of them produced the clearest possible evidence and was still
+easy to misread:
+
+```
+nawah: the bridge exited with status 0
+```
+
+Status 0. A success. It had started nothing, drawn nothing, and bound no
+socket — and because the exit code was zero, every check in the pipeline was
+satisfied.
+
+**Cause.** proot is a ptrace sandbox for Linux binaries. `app_process` is the
+Android runtime launcher; under ptrace, with a rewritten filesystem view and a
+different linker namespace, it exits immediately. The design was never
+upstream's: their README starts the server *in a Termux shell* and only then
+enters the container.
+
+**What had to change:**
+
+| Change | Why |
+|---|---|
+| `X11Bridge` starts the server on the Android side | ptrace is not a place to run an Android runtime |
+| `TMPDIR = <rootfs>/tmp` | the socket lands in the container's own `/tmp`; no bind, and `dirname` finds the keymap and fonts |
+| `NawahEntryPoint` loads `libXlorie.so` by path | upstream loads it from inside the APK, which our packaging makes impossible |
+| the session script waits for the socket instead of starting the server | it has one job now, and it can explain failing at it |
+| `loader.apk`, `nawah-x11`, `:x11-loader` deleted | the guest half of the bridge no longer exists, and dead code that claims to be load-bearing is how this was misread for three releases |
+| `X11LaunchPlanTest` asserts the argv and the environment | every one of these failures was a wrong entry in one of those two lists |
+
+**The general lesson.** Two of the three releases were spent debugging *inside*
+the wrong architecture — better logging, better error messages, more careful
+sequencing — when upstream's README had a two-line example contradicting the
+whole approach. Read the project you are vendoring before instrumenting your
+misuse of it.

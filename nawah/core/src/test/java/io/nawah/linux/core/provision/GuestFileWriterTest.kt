@@ -11,7 +11,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.io.ByteArrayInputStream
 import java.io.File
 
 /**
@@ -28,7 +27,6 @@ class GuestFileWriterTest {
 
     private lateinit var store: FileMachineStore
     private lateinit var writer: GuestFileWriter
-    private var loaderBytes = "LOADER-V1".toByteArray()
 
     private val xfce = DesktopSpec("xfce4", "XFCE 4", listOf("xfce4"), "startxfce4", 1)
     private val cli = DesktopSpec("none", "Command line only", emptyList(), "", 0)
@@ -43,26 +41,23 @@ class GuestFileWriterTest {
     @Before
     fun setUp() {
         store = FileMachineStore(tmp.newFolder("files"))
-        writer = GuestFileWriter(store, "io.nawah.linux") { ByteArrayInputStream(loaderBytes) }
+        writer = GuestFileWriter(store)
         store.rootfsDir(machine.id).mkdirs()
     }
 
     private fun guest(path: String) = File(store.rootfsDir(machine.id), path.trimStart('/'))
 
     @Test
-    fun `all three app-owned files are written`() {
+    fun `the session script is written for the machine's desktop`() {
         writer.refresh(machine, xfce)
 
-        assertThat(guest(GuestScripts.LOADER_PATH).readBytes()).isEqualTo(loaderBytes)
-        assertThat(guest(GuestScripts.BRIDGE_PATH).readText()).contains("app_process")
         assertThat(guest(GuestScripts.SESSION_PATH).readText()).contains("startxfce4")
     }
 
     @Test
-    fun `the scripts are executable`() {
+    fun `the session script is executable`() {
         writer.refresh(machine, xfce)
 
-        assertThat(guest(GuestScripts.BRIDGE_PATH).canExecute()).isTrue()
         assertThat(guest(GuestScripts.SESSION_PATH).canExecute()).isTrue()
     }
 
@@ -80,29 +75,6 @@ class GuestFileWriterTest {
         val script = guest(GuestScripts.SESSION_PATH).readText()
         assertThat(script).doesNotContain("broken leftover")
         assertThat(script).contains("nawah: starting session")
-    }
-
-    @Test
-    fun `a loader from a differently signed build is replaced`() {
-        writer.refresh(machine, xfce)
-        loaderBytes = "LOADER-V2-DIFFERENT-KEY".toByteArray()
-
-        writer.refresh(machine, xfce)
-
-        assertThat(guest(GuestScripts.LOADER_PATH).readBytes()).isEqualTo(loaderBytes)
-    }
-
-    @Test
-    fun `an unchanged loader is not rewritten`() {
-        writer.refresh(machine, xfce)
-        val first = guest(GuestScripts.LOADER_PATH).lastModified()
-        guest(GuestScripts.LOADER_PATH).setLastModified(first - 60_000)
-        val backdated = guest(GuestScripts.LOADER_PATH).lastModified()
-
-        writer.refresh(machine, xfce)
-
-        // A megabyte copy on every launch, for no change, is worth avoiding.
-        assertThat(guest(GuestScripts.LOADER_PATH).lastModified()).isEqualTo(backdated)
     }
 
     @Test

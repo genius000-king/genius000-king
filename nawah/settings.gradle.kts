@@ -35,7 +35,3 @@ project(":lorie").projectDir = file("vendor/termux-x11/lorie")
 include(":shell-loader:stub")
 project(":shell-loader").projectDir = file("gradle/empty/shell-loader")
 project(":shell-loader:stub").projectDir = file("vendor/termux-x11/shell-loader/stub")
-
-// Our own loader module: upstream's Loader.java sources, our application id,
-// our signing certificate. Produces the loader.apk that runs inside the guest.
-include(":x11-loader")

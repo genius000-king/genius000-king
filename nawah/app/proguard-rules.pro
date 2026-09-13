@@ -20,3 +20,9 @@
 -keepclasseswithmembers class io.nawah.linux.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
+
+# The X server's command-line entry point. It is never referenced from Kotlin --
+# app_process names the class as a string on the command line -- so R8 has no
+# reason to believe it is reachable, and a release build without this rule fails
+# at run time with ClassNotFoundException and a black screen.
+-keep class com.termux.x11.NawahEntryPoint { public static void main(java.lang.String[]); }

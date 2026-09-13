@@ -90,29 +90,31 @@ install.
 ## How it works
 
 ```
-┌───────────────────────── one APK ─────────────────────────┐
-│                                                           │
-│  Compose UI ──► SessionService ──► proot ──► Debian rootfs │
-│                        │                         │        │
-│                        ▼                         ▼        │
-│              com.termux.x11.MainActivity   nawah-session   │
-│                 (the lorie X server)       └─► nawah-x11   │
-│                        ▲                         │        │
-│                        └──── Binder + fd ◄────────┘        │
-└───────────────────────────────────────────────────────────┘
+┌────────────────────────── one APK ──────────────────────────┐
+│                                                             │
+│  Compose UI ──► SessionService ──┬──► X server (app_process) │
+│                                  │         │                │
+│                                  │         ▼                │
+│                                  │   <rootfs>/tmp/.X11-unix │
+│                                  │         ▲                │
+│                                  └──► proot ──► Debian      │
+│                                            nawah-session    │
+│         com.termux.x11.MainActivity ◄── Binder + fd         │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-The guest runs `/system/bin/app_process` from *inside* the container, which
-loads a tiny APK we ship, which hands an X connection file descriptor back to
-the app over Binder. `docs/x11-bridge.md` explains the whole handshake and the
-two ways it fails.
+The X server runs on the **Android** side, not inside the container, and binds
+its socket in the machine's own `/tmp` — so the desktop finds it as an ordinary
+`/tmp/.X11-unix/X0` with nothing mounted or forwarded. The rendering surface is
+`com.termux.x11.MainActivity`, which receives the connection as a file
+descriptor over Binder. `docs/x11-bridge.md` explains the whole handshake, and
+the three ways it was got wrong.
 
 | Module | What it is |
 |---|---|
 | `:app` | Compose M3 UI, services, orchestration |
 | `:core` | model, device probe, proot runtime, install pipeline, OCI client |
 | `:lorie` | the X server — vendored from termux-x11, unmodified |
-| `:x11-loader` | upstream's `Loader.java`, built with our id and certificate |
 
 ## Building from source
 

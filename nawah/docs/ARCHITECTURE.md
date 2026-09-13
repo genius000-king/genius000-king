@@ -21,7 +21,6 @@ screen, from one APK. Three constraints drive every decision that follows:
 :app           Compose M3 UI, foreground services, the object graph
 :core          pure logic: model, probe, runtime, provision, store, oci
 :lorie         the X server (vendored, unmodified)
-:x11-loader    upstream Loader.java, built with our id and certificate hash
 :shell-loader:stub   vendored compile-only stubs for Android internal APIs
 ```
 
@@ -45,13 +44,23 @@ OciClient pulls library/debian:trixie, verifying the digest while streaming
   → busybox tar, run through proot with --link2symlink, unpacks it
   → /etc/{resolv.conf,hosts,apt/...} written from the host side
   → apt-get install, streamed line by line to the UI
-  → loader.apk + nawah-x11 installed into the rootfs
   → nawah-session written
 ```
 
-**Run.** `SessionService` starts the X activity and the guest session at the
-same time; they find each other because the guest re-broadcasts its Binder once
-a second. See `docs/x11-bridge.md`.
+**Run.** `SessionService` → `SessionLauncher`:
+
+```
+DisplayPrerequisites checks the machine has xkb-data and xfonts-base,
+  installing them if an older build of the app left them out
+  → X11Bridge starts the X server on the Android side, socket in <rootfs>/tmp
+  → the socket is waited for, not assumed
+  → proot starts the container, whose /tmp is that same directory
+  → the X activity is brought up; the server re-broadcasts its Binder
+    once a second until the activity answers
+```
+
+The X server runs **outside** the container. See `docs/x11-bridge.md` — that
+one sentence is the subject of a post-mortem there.
 
 ## State
 
@@ -85,16 +94,14 @@ fail when someone simplifies it.
 
 ## App-owned files are refreshed on every launch
 
-Three files inside a machine's filesystem belong to the app, not to Debian:
+One file inside a machine's filesystem belongs to the app, not to Debian:
 
 ```
-/usr/libexec/nawah-x11/loader.apk   the guest half of the X11 bridge
-/usr/bin/nawah-x11                  the script that execs app_process
 /usr/local/bin/nawah-session        the script that starts the desktop
 ```
 
-`GuestFileWriter` rewrites all three **every time a machine starts**, not once
-at install time.
+`GuestFileWriter` rewrites it **every time a machine starts**, not once at
+install time.
 
 The difference is not an optimisation. Written only at install, a one-line fix
 to the session script could reach an existing machine by exactly one route:
@@ -105,7 +112,8 @@ why a user asked whether every new build meant reinstalling Linux again.
 The answer has to be no. An app update must be enough, or the feedback loop is
 too slow to debug anything.
 
-The same call also repairs the signature mismatch case: a differently-signed
-build leaves a `loader.apk` the new app cannot load, and the launch replaces it
-before it matters. The loader is only rewritten when its bytes differ, so the
-check costs nothing on an ordinary start.
+There used to be two more files here — a `loader.apk` signed with our key and a
+`nawah-x11` script that ran `app_process` inside the container. They are gone:
+that whole mechanism never worked, and the X server is now started on the
+Android side. Deleting them also removed the one genuinely fragile thing about
+signing keys in this project.

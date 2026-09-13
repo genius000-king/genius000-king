@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
  * 19, while every string assertion stayed green. A script is a program; the
  * only test that means anything is running it.
  *
- * The guest is faked around it — a stub bridge, a stub `app_process`, a stub
+ * The guest is faked around it — a stub X socket, a stub `dbus-launch`, a stub
  * desktop command — so each failure path can be forced deliberately.
  */
 class GuestScriptExecutionTest {
@@ -39,6 +39,12 @@ class GuestScriptExecutionTest {
         root = tmp.newFolder("guest")
         bin = File(root, "bin").apply { mkdirs() }
         File(root, "tmp").mkdirs()
+    }
+
+    /** Stands in for the Android-side X server having bound its socket. */
+    private fun socket() {
+        File(root, "tmp/.X11-unix").mkdirs()
+        File(root, "tmp/.X11-unix/X0").writeText("")
     }
 
     /** A fake executable on PATH that does whatever the body says. */
@@ -60,9 +66,6 @@ class GuestScriptExecutionTest {
     private fun run(script: String, timeoutSeconds: Long = 30): Run {
         val rewritten = script
             .replace("/usr/local/bin/", "${root.path}/bin/")
-            .replace("/usr/bin/nawah-x11", "${root.path}/bin/nawah-x11")
-            .replace("/usr/libexec/nawah-x11/loader.apk", "${root.path}/loader.apk")
-            .replace("/system/bin/app_process", "${root.path}/bin/app_process")
             .replace("/tmp/.X11-unix", "${root.path}/tmp/.X11-unix")
             .replace("chmod 1777 ${root.path}/tmp ", "chmod 1777 ")
 
@@ -96,9 +99,7 @@ class GuestScriptExecutionTest {
         // The regression this whole file exists for. `set -u` plus a variable
         // nobody defines is invisible to a `contains` assertion and fatal at
         // run time.
-        File(root, "loader.apk").writeText("dex")
-        stub("nawah-x11", "sleep 5")
-        stub("app_process", "exit 0")
+        socket()
         stub("startxfce4", "echo started; exit 0")
         stub("dbus-launch", "shift; exec \"\$@\"")
 
@@ -109,11 +110,11 @@ class GuestScriptExecutionTest {
     }
 
     @Test
-    fun `both scripts are syntactically valid bash`() {
+    fun `every shape of the session script is syntactically valid bash`() {
         for (script in listOf(
             GuestScripts.session(xfce, ResourceProfile.FULL, false),
             GuestScripts.session(cli, ResourceProfile.LIGHT, true),
-            GuestScripts.bridge("io.nawah.linux"),
+            GuestScripts.session(xfce, ResourceProfile.BALANCED, true),
         )) {
             val file = tmp.newFile("check-${System.nanoTime()}.sh").apply { writeText(script) }
             val check = ProcessBuilder("/bin/bash", "-n", file.path)
@@ -128,55 +129,14 @@ class GuestScriptExecutionTest {
     // -- the failure paths, each forced on purpose ---------------------------
 
     @Test
-    fun `a missing loader is reported and X is not started`() {
-        stub("nawah-x11", "echo BRIDGE STARTED; sleep 5")
-        stub("app_process", "exit 0")
-
-        val result = run(GuestScripts.session(xfce, ResourceProfile.FULL, false))
-
-        assertThat(result.output).contains("MISSING")
-        assertThat(result.output).contains("preflight failed")
-        assertThat(result.output).doesNotContain("BRIDGE STARTED")
-        assertThat(result.exitCode).isEqualTo(1)
-    }
-
-    @Test
-    fun `a container without app_process says so in words`() {
-        File(root, "loader.apk").writeText("dex")
-        stub("nawah-x11", "sleep 5")
-        // app_process deliberately absent: this is the missing-bind-mount case.
-
-        val result = run(GuestScripts.session(xfce, ResourceProfile.FULL, false))
-
-        assertThat(result.output).contains("app_process is not visible")
-        assertThat(result.output).contains("bind mounts are missing")
-        assertThat(result.exitCode).isEqualTo(1)
-    }
-
-    @Test
-    fun `a bridge that dies immediately is reported, not waited out`() {
-        File(root, "loader.apk").writeText("dex")
-        stub("nawah-x11", "echo bridge failing; exit 3")
-        stub("app_process", "exit 0")
-
-        val result = run(GuestScripts.session(xfce, ResourceProfile.FULL, false), timeoutSeconds = 20)
-
-        assertThat(result.output).contains("display bridge exited before X came up")
-        assertThat(result.exitCode).isEqualTo(1)
-    }
-
-    @Test
     fun `the desktop is launched once the X socket appears`() {
-        File(root, "loader.apk").writeText("dex")
-        // The bridge creates the socket the way the real X server does.
-        stub("nawah-x11", "mkdir -p ${'$'}HOME/tmp/.X11-unix; : > ${'$'}HOME/tmp/.X11-unix/X0; sleep 5")
-        stub("app_process", "exit 0")
+        socket()
         stub("startxfce4", "echo DESKTOP RUNNING; exit 0")
         stub("dbus-launch", "shift; exec \"\$@\"")
 
         val result = run(GuestScripts.session(xfce, ResourceProfile.FULL, false))
 
-        assertThat(result.output).contains("X is up")
+        assertThat(result.output).contains("found the X socket")
         assertThat(result.output).contains("DESKTOP RUNNING")
         assertThat(result.output).contains("session ended with status 0")
         assertThat(result.exitCode).isEqualTo(0)
@@ -184,9 +144,7 @@ class GuestScriptExecutionTest {
 
     @Test
     fun `command line only launches a terminal rather than nothing`() {
-        File(root, "loader.apk").writeText("dex")
-        stub("nawah-x11", "mkdir -p ${'$'}HOME/tmp/.X11-unix; : > ${'$'}HOME/tmp/.X11-unix/X0; sleep 5")
-        stub("app_process", "exit 0")
+        socket()
         stub("xterm", "echo TERMINAL RUNNING; exit 0")
         stub("dbus-launch", "shift; exec \"\$@\"")
 
@@ -198,9 +156,7 @@ class GuestScriptExecutionTest {
 
     @Test
     fun `the desktop's exit status is propagated`() {
-        File(root, "loader.apk").writeText("dex")
-        stub("nawah-x11", "mkdir -p ${'$'}HOME/tmp/.X11-unix; : > ${'$'}HOME/tmp/.X11-unix/X0; sleep 5")
-        stub("app_process", "exit 0")
+        socket()
         stub("startxfce4", "exit 42")
         stub("dbus-launch", "shift; exec \"\$@\"")
 
@@ -211,17 +167,26 @@ class GuestScriptExecutionTest {
     }
 
     @Test
-    fun `the bridge script refuses to run without app_process`() {
-        val script = GuestScripts.bridge("io.nawah.linux")
-            .replace("/system/bin/app_process", "${root.path}/bin/app_process")
-        val file = File(root, "bridge.sh").apply { writeText(script); setExecutable(true) }
+    fun `a session with no X socket times out with an explanation`() {
+        stub("startxfce4", "echo SHOULD NOT RUN; exit 0")
+        stub("dbus-launch", "shift; exec \"\$@\"")
 
-        val process = ProcessBuilder("/bin/bash", file.path)
-            .redirectErrorStream(true).start()
-        val output = process.inputStream.bufferedReader().readText()
-        process.waitFor()
+        val result = run(GuestScripts.session(xfce, ResourceProfile.FULL, false), timeoutSeconds = 60)
 
-        assertThat(output).contains("app_process is not visible")
-        assertThat(process.exitValue()).isEqualTo(1)
+        assertThat(result.output).contains("no X socket")
+        assertThat(result.output).doesNotContain("SHOULD NOT RUN")
+        assertThat(result.exitCode).isEqualTo(1)
+    }
+
+    @Test
+    fun `a missing desktop command stops the session with a clear message`() {
+        socket()
+        stub("dbus-launch", "shift; exec \"\$@\"")
+        // startxfce4 deliberately absent.
+
+        val result = run(GuestScripts.session(xfce, ResourceProfile.FULL, false))
+
+        assertThat(result.output).contains("startxfce4 is not installed")
+        assertThat(result.exitCode).isEqualTo(1)
     }
 }

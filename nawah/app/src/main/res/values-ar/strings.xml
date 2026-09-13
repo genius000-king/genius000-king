@@ -27,7 +27,7 @@
     <string name="machine_subtitle">%1$s · %2$s</string>
     <string name="machine_disk_usage">%1$s على القرص</string>
     <string name="menu_settings">الإعدادات</string>
-    <string name="menu_repair">إصلاح جسر X11</string>
+    <string name="menu_repair">إصلاح ملفات النظام</string>
     <string name="menu_delete">حذف النظام</string>
 
     <string name="machine_state_installing">جارٍ التثبيت</string>
@@ -131,8 +131,8 @@
     <string name="settings_storage_used">%1$s يشغلها هذا النظام</string>
     <string name="settings_storage_measuring">جارٍ القياس…</string>
     <string name="settings_maintenance_header">الصيانة</string>
-    <string name="settings_repair_title">إصلاح جسر X11</string>
-    <string name="settings_repair_desc">يعيد تثبيت المُحمِّل داخل النظام إذا توقّف سطح المكتب عن الظهور.</string>
+    <string name="settings_repair_title">إصلاح ملفات النظام</string>
+    <string name="settings_repair_desc">يعيد كتابة سكربت الإقلاع داخل النظام. جرّبه إذا توقّف نظام عن العمل بعد تعديل داخله.</string>
     <string name="settings_repair_running">جارٍ الإصلاح…</string>
     <string name="settings_delete_title">حذف النظام</string>
     <string name="settings_delete_desc">يزيل نظام الملفات بأكمله. لا يمكن التراجع عن ذلك.</string>
@@ -165,7 +165,7 @@
     <string name="action_done">تم</string>
     <string name="action_export_diagnostics">تصدير التشخيص</string>
     <string name="action_more">المزيد</string>
-    <string name="action_repair_bridge">إصلاح جسر X11</string>
+    <string name="action_repair_bridge">إصلاح ملفات النظام</string>
     <string name="action_repairing">جارٍ الإصلاح…</string>
     <string name="action_run_probe">تشغيل الفحص</string>
     <string name="action_settings">الإعدادات</string>
@@ -213,7 +213,7 @@
     <string name="profile_light_help">حزم أقل، بلا مؤثرات نوافذ، ودقة أقل. ملاحظة: هذا لا يحدّد الذاكرة — ذلك يحتاج صلاحية الجذر — بل يغيّر ما يعمل فعلًا.</string>
     <string name="profile_balanced_help">سطح المكتب المعتاد مع إيقاف مؤثرات النوافذ. ملاحظة: هذا لا يحدّد الذاكرة — ذلك يحتاج صلاحية الجذر — بل يغيّر ما يعمل فعلًا.</string>
     <string name="profile_full_help">كل شيء مُفعّل بما فيه مؤثرات النوافذ. الأثقل على الذاكرة والبطارية.</string>
-    <string name="repair_bridge_help">يعيد تثبيت جسر العرض داخل هذا النظام. تحتاجه إذا أُعيد تثبيت التطبيق من مصدر مختلف وتوقف سطح المكتب عن الظهور.</string>
+    <string name="repair_bridge_help">يعيد كتابة الملفات التي يملكها نواة داخل هذا النظام — وهي حاليًا سكربت الإقلاع وحده. التطبيق يفعل ذلك عند كل تشغيل، فلا يفيد هذا الزر إلا إذا عُدّل ذلك الملف من داخل النظام.</string>
     <string name="session_running">يعمل الآن</string>
     <string name="settings_maintenance">الصيانة</string>
     <string name="settings_system">النظام</string>

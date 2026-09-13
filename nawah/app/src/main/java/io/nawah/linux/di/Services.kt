@@ -1,7 +1,6 @@
 package io.nawah.linux.di
 
 import android.content.Context
-import io.nawah.linux.BuildConfig
 import io.nawah.linux.catalog.Catalog
 import io.nawah.linux.core.oci.HttpOciClient
 import android.os.Build
@@ -37,9 +36,7 @@ class Services(context: Context) {
     val deviceProbe: DeviceProbe by lazy { AndroidDeviceProbe(app, nativeTools, prootRunner) }
     val ociClient: OciClient by lazy { HttpOciClient() }
 
-    private val guestFiles by lazy {
-        GuestFileWriter(machineStore, BuildConfig.APPLICATION_ID) { app.assets.open(it) }
-    }
+    private val guestFiles by lazy { GuestFileWriter(machineStore) }
 
     val provisioner: Provisioner by lazy {
         ProotProvisioner(
@@ -47,12 +44,10 @@ class Services(context: Context) {
             runner = prootRunner,
             tools = nativeTools,
             oci = ociClient,
-            applicationId = BuildConfig.APPLICATION_ID,
             // A device we have no image for is a hard stop, not a silent
             // fallback to the wrong architecture.
             arch = Build.SUPPORTED_ABIS.firstNotNullOfOrNull { OciArch.fromAbi(it) }
                 ?: error("no system image is published for ${Build.SUPPORTED_ABIS.joinToString()}"),
-            openAsset = { path -> app.assets.open(path) },
             desktopFor = { id -> catalog.desktop(id) },
         )
     }

@@ -121,6 +121,7 @@ class SessionService : Service() {
         // flag is not optional in ProotArgsBuilder.
         job?.cancel()
         job = null
+        services().sessionLauncher.stopDisplay()
         running.value = null
         stopSelf()
     }

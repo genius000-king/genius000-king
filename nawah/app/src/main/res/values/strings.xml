@@ -30,7 +30,7 @@
     <string name="machine_subtitle">%1$s · %2$s</string>
     <string name="machine_disk_usage">%1$s on disk</string>
     <string name="menu_settings">Settings</string>
-    <string name="menu_repair">Repair X11 bridge</string>
+    <string name="menu_repair">Repair system files</string>
     <string name="menu_delete">Delete system</string>
 
     <string name="machine_state_installing">Installing</string>
@@ -134,8 +134,8 @@
     <string name="settings_storage_used">%1$s used by this system</string>
     <string name="settings_storage_measuring">Measuring…</string>
     <string name="settings_maintenance_header">Maintenance</string>
-    <string name="settings_repair_title">Repair X11 bridge</string>
-    <string name="settings_repair_desc">Reinstalls the loader inside the system if the desktop stops appearing.</string>
+    <string name="settings_repair_title">Repair system files</string>
+    <string name="settings_repair_desc">Rewrites the startup script inside the system. Worth trying if a system stops starting after an edit inside it.</string>
     <string name="settings_repair_running">Repairing…</string>
     <string name="settings_delete_title">Delete system</string>
     <string name="settings_delete_desc">Removes the whole filesystem. This cannot be undone.</string>
@@ -168,7 +168,7 @@
     <string name="action_done">Done</string>
     <string name="action_export_diagnostics">Export diagnostics</string>
     <string name="action_more">More</string>
-    <string name="action_repair_bridge">Repair X11 bridge</string>
+    <string name="action_repair_bridge">Repair system files</string>
     <string name="action_repairing">Repairing…</string>
     <string name="action_run_probe">Run the check</string>
     <string name="action_settings">Settings</string>
@@ -216,7 +216,7 @@
     <string name="profile_light_help">Fewer packages, no window effects, lower resolution. Note: this cannot limit memory — that needs root — it changes what actually runs.</string>
     <string name="profile_balanced_help">The usual desktop with window effects off. Note: this cannot limit memory — that needs root — it changes what actually runs.</string>
     <string name="profile_full_help">Everything on, including window effects. Heaviest on memory and battery.</string>
-    <string name="repair_bridge_help">Reinstalls the display bridge inside this system. Needed if the app was reinstalled from a different source and the desktop stopped starting.</string>
+    <string name="repair_bridge_help">Rewrites the files Nawah owns inside this system — currently just the startup script. The app already does this on every run, so it only helps if that file was changed from inside the system.</string>
     <string name="session_running">Running</string>
     <string name="settings_maintenance">Maintenance</string>
     <string name="settings_system">System</string>

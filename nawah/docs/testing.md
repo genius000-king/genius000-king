@@ -111,22 +111,31 @@ fatal. Meanwhile six tests asserted the script *contained* the right strings,
 and all six were green. Checking that a program contains certain text is not
 checking that it runs.
 
-`GuestScriptExecutionTest` executes the generated scripts in a real bash
-against a faked guest — stub `nawah-x11`, stub `app_process`, stub desktop
-command — and asserts behaviour: exit codes, which branch was taken, what
-reached the log. It reproduced the device failure on the first run, before the
-fix.
+`GuestScriptExecutionTest` executes the generated script in a real bash against
+a faked guest — a stub X socket, a stub `dbus-launch`, a stub desktop command —
+and asserts behaviour: exit codes, which branch was taken, what reached the log.
+It reproduced the device failure on the first run, before the fix.
 
 Every failure path is forced deliberately, because each one is a different
 answer to the same symptom:
 
 | Forced condition | What the user must be told |
 |---|---|
-| loader.apk absent | the bridge is not installed |
-| `app_process` absent | the Android system bind mounts are missing |
-| bridge exits at once | the bridge died, with its status |
-| socket never appears | the app side never answered |
+| socket never appears | the Android-side display server did not come up |
+| desktop command absent | which package is missing, by name |
+| `dbus-launch` absent | install `dbus-x11` |
 | desktop exits non-zero | the session's real status |
+| no start command at all | a terminal is launched, not a black screen |
+
+The X server's own launch is not a script, so it is pinned differently:
+`X11LaunchPlanTest` asserts the exact argv and environment it is started with.
+Every display failure this project has shipped was a wrong entry in one of
+those two lists, and each test there names the device symptom it prevents.
+
+`DisplayPrerequisitesTest` covers the other half: the two packages whose
+absence the X server reports only as a black screen, and the rootfs states that
+look installed and are not — fonts unpacked but never configured, which is a
+directory full of fonts and no way to open one.
 
 The rule this leaves behind: **anything generated that will later be executed —
 a shell script, an argv, a config file — is tested by executing it, not by

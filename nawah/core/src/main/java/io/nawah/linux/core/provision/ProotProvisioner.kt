@@ -23,7 +23,6 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import java.io.File
 import java.io.IOException
-import java.io.InputStream
 
 /**
  * Turns an [InstallRequest] into a working Debian machine.
@@ -44,15 +43,12 @@ class ProotProvisioner(
     private val runner: ProotRunner,
     private val tools: NativeTools,
     private val oci: OciClient,
-    private val applicationId: String,
     private val arch: OciArch,
-    /** Reads a file out of the app's assets. Injected so the pipeline stays testable. */
-    private val openAsset: (String) -> InputStream,
     /** Resolves a machine's desktop id against the catalog. */
     private val desktopFor: (String) -> DesktopSpec?,
 ) : Provisioner {
 
-    private val guestFiles = GuestFileWriter(store, applicationId, openAsset)
+    private val guestFiles = GuestFileWriter(store)
 
     override fun resume(machineId: String): Flow<InstallProgress>? {
         val checkpoint = InstallCheckpoint.load(store.machineDir(machineId)) ?: return null
@@ -182,11 +178,12 @@ class ProotProvisioner(
             }
             finish(step)
 
-            // 6 -- the X11 bridge.
+            // 6 -- the session script. Small, generated, and rewritten on every
+            // launch as well; see GuestFileWriter for why that matters.
             step = InstallStep.INSTALLING_X11_BRIDGE
             send(InstallProgress.Running(InstallStep.INSTALLING_X11_BRIDGE))
             guestFiles.install(machine, request.desktop)
-            emitLine(InstallStep.INSTALLING_X11_BRIDGE, "installed ${GuestScripts.BRIDGE_PATH}")
+            emitLine(InstallStep.INSTALLING_X11_BRIDGE, "installed ${GuestScripts.SESSION_PATH}")
             finish(step)
 
             // 7 -- session script and hand-over.
@@ -224,11 +221,12 @@ class ProotProvisioner(
     override suspend fun remove(machineId: String) = store.delete(machineId)
 
     /**
-     * Re-installs the guest half of the X11 bridge.
+     * Rewrites the machine's app-owned files.
      *
-     * Needed whenever the app is rebuilt with a different signing key: the
-     * `loader.apk` already inside a rootfs carries the old certificate hash and
-     * will refuse to load the new app.
+     * Far less load-bearing than it once was: the guest no longer holds a
+     * signed `loader.apk` that a rebuild could invalidate. It stays because a
+     * rootfs whose session script was damaged is otherwise unrecoverable
+     * except by reinstalling.
      */
     override suspend fun repairX11Bridge(machineId: String) {
         val machine = store.get(machineId) ?: return
@@ -356,7 +354,6 @@ class ProotProvisioner(
     )
 
     internal companion object {
-        const val ASSET_LOADER = "x11/loader.apk"
         const val APT_LIST_MAX_AGE_MS = 24L * 60 * 60 * 1000
 
         /**
@@ -368,7 +365,12 @@ class ProotProvisioner(
          * are pinned by BasePackagesTest against the real trixie index.
          */
         val BASE_PACKAGES = listOf(
-            "dbus-x11", "xkb-data", "x11-xserver-utils", "xterm",
+            // xkb-data: no keyboard map, no X server -- it exits on startup.
+            // xfonts-base: supplies the core font "fixed" and the cursor font.
+            //   Without it the server aborts with "could not open default
+            //   font", which reaches the user as a black screen and nothing
+            //   else. DisplayPrerequisites re-checks both at every launch.
+            "dbus-x11", "xkb-data", "xfonts-base", "x11-xserver-utils", "xterm",
             "locales", "ca-certificates", "procps",
         )
     }

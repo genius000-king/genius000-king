@@ -61,10 +61,12 @@ data class Machine(
 /**
  * Lifecycle of a machine on disk.
  *
- * [NEEDS_REPAIR] is not decoration: the X11 bridge is a `.deb` signed with our
- * own key, so re-signing the app invalidates the copy already installed inside
- * older guests. A machine in that state boots but cannot show a desktop until
- * the bridge package is reinstalled.
+ * [NEEDS_REPAIR] described a machine holding a guest-side X11 loader signed
+ * with a key the current build no longer matches. That loader is gone — the X
+ * server runs on the Android side now — so nothing sets this state any more.
+ * It is kept only because it may be recorded in a machine installed by an older
+ * build, and dropping the constant would fail to deserialise that machine's
+ * metadata and hide it from the user's list.
  */
 @Serializable
 enum class MachineState { INSTALLING, READY, FAILED, NEEDS_REPAIR }

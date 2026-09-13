@@ -26,8 +26,8 @@ android {
         // crashing on a device that could never have run a desktop anyway.
         minSdk = 26
         targetSdk = 37
-        versionCode = 8
-        versionName = "0.2.0"
+        versionCode = 9
+        versionName = "0.2.1"
 
         // arm64 only: every Android device shipped since 2019 is arm64, and each
         // extra ABI roughly doubles the X server's native build time. Adding one
@@ -36,10 +36,9 @@ android {
     }
 
     signingConfigs {
-        // A fixed, committed debug key. The guest-side loader verifies the host
-        // app's signing certificate (see docs/x11-bridge.md), so a key that
-        // changed between builds would silently break the X11 bridge inside
-        // every already-installed machine.
+        // A fixed, committed debug key, so that every build of Nawah installs
+        // over the previous one instead of asking the user to uninstall first
+        // -- which on this app would mean deleting their machines.
         getByName("debug") {
             storeFile = rootProject.file("signing/nawah-debug.jks")
             storePassword = "nawahdebug"
@@ -106,15 +105,6 @@ android {
     }
 }
 
-
-// The guest-side loader APK is a build artefact of :x11-loader, not a checked-in
-// blob: it embeds this build's application id and signing certificate hash.
-val copyLoaderApk = tasks.register<Copy>("copyLoaderApk") {
-    dependsOn(":x11-loader:assembleDebug")
-    from(project(":x11-loader").layout.buildDirectory.file("outputs/apk/debug/loader.apk"))
-    into(layout.projectDirectory.dir("src/main/assets/x11"))
-}
-tasks.named("preBuild") { dependsOn(copyLoaderApk) }
 
 dependencies {
     implementation(project(":core"))
