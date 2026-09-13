@@ -16,11 +16,19 @@ object GuestScripts {
 
     const val SESSION_PATH = "/usr/local/bin/nawah-session"
 
+    /** Where the Android-side X server binds. Inside the guest this is `/tmp`. */
+    const val X_SOCKET = "/tmp/.X11-unix/X0"
+
+    /** Private, 0700. `/tmp` is 1777 and dbus will not use it. */
+    const val RUNTIME_DIR = "/run/user/0"
+
     /**
      * Starts the desktop.
      *
-     * It waits for the X socket rather than racing it: the server is started
-     * first, but it is a whole X server and it does not come up instantly.
+     * It waits for a display that *answers*, not for a socket file to exist.
+     * The distinction is the whole point: a killed server leaves its socket
+     * behind, and connecting to that file fails with ECONNREFUSED while the
+     * file is plainly there.
      */
     fun session(desktop: DesktopSpec, profile: ResourceProfile, audio: Boolean): String {
         // "Command line only" still needs a client, or X comes up with nothing
@@ -36,27 +44,53 @@ object GuestScripts {
             appendLine()
             appendLine("echo \"nawah: starting session at \$(date -u '+%H:%M:%S')\"")
             appendLine()
+            appendLine("export DISPLAY=:0")
+            appendLine("export XDG_SESSION_TYPE=x11")
+            appendLine("export LANG=${'$'}{LANG:-C.UTF-8}")
+            appendLine()
+            appendLine("# dbus refuses a world-writable XDG_RUNTIME_DIR and then fails to")
+            appendLine("# create its own socket:")
+            appendLine("#   Unable to set up transient service directory:")
+            appendLine("#   XDG_RUNTIME_DIR \"/tmp\" can be written by others (mode 041777)")
+            appendLine("# So it gets a private one of its own, 0700, as the spec requires.")
+            appendLine("export XDG_RUNTIME_DIR=$RUNTIME_DIR")
+            appendLine("mkdir -p -m 700 \"\$XDG_RUNTIME_DIR\" 2>/dev/null || true")
+            appendLine("chmod 700 \"\$XDG_RUNTIME_DIR\" 2>/dev/null || true")
+            appendLine()
             appendLine("# The X server is NOT started here. It runs on the Android side")
             appendLine("# and binds its socket in <rootfs>/tmp, which is this container's")
             appendLine("# own /tmp -- so it simply appears below, with no bind involved.")
             appendLine("# Starting an Android runtime under proot's ptrace was the mistake")
             appendLine("# that made this exit instantly with status 0 and no desktop.")
-            appendLine("for i in \$(seq 1 80); do")
-            appendLine("  [ -e /tmp/.X11-unix/X0 ] && break")
+            appendLine("#")
+            appendLine("# What is waited for is a display that ANSWERS, not a file that")
+            appendLine("# exists. A killed server leaves its socket behind, and connecting")
+            appendLine("# to that file fails with ECONNREFUSED while the file is plainly")
+            appendLine("# there -- which is why this used to work once and then never again.")
+            appendLine("display_ready() {")
+            appendLine("  if command -v xset >/dev/null 2>&1; then")
+            appendLine("    xset -q >/dev/null 2>&1")
+            appendLine("  else")
+            appendLine("    [ -e $X_SOCKET ]")
+            appendLine("  fi")
+            appendLine("}")
+            appendLine("for i in ${'$'}(seq 1 160); do")
+            appendLine("  display_ready && break")
             appendLine("  sleep 0.25")
             appendLine("done")
-            appendLine("if [ ! -e /tmp/.X11-unix/X0 ]; then")
-            appendLine("  echo \"nawah: no X socket at /tmp/.X11-unix/X0 after 20s.\"")
+            appendLine("if ! display_ready; then")
+            appendLine("  if [ -e $X_SOCKET ]; then")
+            appendLine("    echo \"nawah: $X_SOCKET exists but the display refuses connections.\"")
+            appendLine("    echo \"nawah: that is a socket left by an earlier session, not a server.\"")
+            appendLine("  else")
+            appendLine("    echo \"nawah: no X display on :0 after 40s.\"")
+            appendLine("  fi")
             appendLine("  echo \"nawah: the Android-side display server did not come up;\"")
             appendLine("  echo \"nawah: its own output is above this line in the log.\"")
             appendLine("  exit 1")
             appendLine("fi")
-            appendLine("echo \"nawah: found the X socket\"")
+            appendLine("echo \"nawah: the display is answering on :0\"")
             appendLine()
-            appendLine("export DISPLAY=:0")
-            appendLine("export XDG_RUNTIME_DIR=/tmp")
-            appendLine("export XDG_SESSION_TYPE=x11")
-            appendLine("export LANG=\${LANG:-C.UTF-8}")
             if (audio) appendLine("export PULSE_SERVER=\${PULSE_SERVER:-tcp:127.0.0.1:4713}")
             appendLine()
             appendLine("command -v dbus-launch >/dev/null || {")

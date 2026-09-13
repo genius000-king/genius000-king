@@ -41,8 +41,14 @@ class GuestScriptExecutionTest {
         File(root, "tmp").mkdirs()
     }
 
-    /** Stands in for the Android-side X server having bound its socket. */
+    /** Stands in for a *live* Android-side X server: socket bound and answering. */
     private fun socket() {
+        socketFile()
+        stub("xset", "exit 0")
+    }
+
+    /** The socket file alone — what a killed server leaves behind. */
+    private fun socketFile() {
         File(root, "tmp/.X11-unix").mkdirs()
         File(root, "tmp/.X11-unix/X0").writeText("")
     }
@@ -67,6 +73,7 @@ class GuestScriptExecutionTest {
         val rewritten = script
             .replace("/usr/local/bin/", "${root.path}/bin/")
             .replace("/tmp/.X11-unix", "${root.path}/tmp/.X11-unix")
+            .replace("/run/user/0", "${root.path}/run/user/0")
             .replace("chmod 1777 ${root.path}/tmp ", "chmod 1777 ")
 
         val file = File(root, "session.sh").apply {
@@ -129,14 +136,14 @@ class GuestScriptExecutionTest {
     // -- the failure paths, each forced on purpose ---------------------------
 
     @Test
-    fun `the desktop is launched once the X socket appears`() {
+    fun `the desktop is launched once the display answers`() {
         socket()
         stub("startxfce4", "echo DESKTOP RUNNING; exit 0")
         stub("dbus-launch", "shift; exec \"\$@\"")
 
         val result = run(GuestScripts.session(xfce, ResourceProfile.FULL, false))
 
-        assertThat(result.output).contains("found the X socket")
+        assertThat(result.output).contains("the display is answering on :0")
         assertThat(result.output).contains("DESKTOP RUNNING")
         assertThat(result.output).contains("session ended with status 0")
         assertThat(result.exitCode).isEqualTo(0)
@@ -167,15 +174,63 @@ class GuestScriptExecutionTest {
     }
 
     @Test
-    fun `a session with no X socket times out with an explanation`() {
+    fun `a session with no display at all times out with an explanation`() {
+        stub("xset", "exit 1")
         stub("startxfce4", "echo SHOULD NOT RUN; exit 0")
         stub("dbus-launch", "shift; exec \"\$@\"")
 
-        val result = run(GuestScripts.session(xfce, ResourceProfile.FULL, false), timeoutSeconds = 60)
+        val result = run(GuestScripts.session(xfce, ResourceProfile.FULL, false), timeoutSeconds = 90)
 
-        assertThat(result.output).contains("no X socket")
+        assertThat(result.output).contains("no X display on :0")
         assertThat(result.output).doesNotContain("SHOULD NOT RUN")
         assertThat(result.exitCode).isEqualTo(1)
+    }
+
+    @Test
+    fun `a socket left by an earlier session does not count as a display`() {
+        // The device bug, reproduced. The session ends by killing the server,
+        // which unlinks nothing; the next launch found the leftover file,
+        // declared the display ready in milliseconds and started the desktop
+        // against it. Every X client then said "Connection refused" about a
+        // path that was obviously there. It worked exactly once per install.
+        socketFile()
+        stub("xset", "exit 1")
+        stub("startxfce4", "echo SHOULD NOT RUN; exit 0")
+        stub("dbus-launch", "shift; exec \"\$@\"")
+
+        val result = run(GuestScripts.session(xfce, ResourceProfile.FULL, false), timeoutSeconds = 90)
+
+        assertThat(result.output).contains("refuses connections")
+        assertThat(result.output).contains("left by an earlier session")
+        assertThat(result.output).doesNotContain("SHOULD NOT RUN")
+        assertThat(result.exitCode).isEqualTo(1)
+    }
+
+    @Test
+    fun `a machine without xset still starts, falling back to the file`() {
+        // x11-xserver-utils has been in the base set from the first release, so
+        // this is the unlikely path -- but falling back is better than refusing
+        // to start a desktop that would have worked.
+        socketFile()
+        stub("startxfce4", "echo DESKTOP RUNNING; exit 0")
+        stub("dbus-launch", "shift; exec \"\$@\"")
+
+        val result = run(GuestScripts.session(xfce, ResourceProfile.FULL, false))
+
+        assertThat(result.output).contains("DESKTOP RUNNING")
+        assertThat(result.exitCode).isEqualTo(0)
+    }
+
+    @Test
+    fun `dbus gets a private runtime directory, not world-writable tmp`() {
+        socket()
+        stub("startxfce4", "echo \"RUNTIME=\$XDG_RUNTIME_DIR\"; stat -c %a \"\$XDG_RUNTIME_DIR\"; exit 0")
+        stub("dbus-launch", "shift; exec \"\$@\"")
+
+        val result = run(GuestScripts.session(xfce, ResourceProfile.FULL, false))
+
+        assertThat(result.output).contains("/run/user/0")
+        assertThat(result.output).contains("700")
     }
 
     @Test

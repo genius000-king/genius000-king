@@ -132,6 +132,27 @@ which arrives in the app as a black screen. `X11LaunchPlan` passes `-fp` with
 the directories that actually carry a `fonts.dir`, which overrides the search
 entirely.
 
+## What a killed session leaves behind
+
+A session ends by killing the server process — the log line is `the display
+server exited with status 143`, which is SIGTERM. A server killed that way runs
+no cleanup, so three files survive it, all inside `<rootfs>/tmp`:
+
+| Leftover | What it does to the next launch |
+|---|---|
+| `.X11-unix/X0` | `connect()` returns ECONNREFUSED. The file exists, so an existence check passes instantly, and every X client then reports "Connection refused" about a path that is plainly there. |
+| `.X0-lock` | holds the dead server's pid. `LockServer` decides staleness with `kill(pid, 0)`, and on Android that pid has very likely been reused — so the server aborts with "Server is already active for display 0". |
+| `.tX0-lock` | the temporary the lock is renamed from. Left in place it costs three `open(O_EXCL)` failures at `sleep(2)` apiece before the server retries. |
+
+`X11Bridge` deletes all three before starting, and again on stop.
+
+**The related rule, which is the actual lesson: existence is not readiness.**
+Both sides now wait for a display that *answers* — `SocketProbe` connects to
+the socket on the Android side, and the session script polls `xset -q` inside
+the container. The earlier version checked that a file was there, which is why
+a machine worked exactly once and then never again: the first launch ran on a
+clean `/tmp` and every later one found its own leftovers.
+
 ## Packages the display server cannot start without
 
 Two, and neither failure names a package:
@@ -183,7 +204,9 @@ carries both sides, interleaved. Read it top to bottom.
 | `could not open default font` | `xfonts-base` is missing or unconfigured |
 | `xfonts-base is missing — …` | the launch caught it and is installing it |
 | `the display server did not create its socket` | the server died during startup; its own output is directly above |
-| `no X socket at /tmp/.X11-unix/X0 after 20s` | the container cannot see the socket — `TMPDIR` and the rootfs have diverged |
+| `no X display on :0 after 40s` | the container cannot reach the display — `TMPDIR` and the rootfs have diverged |
+| `exists but the display refuses connections` | a socket left by an earlier session; the new server never bound |
+| `Server is already active for display 0` | a stale `.X0-lock` whose pid Android has reused |
 | `<command> is not installed in this system` | the desktop package set never finished installing |
 
 ---

@@ -25,9 +25,10 @@ import java.util.concurrent.TimeUnit
  *
  * Running an Android runtime under proot's ptrace was never the design.
  */
-class X11Bridge(
+internal class X11Bridge(
     private val context: Context,
     private val tools: NativeTools,
+    private val probe: SocketProbe = LocalSocketProbe,
 ) {
 
     private var process: Process? = null
@@ -53,6 +54,15 @@ class X11Bridge(
             display = display,
         )
         plan.socketDir.mkdirs()
+
+        // Before anything else. A session ends by killing this process, and a
+        // killed X server unlinks nothing -- so every launch after the first
+        // one starts on top of the previous one's leftovers. See
+        // X11Launch.staleFiles for what each of them does to the next start.
+        val removed = plan.staleFiles(display).filter { it.exists() && it.delete() }
+        if (removed.isNotEmpty()) {
+            onLine("nawah: cleared ${removed.joinToString(", ") { it.name }} left by an earlier session")
+        }
 
         if (!File(X11LaunchPlan.APP_PROCESS).canExecute()) {
             onLine("nawah: ${X11LaunchPlan.APP_PROCESS} is missing; this device cannot run the display server")
@@ -101,16 +111,23 @@ class X11Bridge(
         return true
     }
 
-    /** Waits for the X socket to appear. Returns false on timeout or early exit. */
-    fun awaitSocket(display: String, timeoutMs: Long = 20_000): Boolean {
+    /**
+     * Waits until the display actually answers. False on timeout or early exit.
+     *
+     * Answers, not exists. Those are different things and the difference cost a
+     * release: a leftover socket file made this return true instantly, the
+     * desktop launched against nothing, and every X client reported
+     * "Connection refused" on a path that was clearly present.
+     */
+    fun awaitSocket(display: String, timeoutMs: Long = 30_000): Boolean {
         val socket = launch?.socket(display) ?: return false
         val deadline = System.currentTimeMillis() + timeoutMs
         while (System.currentTimeMillis() < deadline) {
-            if (socket.exists()) return true
+            if (socket.exists() && probe.isListening(socket)) return true
             if (process?.isAlive == false) return false
             Thread.sleep(POLL_MS)
         }
-        return socket.exists()
+        return false
     }
 
     fun stop() {
@@ -119,6 +136,10 @@ class X11Bridge(
             if (!p.waitFor(2, TimeUnit.SECONDS)) p.destroyForcibly()
             Log.i(TAG, "display server stopped")
         }
+        // The server was killed, so it cleaned up nothing. Doing it here as
+        // well as at start means a crash of this app does not poison the next
+        // launch either.
+        launch?.let { plan -> plan.staleFiles(DEFAULT_DISPLAY).forEach { it.delete() } }
         process = null
         launch = null
     }
@@ -126,5 +147,8 @@ class X11Bridge(
     private companion object {
         const val TAG = "NawahX11"
         const val POLL_MS = 150L
+
+        /** Only one display is ever started; see SessionLauncher.DISPLAY. */
+        const val DEFAULT_DISPLAY = ":0"
     }
 }

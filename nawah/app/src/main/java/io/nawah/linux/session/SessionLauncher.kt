@@ -7,6 +7,7 @@ import io.nawah.linux.core.model.Machine
 import io.nawah.linux.core.model.ResourceProfile
 import io.nawah.linux.core.provision.DisplayPrerequisites
 import io.nawah.linux.core.provision.GuestFileWriter
+import io.nawah.linux.core.provision.GuestScripts
 import io.nawah.linux.core.runtime.Bind
 import io.nawah.linux.core.runtime.NativeTools
 import io.nawah.linux.core.runtime.ProotRequest
@@ -149,7 +150,9 @@ class SessionLauncher(
     internal fun request(machine: Machine): ProotRequest {
         val env = buildMap {
             put("DISPLAY", ":0")
-            put("XDG_RUNTIME_DIR", "/tmp")
+            // Not /tmp: it is 1777, and dbus refuses a world-writable runtime
+            // directory outright. The session script creates this one 0700.
+            put("XDG_RUNTIME_DIR", GuestScripts.RUNTIME_DIR)
             put("XDG_SESSION_TYPE", "x11")
             put("NAWAH_DISPLAY_WIDTH", machine.displayWidth.toString())
             put("NAWAH_DISPLAY_HEIGHT", machine.displayHeight.toString())

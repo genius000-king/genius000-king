@@ -17,7 +17,41 @@ internal data class X11Launch(
     val socketDir: File,
 ) {
     /** Full path of the display socket, e.g. `<rootfs>/tmp/.X11-unix/X0`. */
-    fun socket(display: String): File = File(socketDir, "X" + display.removePrefix(":"))
+    fun socket(display: String): File = File(socketDir, "X" + displayNumber(display))
+
+    /**
+     * Everything a previous run may have left behind for [display].
+     *
+     * All three are fatal to the next launch in their own way, and none of
+     * them is cleaned up when the server is killed rather than asked to quit —
+     * which is exactly how a session ends:
+     *
+     *  - the socket file: `connect()` on it returns ECONNREFUSED, which is what
+     *    an X client reports as "Connection refused" while the file is plainly
+     *    there.
+     *  - `.X<n>-lock`: holds the old pid. `LockServer` calls `kill(pid, 0)`, and
+     *    on Android that pid has very likely been reused by an unrelated
+     *    process — so the server concludes the display is taken and aborts with
+     *    "Server is already active for display <n>".
+     *  - `.tX<n>-lock`: the temporary the lock is renamed from. Left in place it
+     *    costs three `open(O_EXCL)` failures at `sleep(2)` apiece before the
+     *    server even tries again.
+     */
+    /**
+     * `:0` and `:0.0` are the same display; the trailing `.0` is a screen.
+     * Neither the socket nor the lock file ever carries it.
+     */
+    private fun displayNumber(display: String): String =
+        display.removePrefix(":").substringBefore('.')
+
+    fun staleFiles(display: String): List<File> {
+        val n = displayNumber(display)
+        return listOf(
+            socket(display),
+            File(socketDir.parentFile, ".X$n-lock"),
+            File(socketDir.parentFile, ".tX$n-lock"),
+        )
+    }
 }
 
 internal object X11LaunchPlan {

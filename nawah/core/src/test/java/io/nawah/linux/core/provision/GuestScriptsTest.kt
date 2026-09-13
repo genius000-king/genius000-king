@@ -61,11 +61,33 @@ class GuestScriptsTest {
     }
 
     @Test
-    fun `the session waits for the shared X socket and explains a timeout`() {
+    fun `the session waits for a display that answers, not for a file`() {
+        // A killed server leaves its socket file behind. Waiting on the file
+        // succeeded instantly against that leftover, the desktop launched
+        // against nothing, and every client said "Connection refused" -- which
+        // is how this worked exactly once per install.
         val script = GuestScripts.session(xfce, ResourceProfile.FULL, false)
 
-        assertThat(script).contains("/tmp/.X11-unix/X0")
+        assertThat(script).contains("xset -q")
         assertThat(script).contains("Android-side display server did not come up")
+    }
+
+    @Test
+    fun `a leftover socket is named as a leftover, not as a missing server`() {
+        val script = GuestScripts.session(xfce, ResourceProfile.FULL, false)
+
+        assertThat(script).contains("exists but the display refuses connections")
+        assertThat(script).contains("left by an earlier session")
+    }
+
+    @Test
+    fun `dbus is given a runtime directory it will accept`() {
+        // dbus: XDG_RUNTIME_DIR "/tmp" can be written by others (mode 041777)
+        val script = GuestScripts.session(xfce, ResourceProfile.FULL, false)
+
+        assertThat(script).contains("export XDG_RUNTIME_DIR=/run/user/0")
+        assertThat(script).contains("mkdir -p -m 700")
+        assertThat(script).doesNotContain("XDG_RUNTIME_DIR=/tmp")
     }
 
     @Test
@@ -84,8 +106,8 @@ class GuestScriptsTest {
     }
 
     @Test
-    fun `session waits for the X socket rather than racing it`() {
+    fun `the socket path the guest watches is the one the server binds`() {
         assertThat(GuestScripts.session(xfce, ResourceProfile.FULL, false))
-            .contains("/tmp/.X11-unix/X0")
+            .contains(GuestScripts.X_SOCKET)
     }
 }
