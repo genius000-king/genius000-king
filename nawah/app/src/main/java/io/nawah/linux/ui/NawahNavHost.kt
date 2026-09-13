@@ -23,6 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import io.nawah.linux.BuildConfig
 import io.nawah.linux.core.model.MachinePermissions
+import io.nawah.linux.core.provision.GuestScripts
 import io.nawah.linux.ui.screens.*
 import io.nawah.linux.vm.NawahViewModel
 import kotlinx.coroutines.launch
@@ -37,6 +38,7 @@ private object Routes {
     const val SESSION = "session"
     const val APP_SETTINGS = "app-settings"
     const val ABOUT = "about"
+    const val USB = "usb"
     fun settings(id: String) = "settings/$id"
 }
 
@@ -80,7 +82,20 @@ fun NawahNavHost(
                 onKeepScreenOn = vm::setKeepScreenOn,
                 onOpenDisplayOnRun = vm::setOpenDisplayOnRun,
                 onDiagnostics = { vm.loadDiagnostics(); nav.navigate(Routes.DIAGNOSTICS) },
+                onUsb = { vm.refreshUsb(); nav.navigate(Routes.USB) },
                 onAbout = { nav.navigate(Routes.ABOUT) },
+            )
+        }
+
+        composable(Routes.USB) {
+            val devices by vm.usb.collectAsStateWithLifecycle()
+            LaunchedEffect(Unit) { vm.refreshUsb() }
+            UsbScreen(
+                devices = devices,
+                ttyPath = GuestScripts.USB_TTY,
+                onBack = { nav.popBackStack() },
+                onRefresh = vm::refreshUsb,
+                onGrant = vm::grantUsb,
             )
         }
 

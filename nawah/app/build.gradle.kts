@@ -26,13 +26,24 @@ android {
         // crashing on a device that could never have run a desktop anyway.
         minSdk = 26
         targetSdk = 37
-        versionCode = 12
-        versionName = "0.4.0"
+        versionCode = 13
+        versionName = "0.5.0"
 
         // arm64 only: every Android device shipped since 2019 is arm64, and each
         // extra ABI roughly doubles the X server's native build time. Adding one
         // is a single line here plus a re-run of tools/native/fetch.sh.
         ndk.abiFilters += listOf("arm64-v8a")
+
+        // Four libc calls the JDK does not expose. See cpp/nawah_pty.c.
+        externalNativeBuild.cmake {
+            targets("nawah_pty")
+            arguments("-DANDROID_STL=none")
+        }
+    }
+
+    externalNativeBuild.cmake {
+        path = file("src/main/cpp/CMakeLists.txt")
+        version = "3.22.1"
     }
 
     signingConfigs {
@@ -117,6 +128,7 @@ android {
 dependencies {
     implementation(project(":core"))
     implementation(project(":lorie"))
+    implementation(project(":usbserial"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)

@@ -164,4 +164,15 @@
     <string name="weight_light">خفيف</string>
     <string name="weight_medium">متوسط</string>
     <string name="weight_heavy">ثقيل</string>
+    <string name="usb_title">أجهزة USB</string>
+    <string name="usb_settings_desc">محوّلات تسلسلية، ولوحات أردوينو وESP.</string>
+    <string name="usb_empty">لا شيء موصول.\n\nوصّل لوحة بكيبل OTG. المحوّلات التسلسلية — أردوينو، ESP32، CH340، FTDI، CP210x — تظهر هنا.</string>
+    <string name="usb_grant">السماح</string>
+    <string name="usb_granted">مسموح</string>
+    <string name="usb_refresh">تحديث</string>
+    <string name="usb_how_title">كيف يصل إلى لينكس</string>
+    <string name="usb_how_body">أندرويد لا يسمح لبرنامج داخل النظام بفتح جهاز USB — التطبيق وحده يستطيع، وبعد إذنك أنت. فيمسك التطبيق الجهاز ويقدّمه داخل لينكس باسم %1$s، منفذًا تسلسليًا حقيقيًا. وتعمل screen وminicom وpyserial وarduino-cli وstty بلا تعديل، والسرعة التي تضبطها داخل لينكس تُطبَّق على الجهاز.</string>
+    <string name="usb_limit_title">ما لا يستطيعه</string>
+    <string name="usb_limit_body">الطرفية الوهمية في لينكس لا تحمل خطَّي DTR وRTS — النواة ببساطة لا تنفّذهما لهذا النوع. لذلك لا يستطيع avrdude ولا esptool إعادة تشغيل اللوحة عبر المنفذ. أعد تشغيلها من داخل لينكس أولًا:\n\n  nawah-usb reset        لأردوينو\n  nawah-usb reset-esp    لـ ESP32\n\nثم شغّل الأداة بخيار «بلا إعادة تشغيل» الخاص بها.</string>
+    <string name="settings_section_hardware">العتاد</string>
 </resources>

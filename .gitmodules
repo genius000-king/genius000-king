@@ -1,3 +1,6 @@
 [submodule "nawah/vendor/termux-x11"]
 	path = nawah/vendor/termux-x11
 	url = https://github.com/termux/termux-x11.git
+[submodule "nawah/vendor/usb-serial"]
+	path = nawah/vendor/usb-serial
+	url = https://github.com/mik3y/usb-serial-for-android.git

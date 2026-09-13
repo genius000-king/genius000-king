@@ -14,7 +14,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -107,14 +106,18 @@ private fun TuxWatermark(modifier: Modifier = Modifier) {
         contentScale = ContentScale.Fit,
         modifier = modifier
             .fillMaxWidth(TUX_WIDTH_FRACTION)
-            .padding(top = 72.dp)
-            .alpha(TUX_ALPHA),
+            .padding(top = 72.dp),
     )
 }
 
-/** Present enough to be the app's face, faint enough not to fight a card. */
-private const val TUX_ALPHA = 0.32f
-private const val TUX_WIDTH_FRACTION = 0.62f
+/**
+ * No alpha of our own.
+ *
+ * The artwork already carries its fade in its own alpha channel — the mark was
+ * drawn that way. Dimming it again in Compose would fade a faded thing, and the
+ * result stops matching the design it came from.
+ */
+private const val TUX_WIDTH_FRACTION = 0.53f
 
 @Composable
 private fun EmptyHome(modifier: Modifier, onCreate: () -> Unit) {

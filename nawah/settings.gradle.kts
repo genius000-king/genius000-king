@@ -35,3 +35,13 @@ project(":lorie").projectDir = file("vendor/termux-x11/lorie")
 include(":shell-loader:stub")
 project(":shell-loader").projectDir = file("gradle/empty/shell-loader")
 project(":shell-loader:stub").projectDir = file("vendor/termux-x11/shell-loader/stub")
+
+// ---------------------------------------------------------------------------
+// USB-serial drivers (MIT, mik3y/usb-serial-for-android), vendored under
+// vendor/usb-serial and never edited. The module is ours and the sources are
+// theirs: upstream's own build file pins an older compileSdk and carries a
+// publishing block we have no use for, and adopting a second build
+// configuration is how a toolchain upgrade starts failing in a module nobody
+// owns. Same arrangement as the vendored X server, minus the native build.
+// ---------------------------------------------------------------------------
+include(":usbserial")

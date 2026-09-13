@@ -52,3 +52,15 @@ GPL-3.0) and reimplemented in Kotlin. The fake `/proc` file contents in
 
 The penguin mark is supplied by the project author. Tux, the Linux mascot, was
 originally created by Larry Ewing.
+
+--------------------------------------------------------------------------
+usb-serial-for-android
+https://github.com/mik3y/usb-serial-for-android
+Copyright (c) 2011-2013 Google Inc.
+Copyright (c) 2013 Mike Wakerly
+Licensed under the MIT License.
+
+Vendored under vendor/usb-serial and built by the :usbserial module without
+modification. Provides the CDC-ACM, FTDI, CH34x, CP21xx, Prolific and GSM modem
+drivers that let a USB serial adapter appear inside the container.
+

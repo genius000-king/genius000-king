@@ -11,6 +11,8 @@ import io.nawah.linux.core.provision.InstallCheckpoint
 import io.nawah.linux.core.provision.InstallRequest
 import io.nawah.linux.core.provision.InstallStep
 import io.nawah.linux.settings.AppLanguage
+import io.nawah.linux.usb.UsbDevices
+import io.nawah.linux.usb.UsbSerialDevice
 import io.nawah.linux.service.InstallService
 import io.nawah.linux.service.SessionService
 import io.nawah.linux.ui.state.*
@@ -168,6 +170,28 @@ class NawahViewModel(app: Application) : AndroidViewModel(app) {
     fun setOpenDisplayOnRun(value: Boolean) {
         appSettings.openDisplayOnRun = value
         _appSettings.update { it.copy(openDisplayOnRun = value) }
+    }
+
+    // -- usb -----------------------------------------------------------------
+
+    private val usbDevices by lazy { UsbDevices(getApplication()) }
+
+    private val _usb = MutableStateFlow<List<UsbSerialDevice>>(emptyList())
+    val usb: StateFlow<List<UsbSerialDevice>> = _usb.asStateFlow()
+
+    fun refreshUsb() {
+        _usb.value = usbDevices.list()
+    }
+
+    /**
+     * Asks Android for permission, then re-reads the list.
+     *
+     * Nothing is opened here. A device is attached when a session starts, from
+     * whatever has already been allowed — asking for a cable and seizing it are
+     * different acts and the user should be the one joining them.
+     */
+    fun grantUsb(deviceName: String) {
+        usbDevices.requestPermission(deviceName) { refreshUsb() }
     }
 
     // -- wizard -------------------------------------------------------------

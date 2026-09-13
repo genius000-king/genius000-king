@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MonitorHeart
+import androidx.compose.material.icons.filled.Usb
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -49,6 +50,7 @@ fun AppSettingsScreen(
     onKeepScreenOn: (Boolean) -> Unit,
     onOpenDisplayOnRun: (Boolean) -> Unit,
     onDiagnostics: () -> Unit,
+    onUsb: () -> Unit,
     onAbout: () -> Unit,
 ) {
     Scaffold(
@@ -97,6 +99,15 @@ fun AppSettingsScreen(
                     description = stringResource(R.string.settings_keep_screen_on_desc),
                     checked = state.keepScreenOn,
                     onCheckedChange = onKeepScreenOn,
+                )
+            }
+
+            SettingsGroup(stringResource(R.string.settings_section_hardware)) {
+                NavigationRow(
+                    icon = Icons.Filled.Usb,
+                    title = stringResource(R.string.usb_title),
+                    subtitle = stringResource(R.string.usb_settings_desc),
+                    onClick = onUsb,
                 )
             }
 
@@ -297,6 +308,6 @@ private fun Footnote(text: String) {
 private fun PreviewAppSettings() = NawahTheme {
     AppSettingsScreen(
         AppSettingsUiState(usedBytes = 2_400_000_000, freeBytes = 18_000_000_000, machineCount = 2),
-        {}, {}, {}, {}, {}, {},
+        {}, {}, {}, {}, {}, {}, {},
     )
 }

@@ -174,4 +174,15 @@
     <string name="weight_light">Light</string>
     <string name="weight_medium">Medium</string>
     <string name="weight_heavy">Heavy</string>
+    <string name="usb_title">USB devices</string>
+    <string name="usb_settings_desc">Serial adapters, Arduino and ESP boards.</string>
+    <string name="usb_empty">Nothing attached.\n\nPlug a board in with an OTG cable. Serial adapters — Arduino, ESP32, CH340, FTDI, CP210x — appear here.</string>
+    <string name="usb_grant">Allow</string>
+    <string name="usb_granted">Allowed</string>
+    <string name="usb_refresh">Refresh</string>
+    <string name="usb_how_title">How it reaches Linux</string>
+    <string name="usb_how_body">Android will not let a program inside the system open a USB device — only the app can, and only after you allow it. So the app holds the device and presents it inside Linux as %1$s, a real serial port. screen, minicom, pyserial, arduino-cli and stty work unchanged, and the speed you set inside Linux is applied to the device.</string>
+    <string name="usb_limit_title">What it cannot do</string>
+    <string name="usb_limit_body">A Linux pseudo-terminal carries no DTR or RTS line — the kernel simply does not implement it for these devices. So avrdude and esptool cannot reset a board through the port. Reset it from inside Linux first:\n\n  nawah-usb reset        an Arduino\n  nawah-usb reset-esp    an ESP32\n\nthen run the tool with its own no-reset option.</string>
+    <string name="settings_section_hardware">Hardware</string>
 </resources>

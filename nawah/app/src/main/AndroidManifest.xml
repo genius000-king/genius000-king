@@ -21,6 +21,11 @@
         android:name="android.permission.WRITE_SECURE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
 
+    <!-- Not required: a phone without USB host support is still a perfectly
+         good Linux machine, and demanding the feature would hide the app from
+         it in the store. UsbDevices simply finds nothing. -->
+    <uses-feature android:name="android.hardware.usb.host" android:required="false" />
+
     <!-- 64-bit only: see ndk.abiFilters in app/build.gradle.kts. -->
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 

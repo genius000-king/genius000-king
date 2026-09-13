@@ -8,6 +8,8 @@ import io.nawah.linux.core.model.ResourceProfile
 import io.nawah.linux.core.provision.GuestPrerequisites
 import io.nawah.linux.core.provision.GuestFileWriter
 import io.nawah.linux.core.provision.GuestScripts
+import io.nawah.linux.usb.UsbDevices
+import io.nawah.linux.usb.UsbSerialBridge
 import io.nawah.linux.core.runtime.Bind
 import io.nawah.linux.core.runtime.NativeTools
 import io.nawah.linux.core.runtime.ProotRequest
@@ -54,6 +56,7 @@ class SessionLauncher(
     private val bridge = X11Bridge(context, tools)
     private val display = LorieSettings(context)
     private var audio: AudioBridge? = null
+    private var usb: UsbSerialBridge? = null
 
     /**
      * Brings the X display to the foreground. Safe to call when already open.
@@ -122,14 +125,45 @@ class SessionLauncher(
             }
         }
 
+        // A USB serial adapter the user has already allowed becomes a real tty
+        // inside the container. Attached before the container starts so the
+        // bind exists from the first moment, and never fatal: a missing cable
+        // must not cost a desktop.
+        val serialPort = attachUsb()
+
         try {
-            runner.stream(request(machine)).collect { send(it) }
+            runner.stream(request(machine, serialPort)).collect { send(it) }
         } finally {
             // The desktop is gone; the server has nothing left to draw.
             bridge.stop()
             audio?.stop()
             audio = null
+            usb?.close()
+            usb = null
         }
+    }
+
+    /**
+     * Opens a granted USB serial device, returning the tty to bind in.
+     *
+     * Android will not hand the container the device itself — the usbfs node is
+     * unreadable to an app and the only way in is `UsbManager.openDevice`, so
+     * the app holds it and bridges. Nothing is requested here: permission is
+     * asked for in the UI, and a session starts with whatever was already
+     * allowed.
+     */
+    private fun ProducerScope<String>.attachUsb(): String? {
+        val devices = UsbDevices(context)
+        val manager = devices.manager() ?: return null
+        val driver = devices.firstGrantedDriver() ?: return null
+        val bridge = UsbSerialBridge(manager) { line -> trySend(line) }
+        val path = bridge.attach(driver)
+        if (path == null) {
+            bridge.close()
+            return null
+        }
+        usb = bridge
+        return path
     }
 
     /**
@@ -177,7 +211,7 @@ class SessionLauncher(
         audio = null
     }
 
-    internal fun request(machine: Machine): ProotRequest {
+    internal fun request(machine: Machine, serialPty: String? = null): ProotRequest {
         val env = buildMap {
             put("DISPLAY", ":0")
             // Not /tmp: it is 1777, and dbus refuses a world-writable runtime
@@ -201,7 +235,12 @@ class SessionLauncher(
             cwd = "/root",
             hostname = machine.name.toHostname(),
             bindStorage = machine.permissions.storage,
-            extraBinds = emptyList<Bind>(),
+            // The pty slave is a real device node in Android's /dev/pts, which
+            // proot already binds -- so this is a rename, not a mount, and the
+            // container sees an ordinary serial port.
+            extraBinds = listOfNotNull(
+                serialPty?.let { Bind(source = it, target = GuestScripts.USB_TTY) },
+            ),
             env = env,
             command = listOf("/bin/sh", "-lc", SESSION_SCRIPT),
         )

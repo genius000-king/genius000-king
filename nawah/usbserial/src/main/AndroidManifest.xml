@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Ours, not upstream's: the vendored module's manifest is not read at all (see
+  build.gradle.kts), and a library manifest for a pure-Java driver set needs
+  nothing but an empty root.
+-->
+<manifest />

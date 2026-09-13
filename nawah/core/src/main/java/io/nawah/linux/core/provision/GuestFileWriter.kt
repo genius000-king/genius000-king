@@ -39,6 +39,7 @@ class GuestFileWriter(
                 executable = false,
             )
         }
+        write(rootfs, GuestScripts.USB_HELPER_PATH, GuestScripts.usbHelper(), executable = true)
         write(
             rootfs,
             GuestScripts.SESSION_PATH,
