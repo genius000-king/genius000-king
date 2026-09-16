@@ -1,0 +1,21 @@
+{
+  "name": "video",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "start": "remotion studio",
+    "render": "remotion render"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.373",
+    "remotion": "4.0.373",
+    "@remotion/google-fonts": "4.0.373",
+    "@remotion/shapes": "4.0.373",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.0.0",
+    "typescript": "5.7.3"
+  }
+}
