@@ -3,7 +3,9 @@
 # chunk, not an hour. Chunks are concatenated losslessly at the end.
 set -uo pipefail
 cd "$(dirname "$0")/.."
-FFMPEG=/opt/pw-browsers/ffmpeg-1011/ffmpeg-linux
+# Remotion ships a full ffmpeg n7.1. The system ffmpeg here is Playwright's
+# build, configured with --disable-demuxers: it cannot open an mp4 at all.
+FFMPEG="npx remotion ffmpeg"
 mkdir -p out/parts
 
 render_chunk () {
@@ -31,7 +33,7 @@ render_chunk p4 18840-28649 || exit 1
 for p in p1 p2 p3 p4; do echo "file '$p.mp4'" >> out/parts/list.txt; done
 
 echo "[concat] $(date +%T)"
-"$FFMPEG" -y -f concat -safe 0 -i out/parts/list.txt -c copy out/storage-film.mp4 2>&1 | tail -2
+$FFMPEG -y -f concat -safe 0 -i out/parts/list.txt -c copy out/storage-film.mp4 2>&1 | tail -2
 echo "[complete] $(date +%T)"
-"$FFMPEG" -i out/storage-film.mp4 2>&1 | grep -E "Duration|Stream #0:0"
+npx remotion ffprobe out/storage-film.mp4 2>&1 | grep -E "Duration|Stream #0:0"
 ls -la out/storage-film.mp4
