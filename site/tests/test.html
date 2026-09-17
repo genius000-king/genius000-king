@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>اختبارات — aboal3z.dzn</title>
+  <style>
+    body { background:#0A0605; color:#F7EFEA; font:16px/1.8 system-ui,sans-serif;
+           padding:24px; margin:0; }
+    h1 { font-size:1.2rem; opacity:.6; font-weight:500; }
+    h2 { font-size:1.6rem; margin:0 0 16px; }
+    #out div { padding:2px 0; font-family:ui-monospace,monospace; font-size:14px; }
+  </style>
+</head>
+<body>
+  <h1>مشغّل الاختبارات — aboal3z-portfolio</h1>
+  <div id="out">…</div>
+  <script type="module">
+    import { report } from './assert.js';
+    // سطر لكل ملف اختبار — الترتيب غير مهم.
+    await import('./dom.test.js');
+    await import('./api.test.js');
+    await import('./store.test.js');
+    await import('./motion.test.js');
+    await import('./registry.test.js');
+    await import('./panel.test.js');
+    await import('./overlay.test.js');
+    await report();
+  </script>
+</body>
+</html>

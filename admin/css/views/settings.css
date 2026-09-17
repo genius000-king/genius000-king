@@ -1,0 +1,32 @@
+/* settings.css — محرّر قالب رسالة واتساب. */
+.wa-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: var(--a-4); align-items: start; }
+@media (max-width: 1000px) { .wa-grid { grid-template-columns: minmax(0, 1fr); } }
+
+.wa-card { position: sticky; inset-block-start: 0; }
+.wa-preview {
+  white-space: pre-wrap;
+  font-family: var(--a-font);
+  font-size: 13.5px;
+  line-height: 1.85;
+  padding: var(--a-4);
+  border-radius: var(--a-r-sm);
+  background: var(--a-panel-2);
+  border: 1px solid var(--a-line);
+  color: var(--a-text-2);
+  max-block-size: 52vh;
+  overflow: auto;
+}
+
+.var-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 6px; }
+.var-chip {
+  display: grid; gap: 2px;
+  padding: 7px var(--a-3);
+  border-radius: var(--a-r-sm);
+  border: 1px solid var(--a-line);
+  background: var(--a-panel-2);
+  text-align: start;
+  transition: border-color var(--a-t), background var(--a-t);
+}
+.var-chip:hover { border-color: var(--a-accent); background: rgba(var(--a-accent-rgb), .09); }
+.var-chip code { font-family: var(--a-mono); font-size: 11.5px; color: var(--a-accent); direction: ltr; }
+.var-chip span { font-size: 11px; color: var(--a-text-3); }

@@ -1,0 +1,220 @@
+/* ============================================================
+   glass.css — الزجاج الاحترافي.
+
+   الشفافية ليست زجاجاً. الزجاج الحقيقي ستّ طبقات، كلٌّ منها يحاكي
+   سلوكاً فيزيائياً مختلفاً للضوء:
+
+     1  المادة        backdrop-filter: ضبابية + تشبّع + سطوع
+     2  الانكسار      ::before — حلقة عند الحدّ تكسر ما خلفها
+     3  البريق        ::after  — إطار 1px مقنَّع، مضاء من جهة واحدة
+     4  الزيغ اللوني  ظلال ملوّنة دقيقة عند الحدّ (سلوك العدسة الحقيقي)
+     5  الحبيبات      نسيج مجهري — الزجاج المصنفر ليس أملس
+     6  السُّمك       ظلال داخلية وخارجية مركّبة
+
+   ⚠️ الإطار المتدرّج لا يُبنى بـ background-clip مع سطح شبه شفاف:
+      الطبقة السفلى تظهر عبر العليا فيغسل التدرّج البلاطة كلها.
+      mask-composite: exclude هو الطريقة الصحيحة الوحيدة.
+   ============================================================ */
+
+.glass {
+  --rim-angle: 158deg;
+  --rim-bright: var(--glass-rim);
+
+  position: relative;
+  isolation: isolate;
+  border-radius: var(--r-md);
+
+  /* ── 1 · المادة ── */
+  background-color: var(--glass-tint);
+  background-image:
+    /* السطح الداخلي: ضوء يسقط من أعلى-البداية */
+    radial-gradient(128% 78% at 12% -14%, rgba(255,255,255,.10), transparent 52%),
+    /* انعكاس علوي رفيع */
+    linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,0) 22%),
+    /* ── 5 · حبيبات الزجاج المصنفر ── */
+    var(--glass-grain);
+  background-size: auto, auto, 128px 128px;
+
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(1.06);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)) brightness(1.06);
+
+  /* ── 4 + 6 · الزيغ اللوني والسُّمك ──
+     خطّان ملوّنان بالكاد مرئيّان عند الحدّ العلوي والسفلي: هكذا تفصل
+     العدسة الحقيقية الطيف. حذفهما يجعل الحدّ يبدو مرسوماً لا منكسراً. */
+  box-shadow:
+    inset 0  1px 0 0 rgba(190, 215, 255, .16),        /* حافّة علوية مائلة للأزرق */
+    inset 0 -1px 0 0 rgba(255, 205, 180, .07),        /* حافّة سفلية مائلة للدفء */
+    inset 0  0 24px -10px rgba(255, 255, 255, .16),   /* يذيب حدّ حلقة الانكسار */
+    inset 0 -14px 22px -22px rgba(0, 0, 0, .55),      /* عمق القاع */
+    var(--sh-2);
+
+  transition: background-color var(--t-base) var(--ease-out),
+              box-shadow var(--t-base) var(--ease-out);
+}
+
+/* ── 2 · الانكسار ──
+   حلقة بعرض 12px عند الحدّ عليها ضبابية إضافية فقط — بلا تغيير سطوع.
+   تغيير السطوع يجعلها تُقرأ كإطار ثانٍ حادّ؛ الضبابية وحدها تكسر ما
+   خلفها فعلاً فيبدو الحدّ سميكاً بلا خطّ مرئي. */
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 12px;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ── 3 · البريق ──
+   إطار 1px يبدأ ساطعاً من أعلى-البداية ويخفت مع الدوران، كأن مصدر ضوء
+   واحداً يقف فوق الحافّة. زاوية التدرّج متغيّر حتى يحرّكها JS مع التمرير. */
+.glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    var(--rim-angle),
+    var(--rim-bright) 0%,
+    rgba(214, 232, 255, .22) 14%,
+    rgba(255, 255, 255, .06) 34%,
+    rgba(255, 255, 255, .02) 58%,
+    rgba(255, 226, 200, .10) 82%,
+    var(--glass-rim-dim) 100%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  transition: background var(--t-base) var(--ease-out);
+}
+
+.glass > * { position: relative; z-index: 1; }
+
+/* ============================================================
+   الأنواع
+   ============================================================ */
+
+.glass--soft {
+  --glass-blur: var(--glass-blur-soft);
+  --rim-bright: rgba(255, 255, 255, .32);
+  background-color: rgba(255, 255, 255, .036);
+  box-shadow:
+    inset 0 1px 0 0 rgba(190, 215, 255, .10),
+    inset 0 0 18px -10px rgba(255, 255, 255, .12),
+    var(--sh-1);
+}
+.glass--soft::before {
+  padding: 8px;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.glass--strong {
+  --glass-blur: 32px;
+  --rim-bright: rgba(255, 255, 255, .68);
+  background-color: var(--glass-tint-strong);
+  box-shadow:
+    inset 0  1px 0 0 rgba(200, 222, 255, .22),
+    inset 0 -1px 0 0 rgba(255, 205, 180, .09),
+    inset 0  0 30px -12px rgba(255, 255, 255, .20),
+    inset 0 -18px 28px -26px rgba(0, 0, 0, .60),
+    var(--sh-4);
+}
+.glass--strong::before { padding: 16px; }
+
+/* زجاج ملوّن — يحمل صبغة الهوية بدل الأبيض */
+.glass--tinted {
+  background-color: rgba(var(--c-accent-rgb), .075);
+  background-image:
+    radial-gradient(128% 78% at 12% -14%, rgba(255,255,255,.11), transparent 52%),
+    linear-gradient(146deg, rgba(var(--c-accent-rgb), .17), rgba(var(--c-accent-2-rgb), .10) 56%, transparent),
+    var(--glass-grain);
+  background-size: auto, auto, 128px 128px;
+}
+
+/* ============================================================
+   التفاعل — الزجاج يستجيب للضوء
+   ============================================================ */
+
+.glass--lift {
+  transition:
+    transform var(--t-base) var(--ease-out),
+    box-shadow var(--t-base) var(--ease-out),
+    background-color var(--t-base) var(--ease-out);
+  will-change: transform;
+}
+.glass--lift:hover,
+.glass--lift:focus-visible {
+  transform: translate3d(0, -3px, 0);
+  background-color: var(--glass-tint-strong);
+  box-shadow:
+    inset 0  1px 0 0 rgba(200, 222, 255, .26),
+    inset 0 -1px 0 0 rgba(255, 205, 180, .10),
+    inset 0  0 30px -10px rgba(255, 255, 255, .22),
+    inset 0 -18px 28px -26px rgba(0, 0, 0, .58),
+    var(--sh-4),
+    var(--sh-glow-soft);
+}
+.glass--lift:hover { --rim-bright: rgba(255, 255, 255, .80); }
+
+/* ── بقعة الضوء التي تتبع المؤشر ──
+   إحداثياتها تأتي من مؤثّر `glow` كنسبة مئوية. هذه الطبقة هي الفرق بين
+   «سطح شفاف» و«مادة لها لمعة». */
+.glass--glow > .glass__glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--t-base) var(--ease-out);
+  background:
+    radial-gradient(220px circle at var(--gx, 50%) var(--gy, 50%),
+      rgba(255, 255, 255, .11), transparent 62%),
+    radial-gradient(420px circle at var(--gx, 50%) var(--gy, 50%),
+      rgba(var(--c-accent-rgb), .09), transparent 68%);
+}
+.glass--glow:hover > .glass__glow,
+.glass--glow:focus-within > .glass__glow { opacity: 1; }
+
+/* ============================================================
+   الانكسار الحقيقي (تحسين تدريجي)
+
+   المتصفحات التي تدعم backdrop-filter: url() تحصل على تشويه فعلي
+   للخلفية عند الحدّ عبر feDisplacementMap — لا محاكاة بالضبابية.
+   البقية لا تفقد شيئاً: الحلقة أعلاه تبقى عاملة.
+   ============================================================ */
+/* حين يعمل الانكسار الحقيقي: الضبابية والتشبّع يأتيان من المرشّحة نفسها،
+   فنُلغي حلقة المحاكاة حتى لا تتراكم طبقتان. */
+.glass.is-liquid::before { display: none; }
+
+/* ============================================================
+   الاحتياطات
+   ============================================================ */
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass { background-color: color-mix(in srgb, var(--c-surface-2) 94%, transparent); }
+  .glass::before { display: none; }
+}
+
+/* الشفافية مكلفة على بعض الأجهزة — سطح مصمت مع بقاء الحدّ المضاء */
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background-color: var(--c-surface-2);
+    background-image: var(--glass-grain);
+  }
+  .glass::before { display: none; }
+}

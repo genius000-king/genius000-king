@@ -1,0 +1,45 @@
+/* toast.css — تنبيه مؤقّت أسفل الشاشة. */
+#toast {
+  position: fixed;
+  inset-block-end: var(--s-5);
+  inset-inline: 0;
+  z-index: var(--z-toast);
+  display: grid;
+  gap: var(--s-2);
+  justify-items: center;
+  pointer-events: none;
+  padding-inline: var(--s-4);
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-5);
+  border-radius: var(--r-full);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--c-text);
+  background: rgba(18, 26, 43, .88);
+  border: 1px solid var(--c-line);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  box-shadow: var(--sh-3);
+  pointer-events: auto;
+  max-inline-size: min(100%, 460px);
+  opacity: 0;
+  translate: 0 14px;
+  animation: toastIn .34s var(--ease-spring) forwards;
+}
+.toast.is-out { animation: toastOut .26s var(--ease-out) forwards; }
+.toast::before {
+  content: '';
+  inline-size: 8px; block-size: 8px;
+  border-radius: 50%;
+  background: var(--c-accent);
+  flex: 0 0 auto;
+}
+.toast[data-kind="success"]::before { background: var(--c-success); }
+.toast[data-kind="error"]::before   { background: var(--c-danger); }
+.toast[data-kind="warn"]::before    { background: var(--c-warm); }
+@keyframes toastIn  { to { opacity: 1; translate: 0 0; } }
+@keyframes toastOut { to { opacity: 0; translate: 0 10px; } }

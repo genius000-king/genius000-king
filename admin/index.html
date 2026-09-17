@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0A0E17">
+  <title>لوحة التحكم — aboal3z.dzn</title>
+
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/ibmplex-0.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <!-- شاشة الدخول -->
+  <div id="auth"></div>
+
+  <!-- الهيكل -->
+  <div id="app" hidden>
+    <aside id="sidebar" aria-label="التنقّل"></aside>
+    <header id="topbar"></header>
+    <main id="main" tabindex="-1"></main>
+    <nav id="tabbar" aria-label="التنقّل السريع"></nav>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script src="config.local.js" onerror="void 0"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

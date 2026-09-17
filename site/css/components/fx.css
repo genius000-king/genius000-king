@@ -1,0 +1,188 @@
+/* ============================================================
+   fx.css — أنماط المؤثرات. الطبقة البصرية لما يحرّكه js/motion/*.
+   ============================================================ */
+
+/* ── الظهور بموجات ── */
+.fx-reveal {
+  opacity: 0;
+  translate: 0 20px;
+  transition:
+    opacity var(--t-slow) var(--ease-out) var(--reveal-delay, 0ms),
+    translate var(--t-slow) var(--ease-out) var(--reveal-delay, 0ms);
+}
+.fx-reveal.is-in { opacity: 1; translate: 0 0; }
+
+/* ── الظهور ثلاثي الأبعاد: البلاطة تنقلب من مستوى الشاشة ── */
+.fx-reveal3d {
+  opacity: 0;
+  transform: perspective(1100px) rotateX(11deg) translate3d(0, 26px, -40px);
+  transform-origin: 50% 100%;
+  transition:
+    opacity var(--t-slower) var(--ease-out) var(--reveal-delay, 0ms),
+    transform var(--t-slower) var(--ease-out) var(--reveal-delay, 0ms);
+}
+.fx-reveal3d.is-in { opacity: 1; transform: perspective(1100px) rotateX(0) translate3d(0, 0, 0); }
+
+/* ── الإمالة ثلاثية الأبعاد ── */
+[data-fx~="tilt"] {
+  transform-style: preserve-3d;
+  transition: transform var(--t-base) var(--ease-out);
+  will-change: transform;
+}
+[data-fx~="tilt"].is-tilting { transition: transform .08s linear; }
+.tilt__layer { transform: translateZ(var(--depth, 24px)); }
+
+/* ── المغناطيس ── */
+[data-fx~="magnetic"] {
+  transition: transform var(--t-base) var(--ease-spring);
+  will-change: transform;
+}
+
+/* ── التكبير عند الدخول ── */
+.fx-zoom { overflow: hidden; }
+.fx-zoom img,
+.fx-zoom video {
+  scale: var(--zoom-from, 1.08);
+  transition: scale var(--t-slower) var(--ease-out);
+  will-change: transform;
+}
+.fx-zoom.is-in img,
+.fx-zoom.is-in video { scale: 1; }
+.fx-zoom:hover img,
+.fx-zoom:hover video { scale: 1.05; }
+
+/* ── تبديل الصورة عند المرور ── */
+.fx-swap { position: relative; }
+.fx-swap [data-swap] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--t-base) var(--ease-out);
+}
+.fx-swap:hover [data-swap],
+.fx-swap:focus-visible [data-swap] { opacity: 1; }
+
+/* ── تفكيك النص ── */
+.fx-split { display: inline-block; }
+.fx-split__unit {
+  display: inline-block;
+  opacity: 0;
+  translate: 0 .5em;
+  transition:
+    opacity var(--t-slow) var(--ease-out) var(--unit-delay, 0ms),
+    translate var(--t-slow) var(--ease-spring) var(--unit-delay, 0ms);
+  will-change: transform;
+}
+.fx-split.is-in .fx-split__unit { opacity: 1; translate: 0 0; }
+
+/* ── المسح اللوني على العناوين ── */
+[data-fx~="sweep"] {
+  background: linear-gradient(100deg,
+    var(--c-accent-text) 0%, var(--c-text) 22%, var(--c-text) 62%, var(--c-accent-2) 100%);
+  background-size: 240% 100%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+  animation: sweep 11s var(--ease-in-out) infinite alternate;
+}
+@keyframes sweep { to { background-position: 100% 0; } }
+
+/* ── اللمعة عند المرور ── */
+[data-fx~="shine"] { position: relative; overflow: hidden; isolation: isolate; }
+[data-fx~="shine"]::after {
+  content: '';
+  position: absolute;
+  inset-block: -60%;
+  inline-size: 45%;
+  inset-inline-start: -60%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,.12), transparent);
+  rotate: 14deg;
+  pointer-events: none;
+  transition: inset-inline-start var(--t-slower) var(--ease-out);
+  z-index: 2;
+}
+[data-fx~="shine"]:hover::after { inset-inline-start: 120%; }
+
+/* ── البارالاكس ── */
+[data-fx~="parallax"] { translate: 0 var(--py, 0px); will-change: transform; }
+
+/* ── الشريط المتحرك ── */
+.marquee {
+  inline-size: 100%;
+  max-inline-size: 100%;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y;
+  -webkit-mask-image: linear-gradient(to left, transparent, #000 6%, #000 94%, transparent);
+          mask-image: linear-gradient(to left, transparent, #000 6%, #000 94%, transparent);
+}
+.marquee.is-dragging { cursor: grabbing; }
+.marquee__track {
+  display: flex;
+  gap: var(--bento-gap);
+  inline-size: max-content;
+  will-change: transform;
+  padding-block: var(--s-2);
+}
+
+/* ── العدّاد ── */
+[data-fx~="counter"] { font-variant-numeric: tabular-nums; }
+
+/* ── لوحات الرسم ── */
+.fx-canvas {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: .6;
+}
+
+/* ── المؤشر المخصّص ── */
+#cursor {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  z-index: var(--z-cursor);
+  pointer-events: none;
+  mix-blend-mode: difference;
+  opacity: 0;
+  transition: opacity var(--t-base), scale var(--t-base) var(--ease-spring);
+}
+#cursor.is-on { opacity: 1; }
+.cursor__ring {
+  inline-size: 34px;
+  block-size: 34px;
+  border-radius: 50%;
+  border: 1.5px solid #fff;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  transition: inline-size var(--t-base) var(--ease-spring),
+              block-size var(--t-base) var(--ease-spring);
+}
+#cursor.is-label .cursor__ring {
+  inline-size: 66px;
+  block-size: 66px;
+  background: rgba(255,255,255,.12);
+}
+
+/* ── احترام تقليل الحركة ── */
+@media (prefers-reduced-motion: reduce) {
+  .fx-reveal, .fx-reveal3d, .fx-split__unit {
+    opacity: 1 !important;
+    translate: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .fx-zoom img, .fx-zoom video { scale: 1; }
+  [data-fx~="sweep"] { animation: none; background-position: 30% 0; }
+  .marquee { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+  .marquee__track { transform: none !important; }
+  #cursor { display: none; }
+}
+@media (pointer: coarse) { #cursor { display: none; } }

@@ -1,0 +1,15 @@
+/* main.css — لوحة المشرف. نظام تصميم مستقلّ تماماً عن الموقع. */
+
+@import url('tokens.css');
+@import url('fonts.css');
+@import url('base.css');
+@import url('shell.css');
+
+@import url('components/ui.css');
+@import url('components/auth.css');
+
+@import url('views/dashboard.css');
+@import url('views/packages.css');
+@import url('views/preview.css');
+@import url('views/settings.css');
+@import url('views/catalog.css');

@@ -1,0 +1,21 @@
+/* services.css — بطاقات الخدمات بإمالة ثلاثية الأبعاد. */
+.service { gap: var(--s-3); justify-content: flex-start; }
+.service__icon {
+  inline-size: 46px;
+  block-size: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-sm);
+  color: var(--c-accent-text);
+  background: rgba(var(--c-accent-rgb), .12);
+  border: 1px solid rgba(var(--c-accent-rgb), .22);
+}
+.service__meta {
+  margin-block-start: auto;
+  padding-block-start: var(--s-3);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--c-accent-text);
+}
+.service--feature .service__icon { inline-size: 56px; block-size: 56px; }
+.service--feature .card__title { font-size: var(--fs-h3); }

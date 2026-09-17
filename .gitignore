@@ -1,0 +1,8 @@
+# إعدادات الاتصال المحلية — تحمل مفاتيح المشروع، لا تُرفع
+config.local.js
+site/config.local.js
+admin/config.local.js
+
+node_modules/
+.DS_Store
+*.log

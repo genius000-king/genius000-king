@@ -1,0 +1,25 @@
+/* order.css — بلاطة الدعوة للطلب. */
+.order {
+  display: grid;
+  gap: var(--s-4);
+  align-content: center;
+  justify-items: start;
+  padding: var(--s-7) var(--s-6);
+  position: relative;
+  overflow: hidden;
+}
+.order::after {
+  content: '';
+  position: absolute;
+  inset-block-start: -40%;
+  inset-inline-end: -18%;
+  inline-size: 62%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--c-accent-2-rgb), .30), transparent 66%);
+  filter: blur(34px);
+  pointer-events: none;
+}
+.order__title { font-size: var(--fs-display); line-height: var(--lh-tight); }
+.order__sub { color: var(--c-text-2); max-inline-size: 46ch; }
+.order .btn { margin-block-start: var(--s-2); }

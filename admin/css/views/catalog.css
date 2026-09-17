@@ -1,0 +1,15 @@
+/* catalog.css — منتقي الأيقونات والتقييم. */
+.icon-picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 5px; }
+.icon-opt {
+  aspect-ratio: 1;
+  display: grid; place-items: center;
+  border-radius: var(--a-r-sm);
+  border: 1px solid var(--a-line);
+  background: var(--a-panel-2);
+  color: var(--a-text-3);
+  transition: border-color var(--a-t), color var(--a-t), background var(--a-t);
+}
+.icon-opt:hover { color: var(--a-text); border-color: var(--a-text-3); }
+.icon-opt.is-on { border-color: var(--a-accent); background: rgba(var(--a-accent-rgb), .16); color: var(--a-accent); }
+.star-opt { color: var(--a-warn); padding: 2px; line-height: 0; }
+.sort-row.is-off { opacity: .55; }
