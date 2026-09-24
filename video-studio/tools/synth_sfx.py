@@ -318,7 +318,22 @@ def drone(dur=6.0, root=55):
     return finish(reverb(stereo(s * env_adsr(n, 1.5, 0, 1, 2.0), 0.9), 2.5, 0.3), -10)
 
 
+def chalk_scrape(dur=0.7):
+    """طبشور على سبورة: ضجيج خشن نطاقه أعلى من القلم مع "صرير" خفيف متقطّع."""
+    n = int(dur * SR)
+    x = signal.sosfilt(signal.butter(2, [900, 4200], btype="band", fs=SR, output="sos"), noise(dur))
+    grit = (rng.random(n) > 0.55).astype(float)
+    grit = lowpass(grit, 900)
+    squeak = np.sin(2 * np.pi * np.cumsum(2600 + 300 * np.sin(np.linspace(0, 9, n))) / SR) * 0.06
+    e = env_adsr(n, 0.02, 0.1, 0.8, 0.12)
+    return finish(stereo((x * (0.5 + grit) + squeak) * e, 0.2), -8)
+
+
 EFFECTS = {
+    "chalk_scrape": chalk_scrape,
+    "drone_g": lambda: drone(8.0, 49.0),
+    "drone_e": lambda: drone(8.0, 41.2),
+    "drone_c": lambda: drone(8.0, 65.4),
     "whoosh_short": lambda: whoosh(0.35, 400, 5000),
     "whoosh_medium": lambda: whoosh(0.7),
     "whoosh_long": lambda: whoosh(1.2, 150, 2500),

@@ -1,0 +1,27 @@
+{
+  "file": "broll/rec/yt-ar-llm.mp4",
+  "width": 1600,
+  "height": 1000,
+  "duration": 38.4,
+  "url": "https://www.youtube.com/results?search_query=%D9%85%D8%A7+%D9%87%D9%88+LLM",
+  "events": [
+    {
+      "type": "scroll_start",
+      "t": 11.712,
+      "dur": 3.2
+    },
+    {
+      "type": "scroll_end",
+      "t": 24.108
+    },
+    {
+      "type": "scroll_start",
+      "t": 24.811,
+      "dur": 3.6
+    },
+    {
+      "type": "scroll_end",
+      "t": 37.524
+    }
+  ]
+}

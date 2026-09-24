@@ -1,0 +1,18 @@
+{
+  "file": "broll/rec/mcp.mp4",
+  "width": 1600,
+  "height": 1000,
+  "duration": 16.533333,
+  "url": "https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro",
+  "events": [
+    {
+      "type": "scroll_start",
+      "t": 4.875,
+      "dur": 5
+    },
+    {
+      "type": "scroll_end",
+      "t": 15.8
+    }
+  ]
+}

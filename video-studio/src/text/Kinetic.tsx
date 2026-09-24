@@ -160,8 +160,8 @@ export const Slam: React.FC<{ text: string; size?: number; font?: string; color?
 //    وتدور قليلاً في العمق. الكلمات المفتاحية يمرّ خلفها قلم تحديد.
 // ───────────────────────────────────────────────────────────────────
 export const WordCascade: React.FC<{
-  text: string; size?: number; font?: string; color?: string; stagger?: number; keys?: string[]; highlight?: string; maxWidth?: number;
-}> = ({ text, size = 110, font = FONT.punch, color = "#151515", stagger = 6, keys = [], highlight = "#ffe45c", maxWidth = 1500 }) => {
+  text: string; size?: number; font?: string; color?: string; stagger?: number; keys?: string[]; highlight?: string | null; keyColor?: string; maxWidth?: number;
+}> = ({ text, size = 110, font = FONT.punch, color = "#151515", stagger = 6, keys = [], highlight = "#ffe45c", keyColor, maxWidth = 1500 }) => {
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
   const words = text.split(" ");
@@ -176,9 +176,9 @@ export const WordCascade: React.FC<{
           const isKey = keys.includes(w);
           const hl = isKey ? interpolate(f, [start + 8, start + 20], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) }) : 0;
           return (
-            <span key={i} style={{ position: "relative", display: "inline-block", fontFamily: font, fontSize: size, color, lineHeight: 1.45,
+            <span key={i} style={{ position: "relative", display: "inline-block", fontFamily: font, fontSize: size, color: isKey && keyColor ? keyColor : color, lineHeight: 1.45,
               transform: `translateY(${(1 - p) * 70}px) rotateX(${(1 - p) * -70}deg)`, opacity: Math.min(1, p * 1.5), filter: `blur(${Math.max(0, 1 - p) * 14}px)` }}>
-              {isKey && (
+              {isKey && highlight && (
                 <span style={{ position: "absolute", insetInline: -10, top: "38%", height: "46%", background: highlight, zIndex: -1,
                   transformOrigin: "right", transform: `scaleX(${hl}) skewX(-8deg)`, borderRadius: 6, mixBlendMode: "multiply" }} />
               )}
@@ -188,7 +188,7 @@ export const WordCascade: React.FC<{
         })}
       </div>
       <SfxTrain event="word.pop" frames={hits} gain={0.9} />
-      {words.map((w, i) => (keys.includes(w) ? <Sfx key={`k${i}`} event="mark.highlight" at={i * stagger + 8} seed={i} /> : null))}
+      {highlight && words.map((w, i) => (keys.includes(w) ? <Sfx key={`k${i}`} event="mark.highlight" at={i * stagger + 8} seed={i} /> : null))}
     </Center>
   );
 };
@@ -261,8 +261,8 @@ export const GlitchText: React.FC<{ text: string; size?: number; font?: string; 
 // 6) InkReveal — اقتباس بخطّ الرقعة: قناع حبر ينساب من اليمين لليسار
 //    بحافة ناعمة، مع توهّج خفيف. (أنيق، للجمل التي لها روح)
 // ───────────────────────────────────────────────────────────────────
-export const InkReveal: React.FC<{ text: string; size?: number; font?: string; color?: string; frames?: number; caption?: string }> = ({
-  text, size = 130, font = FONT.ruqaa, color = "#1b1b1b", frames = 45, caption,
+export const InkReveal: React.FC<{ text: string; size?: number; font?: string; color?: string; frames?: number; caption?: string; captionColor?: string }> = ({
+  text, size = 130, font = FONT.ruqaa, color = "#1b1b1b", frames = 45, caption, captionColor = "#555",
 }) => {
   const f = useCurrentFrame();
   const p = interpolate(f, [0, frames], [0, 1], { ...clamp, easing: Easing.inOut(Easing.sin) });
@@ -275,7 +275,7 @@ export const InkReveal: React.FC<{ text: string; size?: number; font?: string; c
         {text}
       </div>
       {caption && (
-        <div style={{ fontFamily: FONT.serifDisplay, fontStyle: "italic", fontSize: size * 0.4, color: "#555", opacity: cap, transform: `translateY(${(1 - cap) * 20}px)` }}>
+        <div style={{ fontFamily: FONT.serifDisplay, fontStyle: "italic", fontSize: size * 0.4, color: captionColor, opacity: cap, transform: `translateY(${(1 - cap) * 20}px)` }}>
           {caption}
         </div>
       )}
@@ -315,8 +315,8 @@ export const BilingualSplit: React.FC<{ ar: string; en: string; size?: number; c
 // 8) CountUp — عدّاد "عدّاد مسافات": كل خانة تدور مستقلّة، والتسارع يتباطأ
 //    قرب النهاية. صوت نقرة عند كل تغيّر في الخانة الأعلى + نغمة وصول.
 // ───────────────────────────────────────────────────────────────────
-export const CountUp: React.FC<{ to: number; frames?: number; suffix?: string; label?: string; size?: number; color?: string; accent?: string }> = ({
-  to, frames = 50, suffix = "", label, size = 260, color = "#111", accent = "#e63946",
+export const CountUp: React.FC<{ to: number; frames?: number; suffix?: string; label?: string; size?: number; color?: string; accent?: string; labelColor?: string; note?: string }> = ({
+  to, frames = 50, suffix = "", label, size = 260, color = "#111", accent = "#e63946", labelColor = "#444", note,
 }) => {
   const f = useCurrentFrame();
   const p = interpolate(f, [0, frames], [0, 1], { ...clamp, easing: Easing.out(Easing.cubic) });
@@ -351,7 +351,8 @@ export const CountUp: React.FC<{ to: number; frames?: number; suffix?: string; l
         ))}
         <span style={{ color: accent }}>{suffix}</span>
       </div>
-      {label && <div dir="rtl" style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: size * 0.2, color: "#444", marginTop: 20, opacity: interpolate(f, [frames - 10, frames + 5], [0, 1], clamp) }}>{label}</div>}
+      {label && <div dir="rtl" style={{ fontFamily: FONT.body, fontWeight: 600, fontSize: size * 0.2, color: labelColor, marginTop: 20, opacity: interpolate(f, [frames - 10, frames + 5], [0, 1], clamp) }}>{label}</div>}
+      {note && <div dir="rtl" style={{ fontFamily: FONT.mono, fontSize: 24, color: labelColor, opacity: 0.6, marginTop: 10 }}>{note}</div>}
       <SfxTrain event="count.tick" frames={ticks} />
       <Sfx event="count.done" at={frames} />
     </Center>

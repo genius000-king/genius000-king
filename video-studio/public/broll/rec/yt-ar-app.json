@@ -1,0 +1,163 @@
+{
+  "file": "broll/rec/yt-ar-app.mp4",
+  "width": 1600,
+  "height": 1000,
+  "duration": 44.866667,
+  "url": "https://www.youtube.com/results?search_query=%D9%83%D9%8A%D9%81+%D8%AA%D8%A8%D9%86%D9%8A+%D8%AA%D8%B7%D8%A8%D9%8A%D9%82+%D8%A8%D8%A7%D9%84%D8%B0%D9%83%D8%A7%D8%A1+%D8%A7%D9%84%D8%A7%D8%B5%D8%B7%D9%86%D8%A7%D8%B9%D9%8A",
+  "events": [
+    {
+      "type": "click",
+      "t": 8.966
+    },
+    {
+      "type": "key",
+      "t": 9.063
+    },
+    {
+      "type": "key",
+      "t": 9.192
+    },
+    {
+      "type": "key",
+      "t": 9.325
+    },
+    {
+      "type": "key",
+      "t": 9.449
+    },
+    {
+      "type": "key",
+      "t": 9.567
+    },
+    {
+      "type": "key",
+      "t": 9.656
+    },
+    {
+      "type": "key",
+      "t": 9.78
+    },
+    {
+      "type": "key",
+      "t": 9.887
+    },
+    {
+      "type": "key",
+      "t": 9.97
+    },
+    {
+      "type": "key",
+      "t": 10.107
+    },
+    {
+      "type": "key",
+      "t": 10.209
+    },
+    {
+      "type": "key",
+      "t": 10.289
+    },
+    {
+      "type": "key",
+      "t": 10.411
+    },
+    {
+      "type": "key",
+      "t": 10.511
+    },
+    {
+      "type": "key",
+      "t": 10.633
+    },
+    {
+      "type": "key",
+      "t": 10.713
+    },
+    {
+      "type": "key",
+      "t": 10.811
+    },
+    {
+      "type": "key",
+      "t": 10.895
+    },
+    {
+      "type": "key",
+      "t": 11.023
+    },
+    {
+      "type": "key",
+      "t": 11.087
+    },
+    {
+      "type": "key",
+      "t": 11.21
+    },
+    {
+      "type": "key",
+      "t": 11.296
+    },
+    {
+      "type": "key",
+      "t": 11.433
+    },
+    {
+      "type": "key",
+      "t": 11.524
+    },
+    {
+      "type": "key",
+      "t": 11.651
+    },
+    {
+      "type": "key",
+      "t": 11.746
+    },
+    {
+      "type": "key",
+      "t": 11.883
+    },
+    {
+      "type": "key",
+      "t": 11.965
+    },
+    {
+      "type": "key",
+      "t": 12.059
+    },
+    {
+      "type": "key",
+      "t": 12.131
+    },
+    {
+      "type": "key",
+      "t": 12.193
+    },
+    {
+      "type": "key",
+      "t": 12.278
+    },
+    {
+      "type": "enter",
+      "t": 12.694
+    },
+    {
+      "type": "scroll_start",
+      "t": 18.376,
+      "dur": 3.2
+    },
+    {
+      "type": "scroll_end",
+      "t": 30.388
+    },
+    {
+      "type": "scroll_start",
+      "t": 31.09,
+      "dur": 3.6
+    },
+    {
+      "type": "scroll_end",
+      "t": 44.053
+    }
+  ]
+}

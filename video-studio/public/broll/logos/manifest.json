@@ -23,10 +23,154 @@
     "title": "Netflix",
     "source": "simple-icons (CC0)"
   },
-  "fluiddynamics": {
-    "file": "broll/logos/fluiddynamics.png",
-    "color": "#111111",
-    "title": "Fluid dynamics",
-    "source": "wikipedia: https://en.wikipedia.org/wiki/Fluid_dynamics"
+  "openai": {
+    "file": "broll/logos/chatgpt.svg",
+    "color": "#10A37F",
+    "title": "ChatGPT",
+    "source": "wikimedia commons (ChatGPT_logo.svg)"
+  },
+  "anthropic": {
+    "file": "broll/logos/anthropic.svg",
+    "color": "#191919",
+    "title": "Anthropic",
+    "source": "simple-icons (CC0)"
+  },
+  "claude": {
+    "file": "broll/logos/claude.svg",
+    "color": "#D97757",
+    "title": "Claude",
+    "source": "simple-icons (CC0)"
+  },
+  "googlegemini": {
+    "file": "broll/logos/googlegemini.svg",
+    "color": "#8E75B2",
+    "title": "Google Gemini",
+    "source": "simple-icons (CC0)"
+  },
+  "meta": {
+    "file": "broll/logos/meta.svg",
+    "color": "#0467DF",
+    "title": "Meta",
+    "source": "simple-icons (CC0)"
+  },
+  "deepseek": {
+    "file": "broll/logos/deepseek.svg",
+    "color": "#5786FE",
+    "title": "DeepSeek",
+    "source": "simple-icons (CC0)"
+  },
+  "perplexity": {
+    "file": "broll/logos/perplexity.svg",
+    "color": "#1FB8CD",
+    "title": "Perplexity",
+    "source": "simple-icons (CC0)"
+  },
+  "x": {
+    "file": "broll/logos/x.svg",
+    "color": "#000000",
+    "title": "X",
+    "source": "simple-icons (CC0)"
+  },
+  "instagram": {
+    "file": "broll/logos/instagram.svg",
+    "color": "#FF0069",
+    "title": "Instagram",
+    "source": "simple-icons (CC0)"
+  },
+  "github": {
+    "file": "broll/logos/github.svg",
+    "color": "#181717",
+    "title": "GitHub",
+    "source": "simple-icons (CC0)"
+  },
+  "javascript": {
+    "file": "broll/logos/javascript.svg",
+    "color": "#F7DF1E",
+    "title": "JavaScript",
+    "source": "simple-icons (CC0)"
+  },
+  "cplusplus": {
+    "file": "broll/logos/cplusplus.svg",
+    "color": "#00599C",
+    "title": "C++",
+    "source": "simple-icons (CC0)"
+  },
+  "rust": {
+    "file": "broll/logos/rust.svg",
+    "color": "#000000",
+    "title": "Rust",
+    "source": "simple-icons (CC0)"
+  },
+  "unity": {
+    "file": "broll/logos/unity.svg",
+    "color": "#FFFFFF",
+    "title": "Unity",
+    "source": "simple-icons (CC0)"
+  },
+  "unrealengine": {
+    "file": "broll/logos/unrealengine.svg",
+    "color": "#0E1128",
+    "title": "Unreal Engine",
+    "source": "simple-icons (CC0)"
+  },
+  "kotlin": {
+    "file": "broll/logos/kotlin.svg",
+    "color": "#7F52FF",
+    "title": "Kotlin",
+    "source": "simple-icons (CC0)"
+  },
+  "swift": {
+    "file": "broll/logos/swift.svg",
+    "color": "#F05138",
+    "title": "Swift",
+    "source": "simple-icons (CC0)"
+  },
+  "android": {
+    "file": "broll/logos/android.svg",
+    "color": "#3DDC84",
+    "title": "Android",
+    "source": "simple-icons (CC0)"
+  },
+  "apple": {
+    "file": "broll/logos/apple.svg",
+    "color": "#000000",
+    "title": "Apple",
+    "source": "simple-icons (CC0)"
+  },
+  "html5": {
+    "file": "broll/logos/html5.svg",
+    "color": "#E34F26",
+    "title": "HTML5",
+    "source": "simple-icons (CC0)"
+  },
+  "css": {
+    "file": "broll/logos/css.svg",
+    "color": "#663399",
+    "title": "CSS",
+    "source": "simple-icons (CC0)"
+  },
+  "webgl": {
+    "file": "broll/logos/webgl.svg",
+    "color": "#990000",
+    "title": "WebGL",
+    "source": "simple-icons (CC0)"
+  },
+  "python": {
+    "file": "broll/logos/python.svg",
+    "color": "#3776AB",
+    "title": "Python",
+    "source": "simple-icons (CC0)"
+  },
+  "huggingface": {
+    "file": "broll/logos/huggingface.svg",
+    "color": "#FFD21E",
+    "title": "Hugging Face",
+    "source": "simple-icons (CC0)"
+  },
+  "arxiv": {
+    "file": "broll/logos/arxiv.svg",
+    "color": "#B31B1B",
+    "title": "arXiv",
+    "source": "simple-icons (CC0)"
   }
 }

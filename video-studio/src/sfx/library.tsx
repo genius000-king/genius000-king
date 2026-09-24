@@ -108,7 +108,31 @@ export const GRAMMAR = {
   "screen.zoom": [{ file: S("whoosh_short"), volume: 0.3, anchor: "middle", rate: [1.2, 1.4] }],
   "camera.shutter": [{ file: S("camera_shutter"), volume: 0.6, anchor: "start" }],
 
+  // ─── الكولاج / السبورة ───
+  /** ختم مطاطي يرتطم بالورق: لكمة مكتومة + كتاب يُوضع + صب خفيف */
+  stamp: [
+    { file: range((i) => K("impact-sounds", `impactPunch_heavy_00${i}`), 0, 4), volume: 0.7, anchor: "start" },
+    { file: ["bookPlace1", "bookPlace2", "bookPlace3"].map((n) => K("rpg-audio", n)), volume: 0.5, anchor: "start" },
+    { file: S("sub_boom"), volume: 0.35, anchor: "start" },
+  ],
+  /** ملصق يُلصق على السبورة */
+  "sticker.slap": [{ file: range((i) => K("impact-sounds", `impactSoft_medium_00${i}`), 0, 4), volume: 0.6, anchor: "start" }],
+  "chalk.write": [{ file: S("chalk_scrape"), volume: 0.6, anchor: "start" }],
+  /** خطأ / فشل / "غلط" */
+  "error.buzz": [{ file: range((i) => K("interface-sounds", `error_00${i}`), 1, 8), volume: 0.55, anchor: "start" }],
+  "success.ding": [{ file: range((i) => K("interface-sounds", `confirmation_00${i}`), 1, 4), volume: 0.5, anchor: "start" }],
+  /** انهيار (تطبيق يكرش) */
+  crash: [
+    { file: S("glitch"), volume: 0.5, anchor: "start" },
+    { file: range((i) => K("sci-fi-sounds", `explosionCrunch_00${i}`), 0, 4), volume: 0.45, anchor: "start" },
+    { file: S("tape_stop"), volume: 0.35, anchor: "start", offset: 0.1 },
+  ],
+  "tile.pop": [{ file: range((i) => K("interface-sounds", `glass_00${i}`), 1, 6), volume: 0.35, anchor: "start", rate: [0.9, 1.2] }],
+
   // ─── الأجواء ───
+  "bed.drone.g": [{ file: S("drone_g"), volume: 0.35, anchor: "start" }],
+  "bed.drone.e": [{ file: S("drone_e"), volume: 0.35, anchor: "start" }],
+  "bed.drone.c": [{ file: S("drone_c"), volume: 0.35, anchor: "start" }],
   "bed.drone": [{ file: S("drone"), volume: 0.35, anchor: "start" }],
   "bed.hum": [{ file: S("ui_hum"), volume: 0.4, anchor: "start" }],
 } satisfies Record<string, Layer[]>;
@@ -128,7 +152,8 @@ export const TIER: Record<SfxEvent, 1 | 2 | 3> = {
   "transition.whoosh": 2, "transition.whip": 2, "transition.paper": 2, "transition.tapestop": 2,
   "window.open": 2, "window.close": 2, glitch: 2, "word.key": 2, "mark.highlight": 2, "count.done": 2,
   "screen.click": 2, "type.enter": 2, "write.pen": 2, "fluid.drop": 2, "camera.shutter": 2,
-  "bed.drone": 1, "bed.hum": 2,
+  "bed.drone": 1, "bed.hum": 2, "bed.drone.g": 1, "bed.drone.e": 1, "bed.drone.c": 1,
+  stamp: 1, crash: 1, "sticker.slap": 2, "chalk.write": 2, "error.buzz": 2, "success.ding": 2, "tile.pop": 3,
   "word.pop": 3, "type.key": 3, "count.tick": 3, "screen.scroll": 3, "screen.zoom": 3, "fluid.bubble": 3,
 };
 

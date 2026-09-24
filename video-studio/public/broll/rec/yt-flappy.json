@@ -1,0 +1,135 @@
+{
+  "file": "broll/rec/yt-flappy.mp4",
+  "width": 1600,
+  "height": 1000,
+  "duration": 40.933333,
+  "url": "https://www.youtube.com/results?search_query=AI+model+test+flappy+bird",
+  "events": [
+    {
+      "type": "click",
+      "t": 7.396
+    },
+    {
+      "type": "key",
+      "t": 7.481
+    },
+    {
+      "type": "key",
+      "t": 7.565
+    },
+    {
+      "type": "key",
+      "t": 7.628
+    },
+    {
+      "type": "key",
+      "t": 7.745
+    },
+    {
+      "type": "key",
+      "t": 7.883
+    },
+    {
+      "type": "key",
+      "t": 8.043
+    },
+    {
+      "type": "key",
+      "t": 8.188
+    },
+    {
+      "type": "key",
+      "t": 8.253
+    },
+    {
+      "type": "key",
+      "t": 8.393
+    },
+    {
+      "type": "key",
+      "t": 8.489
+    },
+    {
+      "type": "key",
+      "t": 8.613
+    },
+    {
+      "type": "key",
+      "t": 8.737
+    },
+    {
+      "type": "key",
+      "t": 8.806
+    },
+    {
+      "type": "key",
+      "t": 8.928
+    },
+    {
+      "type": "key",
+      "t": 9.051
+    },
+    {
+      "type": "key",
+      "t": 9.172
+    },
+    {
+      "type": "key",
+      "t": 9.263
+    },
+    {
+      "type": "key",
+      "t": 9.353
+    },
+    {
+      "type": "key",
+      "t": 9.45
+    },
+    {
+      "type": "key",
+      "t": 9.591
+    },
+    {
+      "type": "key",
+      "t": 9.665
+    },
+    {
+      "type": "key",
+      "t": 9.797
+    },
+    {
+      "type": "key",
+      "t": 9.878
+    },
+    {
+      "type": "key",
+      "t": 10.004
+    },
+    {
+      "type": "key",
+      "t": 10.091
+    },
+    {
+      "type": "enter",
+      "t": 10.481
+    },
+    {
+      "type": "scroll_start",
+      "t": 15.525,
+      "dur": 3.2
+    },
+    {
+      "type": "scroll_end",
+      "t": 26.573
+    },
+    {
+      "type": "scroll_start",
+      "t": 27.274,
+      "dur": 3.6
+    },
+    {
+      "type": "scroll_end",
+      "t": 40.122
+    }
+  ]
+}
