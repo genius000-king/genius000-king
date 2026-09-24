@@ -60,8 +60,8 @@ export const stickerEdge = (w = 5, color = "#fff") =>
   ].map(([x, y]) => `drop-shadow(${x}px ${y}px 0 ${color})`).join(" ") + " drop-shadow(0 18px 24px rgba(0,0,0,0.35))";
 
 /** يدخل كملصق يُصفع على السبورة: يأتي كبيراً مائلاً ثم يستقرّ بارتداد */
-export const Sticker: React.FC<{ children: React.ReactNode; delay?: number; rot?: number; x?: number; y?: number; edge?: number; sfx?: boolean; seed?: number }> = ({
-  children, delay = 0, rot = -3, x = 0, y = 0, edge = 6, sfx = true, seed = 0,
+export const Sticker: React.FC<{ children: React.ReactNode; delay?: number; rot?: number; x?: number; y?: number; edge?: number; sfx?: boolean; seed?: number; radius?: number }> = ({
+  children, delay = 0, rot = -3, x = 0, y = 0, edge = 6, sfx = true, seed = 0, radius = 20,
 }) => {
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -71,9 +71,13 @@ export const Sticker: React.FC<{ children: React.ReactNode; delay?: number; rot?
     <div style={{
       position: "absolute", left: "50%", top: "50%",
       transform: `translate(-50%, -50%) translate(${x}px, ${y}px) scale(${interpolate(p, [0, 1], [1.6, 1])}) rotate(${rot + (1 - p) * 12 + wob}deg)`,
-      opacity: interpolate(f - delay, [0, 3], [0, 1], clamp), filter: stickerEdge(edge),
+      opacity: interpolate(f - delay, [0, 3], [0, 1], clamp),
+      // إطار أبيض حقيقي + ظلّ واحد: نفس مظهر القصاصة، بدل 9 فلاتر drop-shadow
+      // كانت تُحسب بكسلاً بكسلاً كل فريم (كانت تكلّف ~11 ثانية للفريم الواحد)
+      background: edge ? "#fff" : undefined, padding: edge, borderRadius: radius + edge,
+      boxShadow: edge ? "0 18px 30px rgba(0,0,0,0.35)" : undefined,
     }}>
-      {children}
+      {edge ? <div style={{ borderRadius: radius, overflow: "hidden", lineHeight: 0 }}><div style={{ lineHeight: "normal" }}>{children}</div></div> : children}
       {sfx && <Sfx event="sticker.slap" at={delay + 5} seed={seed} />}
     </div>
   );

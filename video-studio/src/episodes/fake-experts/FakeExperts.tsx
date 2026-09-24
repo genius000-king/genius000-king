@@ -58,7 +58,7 @@ const Chips: React.FC<{ items: string[]; gap?: number; size?: number; y?: number
 const Tiles: React.FC<{ brands: string[]; size?: number; gap?: number; label?: string }> = ({ brands, size = 260, gap = 8, label }) => (
   <>
     {brands.map((b, i) => (
-      <Sticker key={b} delay={i * gap} x={(i - (brands.length - 1) / 2) * -(size + 90)} y={label ? -60 : 0} rot={i % 2 ? 5 : -6} edge={7} seed={i}>
+      <Sticker key={b} delay={i * gap} x={(i - (brands.length - 1) / 2) * -(size + 90)} y={label ? -60 : 0} rot={i % 2 ? 5 : -6} edge={7} seed={i} radius={size * 0.24}>
         <AppTile brand={b} size={size} />
       </Sticker>
     ))}
