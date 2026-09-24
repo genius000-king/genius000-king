@@ -1,0 +1,32 @@
+{
+  "youtube": {
+    "file": "broll/logos/youtube.svg",
+    "color": "#FF0000",
+    "title": "YouTube",
+    "source": "simple-icons (CC0)"
+  },
+  "google": {
+    "file": "broll/logos/google.svg",
+    "color": "#4285F4",
+    "title": "Google",
+    "source": "simple-icons (CC0)"
+  },
+  "tiktok": {
+    "file": "broll/logos/tiktok.svg",
+    "color": "#000000",
+    "title": "TikTok",
+    "source": "simple-icons (CC0)"
+  },
+  "netflix": {
+    "file": "broll/logos/netflix.svg",
+    "color": "#E50914",
+    "title": "Netflix",
+    "source": "simple-icons (CC0)"
+  },
+  "fluiddynamics": {
+    "file": "broll/logos/fluiddynamics.png",
+    "color": "#111111",
+    "title": "Fluid dynamics",
+    "source": "wikipedia: https://en.wikipedia.org/wiki/Fluid_dynamics"
+  }
+}

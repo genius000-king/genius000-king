@@ -1,0 +1,45 @@
+{
+  "name": "video-studio",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts",
+    "sfx:fetch": "node tools/fetch-sfx.mjs",
+    "sfx:synth": "python3 tools/synth_sfx.py",
+    "logo": "node tools/fetch-logo.mjs",
+    "record": "node tools/record-web.mjs",
+    "master": "bash tools/master.sh",
+    "sfx:index": "node tools/index-sfx.mjs"
+  },
+  "dependencies": {
+    "@fontsource/amiri": "^5.3.0",
+    "@fontsource/aref-ruqaa": "^5.3.0",
+    "@fontsource/blaka": "^5.3.0",
+    "@fontsource/crimson-pro": "^5.3.0",
+    "@fontsource/el-messiri": "^5.3.0",
+    "@fontsource/handjet": "^5.3.0",
+    "@fontsource/ibm-plex-sans-arabic": "^5.3.0",
+    "@fontsource/instrument-serif": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@fontsource/lalezar": "^5.3.0",
+    "@fontsource/marhey": "^5.3.0",
+    "@fontsource/noto-kufi-arabic": "^5.3.0",
+    "@fontsource/rakkas": "^5.3.0",
+    "@fontsource/readex-pro": "^5.3.0",
+    "@fontsource/reem-kufi": "^5.3.0",
+    "@remotion/cli": "^4.0.527",
+    "@remotion/media-utils": "^4.0.527",
+    "@remotion/noise": "^4.0.527",
+    "@remotion/paths": "^4.0.527",
+    "@remotion/transitions": "^4.0.527",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "remotion": "^4.0.527"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "playwright": "^1.63.0",
+    "typescript": "^7.0.2"
+  }
+}

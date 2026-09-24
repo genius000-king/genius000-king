@@ -1,0 +1,131 @@
+{
+  "file": "broll/rec/yt-fluids.mp4",
+  "width": 1600,
+  "height": 1000,
+  "duration": 39.6,
+  "url": "https://www.youtube.com/results?search_query=fluid+dynamics+explained",
+  "events": [
+    {
+      "type": "click",
+      "t": 8.715
+    },
+    {
+      "type": "key",
+      "t": 8.798
+    },
+    {
+      "type": "key",
+      "t": 8.896
+    },
+    {
+      "type": "key",
+      "t": 9.001
+    },
+    {
+      "type": "key",
+      "t": 9.107
+    },
+    {
+      "type": "key",
+      "t": 9.21
+    },
+    {
+      "type": "key",
+      "t": 9.327
+    },
+    {
+      "type": "key",
+      "t": 9.431
+    },
+    {
+      "type": "key",
+      "t": 9.544
+    },
+    {
+      "type": "key",
+      "t": 9.623
+    },
+    {
+      "type": "key",
+      "t": 9.721
+    },
+    {
+      "type": "key",
+      "t": 9.831
+    },
+    {
+      "type": "key",
+      "t": 9.939
+    },
+    {
+      "type": "key",
+      "t": 10.074
+    },
+    {
+      "type": "key",
+      "t": 10.193
+    },
+    {
+      "type": "key",
+      "t": 10.264
+    },
+    {
+      "type": "key",
+      "t": 10.347
+    },
+    {
+      "type": "key",
+      "t": 10.455
+    },
+    {
+      "type": "key",
+      "t": 10.54
+    },
+    {
+      "type": "key",
+      "t": 10.665
+    },
+    {
+      "type": "key",
+      "t": 10.74
+    },
+    {
+      "type": "key",
+      "t": 10.865
+    },
+    {
+      "type": "key",
+      "t": 10.966
+    },
+    {
+      "type": "key",
+      "t": 11.072
+    },
+    {
+      "type": "key",
+      "t": 11.16
+    },
+    {
+      "type": "enter",
+      "t": 11.554
+    },
+    {
+      "type": "scroll_start",
+      "t": 16.954,
+      "dur": 3.2
+    },
+    {
+      "type": "scroll_end",
+      "t": 26.87
+    },
+    {
+      "type": "scroll_start",
+      "t": 27.571,
+      "dur": 3.6
+    },
+    {
+      "type": "scroll_end",
+      "t": 38.902
+    }
+  ]
+}
