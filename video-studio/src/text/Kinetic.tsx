@@ -103,7 +103,7 @@ export const LiquidFill: React.FC<{
       <Sfx event="write.pen" at={0} maxDur={drawFrames + 4} />
       <Sfx event="fluid.fill" at={fillStart} maxDur={fillFrames + 10} />
       <SfxTrain event="fluid.bubble" frames={bubbleHits} />
-      <Sfx event="reveal.elegant" at={fillStart + fillFrames - 12} gain={0.8} />
+
     </AbsoluteFill>
   );
 };
@@ -307,7 +307,6 @@ export const BilingualSplit: React.FC<{ ar: string; en: string; size?: number; c
         <div style={{ fontFamily: FONT.serif, fontSize: size * 0.62, color, transform: `translateX(${(b - 1) * 700}px)`, fontStyle: "italic" }}>{en}</div>
       </div>
       <Sfx event="transition.whoosh" at={10} />
-      <Sfx event="word.key" at={16} />
     </Center>
   );
 };

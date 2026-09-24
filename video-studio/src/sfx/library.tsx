@@ -115,6 +115,27 @@ export const GRAMMAR = {
 
 export type SfxEvent = keyof typeof GRAMMAR;
 
+// ═══════════════════════════════════════════════════════════════════
+//  هرم الصوت — ليست كل حركة تستحق صوتاً.
+//  1 = لحظة بطولية (عنوان يرتطم، شعار يُكشف): نادرة، ويجب أن تُسمع.
+//  2 = لكنة (انتقال، نافذة تُفتح، كلمة مفتاحية): تُنقّط الإيقاع.
+//  3 = دقيق (نقرة لكل كلمة، مفتاح لكل حرف، خطوة عدّاد): يكثر، فيصير ضجيجاً.
+//  الوضع الافتراضي "balanced" يعزف 1 و2 فقط. الطبقة 3 للمقاطع التي
+//  يكون فيها الصوت الدقيق هو الموضوع نفسه (مثل لقطة كتابة مكبّرة).
+// ═══════════════════════════════════════════════════════════════════
+export const TIER: Record<SfxEvent, 1 | 2 | 3> = {
+  "title.slam": 1, "logo.reveal": 1, "build.riser": 1, "build.riser.short": 1, drop: 1, "fluid.fill": 1, "reveal.elegant": 1,
+  "transition.whoosh": 2, "transition.whip": 2, "transition.paper": 2, "transition.tapestop": 2,
+  "window.open": 2, "window.close": 2, glitch: 2, "word.key": 2, "mark.highlight": 2, "count.done": 2,
+  "screen.click": 2, "type.enter": 2, "write.pen": 2, "fluid.drop": 2, "camera.shutter": 2,
+  "bed.drone": 1, "bed.hum": 2,
+  "word.pop": 3, "type.key": 3, "count.tick": 3, "screen.scroll": 3, "screen.zoom": 3, "fluid.bubble": 3,
+};
+
+export type Density = "minimal" | "balanced" | "rich";
+const MAX_TIER: Record<Density, number> = { minimal: 1, balanced: 2, rich: 3 };
+export const SfxDensity = React.createContext<Density>("balanced");
+
 const dur = (f: string) => (durations as Record<string, number>)[f] ?? 1;
 
 const anchorSec = (a: Anchor | undefined, len: number) =>
@@ -133,6 +154,8 @@ export const Sfx: React.FC<{ event: SfxEvent; at: number; seed?: string | number
   maxDur,
 }) => {
   const { fps } = useVideoConfig();
+  const density = React.useContext(SfxDensity);
+  if (TIER[event] > MAX_TIER[density]) return null;
   const layers = GRAMMAR[event] as Layer[];
   return (
     <>
@@ -168,10 +191,17 @@ export const Sfx: React.FC<{ event: SfxEvent; at: number; seed?: string | number
 };
 
 /** سلسلة أحداث من نفس النوع (ضغطات مفاتيح، فقاعات، نقرات عدّاد) */
-export const SfxTrain: React.FC<{ event: SfxEvent; frames: number[]; gain?: number }> = ({ event, frames, gain }) => (
-  <>
-    {frames.map((f, i) => (
-      <Sfx key={i} event={event} at={f} seed={i} gain={gain} />
-    ))}
-  </>
-);
+/** سلسلة أحداث من نفس النوع (ضغطات مفاتيح، نقرات عدّاد).
+ *  `minGap` يمنع "الرشّاش": لا صوتان أقرب من هذا (بالفريمات) — الأذن تسمع
+ *  الإيقاع لا كل نبضة، فنصف النبضات يكفي لإيهامها بالكل. */
+export const SfxTrain: React.FC<{ event: SfxEvent; frames: number[]; gain?: number; minGap?: number }> = ({ event, frames, gain, minGap = 5 }) => {
+  const kept: number[] = [];
+  for (const f of [...frames].sort((a, b) => a - b)) if (!kept.length || f - kept[kept.length - 1] >= minGap) kept.push(f);
+  return (
+    <>
+      {kept.map((f, i) => (
+        <Sfx key={i} event={event} at={f} seed={i} gain={gain} />
+      ))}
+    </>
+  );
+};
