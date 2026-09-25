@@ -20,30 +20,38 @@ type Entry = { file: string; color: string; title: string };
 export const logo = (k: string) => (manifest as Record<string, Entry>)[k];
 
 // ───────────── السبورة ─────────────
+/** طبقات السبورة الثابتة (بقع طبشور + خشونة). تُرندَر مرة واحدة كصورة
+ *  (tools: npx remotion still src/index.ts ChalkTexture public/broll/chalk.jpg)
+ *  لأن فلاتر SVG تُعاد حسابها كل فريم حين تتحرك الكاميرا ثلاثياً. */
+export const ChalkTexture: React.FC<{ tone?: string }> = ({ tone = GREEN }) => (
+  <AbsoluteFill style={{ background: tone, overflow: "hidden" }}>
+    <AbsoluteFill style={{ opacity: 0.5, mixBlendMode: "screen" }}>
+      <svg width="100%" height="100%">
+        <filter id="smudge">
+          <feTurbulence type="fractalNoise" baseFrequency="0.0045 0.009" numOctaves="4" seed="11" />
+          <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.22 -0.06" />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#smudge)" />
+      </svg>
+    </AbsoluteFill>
+    <AbsoluteFill style={{ opacity: 0.35, mixBlendMode: "overlay" }}>
+      <svg width="100%" height="100%">
+        <filter id="grit">
+          <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="4" />
+          <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.9 0" />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#grit)" />
+      </svg>
+    </AbsoluteFill>
+  </AbsoluteFill>
+);
+
+/** السبورة الخضراء — الخلفية الأساسية للقناة. صورة مخبوزة + ضوء مسرحي يتنفّس. */
 export const ChalkBoard: React.FC<{ tone?: string }> = ({ tone = GREEN }) => {
   const f = useCurrentFrame();
   return (
     <AbsoluteFill style={{ background: tone, overflow: "hidden" }}>
-      {/* بقع طبشور ممسوحة — ذاكرة دروس سابقة على السبورة */}
-      <AbsoluteFill style={{ opacity: 0.5, mixBlendMode: "screen" }}>
-        <svg width="100%" height="100%">
-          <filter id="smudge">
-            <feTurbulence type="fractalNoise" baseFrequency="0.006 0.012" numOctaves="4" seed="11" />
-            <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.22 -0.06" />
-          </filter>
-          <rect width="100%" height="100%" filter="url(#smudge)" />
-        </svg>
-      </AbsoluteFill>
-      <AbsoluteFill style={{ opacity: 0.35, mixBlendMode: "overlay" }}>
-        <svg width="100%" height="100%">
-          <filter id="grit">
-            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="4" />
-            <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.9 0" />
-          </filter>
-          <rect width="100%" height="100%" filter="url(#grit)" />
-        </svg>
-      </AbsoluteFill>
-      {/* ضوء مسرحي يتنفّس ببطء */}
+      <Img src={staticFile("broll/chalk.jpg")} style={{ position: "absolute", width: "100%", height: "100%", objectFit: "cover" }} />
       <AbsoluteFill
         style={{
           background: `radial-gradient(ellipse at ${50 + noise2D("lx", f / 200, 0) * 12}% ${42 + noise2D("ly", f / 200, 1) * 8}%, rgba(255,255,255,0.13), transparent 60%), radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.45) 100%)`,

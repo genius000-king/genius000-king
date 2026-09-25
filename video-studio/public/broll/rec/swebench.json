@@ -2,17 +2,17 @@
   "file": "broll/rec/swebench.mp4",
   "width": 1600,
   "height": 1000,
-  "duration": 20.433333,
+  "duration": 19.533333,
   "url": "https://www.swebench.com/",
   "events": [
     {
       "type": "scroll_start",
-      "t": 5.162,
-      "dur": 5
+      "t": 4.556,
+      "dur": 6.5
     },
     {
       "type": "scroll_end",
-      "t": 19.716
+      "t": 18.734
     }
   ]
 }

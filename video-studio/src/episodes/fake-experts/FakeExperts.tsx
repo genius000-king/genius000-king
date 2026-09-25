@@ -6,9 +6,8 @@
 import React from "react";
 import { AbsoluteFill, Img, Sequence, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { ensureFonts, FONT } from "../../theme/fonts";
-import { Camera } from "../../fx/Camera";
+import { Cinema, moveFor } from "../../fx/Cinema";
 import { Grain, Vignette } from "../../fx/Finish";
-import { DarkStage } from "../../bg/GraphPaper";
 import { Sfx } from "../../sfx/library";
 import { BilingualSplit, CountUp, GlitchText, InkReveal, SLAM_IMPACT, Slam, Typewriter, WordCascade } from "../../text/Kinetic";
 import { LogoReveal } from "../../broll/LogoReveal";
@@ -93,18 +92,15 @@ const V: Record<string, Beat> = {
   // ── الفصل 1: الهوك ──
   h1: { v: () => <Slam text="تعبت!" size={330} color={W} accent={RED} font={FONT.display} />, impacts: [SLAM_IMPACT] },
   h2: { v: () => (<>
-    <Sticker x={330} y={-40} rot={-6}><FakeCard title="الذكاء الاصطناعي في 5 دقائق" w={560} hue={200} /></Sticker>
-    <Sticker delay={9} x={-330} y={40} rot={5} seed={2}><FakeCard title="كل شيء عن AI في 5 دقائق" w={560} hue={330} seed={1} /></Sticker>
-    <Caption text="مقطعين… 5 دقائق" y={380} delay={18} />
+    <Sticker x={330} y={-40} rot={-6}><FakeCard title="الذكاء الاصطناعي في 5 دقائق" w={600} hue={200} /></Sticker>
+    <Sticker delay={9} x={-330} y={40} rot={5} seed={2}><FakeCard title="كل شيء عن AI في 5 دقائق" w={600} hue={330} seed={1} /></Sticker>
   </>) },
   h3: { v: (d) => (<>
     <Thumb w={1150} y={-40} />
     <Sticker delay={Math.round(d * 0.35)} x={560} y={-330} rot={8} seed={3}><div style={{ background: LIME, fontFamily: FONT.display, fontSize: 72, padding: "6px 34px", borderRadius: 14, color: "#111" }}>بروفيسور</div></Sticker>
     <Sticker delay={Math.round(d * 0.55)} x={-520} y={330} rot={-7} seed={4}><div dir="rtl" style={{ background: W, fontFamily: FONT.display, fontSize: 64, padding: "6px 34px", borderRadius: 14, color: "#111" }}>خبير استراتيجي</div></Sticker>
   </>) },
-  h4: { v: () => (<>
-    <Typewriter text="الخبرة في الذكاء الاصطناعي: أسبوعين" size={96} color={W} font={FONT.digital} caret={LIME} />
-  </>) },
+  h4: { v: () => <Typewriter text="الخبرة: أسبوعين" size={130} color={W} font={FONT.digital} caret={LIME} /> },
   h5: { v: () => <EmptyContrib />, bg: "none" },
   h6: { v: (d) => (<>
     <Bubble text="كيف تسوي مدري إيش بالذكاء الاصطناعي!" x={200} y={-170} rot={-3} size={68} />
@@ -114,7 +110,7 @@ const V: Record<string, Beat> = {
     <EchoWords words={["AI", "ثورة", "Agent", "المستقبل", "Prompt", "AGI", "ملياردير", "LLM", "بضغطة زر"]} />
     <Stamp text="ولا سالفة" at={Math.round(d * 0.72)} size={170} font={FONT.display} />
   </>) },
-  h8: { v: () => <WordCascade text="المشكلة الأكبر في صناع المحتوى نفسهم" keys={["صناع", "المحتوى"]} size={130} color={W} keyColor={LIME} highlight={null} font={FONT.display} /> },
+  h8: { v: () => <Thumb w={1350} rot={-2} /> },
   h9: { v: (d) => (<>
     <CountUp to={95} suffix="%" size={320} color={W} accent={LIME} labelColor={W} label="من المحتوى العربي في المجال" note="تقدير شخصي · ليس إحصائية" frames={Math.min(45, d - 20)} />
   </>) },
@@ -132,8 +128,12 @@ const V: Record<string, Beat> = {
   </>), impacts: [], push: 0.06 },
 
   // ── الفصل 2 ──
-  s1: { v: () => <Typewriter text="> تحليل المشكلة من الأساس_" size={100} color={LIME} font={FONT.digital} caret={W} /> },
-  s2: { v: () => <WordCascade text="المشكلة في نوعية الشروحات نفسها" keys={["نوعية", "الشروحات"]} size={140} color={W} keyColor={LIME} highlight={null} font={FONT.punch} /> },
+  s1: { v: () => <Typewriter text="> تحليل_" size={150} color={LIME} font={FONT.digital} caret={W} /> },
+  s2: { v: () => (<>
+    <Sticker x={480} y={-60} rot={-8}><FakeCard title="ما هو الـ LLM؟ شرح كامل" w={520} hue={45} /></Sticker>
+    <Sticker delay={8} x={0} y={40} rot={3} seed={2}><FakeCard title="ما هو الـ Agent؟ ببساطة" w={520} hue={200} seed={1} /></Sticker>
+    <Sticker delay={16} x={-480} y={-20} rot={-4} seed={3}><FakeCard title="كيف تكتب Prompt احترافي" w={520} hue={300} /></Sticker>
+  </>) },
   s3: { v: (d) => <RecBeat rec={recLlm} frames={d} url="youtube.com/results?search_query=ما+هو+LLM" />, bg: "dark", hand: 0.5 },
   s4: { v: () => (<>
     <Sticker rot={-4}><FakeCard title="شرح كامل: ما هو الـ LLM؟ (اكتشاف خطير)" w={720} hue={45} /></Sticker>
@@ -144,7 +144,7 @@ const V: Record<string, Beat> = {
   s7: { v: () => <GlitchText text="مستوى الصفر" size={220} color={W} bursts={[40]} />, bg: "dark" },
   s8: { v: () => <Slam text="المشاهد مو غبي" size={210} color={W} accent={LIME} font={FONT.display} />, impacts: [SLAM_IMPACT] },
   s9: { v: () => <CycleLoop center="محتوى المبتدئين" nodes={["ما هو LLM؟", "كيف تكتب Prompt", "اصنع تطبيق بضغطة", "ما هو Agent؟"]} /> },
-  s10: { v: () => <WordCascade text="محد يتجرأ يروح للمتقدم" keys={["يتجرأ"]} size={150} color={W} keyColor={LIME} highlight={null} font={FONT.display} /> },
+  s10: { v: () => <CycleLoop center="محتوى المبتدئين" nodes={["ما هو LLM؟", "كيف تكتب Prompt", "اصنع تطبيق بضغطة", "ما هو Agent؟"]} /> },
   s11: { v: () => <LogoOrbit brands={["python", "cplusplus", "rust", "kotlin", "github", "huggingface"]} radius={520} center={<div dir="rtl" style={{ fontFamily: FONT.display, fontSize: 90, color: W, textAlign: "center" }}>أنت… الجاد</div>} /> },
   s12: { v: () => <Versus right={{ title: "المتوفر عربياً", items: ["ما هو LLM؟", "كيف تكتب Prompt", "اصنع تطبيق بضغطة زر"], color: RED }} left={{ title: "المفقود", items: ["الهندسة العكسية", "أنظمة معقدة حقيقية", "بيانات ضخمة الحجم", "ربط عميق مع النظام"], color: LIME }} /> },
   s13: { v: () => <Slam text="والسبب؟" size={280} color={W} accent={RED} font={FONT.display} />, impacts: [SLAM_IMPACT] },
@@ -164,10 +164,7 @@ const V: Record<string, Beat> = {
     <Sticker x={-420} y={40} rot={4}><FakeCard title="هذا النموذج دمّر ChatGPT!" w={600} hue={10} seed={1} /></Sticker>
     <Bubble text="جلد كل النماذج ودمّر السوق!" delay={Math.round(d * 0.4)} x={360} y={-150} size={66} />
   </>) },
-  t4: { v: (d) => (<>
-    <Slam text="كيف اختبرته؟" size={220} color={W} accent={LIME} font={FONT.display} y={-60} />
-    <Caption text="وش المعايير الهندسية؟" y={170} delay={Math.round(d * 0.5)} color={LIME} />
-  </>), impacts: [SLAM_IMPACT] },
+  t4: { v: () => <Slam text="كيف اختبرته؟" size={230} color={W} accent={LIME} font={FONT.display} />, impacts: [SLAM_IMPACT] },
   t5: { v: (d) => (<GlassPanel url="chat.example.com">
     <ChatMock prompt="اصنع لي لعبة Flappy Bird" reply={["const bird = { y: 200, v: 0 };", "function flap() { bird.v = -8; }", "function loop() {", "  bird.v += 0.5; bird.y += bird.v;", "  draw(); requestAnimationFrame(loop);", "}"]} verdict="هزم الجميع!!" verdictAt={Math.round(d * 0.72)} />
   </GlassPanel>), bg: "dark" },
@@ -221,24 +218,17 @@ const V: Record<string, Beat> = {
   </GlassPanel>), bg: "dark" },
   w3: { v: (d) => <GlassPanel url="localhost:5173/game.html"><BrowserStrain crashAt={Math.round(d * 0.7)} /></GlassPanel>, bg: "dark" },
   w4: { v: () => <Bubble text="شفتوا؟ النموذج غبي وما يفهم بالألعاب!" size={80} rot={-3} /> },
-  w5: { v: (d) => (<>
-    <Slam text="العيب مو بالنموذج" size={180} color={W} accent={RED} font={FONT.display} y={-70} />
-    <Caption text="العيب في فهمك للبيئة" y={140} delay={Math.round(d * 0.5)} color={LIME} size={90} />
-  </>), impacts: [SLAM_IMPACT] },
-  w6: { v: () => <WordCascade text="الويب مو مصنوع لمحركات 3D ضخمة" keys={["مو", "مصنوع"]} size={130} color={W} keyColor={LIME} highlight={null} font={FONT.display} /> },
-  w7: { v: (d) => (<Two d={d} at={0.45}
-    a={<Tiles brands={["unity", "unrealengine"]} size={300} label="كنز صناعة الألعاب" />}
-    b={<><Tiles brands={["html5"]} size={200} /><Caption text="…بوسط صفحة موقع؟" y={260} size={90} color={LIME} /></>} />) },
+  w5: { v: () => <Slam text="العيب مو بالنموذج" size={190} color={W} accent={RED} font={FONT.display} />, impacts: [SLAM_IMPACT] },
+  w6: { v: () => <Tiles brands={["html5", "webgl"]} size={300} /> },
+  w7: { v: (d) => (<Two d={d} at={0.5}
+    a={<Tiles brands={["unity", "unrealengine"]} size={320} />}
+    b={<Tiles brands={["html5"]} size={240} />} />) },
   w8: { v: (d) => <RecBeat rec={recMdn} frames={d} url="developer.mozilla.org · JavaScript execution model" />, bg: "dark", hand: 0.5 },
   w9: { v: () => <LogoReveal brand="javascript" at={16} size={280} label="JavaScript" />, bg: "dark" },
   w10: { v: () => <Versus right={{ title: "JavaScript", items: ["تُترجم وقت التشغيل (JIT)", "جامع قمامة يوقف التنفيذ", "خيط رئيسي واحد للمنطق والرسم"], color: "#F7DF1E" }} left={{ title: "C++ / Rust", items: ["تُترجم مسبقاً لكود الآلة", "تحكم كامل بالذاكرة", "خيوط متعددة حقيقية", "وصول مباشر للعتاد"], color: LIME }} /> },
   w11: { v: () => <EventLoop />, bg: "chalk" },
-  w12: { v: (d) => (<Two d={d} at={0.5}
-    a={<SandboxCage chips={["Web Workers", "WebGL", "WebGPU"]} />}
-    b={<><Caption text="مقيّدة داخل المتصفح" y={-60} size={120} /><Caption text="ما تعتصر المعالج وكرت الشاشة كاملين" y={90} size={70} color={LIME} delay={8} /></>} />) },
-  w13: { v: (d) => (<Two d={d} at={0.4}
-    a={<WordCascade text="ما تروح للمتصفح المحدود" keys={["المحدود"]} size={140} color={W} keyColor={RED} highlight={null} font={FONT.display} />}
-    b={<Tiles brands={["unity", "unrealengine"]} size={320} label="اختبره في محرك ألعاب حقيقي" />} />) },
+  w12: { v: () => <SandboxCage chips={["Web Workers", "WebGL", "WebGPU"]} /> },
+  w13: { v: () => <Tiles brands={["unity", "unrealengine"]} size={340} /> },
   w14: { v: (d) => (<>
     <RecBeat rec={recMcp} frames={d} url="modelcontextprotocol.io" />
   </>), bg: "dark", hand: 0.5 },
@@ -266,17 +256,15 @@ const V: Record<string, Beat> = {
   m5: { v: () => <Slam text="طبعاً لا" size={300} color={RED} accent={W} font={FONT.display} />, impacts: [SLAM_IMPACT] },
   m6: { v: () => <BilingualSplit ar="تدهور السياق" en="Context Window Decay" size={190} color={W} line={RED} /> },
   m7: { v: (d) => <ContextDecay frames={d} /> },
-  m8: { v: () => <InkReveal text="هنا يُعرف الخارق من الفاشل" size={140} color={W} captionColor="rgba(243,241,232,0.75)" caption="That's the real engineering test." /> },
-
-  // ── الفصل 6 ──
-  d1: { v: () => <WordCascade text="ليه كل النماذج خارقة في الويب؟" keys={["الويب؟"]} size={140} color={W} keyColor={LIME} highlight={null} font={FONT.display} /> },
+  m8: { v: () => <LogoOrbit brands={["openai", "claude", "googlegemini", "meta", "deepseek", "perplexity"]} radius={560} size={170} /> },
+  d1: { v: () => <Slam text="ليه الويب؟" size={260} color={W} accent={LIME} font={FONT.display} />, impacts: [SLAM_IMPACT] },
   d2: { v: (d) => (<Two d={d} at={0.45}
     a={<LogoOrbit brands={["html5", "css", "javascript", "html5", "css", "javascript"]} radius={500} center={<AppTile brand="github" size={220} />} />}
     b={<><Caption text="JavaScript" y={-120} size={170} color="#F7DF1E" /><Caption text="اللغة الأكثر استخداماً على GitHub لقرابة عقد" y={60} size={70} delay={6} /><Source text="GitHub Octoverse (2014–2023)" /></>} />) },
   d3: { v: () => <Slam text="شبعانة داتا ويب" size={220} color={W} accent={LIME} font={FONT.display} />, impacts: [SLAM_IMPACT] },
-  d4: { v: () => <WordCascade text="اختبره حيث الداتا أصعب والمعايير أصرم" keys={["أصعب", "أصرم"]} size={120} color={W} keyColor={LIME} highlight={null} font={FONT.display} /> },
-  d5: { v: () => <Tiles brands={["android", "kotlin"]} size={300} label="Android · Kotlin · Architecture" /> },
-  d6: { v: () => <Tiles brands={["apple", "swift"]} size={300} label="iOS · Swift · SwiftUI" /> },
+  d4: { v: () => <LogoOrbit brands={["kotlin", "swift", "unity", "rust", "cplusplus", "android"]} radius={560} size={170} /> },
+  d5: { v: () => <Tiles brands={["android", "kotlin"]} size={320} /> },
+  d6: { v: () => <Tiles brands={["apple", "swift"]} size={320} /> },
   d7: { v: (d) => (<Two d={d} at={0.4}
     a={<GlassPanel url="terminal"><ToolLog title="automation" lines={[{ t: "$ python organize_downloads.py --watch" }, { t: "$ osascript -e 'tell app \"Finder\" …'" }, { t: "$ ffmpeg -i raw.mov -vf … out.mp4" }, { t: "✓ 1,284 files processed", ok: true }]} /></GlassPanel>}
     b={<><GlassPanel url="video-studio/src/episodes/fake-experts/FakeExperts.tsx"><CodeEditor file="FakeExperts.tsx" lines={["d7: { v: (d) => (", "  <Two d={d} at={0.4}", "    a={<ToolLog … />}", "    b={<CodeEditor … />}  // ← أنت تشوف هذا الآن", "  />", ") },"]} flagLine={3} flagText="هذا الفيديو نفسه" perLine={5} /></GlassPanel></>} />), bg: "dark" },
@@ -300,8 +288,7 @@ const V: Record<string, Beat> = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
-const BG: React.FC<{ bg: Bg; accent?: string }> = ({ bg }) =>
-  bg === "chalk" ? <ChalkBoard /> : bg === "dark" ? <DarkStage accent="#1d5b43" /> : null;
+// السبورة الخضراء هي الخلفية الأساسية لكل المشاهد، بما فيها مشاهد الشاشات.
 
 const BEDS = ["bed.drone.e", "bed.drone.g", "bed.drone", "bed.drone.c"] as const;
 
@@ -329,16 +316,16 @@ export const FakeExperts: React.FC<{ guide?: boolean }> = ({ guide = false }) =>
   const chapters = TL.filter((b) => b.id.startsWith("ch"));
   return (
     <AbsoluteFill style={{ background: "#000" }}>
-      {TL.map((b) => {
+      {TL.map((b, idx) => {
         const beat = b.id.startsWith("ch") ? null : V[b.id];
         if (!b.id.startsWith("ch") && !beat) throw new Error(`لا مرئي للمشهد ${b.id}`);
         const bg: Bg = beat?.bg ?? "chalk";
         return (
           <Sequence key={b.id} from={b.from} durationInFrames={b.frames} name={`${b.id} · ${b.say.slice(0, 40)}`}>
-            <Camera hand={beat?.hand ?? 1} impacts={beat?.impacts ?? []} push={beat?.push ?? 0.035} dur={b.frames}>
-              <BG bg={b.id.startsWith("ch") ? "chalk" : bg} />
+            <Cinema bg={<ChalkBoard />} dur={b.frames} move={b.id.startsWith("ch") ? "orbit" : moveFor(idx)}
+              calm={bg === "dark"} impacts={beat?.impacts ?? []} sfxSeed={idx} whoosh={idx % 3 === 0}>
               {b.id.startsWith("ch") ? <Chapter n={parseInt(b.id.slice(2)) - 1} title={b.title!} sub={b.sub} /> : beat!.v(b.frames)}
-            </Camera>
+            </Cinema>
           </Sequence>
         );
       })}

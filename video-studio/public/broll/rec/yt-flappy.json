@@ -2,134 +2,134 @@
   "file": "broll/rec/yt-flappy.mp4",
   "width": 1600,
   "height": 1000,
-  "duration": 40.933333,
+  "duration": 34,
   "url": "https://www.youtube.com/results?search_query=AI+model+test+flappy+bird",
   "events": [
     {
       "type": "click",
-      "t": 7.396
+      "t": 5.794
     },
     {
       "type": "key",
-      "t": 7.481
+      "t": 5.839
     },
     {
       "type": "key",
-      "t": 7.565
+      "t": 5.915
     },
     {
       "type": "key",
-      "t": 7.628
+      "t": 5.996
     },
     {
       "type": "key",
-      "t": 7.745
+      "t": 6.055
     },
     {
       "type": "key",
-      "t": 7.883
+      "t": 6.119
     },
     {
       "type": "key",
-      "t": 8.043
+      "t": 6.253
     },
     {
       "type": "key",
-      "t": 8.188
+      "t": 6.379
     },
     {
       "type": "key",
-      "t": 8.253
+      "t": 6.523
     },
     {
       "type": "key",
-      "t": 8.393
+      "t": 6.615
     },
     {
       "type": "key",
-      "t": 8.489
+      "t": 6.687
     },
     {
       "type": "key",
-      "t": 8.613
+      "t": 6.807
     },
     {
       "type": "key",
-      "t": 8.737
+      "t": 6.889
     },
     {
       "type": "key",
-      "t": 8.806
+      "t": 6.968
     },
     {
       "type": "key",
-      "t": 8.928
+      "t": 7.068
     },
     {
       "type": "key",
-      "t": 9.051
+      "t": 7.146
     },
     {
       "type": "key",
-      "t": 9.172
+      "t": 7.209
     },
     {
       "type": "key",
-      "t": 9.263
+      "t": 7.31
     },
     {
       "type": "key",
-      "t": 9.353
+      "t": 7.394
     },
     {
       "type": "key",
-      "t": 9.45
+      "t": 7.496
     },
     {
       "type": "key",
-      "t": 9.591
+      "t": 7.612
     },
     {
       "type": "key",
-      "t": 9.665
+      "t": 7.726
     },
     {
       "type": "key",
-      "t": 9.797
+      "t": 7.81
     },
     {
       "type": "key",
-      "t": 9.878
+      "t": 7.901
     },
     {
       "type": "key",
-      "t": 10.004
+      "t": 7.999
     },
     {
       "type": "key",
-      "t": 10.091
+      "t": 8.077
     },
     {
       "type": "enter",
-      "t": 10.481
+      "t": 8.498
     },
     {
       "type": "scroll_start",
-      "t": 15.525,
-      "dur": 3.2
+      "t": 13.194,
+      "dur": 4.2
     },
     {
       "type": "scroll_end",
-      "t": 26.573
+      "t": 22.159
     },
     {
       "type": "scroll_start",
-      "t": 27.274,
-      "dur": 3.6
+      "t": 23.06,
+      "dur": 4.8
     },
     {
       "type": "scroll_end",
-      "t": 40.122
+      "t": 33.141
     }
   ]
 }

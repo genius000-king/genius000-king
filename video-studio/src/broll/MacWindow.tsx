@@ -59,15 +59,17 @@ export const MacWindow: React.FC<{
   dark?: boolean;
   enterSfx?: boolean;
   exitAt?: number; // فريم الخروج (اختياري)
-}> = ({ src, children, url, title, width = 1560, aspect = 1000 / 1600, startFrom = 0, zoom = [], dark = true, enterSfx = true, exitAt }) => {
+}> = ({ src, children, url, title, width = 1600, aspect = 1000 / 1600, startFrom = 0, zoom = [], dark = true, enterSfx = true, exitAt }) => {
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
   const inP = spring({ frame: f, fps, config: { damping: 20, stiffness: 80, mass: 1.1 } });
   const outP = exitAt ? interpolate(f, [exitAt, exitAt + 14], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) }) : 0;
-  const rx = interpolate(inP, [0, 1], [38, 4]) + Math.sin(f / 60) * 1.2;
-  const ry = interpolate(inP, [0, 1], [-22, -3]) + Math.cos(f / 75) * 1.5;
-  const ty = interpolate(inP, [0, 1], [500, 0]) + Math.sin(f / 45) * 6 + outP * -900;
-  const sc = interpolate(inP, [0, 1], [0.7, 1]) * (1 - outP * 0.2);
+  // دخول ثلاثي الأبعاد ثم استقرار مسطّح تماماً: الشاشة تُقرأ، لا تُزيَّن.
+  // (الميلان الدائم كان يصعّب القراءة خصوصاً على الجوال)
+  const rx = interpolate(inP, [0, 1], [32, 0]) + outP * -25;
+  const ry = interpolate(inP, [0, 1], [-18, 0]);
+  const ty = interpolate(inP, [0, 1], [420, 0]) + outP * -700;
+  const sc = interpolate(inP, [0, 1], [0.75, 1]) * (1 - outP * 0.15);
   const barH = 52;
   const h = width * aspect;
   const z = zoomAt(f, zoom);

@@ -20,17 +20,20 @@ mkdirSync(tmp, { recursive: true });
 
 const [mode = "youtube", query = "fluid dynamics", nameArg] = process.argv.slice(2);
 const name = nameArg ?? `${mode}-${query.replace(/[^\p{L}\p{N}]+/gu, "-").toLowerCase()}`.slice(0, 60);
-const W = 1600, H = 1000;
+// الإخراج 1600×1000، لكن الصفحة نفسها تُعرض بحجم متوسّط (1066×666) بكثافة 1.5:
+// الأزرار والنصوص تظهر أكبر بـ50% وحادّة — مقروءة على شاشة الجوال (أغلب المشاهدين).
+const W = 1600, H = 1000, DPR = 1.5;
+const VW = Math.round(W / DPR), VH = Math.round(H / DPR);
 
 // في بيئات فيها Chromium مثبّت مسبقاً (مثل هذه) نستخدمه بدل تنزيل نسخة جديدة
 const sysChrome = process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium";
 const browser = await chromium.launch(existsSync(sysChrome) ? { executablePath: sysChrome } : {});
 const ctx = await browser.newContext({
-  viewport: { width: W, height: H },
-  deviceScaleFactor: 1,
+  viewport: { width: VW, height: VH },
+  deviceScaleFactor: DPR,
   locale: "en-US",
   colorScheme: "dark",
-  recordVideo: { dir: tmp, size: { width: W, height: H } },
+  recordVideo: { dir: tmp, size: { width: VW, height: VH } }, // Playwright يسجّل بحجم CSS؛ نكبّر بعدها بـ ffmpeg
   userAgent:
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36",
 });
@@ -89,7 +92,7 @@ async function typeHuman(text) {
   }
 }
 
-let cx = W * 0.7, cy = H * 0.7;
+let cx = VW * 0.7, cy = VH * 0.7;
 await page.mouse.move(cx, cy);
 
 if (mode === "youtube") {
@@ -110,22 +113,22 @@ if (mode === "youtube") {
   }
   await page.waitForSelector("ytd-video-renderer", { timeout: 15000 }).catch(() => {});
   await page.waitForTimeout(2200);
-  await glide(cx, cy, W * 0.45, H * 0.55, 900); cx = W * 0.45; cy = H * 0.55;
-  await smoothScroll(1400, 3200);
-  await page.waitForTimeout(700);
-  await smoothScroll(1800, 3600);
+  await glide(cx, cy, VW * 0.45, VH * 0.55, 900); cx = VW * 0.45; cy = VH * 0.55;
+  await smoothScroll(900, 4200);
+  await page.waitForTimeout(900);
+  await smoothScroll(1100, 4800);
   await page.waitForTimeout(900);
 } else if (mode === "google") {
   await page.goto(`https://www.google.com/search?q=${encodeURIComponent(query)}&hl=en`);
   await dismissConsent();
   await page.waitForTimeout(2000);
-  await smoothScroll(1200, 3500);
+  await smoothScroll(800, 4500);
   await page.waitForTimeout(800);
 } else {
   await page.goto(query, { waitUntil: "load" });
   await dismissConsent();
   await page.waitForTimeout(2000);
-  await smoothScroll(1600, 5000);
+  await smoothScroll(1000, 6500);
   await page.waitForTimeout(800);
 }
 
@@ -135,7 +138,7 @@ await browser.close();
 const webm = await video.path();
 
 const mp4 = join(outDir, `${name}.mp4`);
-execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-i", webm, "-c:v", "libx264", "-crf", "16", "-preset", "slow",
+execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-i", webm, "-vf", `scale=${W}:${H}:flags=lanczos`, "-c:v", "libx264", "-crf", "16", "-preset", "slow",
   "-pix_fmt", "yuv420p", "-r", "30", "-movflags", "+faststart", mp4]);
 const dur = parseFloat(execFileSync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", mp4]).toString());
 writeFileSync(join(outDir, `${name}.json`), JSON.stringify({ file: `broll/rec/${name}.mp4`, width: W, height: H, duration: dur, url: page.url(), events }, null, 2));

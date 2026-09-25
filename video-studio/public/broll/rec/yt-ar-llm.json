@@ -2,26 +2,70 @@
   "file": "broll/rec/yt-ar-llm.mp4",
   "width": 1600,
   "height": 1000,
-  "duration": 38.4,
+  "duration": 36.033333,
   "url": "https://www.youtube.com/results?search_query=%D9%85%D8%A7+%D9%87%D9%88+LLM",
   "events": [
     {
+      "type": "click",
+      "t": 7.187
+    },
+    {
+      "type": "key",
+      "t": 7.223
+    },
+    {
+      "type": "key",
+      "t": 7.309
+    },
+    {
+      "type": "key",
+      "t": 7.386
+    },
+    {
+      "type": "key",
+      "t": 7.513
+    },
+    {
+      "type": "key",
+      "t": 7.637
+    },
+    {
+      "type": "key",
+      "t": 7.747
+    },
+    {
+      "type": "key",
+      "t": 7.87
+    },
+    {
+      "type": "key",
+      "t": 7.952
+    },
+    {
+      "type": "key",
+      "t": 8.06
+    },
+    {
+      "type": "enter",
+      "t": 8.458
+    },
+    {
       "type": "scroll_start",
-      "t": 11.712,
-      "dur": 3.2
+      "t": 15.865,
+      "dur": 4.2
     },
     {
       "type": "scroll_end",
-      "t": 24.108
+      "t": 24.964
     },
     {
       "type": "scroll_start",
-      "t": 24.811,
-      "dur": 3.6
+      "t": 25.865,
+      "dur": 4.8
     },
     {
       "type": "scroll_end",
-      "t": 37.524
+      "t": 36.03
     }
   ]
 }

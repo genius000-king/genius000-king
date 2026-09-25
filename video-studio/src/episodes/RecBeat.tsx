@@ -23,7 +23,7 @@ export const autoSegments = (rec: RecData, frames: number, fps: number, from?: n
   const s0 = from ?? (scrolls[0]?.t ?? 1.5) - 0.3;
   const span = scrollEnd - s0;
   if (left > 0.5) {
-    const rate = Math.min(4, Math.max(1, span / left));
+    const rate = Math.min(2, Math.max(0.6, span / left)); // لا نسرّع أكثر من ×2: المشاهد يلحق يقرأ
     segs.push({ from: s0, to: Math.min(scrollEnd, s0 + left * rate), rate });
   }
   return segs;
@@ -43,7 +43,7 @@ export const RecBeat: React.FC<{ rec: RecData; frames: number; url: string; from
   // تقريب بطيء أثناء التمرير — يُبقي العين مشدودة
   zoom.push({ at: Math.min(frames - 20, ENTER + total - 10), scale: 1.12, x: 0.5, y: 0.4 });
   return (
-    <MacWindow url={url} width={1560} zoom={zoom} exitAt={frames - 14}>
+    <MacWindow url={url} width={1600} zoom={zoom} exitAt={frames - 14}>
       <Sequence from={ENTER}>
         <ScreenRec rec={rec} segments={segs} />
       </Sequence>

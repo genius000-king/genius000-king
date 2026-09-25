@@ -2,17 +2,17 @@
   "file": "broll/rec/humaneval.mp4",
   "width": 1600,
   "height": 1000,
-  "duration": 15.033333,
+  "duration": 16.766667,
   "url": "https://arxiv.org/abs/2107.03374",
   "events": [
     {
       "type": "scroll_start",
-      "t": 3.512,
-      "dur": 5
+      "t": 3.361,
+      "dur": 6.5
     },
     {
       "type": "scroll_end",
-      "t": 14.339
+      "t": 16.858
     }
   ]
 }

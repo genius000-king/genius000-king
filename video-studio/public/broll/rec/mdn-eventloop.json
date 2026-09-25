@@ -2,17 +2,17 @@
   "file": "broll/rec/mdn-eventloop.mp4",
   "width": 1600,
   "height": 1000,
-  "duration": 17.166667,
+  "duration": 18.466667,
   "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Execution_model",
   "events": [
     {
       "type": "scroll_start",
-      "t": 4.631,
-      "dur": 5
+      "t": 4.203,
+      "dur": 6.5
     },
     {
       "type": "scroll_end",
-      "t": 16.475
+      "t": 17.718
     }
   ]
 }
