@@ -1,0 +1,24 @@
+@font-face {
+  font-family: 'Cairo';
+  font-style: normal;
+  font-weight: 400;
+  src: url(fonts/a5cea5fc45.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Cairo';
+  font-style: normal;
+  font-weight: 900;
+  src: url(fonts/171b8956cc.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Lalezar';
+  font-style: normal;
+  font-weight: 400;
+  src: url(fonts/c723b484cd.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Reem Kufi';
+  font-style: normal;
+  font-weight: 700;
+  src: url(fonts/f5361be2ca.ttf) format('truetype');
+}
