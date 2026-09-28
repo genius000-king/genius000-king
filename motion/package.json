@@ -1,0 +1,18 @@
+{
+  "name": "genius-motion",
+  "version": "1.0.0",
+  "private": true,
+  "description": "10 motion-graphics pieces built with Remotion",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render:all": "node render-all.mjs"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.529",
+    "@remotion/cli": "4.0.529",
+    "@remotion/renderer": "4.0.529",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remotion": "4.0.529"
+  }
+}
