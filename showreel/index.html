@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Showreel</title>
+<style>
+@font-face{font-family:Lalezar;src:url(fonts/lalezar-arabic-400-normal.woff2) format('woff2');}
+@font-face{font-family:NotoKufi;font-weight:700;src:url(fonts/noto-kufi-arabic-arabic-700-normal.woff2) format('woff2');}
+@font-face{font-family:NotoKufi;font-weight:900;src:url(fonts/noto-kufi-arabic-arabic-900-normal.woff2) format('woff2');}
+@font-face{font-family:Ruqaa;font-weight:400;src:url(fonts/aref-ruqaa-arabic-400-normal.woff2) format('woff2');}
+@font-face{font-family:Ruqaa;font-weight:700;src:url(fonts/aref-ruqaa-arabic-700-normal.woff2) format('woff2');}
+@font-face{font-family:ReemKufi;font-weight:400;src:url(fonts/reem-kufi-arabic-400-normal.woff2) format('woff2');}
+@font-face{font-family:ReemKufi;font-weight:700;src:url(fonts/reem-kufi-arabic-700-normal.woff2) format('woff2');}
+@font-face{font-family:Unbounded;font-weight:700;src:url(fonts/unbounded-latin-700-normal.woff2) format('woff2');}
+@font-face{font-family:Unbounded;font-weight:900;src:url(fonts/unbounded-latin-900-normal.woff2) format('woff2');}
+@font-face{font-family:Grotesk;font-weight:500;src:url(fonts/space-grotesk-latin-500-normal.woff2) format('woff2');}
+@font-face{font-family:Grotesk;font-weight:700;src:url(fonts/space-grotesk-latin-700-normal.woff2) format('woff2');}
+html,body{margin:0;background:#000;overflow:hidden}
+canvas#gl{display:block}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<script src="js/timeline.js"></script>
+<script src="js/util.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/hud.js"></script>
+<script src="js/env.js"></script>
+<script src="js/city.js"></script>
+<script src="js/s1_point.js"></script>
+<script src="js/s2_geometry.js"></script>
+<script src="js/s3_depth.js"></script>
+<script src="js/s4_letter.js"></script>
+<script src="js/s5_morph.js"></script>
+<script src="js/s6_time.js"></script>
+<script src="js/s7_speed.js"></script>
+<script src="js/s8_world.js"></script>
+<script>
+window.READY = (async () => {
+  const fonts = ['400 60px Lalezar','700 60px NotoKufi','900 60px NotoKufi','400 40px Ruqaa','700 40px Ruqaa',
+                 '400 40px ReemKufi','700 40px ReemKufi','700 40px Unbounded','900 40px Unbounded','500 30px Grotesk','700 30px Grotesk'];
+  await Promise.all(fonts.map(f => document.fonts.load(f, 'فكرة حركة إيقاع ٠١٢٣ Claude')));
+  await document.fonts.ready;
+  // pre-touch every glyph set so the first frame is never missing a face
+  renderAt(0.0);
+  return true;
+})();
+</script>
+</body>
+</html>
