@@ -26,7 +26,6 @@
     for (const [x, y] of [[44, 44], [1876, 44], [44, 1036], [1876, 1036]]) {
       o.beginPath(); o.moveTo(x - 14, y); o.lineTo(x + 14, y); o.moveTo(x, y - 14); o.lineTo(x, y + 14); o.stroke();
     }
-    text(o, AR(String(idx).padStart(2, '0')) + ' / ' + AR('06'), 1836, 84, { font: F.reem(26, 700), fill: col, align: 'right', dir: 'ltr' });
     o.restore();
   }
 

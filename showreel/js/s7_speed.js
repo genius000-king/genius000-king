@@ -105,12 +105,6 @@ void main(){
       for (const R of [74, 118]) { a.beginPath(); a.arc(960, 540, R * (1 + .06 * kick), 0, TAU); a.stroke(); }
       for (let i = 0; i < 4; i++) { const an = i * Math.PI / 2 + roll; a.beginPath(); a.moveTo(960 + Math.cos(an) * 128, 540 + Math.sin(an) * 128); a.lineTo(960 + Math.cos(an) * 170, 540 + Math.sin(an) * 170); a.stroke(); }
       a.restore();
-      // speed read-out
-      const spd = Math.round(speedAt(s) * 1100);
-      const rA = sstep(.15, .4, s) * (1 - sstep(3.0, 3.3, s));
-      fx.crisp.push(x => { text(x, 'كم / ثانية', 1800, 940, { font: F.ruqaa(30, 700), fill: C.cream, alpha: .7 * rA, align: 'right' });
-      text(x, AR(spd.toLocaleString('en-US').replace(/,/g, '٬')), 1800, 890, { font: F.reem(76, 700), fill: C.cream, alpha: rA, align: 'right', dir: 'ltr', shadow: ['rgba(0,0,0,.7)', 18] }); });
-
       const sp = speedAt(s);
       fx.zoomBlur += Math.min(.30, sp * .006) * (1 - collapse * .5);
       fx.ca += .004 + sp * .00025 + .01 * collapse;

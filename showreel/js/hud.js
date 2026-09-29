@@ -43,19 +43,10 @@ function drawHud(x, t, fx) {
   const inA = sstep(0.1, 0.5, lt) * (1 - sstep(ch.t1 - 0.35, ch.t1 - 0.05, t));
   x.save(); x.globalAlpha = st.a * inA;
 
-  // chapter number + name (top right in RTL reading order)
-  const num = AR(String(ch.i + 1).padStart(2, '0'));
+  // chapter word only (no numbers, no timecode)
   const slide = (1 - E.outExpo(clamp(lt / 0.6))) * 40;
-  text(x, num, 1860 - slide, 78, { font: F.reem(30, 700), fill: C.gold, align: 'right' });
-  text(x, ch.ar, 1810 - slide, 78, { font: F.reem(30, 700), fill: st.col, align: 'right' });
-  x.fillStyle = st.col; x.globalAlpha = st.a * inA * .5;
-  x.fillRect(1860 - 220 - slide, 104, 220, 1.5);
-  x.globalAlpha = st.a * inA;
-
-  // timecode (top left) in Arabic-Indic digits
-  const s = Math.floor(t), fr = Math.floor((t - s) * 60);
-  const tc = AR(`${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}:${String(fr).padStart(2, '0')}`);
-  text(x, tc, 60, 78, { font: F.reem(24, 400), fill: st.col, align: 'left', dir: 'ltr', alpha: .8 });
-  text(x, '٦٠ إطارًا / ثانية', 60, 108, { font: F.ruqaa(22, 400), fill: st.col, align: 'left', alpha: .55 });
+  text(x, ch.ar, 1860 - slide, 78, { font: F.reem(32, 700), fill: st.col, align: 'right' });
+  x.fillStyle = C.gold; x.globalAlpha = st.a * inA * .8;
+  x.fillRect(1860 - 150 - slide, 104, 150, 2);
   x.restore();
 }

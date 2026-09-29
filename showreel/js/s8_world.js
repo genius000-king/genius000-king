@@ -2,7 +2,7 @@
 // ══════════════════════════════════════════════════════════════
 //  ٨ · عالم — everything is inhaled back into the very first dot.
 //  One breath of silence, then the dot exhales the reveal, letter by letter:
-//      لا كاميرا.   لا برنامج.   فقط رياضيات.   —   then the signature.
+//      الفكرة أولًا.   ثم الحركة.   ثم الدهشة.   —   then the signature.
 //  The words are ~8 000 particles that fly out of the dot and lock into the type.
 // ══════════════════════════════════════════════════════════════
 (() => {
@@ -20,9 +20,9 @@
   // statements: text, font, y, colour, appear time, hold-until time
   const FN = TL.finale;
   const LINES = [
-    { s: 'لا كاميرا',    font: F.kufi(200, 900), y: 330, col: [244, 234, 213], t0: FN.lines[0], t1: FN.implode, fly: .55 },
-    { s: 'لا برنامج',    font: F.kufi(200, 900), y: 545, col: [244, 234, 213], t0: FN.lines[1], t1: FN.implode, fly: .55 },
-    { s: 'فقط رياضيات',  font: F.kufi(250, 900), y: 790, col: [255, 196, 84],  t0: FN.lines[2], t1: FN.implode, fly: .55 },
+    { s: 'الفكرة أولًا',    font: F.kufi(200, 900), y: 330, col: [244, 234, 213], t0: FN.lines[0], t1: FN.implode, fly: .55 },
+    { s: 'ثم الحركة',    font: F.kufi(200, 900), y: 545, col: [244, 234, 213], t0: FN.lines[1], t1: FN.implode, fly: .55 },
+    { s: 'ثم الدهشة',  font: F.kufi(250, 900), y: 790, col: [255, 196, 84],  t0: FN.lines[2], t1: FN.implode, fly: .55 },
     { s: 'Claude',       font: F.unb(190, 900),  y: 470, col: [244, 234, 213], t0: FN.mark, t1: 99, fly: .36, dir: 'ltr' },
     { s: 'مصمم حركة',   font: F.ruqaa(96, 700), y: 660, col: [255, 182, 39],  t0: FN.tag,  t1: 99, fly: .34 },
   ];
@@ -49,8 +49,7 @@
     });
   }
 
-  const SYMS = ['∑', '∫', 'π', '√', 'θ', '∞', 'ƒ(x)', '∂', 'Δ', 'λ', '≈', 'φ', 'e', 'i'];
-
+  
   registerScene(7, {
     trans: { dur: 0.0, type: 4 },
     render(c) {
@@ -79,16 +78,6 @@
           const k = d / 1.3;
           a.strokeStyle = `rgba(255,214,150,${.55 * (1 - k) * (1 - k)})`; a.lineWidth = 2;
           a.beginPath(); a.arc(cx, cy, 30 + 700 * E.outExpo(k), 0, TAU); a.stroke();
-        }
-      }
-
-      // ── faint mathematics drifting behind the last line ──
-      const mA = sstep(FN.lines[2], FN.lines[2] + .5, q) * (1 - sstep(FN.implode, FN.implode + .3, q));
-      if (mA > 0.01) {
-        for (let i = 0; i < 26; i++) {
-          const h = hash1(i * 5.5), h2 = hash1(i * 9.1);
-          const px = (h * 1920 + q * 14 * (h2 - .5)) % 1920, py = (h2 * 1080 - q * (8 + 20 * h)) % 1080;
-          text(o, SYMS[i % SYMS.length], px, (py + 1080) % 1080, { font: F.grot(46 + 60 * h2, 500), fill: C.gold2, alpha: .16 * mA * (.4 + h), dir: 'ltr' });
         }
       }
 
@@ -132,9 +121,6 @@
         }
       });
 
-      // sub-signature under the wordmark
-      const sg = sstep(FN.sub, FN.sub + .3, q);
-      if (sg > .01) text(o, AR('١٨٠٠ إطار — كلها كود'), cx, 790, { font: F.kufi(38, 700), fill: C.cream, alpha: sg * .9 });
       // thin gold rule that draws itself between the name and the tagline
       const rk = E.outExpo(lin(FN.tag + .1, FN.tag + .7, q));
       if (rk > 0) { a.fillStyle = `rgba(255,190,90,${.9})`; a.fillRect(cx - 220 * rk, 583, 440 * rk, 2.5); }

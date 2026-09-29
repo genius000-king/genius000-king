@@ -217,12 +217,6 @@ void main(){
       glowDot(a, 960 + Math.cos(hand) * (R - 6), cy + Math.sin(hand) * (R - 6), 30, v < 0 ? [255, 90, 160] : [255, 200, 120], .9);
       a.restore();
 
-      // speed read-out (like a video player's rate)
-      captionShade(o, sstep(.1, .35, u) * (1 - sstep(3.55, 3.72, u)), 820);
-      const speedStr = '×' + (v < 0 ? '−' : '') + AR(Math.abs(v).toFixed(Math.abs(v) < .1 ? 3 : 2));
-      const rA = sstep(.1, .35, u) * (1 - sstep(3.55, 3.72, u));
-      text(o, 'سرعة الزمن', 960, 905, { font: F.ruqaa(34, 700), fill: C.cream, alpha: .75 * rA });
-      text(o, speedStr, 960, 975, { font: F.reem(84, 700), fill: v < 0 ? '#ff5aa0' : (Math.abs(v) < .3 ? '#8fe9ff' : C.cream), alpha: rA, dir: 'ltr', shadow: ['rgba(0,0,0,.7)', 20] });
       // caption in the frozen moment
       const capIn = E.outCubic(lin(1.25, 1.85, u)), capOut = 1 - sstep(2.3, 2.6, u);
       if (capIn > 0 && capOut > 0) {
