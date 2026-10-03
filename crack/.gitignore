@@ -3,3 +3,4 @@ audio2_spec.png
 frames*/
 *.log
 node_modules/
+out/crack_partial.mp4
