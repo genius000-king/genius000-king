@@ -12,8 +12,8 @@ android {
         applicationId = "com.genius.saraat"
         minSdk = 29          // getConnectionOwnerUid() (per-app attribution) needs API 29
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
     }
 
     buildTypes {

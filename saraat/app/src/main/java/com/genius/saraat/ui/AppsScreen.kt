@@ -45,15 +45,20 @@ import com.genius.saraat.data.Prefs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AppsScreen(onBack: () -> Unit) {
     val ctx = LocalContext.current
-    val s by Prefs.state.collectAsStateWithLifecycle()
     var apps by remember { mutableStateOf<List<AppEntry>?>(null) }
-    var query by remember { mutableStateOf("") }
-
     LaunchedEffect(Unit) { apps = withContext(Dispatchers.IO) { AppInfo.launchableApps(ctx) } }
+    AppsContent(apps, onBack)
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+internal fun AppsContent(apps: List<AppEntry>?, onBack: () -> Unit) {
+    val ctx = LocalContext.current
+    val s by Prefs.state.collectAsStateWithLifecycle()
+    var query by remember { mutableStateOf("") }
 
     val shown = apps.orEmpty().filter { query.isBlank() || it.label.contains(query.trim(), ignoreCase = true) }
 

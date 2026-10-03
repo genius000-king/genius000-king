@@ -10,7 +10,7 @@ same engine can be exercised against the real kernel TCP stack (curl, iperf, bro
 Needs root (CAP_NET_ADMIN) and `pip install pyroute2`.
 Framing on the socket: 2-byte big-endian length + raw IPv4 packet, in both directions.
 """
-import argparse, fcntl, os, socket, struct, sys, threading
+import argparse, fcntl, os, select, socket, struct, sys, threading
 
 TUNSETIFF = 0x400454CA
 IFF_TUN, IFF_NO_PI = 0x0001, 0x1000   # IFF_NO_PI: no extra header, same as Android's VpnService TUN
@@ -66,8 +66,12 @@ def main() -> None:
         stop = threading.Event()
 
         def tun_to_engine() -> None:
+            # Poll with a timeout instead of a bare blocking os.read(): a reader left blocked after the
+            # engine disconnects would silently steal (and drop) the next packets meant for the next engine.
             try:
                 while not stop.is_set():
+                    if not select.select([fd], [], [], 0.1)[0]:
+                        continue
                     pkt = os.read(fd, 65535)
                     conn.sendall(struct.pack(">H", len(pkt)) + pkt)
             except OSError:
@@ -82,6 +86,7 @@ def main() -> None:
         except (EOFError, OSError):
             pass
         stop.set()
+        t.join()          # make sure the old reader is gone before the next engine connects
         conn.close()
         print("[bridge] engine disconnected", flush=True)
 

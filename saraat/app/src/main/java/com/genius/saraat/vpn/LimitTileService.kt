@@ -1,5 +1,6 @@
 package com.genius.saraat.vpn
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
@@ -37,6 +38,8 @@ class LimitTileService : TileService() {
         tile.updateTile()
     }
 
+    // The PendingIntent overload only exists from API 34; older versions only have the Intent one.
+    @SuppressLint("StartActivityAndCollapseDeprecated")
     @Suppress("DEPRECATION")
     private fun openApp() {
         val intent = Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -34,7 +35,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.genius.saraat.R
 import com.genius.saraat.data.AppInfo
@@ -52,11 +55,11 @@ import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 
-private enum class Range(val label: String) {
+internal enum class Range(val label: String) {
     Hour("آخر ساعة"), Day("اليوم"), Week("7 أيام"), Month("30 يوم")
 }
 
-private class Report(
+internal class Report(
     val starts: LongArray,       // bucket start times in epoch ms, plus the end of the last bucket
     val bars: List<Bar>,
     val down: Long,
@@ -140,38 +143,15 @@ fun UsageScreen() {
         if (uri != null) scope.launch(Dispatchers.IO) { writeCsv(ctx, db, uri) }
     }
 
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
-    ) {
-        Text("السجل", Modifier.padding(top = 8.dp), style = MaterialTheme.typography.headlineMedium)
-
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Range.entries.forEachIndexed { i, r ->
-                Chip(r.label, range == i, { range = i; selected = null })
-            }
-        }
-
-        val rep = report
-        if (rep == null) {
-            Muted("جارٍ التحميل…")
-        } else {
-            Summary(rep)
-            ChartPanel(rep, selected) { selected = it }
-            AppsPanel(rep.apps)
-        }
-
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            ActionButton("تصدير CSV", R.drawable.ic_download, Modifier.weight(1f)) {
-                export.launch("saraat-usage.csv")
-            }
-            ActionButton("مسح السجل", R.drawable.ic_trash, Modifier.weight(1f), danger = true) { confirmClear = true }
-        }
-        Muted(
-            "الأرقام تقديرية: تُحسب بحجم البيانات دون ترويسات الحزم، فتظهر أقل بنحو 2–4% من عدّاد شركة الاتصالات.",
-        )
-        Spacer(Modifier.height(8.dp))
-    }
+    UsageContent(
+        report = report,
+        rangeIndex = range,
+        onRange = { range = it; selected = null },
+        selected = selected,
+        onSelect = { selected = it },
+        onExport = { export.launch("saraat-usage.csv") },
+        onClear = { confirmClear = true },
+    )
 
     if (confirmClear) {
         AlertDialog(
@@ -194,6 +174,46 @@ fun UsageScreen() {
         )
     }
 }
+
+@Composable
+internal fun UsageContent(
+    report: Report?,
+    rangeIndex: Int,
+    onRange: (Int) -> Unit,
+    selected: Int?,
+    onSelect: (Int?) -> Unit,
+    onExport: () -> Unit,
+    onClear: () -> Unit,
+) {
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        Text("السجل", Modifier.padding(top = 8.dp), style = MaterialTheme.typography.headlineMedium)
+
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Range.entries.forEachIndexed { i, r -> Chip(r.label, rangeIndex == i, { onRange(i) }) }
+        }
+
+        if (report == null) {
+            Muted("جارٍ التحميل…")
+        } else {
+            Summary(report)
+            ChartPanel(report, selected, onSelect)
+            AppsPanel(report.apps)
+        }
+
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            ActionButton("تصدير CSV", R.drawable.ic_download, Modifier.weight(1f), onClick = onExport)
+            ActionButton("مسح السجل", R.drawable.ic_trash, Modifier.weight(1f), danger = true, onClick = onClear)
+        }
+        Muted(
+            "الأرقام تقديرية: تُحسب بحجم البيانات دون ترويسات الحزم، فتظهر أقل بنحو 2–4% من عدّاد شركة الاتصالات.",
+        )
+        Spacer(Modifier.height(8.dp))
+    }
+}
+
 
 @Composable
 private fun Summary(rep: Report) {
@@ -249,9 +269,10 @@ private fun ChartPanel(rep: Report, selected: Int?, onSelect: (Int?) -> Unit) {
         Spacer(Modifier.height(12.dp))
         BarChart(rep.bars, selected, onSelect, Modifier.fillMaxWidth().height(130.dp))
         Spacer(Modifier.height(8.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            listOf(0, n / 2, n - 1).forEach { i ->
-                Muted(bucketLabel(rep.range, rep.starts[i]))
+        // Same left-to-right direction as the chart above it, oldest on the left.
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                listOf(0, n / 2, n - 1).forEach { i -> Muted(bucketLabel(rep.range, rep.starts[i])) }
             }
         }
         Spacer(Modifier.height(10.dp))
@@ -265,11 +286,17 @@ private fun ChartPanel(rep: Report, selected: Int?, onSelect: (Int?) -> Unit) {
                 val b = rep.bars[sel]
                 Column {
                     Text(bucketLabel(rep.range, rep.starts[sel]), style = MaterialTheme.typography.labelLarge)
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        "↓ ${formatBytes(b.down)}    ↑ ${formatBytes(b.up)}",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
+                    Spacer(Modifier.height(6.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Ico(R.drawable.ic_arrow_down, tint = Palette.Blue, size = 16.dp)
+                            Text(formatBytes(b.down), style = MaterialTheme.typography.bodyMedium)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Ico(R.drawable.ic_arrow_up, tint = Palette.BlueLight, size = 16.dp)
+                            Text(formatBytes(b.up), style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
                 }
             }
         }

@@ -422,7 +422,6 @@ internal class TcpSession(
             State.CONNECTING -> if (now - createdAt > CONNECT_TIMEOUT_NANOS) refuse()
             State.TIME_WAIT -> if (now >= deadline) kill()
             State.ESTABLISHED -> {
-                if (DEBUG) System.err.println("[dbg] up=${upBuf.size} free=${upBuf.free} adv=$lastAdvertised peerWnd=$peerWindow rcvNxt=${rcvNxt - clientIsn} inUp=$inUpQueue wr=$waitingWritable ops=$ops down=${downBuf.size} infl=${sndNxt - sndUna}")
                 val outstanding = sndNxt - sndUna
                 if (outstanding > 0 && now - lastHeard > rto()) {
                     if (++retries > MAX_RETRIES) {
@@ -469,7 +468,6 @@ internal class TcpSession(
     private fun removeOp(op: Int) = setOps(ops and op.inv())
 
     companion object {
-        private val DEBUG = System.getProperty("saraat.debug") != null
         const val MAX_MSS = 1460
         const val DEFAULT_MSS = 536
         const val MIN_MSS = 200

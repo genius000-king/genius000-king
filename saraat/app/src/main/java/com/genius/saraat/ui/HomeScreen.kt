@@ -36,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -53,8 +54,10 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -248,15 +251,17 @@ private fun SpeedDial(enabled: Boolean, limitKbps: Int, remainingMs: Long?, onCl
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Ico(R.drawable.ic_power, tint = if (enabled) Palette.Blue else Palette.Muted, size = 30.dp)
-                Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(
-                        number, style = MaterialTheme.typography.displayLarge,
-                        color = if (enabled) Palette.Ink else Palette.Muted,
-                    )
-                    Text(
-                        unit, Modifier.padding(bottom = 10.dp), style = MaterialTheme.typography.titleMedium,
-                        color = Palette.Muted,
-                    )
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                    Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            number, style = MaterialTheme.typography.displayLarge,
+                            color = if (enabled) Palette.Ink else Palette.Muted,
+                        )
+                        Text(
+                            unit, Modifier.padding(bottom = 10.dp), style = MaterialTheme.typography.titleMedium,
+                            color = Palette.Muted,
+                        )
+                    }
                 }
                 Text(
                     when {

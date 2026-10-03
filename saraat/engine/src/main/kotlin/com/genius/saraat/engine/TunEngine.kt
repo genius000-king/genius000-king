@@ -210,7 +210,8 @@ class TunEngine(
     /** How long the selector may sleep: until the next token refill we are waiting for, or the housekeeping tick. */
     private fun nextTimeoutMs(now: Long): Long {
         if (inbox.isNotEmpty() || downFree.isNotEmpty() || upFree.isNotEmpty()) return 0
-        var waitNanos = TICK_NANOS
+        // Wake rarely when nothing is connected: this loop runs inside a battery-powered phone.
+        var waitNanos = if (tcp.isEmpty() && udp.isEmpty()) IDLE_TICK_NANOS else TICK_NANOS
         if (downQueue.isNotEmpty()) {
             val n = limiter.down.nanosUntil(MIN_CHUNK.toLong(), now)
             if (n <= 0) return 0
@@ -520,6 +521,7 @@ class TunEngine(
         const val CHUNK = 16 * 1024
         const val MIN_CHUNK = TcpSession.MAX_MSS
         const val INBOX_BATCH = 256
-        const val TICK_NANOS = 200_000_000L
+        const val TICK_NANOS = 500_000_000L
+        const val IDLE_TICK_NANOS = 2_000_000_000L
     }
 }
