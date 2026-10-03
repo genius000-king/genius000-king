@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">سرعات</string>
+    <string name="notif_channel">حالة سرعات</string>
+    <string name="tile_label">تحديد السرعة</string>
+</resources>

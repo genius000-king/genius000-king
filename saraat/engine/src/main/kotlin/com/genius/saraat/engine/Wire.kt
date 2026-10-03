@@ -47,7 +47,7 @@ fun parseIpv4(text: String): Int {
 fun formatIpv4(ip: Int): String =
     "${ip ushr 24}.${(ip ushr 16) and 0xFF}.${(ip ushr 8) and 0xFF}.${ip and 0xFF}"
 
-internal fun ipToInet(ip: Int): InetAddress = InetAddress.getByAddress(
+fun ipToInet(ip: Int): InetAddress = InetAddress.getByAddress(
     byteArrayOf((ip ushr 24).toByte(), (ip ushr 16).toByte(), (ip ushr 8).toByte(), ip.toByte())
 )
 
