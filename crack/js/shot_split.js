@@ -12,16 +12,14 @@
   Film.T_M = T_M;
   const C = Film.heroC, EDGE = Film.heroEdge;
 
-  const KEYS = [
-    { t: 15.0, p: [0.0, 2.0, 3.85], look: [0, 1.9, 0], fov: 0.66 },
-    { t: 15.6, p: [1.2, 2.4, 6.2], look: [0, 1.9, 0], fov: 0.70 },
-    { t: 16.9, p: [4.0, 3.2, 10.5], look: [0, 2.2, 0], fov: 0.74 },
-    { t: 18.6, p: [0.8, 3.2, 11.2], look: [0, 2.9, -1.5], fov: 0.82 },
-    { t: 20.6, p: [-2.6, 3.8, 10.8], look: [0, 3.1, -1.5], fov: 0.82 },
-    { t: 22.5, p: [-3.8, 4.2, 10.2], look: [0, 3.3, -1.5], fov: 0.82 },
-    { t: 24.0, p: [-4.4, 4.4, 9.8], look: [0, 3.3, -1.5], fov: 0.82 },
-  ];
-  Film.splitCam = t => camFromKeys(KEYS, t);
+  // the camera keeps circling: close and frontal at the first cut, then out and around the ring of ideas
+  Film.splitCam = t => {
+    const u = clamp((t - T0) / 7.5), tt = Math.min(t, 24.0);
+    const th = 7.0 * E.inOutSine(clamp((tt - T0) / 7.5));
+    const r = (3.85 + 6.95 * E.outCubic(clamp(u / 0.37))) - 1.6 * lin(0.37, 1, u);
+    const h = mix(2.0, 3.3, E.outCubic(clamp(u / 0.37))) + 1.3 * lin(0.37, 1, u);
+    return orbitCam([0, 0, -0.8], r, h, th, mix(1.9, 3.1, E.outQuad(clamp(u / 0.4))), mix(0.66, 0.82, E.outCubic(clamp(u / 0.37))), 0.05 * Math.sin(u * TAU * 1.5));
+  };
   // continues the pre-split spin without a kink, then settles into a slow turn
   Film.splitYaw = t => { const tau = Math.max(t - T0, 0), y0 = Film.heroYaw(T0); return y0 + 0.30 * tau + 0.44 * 1.2 * (1 - Math.exp(-tau / 1.2)); };
 

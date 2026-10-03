@@ -19,13 +19,13 @@ const Castle = (() => {
         if (rim && ((x + z) % 4 < 2)) { put(x, y, z, 0); put(x, y + 1, z, 0); }
       }
     };
-    const flag = (cx, cz, y0, h, sg = 1) => { for (let j = 0; j < h; j++) put(cx, y0 + j, cz, 1); for (let j = 0; j < 3; j++) for (let i = 1; i <= 4; i++) put(cx + sg * i, y0 + h - 1 - j, cz, 0); };
+    const flag = (cx, cz, y0, h, sg = 1) => { for (let j = 0; j < h; j++) put(cx, y0 + j, cz, 0); for (let j = 0; j < 3; j++) for (let i = 1; i <= 4; i++) put(cx + sg * i, y0 + h - 1 - j, cz, 3); };
     const windowsXZ = (cx, cz, hw, ys, w = 1) => {            // dark window slits on the four faces of a tower
       for (const y of ys) for (let o = -w; o <= w; o += 2 * w + 2) {
-        put(cx + o, y, cz - hw, 1); put(cx + o, y + 1, cz - hw, 1); put(cx + o, y + 2, cz - hw, 1);
-        put(cx + o, y, cz + hw, 1); put(cx + o, y + 1, cz + hw, 1); put(cx + o, y + 2, cz + hw, 1);
-        put(cx - hw, y, cz + o, 1); put(cx - hw, y + 1, cz + o, 1); put(cx - hw, y + 2, cz + o, 1);
-        put(cx + hw, y, cz + o, 1); put(cx + hw, y + 1, cz + o, 1); put(cx + hw, y + 2, cz + o, 1);
+        put(cx + o, y, cz - hw, 2); put(cx + o, y + 1, cz - hw, 2); put(cx + o, y + 2, cz - hw, 2);
+        put(cx + o, y, cz + hw, 2); put(cx + o, y + 1, cz + hw, 2); put(cx + o, y + 2, cz + hw, 2);
+        put(cx - hw, y, cz + o, 2); put(cx - hw, y + 1, cz + o, 2); put(cx - hw, y + 2, cz + o, 2);
+        put(cx + hw, y, cz + o, 2); put(cx + hw, y + 1, cz + o, 2); put(cx + hw, y + 2, cz + o, 2);
       }
     };
 
@@ -35,8 +35,8 @@ const Castle = (() => {
     crenel(-W, -W, W, W, 12);
     // gate (front, +z)
     carve(-3, 0, W - 2, 3, 8, W); carve(-2, 9, W - 2, 2, 10, W);
-    box(-3, 0, W - 3, 3, 8, W - 3, 1);                          // the dark door
-    box(-5, 9, W - 2, -4, 13, W, 1); box(4, 9, W - 2, 5, 13, W, 1);
+    box(-3, 0, W - 3, 3, 8, W - 3, 2);                          // the glowing door
+    box(-5, 9, W - 2, -4, 13, W, 0); box(4, 9, W - 2, 5, 13, W, 0);
     // gatehouse towers
     for (const gx of [-8, 8]) { box(gx - 2, 0, W - 3, gx + 2, 17, W + 1); crenel(gx - 2, W - 3, gx + 2, W + 1, 18); pyramid(gx, W - 1, 20, 3, 7); windowsXZ(gx, W - 1, 2, [9], 0); }
     // corner towers

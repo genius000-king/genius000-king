@@ -11,7 +11,8 @@
 // ══════════════════════════════════════════════════════════════
 const World = (() => {
   // ── one sky for floor, fog and reflections ──
-  const SKY_FN = name => `
+  const SKY_FN = (name, full = false) => `
+const vec3 PURP=vec3(.40,.05,1.), REDC=vec3(1.,.06,.12);
 uniform float uMood, uTilt, uSeam, uSplit, uSplitD, uSplitX;
 vec3 ${name}(vec3 rd){
   float h=rd.y, up=clamp(h,0.,1.);
@@ -19,16 +20,28 @@ vec3 ${name}(vec3 rd){
   float lat=clamp(rd.x,-1.,1.);
   float lg=mix(.962,.585,pow(up,.55));
   lg*=1.-uTilt*.26*smoothstep(-.35,.85,lat);
-  float dg=mix(.30,.006,pow(up,.38));
-  dg*=clamp(1.+uTilt*(.9*smoothstep(.1,-.8,lat)-.55*smoothstep(-.1,.9,lat)),.05,2.5);
-  vec3 c=vec3(mix(lg,dg,md))*vec3(.992,1.,1.012);
+  vec3 light=vec3(lg)*vec3(.992,1.,1.012);
+  float side=smoothstep(-.45,.45,rd.x);
+  vec3 pc=mix(PURP,REDC,side);
+  vec3 sp=vec3(.003,.0025,.007)+pc*.045*exp(-abs(h)*5.)+pc*.016*up;
+  ${full ? `if(md>.01){
+    float n1=fbm3(rd*2.1+vec3(3.,1.,7.)), n2=fbm3(rd*3.6+vec3(9.,4.,2.));
+    float hh=smoothstep(-.15,.55,h);
+    sp+=pc*pow(max(n1-.40,0.),1.5)*4.6*hh+mix(REDC,PURP,side)*pow(max(n2-.47,0.),1.6)*2.6*hh;
+    vec2 q=vec2(atan(rd.z,rd.x)*55.,asin(clamp(rd.y,-1.,1.))*110.);
+    vec2 id=floor(q), f=fract(q)-.5; float hs=hash21(id);
+    float st=step(.972,hs)*smoothstep(.22,0.,length(f-(hash22(id)-.5)*.5));
+    sp+=vec3(.9,.85,1.)*st*(.3+hs*3.)*(.65+.35*sin(uG*3.+hs*40.))*smoothstep(-.02,.2,h);
+  }` : ''}
   float seam=exp(-abs(h)*mix(55.,150.,md));
-  c+=vec3(seam*uSeam*mix(.04,1.7,md));
+  vec3 c=mix(light,sp,md);
+  c+=mix(vec3(seam*uSeam*.04),pc*seam*uSeam*1.25+vec3(seam*uSeam*.22),md);
   return c;
 }`;
 
   // ── floor + sky pass ───────────────────────────────────────
-  const floorProg = frag(SKY_FN('SKY') + `
+  const floorProg = frag(`float fbm3(vec3 p){float a=.5,s=0.;for(int i=0;i<3;i++){s+=a*noise3(p);p=p*2.07+vec3(1.3,2.7,.9);a*=.5;}return s;}
+` + SKY_FN('SKY', true) + `
 uniform vec3 uCamPos,uFwd,uRight,uUp; uniform float uTanF,uAsp,uY; uniform mat4 uVP;
 uniform float uReveal,uLines,uFogD,uPulseR,uPulseA,uMirrorOn,uShK,uFloorDark,uDim;
 uniform vec3 uRingC; uniform vec2 uFieldOff; uniform sampler2D uShadow; uniform vec3 uShC;
@@ -56,14 +69,15 @@ void main(){
   float rv=smoothstep(uReveal,uReveal-2.5,r0)*step(.001,uReveal);
   float lead=exp(-pow((r0-uReveal)*.8,2.))*step(.001,uReveal)*step(.1,uReveal);
   float far=exp(-t*uFogD*.55);
-  vec3 lc=mix(vec3(.06),vec3(1.),mf);
-  col=mix(col,lc,clamp(ln*rv*uLines*mix(.34,.30,mf)*far,0.,1.));
-  col+=lead*uLines*mix(vec3(0.),vec3(.9),mf)*far;
+  vec3 neon=mix(PURP,REDC,smoothstep(-4.,4.,p.x))*1.05;
+  vec3 lc=mix(vec3(.06),neon,mf);
+  col=mix(col,lc,clamp(ln*rv*uLines*mix(.34,.55,mf)*far,0.,1.));
+  col+=lead*uLines*mix(vec3(0.),neon*.55,mf)*far;
   col=mix(col,lc,clamp(exp(-pow((r0-uPulseR)*1.5,2.))*uPulseA,0.,1.)*mix(.55,1.,mf));
   // faint fabric grain
   col*=1.+(vnoise(vec2(p.x*160.,p.z*1.7))-.5)*.016*exp(-t*.12);
   float fogk=1.-exp(-t*uFogD);
-  col=mix(col,SKY(vec3(rd.x,max(rd.y,0.),rd.z)),fogk);
+  col=mix(col,SKY(vec3(rd.x,max(rd.y,0.)+mix(0.,.07,mf),rd.z)),fogk);
   col*=uDim;
   vec4 cp=uVP*vec4(p,1.);
   gl_FragDepth=clamp(cp.z/cp.w*.5+.5,0.,1.);
@@ -241,7 +255,7 @@ flat in vec4 fC; flat in vec3 fR0; flat in vec3 fR1; flat in vec3 fR2; flat in v
 uniform vec3 uCam, uFwd, uRight, uUp; uniform vec2 uRes; uniform mat4 uVP;
 uniform float uFog, uExpo, uG, uMirror, uFloorY, uMirrorK, uTanF, uAsp, uFlat;
 out vec4 fragColor;
-${SKY_FN('skyLite')}
+${SKY_FN('skyLite', false)}
 vec3 envL(vec3 r, float mo){
   vec3 s=skyLite(vec3(r.x,max(r.y,0.),r.z));
   vec3 f=vec3(mix(.80,.02,mo))+skyLite(vec3(0.,0.,1.))*.25*(1.-mo);
@@ -275,6 +289,7 @@ void main(){
   float edge=smoothstep(1.-w,1.-w*.35,e);
   float tiny=smoothstep(.18,.5,w);
   float mood=clamp(uMood+uSplit*smoothstep(-1.5,1.5,hit.x-uSplitX),0.,1.);
+  vec3 keyC=mix(vec3(1.),PURP*.85+vec3(.30),mood), rimC=mix(vec3(1.),REDC*1.0+vec3(.22),mood);
   vec3 K=normalize(vec3(-.45,.80,.55)), Rm=normalize(vec3(.55,.25,-.80));
   float dk=max(dot(n,K),0.), dr=max(dot(n,Rm),0.);
   float hemi=.5+.5*n.y;
@@ -285,13 +300,13 @@ void main(){
   if(cls<1.5){
     float blk=clamp(cls,0.,1.);
     // white ceramic
-    vec3 wc=vec3(.97)*(mix(.88,.20,mood)*(.66+.34*hemi)+mix(.30,.95,mood)*dk+mix(.05,.55,mood)*dr);
+    vec3 wc=vec3(.97)*(mix(.88,.20,mood)*(.66+.34*hemi)*mix(vec3(1.),vec3(.75,.6,1.),mood)+mix(.30,.72,mood)*dk*keyC+mix(.05,.45,mood)*dr*rimC);
     wc+=envL(refl,mood)*(.05+.14*fres);
     wc*=mix(.50,1.,ao); wc*=1.-edge*mix(.20,.06,mood)*(1.-tiny);
     // graphite
     vec3 gc=vec3(.022+.05*dk);
     vec3 hv=normalize(K+V);
-    gc+=vec3(pow(max(dot(n,hv),0.),70.))*.85+vec3(pow(max(dot(n,normalize(Rm+V)),0.),40.))*.5*dr;
+    gc+=keyC*pow(max(dot(n,hv),0.),70.)*.85+rimC*pow(max(dot(n,normalize(Rm+V)),0.),40.)*.7*dr;
     gc+=envL(refl,mood)*(.05+.62*fres);
     gc*=mix(.45,1.,ao);
     gc+=vec3(.30,.31,.33)*edge*(1.-.55*tiny)*mix(.8,1.,mood);
@@ -303,8 +318,16 @@ void main(){
     col*=mix(.8,1.,low);
   } else if(cls<3.5){                                              // white spark
     col=vec3(1.9+glow*1.2)*(.78+.22*(1.-edge*.6));
-  } else {                                                         // cold-blue glint
+  } else if(cls<4.5){                                              // cold-blue glint
     col=vec3(.62,.80,1.0)*(2.0+glow*1.2)*(.75+.25*(1.-edge*.5));
+  } else if(cls<6.5){                                              // energy: dark glass body, glowing skin (purple → red)
+    vec3 EC=mix(PURP,REDC,clamp(cls-5.,0.,1.));
+    float eg=.26+.70*fres+edge*1.7*(1.-.5*tiny)+glow*1.1;
+    col=vec3(.012+.04*dk)+EC*eg*mix(.55,1.,ao)+envL(refl,mood)*.12*fres;
+    col*=mix(.8,1.,low);
+  } else {                                                         // spark (purple → red)
+    vec3 EC=mix(PURP,REDC,clamp(cls-7.,0.,1.));
+    col=EC*(1.5+glow*1.1)*(.75+.25*(1.-edge*.5));
   }
   col+=vec3(glow)*.10;
   // flat "drawing" look: white paper + ink edges, before it becomes a solid

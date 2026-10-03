@@ -18,16 +18,12 @@
   ];
   Film.wire = { T_WIRE, EDGE_DT, EDGES };
 
-  const KEYS = [
-    { t: 7.5, p: [0, 1.4, 9.0], look: [0, 1.5, -1], fov: 0.84 },
-    { t: 8.4, p: [0.0, 1.7, 7.6], look: [0, 1.9, 0], fov: 0.80 },
-    { t: 9.8, p: [2.1, 2.1, 6.4], look: [0, 1.9, 0], fov: 0.74 },
-    { t: 11.25, p: [0.0, 2.2, 6.2], look: [0, 1.9, 0], fov: 0.72 },
-    { t: 13.1, p: [-3.6, 2.6, 5.2], look: [0, 1.9, 0], fov: 0.70 },
-    { t: 14.85, p: [0.0, 2.0, 3.9], look: [0, 1.9, 0], fov: 0.66 },
-    { t: 15.0, p: [0.0, 2.0, 3.85], look: [0, 1.9, 0], fov: 0.66 },
-  ];
-  Film.insideCam = t => camFromKeys(KEYS, t);
+  // one complete orbit (ends in front, close, exactly where the split begins)
+  Film.insideCam = t => {
+    const u = clamp((t - T0) / (15.0 - T0)), e = E.inOutSine(u);
+    const r = u < 0.82 ? mix(9.0, 6.6, E.inOutSine(u / 0.82)) : mix(6.6, 3.85, E.inOutCubic((u - 0.82) / 0.18)), h = mix(1.4, 2.0, u) + 1.15 * Math.pow(Math.sin(Math.PI * u), 1.2);
+    return orbitCam([C[0], 0, C[2]], r, h, TAU * e, mix(1.5, 1.9, E.outQuad(u)), mix(0.84, 0.70, E.inOutQuad(u)) - 0.04 * lin(0.82, 1, u), 0.06 * Math.sin(TAU * u) * Math.sin(Math.PI * u));
+  };
   // the cube's slow turn (also read by the split shot so rotation never jumps)
   Film.heroYaw = t => t < T_SOLID ? 0.42 * (t - T0) * 0.6 : 0.42 * (T_SOLID - T0) * 0.6 + 0.5 * (t - T_SOLID) + 0.05 * Math.pow(Math.max(t - 13.1, 0), 2.2);
 

@@ -5,16 +5,23 @@
 // ══════════════════════════════════════════════════════════════
 (() => {
   const T0 = 37.5, T_MORPH_END = 41.2, CZ = -1.5;
-  const KEYS = [
-    { t: 37.5, p: [0.0, 1.6, 7.2], look: [0, 2.6, -1.5], fov: 0.74 },
-    { t: 38.6, p: [0.0, 3.0, 12.5], look: [0, 1.6, -1.5], fov: 0.80 },
-    { t: 40.6, p: [0.4, 3.8, 15.0], look: [0, 1.2, -1.5], fov: 0.80 },
-    { t: 43.0, p: [0.0, 2.8, 12.5], look: [0, 1.1, -1.5], fov: 0.78 },
-    { t: 45.0, p: [0.0, 2.0, 10.5], look: [0, 1.1, -1.5], fov: 0.78 },
-    { t: 46.0, p: [-2.4, 1.5, 8.2], look: [0, 1.1, -1.5], fov: 0.72 },
-    { t: 46.85, p: [-3.2, 1.4, 6.6], look: [0, 1.1, -1.5], fov: 0.66 },
+  const RK = [
+    { t: 37.5, p: [0.0, 1.6, 7.2], look: [0, 2.6, -1.5], fov: 0.74, roll: 0 },
+    { t: 38.5, p: [0.0, 2.6, 10.5], look: [0, 1.8, -1.5], fov: 0.80, roll: 0.04 },
+    { t: 39.6, p: [-2.0, 3.4, 13.5], look: [0, 1.4, -1.5], fov: 0.82, roll: 0 },
+    { t: 40.0, p: [-2.0, 3.4, 13.5], look: [0, 1.4, -1.5], fov: 0.82, roll: 0 },
   ];
-  Film.rivalCam = t => camFromKeys(KEYS, t);
+  // the castle opens → a crane out → one full circle of the field between the armies → a push in toward the charge
+  Film.rivalCam = t => {
+    if (t < 39.6) return camFromKeys(RK, t);
+    const G = [0, 0, -1.5];
+    if (t < 43.8) {
+      const u = clamp((t - 39.6) / 4.2), e = E.inOutSine(u);
+      return orbitCam(G, 15.1 - 3.6 * Math.sin(Math.PI * u), 3.4 - 1.2 * Math.sin(Math.PI * u), -0.133 + TAU * e, mix(1.4, 1.1, u), mix(0.82, 0.78, Math.sin(Math.PI * u)), 0.07 * Math.sin(TAU * u));
+    }
+    const u = clamp((t - 43.8) / 1.2), e = E.inOutCubic(u);
+    return orbitCam(G, mix(15.1, 12.0, e), mix(3.4, 2.0, e), -0.133 + TAU - 0.0 + 0.133 * e, 1.1, mix(0.82, 0.78, e), 0);
+  };
 
   Film.armyForm = () => {
     if (Film._army) return Film._army;
@@ -33,7 +40,7 @@
       const c = cubes[i]; if (!c) return;
       const sl = AR.slots[k], s = AR.sol[sl.si], tp = Army.TPL[sl.ti];
       const emblem = (tp.part === 6 && tp.y > 0.40 && tp.y < 0.5 && Math.abs(tp.z + 0.26) < 0.02) || (tp.part === 3 && tp.s < 0.03);
-      const cls = tp.part === 7 && tp.s > 0.03 ? 2 : (s.side === 0 ? (emblem ? 0 : 1) : (emblem ? 1 : 0));
+      const cls = tp.part === 7 && tp.s > 0.03 ? 2 : (s.side === 0 ? (emblem ? 8 : 5) : (emblem ? 7 : 6));
       role[c.cube] = 1; slotOf[c.cube] = k; army.push([c.cube, k]);
       aux[c.cube * 4] = cls; aux[c.cube * 4 + 1] = 0.12 + Math.abs(c.x) / 3.6 * 0.9 + c.y / 9 * 0.55 + r() * 0.22; aux[c.cube * 4 + 2] = 1.0 + 0.35 * r(); aux[c.cube * 4 + 3] = 0;
     });
@@ -45,7 +52,7 @@
     const storm = [];
     for (let k = 0; k < NC; k++) if (D.slots[k].kind <= 6) {
       const c = DR.map[k]; role[c] = 2;
-      const o = c * 4; aux[o] = 0.5; aux[o + 1] = 0.2 + r() * 1.3; aux[o + 2] = 1.1 + 0.4 * r(); aux[o + 3] = 0;
+      const o = c * 4; aux[o] = (r() < 0.5 ? 7 : 8); aux[o + 1] = 0.2 + r() * 1.3; aux[o + 2] = 1.1 + 0.4 * r(); aux[o + 3] = 0;
       storm.push({ cube: c, x: (r() - 0.5) * 34, y: 3.2 + 7 * Math.pow(r(), 1.2), z: CZ + (r() - 0.5) * 22, s: storm.length < 4200 ? 0.010 + 0.014 * r() : 0, ph: r() * TAU });
     }
     const quat0 = new Float32Array(131072); for (let i = 0; i < NC; i++) quat0[i * 4 + 3] = 1;
@@ -71,11 +78,6 @@
     return F;
   };
 
-  Film.rivalWorld = (t) => {
-    const sx = t < 45 ? mix(26, 0, E.inOutCubic(lin(37.7, 39.8, t))) : mix(0, 30, E.inOutCubic(lin(51.4, 53.2, t)));
-    return { mood: 0, tilt: 0.5, seam: 0.8, split: 1, splitX: sx, splitD: clamp(sx / 14, -0.6, 2), floorY: 0, fogD: 0.026, lines: 0.9, reveal: 80 };
-  };
-
   Shots.rival = function (c, t) {
     const { fx } = c;
     const cam = Film.rivalCam(t), set = Film.heroSet();
@@ -91,11 +93,12 @@
       World.computeState(c, set, 'form', { Q, form: { F: CF.form, phase: 0 } }, set.scratch[0]);
       World.computeState(c, set, 'swarm', { Q, form: { F: F.form, phase: 0 }, src: set.scratch[0] });
     } else World.computeState(c, set, 'form', { Q, form: { F: F.form, phase: 0 } });
-    World.begin(c, cam, { ...Film.rivalWorld(t), ringC: [0, 0, CZ], shC: [0, CZ, 13], shK: 0.55, mirrorK: 0.5 });
+    World.begin(c, cam, { ...Film.spaceWorld(t), ringC: [0, 0, CZ], shC: [0, CZ, 13] });
     World.shadow(c, set);
     World.drawCubes(c, set, { mirror: true });
     World.drawFloor(c, 1);
     World.drawCubes(c, set, {});
-    fx.bloom = 0.16; fx.thresh = 1.1; fx.vig = 0.40; fx.streak = 0;
+    fx.bloom = 0.55; fx.thresh = 0.9; fx.vig = 0.5; fx.streak = 0.15;
+    fx.zoomBlur += 0.07 * pulse(t, T0, 0.1); fx.ca += 0.012 * pulse(t, T0, 0.14);
   };
 })();

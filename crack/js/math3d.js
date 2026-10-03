@@ -51,3 +51,8 @@ function camFromKeys(keys, t) {
   const sc = k => cr(pa[k] ?? 0, a[k] ?? 0, b[k] ?? 0, pb[k] ?? 0);
   return new Cam(v3('p'), v3('look'), keys[0].fov === undefined ? 0.8 : sc('fov'), sc('roll'));
 }
+
+// camera orbiting a point: angle th (0 = in front, +z), radius r on the ground plane, height h, looking at (c.x, ly, c.z)
+function orbitCam(c, r, h, th, ly, fov, roll = 0) {
+  return new Cam([c[0] + Math.sin(th) * r, h, c[2] + Math.cos(th) * r], [c[0], ly, c[2]], fov, roll);
+}

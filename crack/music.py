@@ -611,6 +611,39 @@ for nm in ['D6', 'A5', 'F#5', 'D5']: place(bell(hz(nm), 3.4, 3.5, 1.2, 1.6), t2 
 for i, nm in enumerate(['D6', 'A5', 'F#5', 'D5', 'A4']): place(bell(hz(nm), 2.8, 3.5, 1.0, 1.4), u['T_WHITE'] + i * BEAT / 4, 0.08, -0.4 + 0.2 * i, hl=1.0)
 
 # ═════════════════════════════════════════════════════════════
+#  the two forces + the camera's cuts   (added with the black-space revision)
+# ═════════════════════════════════════════════════════════════
+def tone_drone(f, dur, pan, level, cutoff=900, det=5):
+    n = int(dur * SR); t = tt(n)
+    x = np.zeros(n)
+    for c in (-det, 0, det):
+        ph = 2 * np.pi * np.cumsum(np.full(n, f * 2 ** (c / 1200))) / SR
+        x += sg.sawtooth(ph) * 0.6 + np.sin(ph) * 0.5
+    x = lp(x / 3, cutoff, 2) * np.minimum(1, t / 1.2) * np.minimum(1, (dur - t) / 1.0)
+    return x
+
+# 22.5 — the world flips: a four-frame stutter, a shove of sub, a reversed shimmer into the cut
+tf = 22.5
+for k in range(4):
+    place(bp(rng.standard_normal(int(0.03 * SR)), 1500, 9000) * np.hanning(int(0.03 * SR)), tf + k / 60.0, 0.30, (-1) ** k * 0.6, rm=0.1)
+place(crash(2.0)[::-1], tf - 2.0, 0.20, 0, rm=0.2, hl=0.5)
+place(sub_note(hz('D2'), 2.4, glide_from=hz('D2') * 2.0), tf, 0.60, 0)
+# purple (left) and red (right): a minor second apart for the whole dark world, then they converge on D
+place(tone_drone(hz('D3'), 29.0, -0.7, 1.0, 800), 22.5, 0.17, -0.7, rm=0.3, hl=0.9)
+place(tone_drone(hz('Eb3'), 29.0, 0.7, 1.0, 800), 22.5, 0.17, 0.7, rm=0.3, hl=0.9)
+n_ = int(2.4 * SR); k_ = np.linspace(0, 1, n_)
+glide = sg.sawtooth(2 * np.pi * np.cumsum(hz('Eb3') * (hz('D3') / hz('Eb3')) ** (k_ ** 1.6)) / SR) * 0.5
+place(lp(glide, 900, 2) * np.minimum(1, k_ * 20) * np.minimum(1, (1 - k_) * 12), 52.3, 0.20, 0.7, rm=0.3, hl=0.9)   # red slides down into D
+# every camera cut / move gets a breath: a short whoosh into the beat and a soft knock on it
+for tcut in (24.375, 26.25, 28.125, 39.6, 43.8, 45.0):
+    place(whoosh(0.42, True, 600, 9000), tcut - 0.40, 0.13, 0, rm=0.3)
+    place(boom(0.7, 90, 46, 0.35), tcut, 0.28, 0, rm=0.15)
+# the orbit around the armies: a slow filtered sweep that turns with the camera
+place(swirl(4.2, 400, 2400, 0.45), 39.6, 0.10, 0.0, rm=0.3, hl=0.4)
+# the cube's own orbit (7.5 → 15): a rising pad that follows the camera
+place(swirl(7.0, 250, 1800, 0.3), 7.8, 0.06, 0.0, rm=0.3, hl=0.4)
+
+# ═════════════════════════════════════════════════════════════
 #  MIX
 # ═════════════════════════════════════════════════════════════
 sc = np.ones(N)

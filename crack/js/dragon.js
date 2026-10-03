@@ -81,9 +81,9 @@ const Dragon = (() => {
       const s = i * DS, rr = radius(s), n = Math.max(4, Math.round(TAU * rr / 0.105));
       for (let k = 0; k < n; k++) {
         const th = k / n * TAU + (i % 2) * 0.5 * TAU / n;
-        add(0, i, th, rr, 0.054 * (0.85 + 0.25 * Math.min(rr / 0.5, 1)), Math.sin(th) > -0.35 ? 1 : 0.62, s / L);
+        add(0, i, th, rr, 0.054 * (0.85 + 0.25 * Math.min(rr / 0.5, 1)), (i % 6 === 0) ? 5 + s / L : 1, s / L);
       }
-      if (i % 3 === 0 && s > 0.5 && s < L - 1.2) for (let j = 1; j <= 3; j++) add(1, i, j, rr, 0.05 - 0.009 * j, 1, s / L);
+      if (i % 3 === 0 && s > 0.5 && s < L - 1.2) for (let j = 1; j <= 3; j++) add(1, i, j, rr, 0.05 - 0.009 * j, 5 + s / L, s / L);
     }
     // head (local: x forward, y up, z right)
     const sp = 0.105, HS = 1.5;
@@ -92,9 +92,9 @@ const Dragon = (() => {
     boxShell(0.66, 1.36, -0.10, 0.20, -0.19, 0.19, sp).forEach(p => addH(2, p[0], p[1], p[2], 0.05, 1, 0.01));
     boxShell(0.0, 1.05, -0.20, -0.05, -0.17, 0.17, sp).forEach(p => addH(3, p[0] + 0.25, p[1] - 0.14, p[2], 0.048, 1, 0.01));    // lower jaw (hinged)
     for (const sg of [-1, 1]) {
-      for (let i = 0; i <= 9; i++) addH(2, 0.30 - 0.085 * i, 0.26 + 0.075 * i + 0.012 * i * i, sg * (0.22 + 0.045 * i), 0.042 - 0.0025 * i, 1, 0.005);   // horns
-      addH(2, 0.52, 0.15, sg * 0.31, 0.040, 4, 0.002);                                                                                                   // eyes
-      addH(2, 1.37, 0.12, sg * 0.08, 0.026, 1, 0.01);                                                                                                    // nostrils
+      for (let i = 0; i <= 9; i++) addH(2, 0.30 - 0.085 * i, 0.26 + 0.075 * i + 0.012 * i * i, sg * (0.22 + 0.045 * i), 0.042 - 0.0025 * i, 5, 0.005);   // horns
+      addH(2, 0.52, 0.15, sg * 0.31, 0.040, 8, 0.002);                                                                                                   // eyes
+      addH(2, 1.37, 0.12, sg * 0.08, 0.026, 6, 0.01);                                                                                                    // nostrils
       for (let x = 0.55; x < 1.3; x += 0.15) { addH(2, x + 0.05, -0.10, sg * 0.20, 0.022, 0, 0.012); addH(3, x + 0.3, -0.13 + 0.07, sg * 0.18, 0.022, 0, 0.012); }  // teeth
       for (let i = 0; i < 4; i++) addH(2, -0.04 - 0.06 * i, 0.04 + 0.12 * i, sg * (0.34 + 0.05 * i), 0.034, 1, 0.01);                                      // cheek frills
     }
@@ -110,19 +110,19 @@ const Dragon = (() => {
       // membrane
       for (let u = 0.08; u < WS; u += 0.125) for (let v = 0.0; v < 3.0; v += 0.125) {
         if (!inPoly([u, v], WPOLY.poly)) continue;
-        add(4, sg, u, v, 0.050, 0.8 + 0.2 * hash1(u * 7.1 + v * 3.7 + sg), 0.22);
+        add(4, sg, u, v, 0.050, 5 + u / WS, 0.22);
       }
     }
     // spade at the tail tip
-    for (let i = -2; i <= 2; i++) for (let j = -2; j <= 2; j++) if (Math.abs(i) + Math.abs(j) <= 2) add(5, i, j, 0, 0.048, 1, 1.0);
+    for (let i = -2; i <= 2; i++) for (let j = -2; j <= 2; j++) if (Math.abs(i) + Math.abs(j) <= 2) add(5, i, j, 0, 0.048, 6, 1.0);
     const nStruct = slots.length;
     // smoke trail
-    for (let i = 0; i < 5200; i++) add(6, r(), r() * 2 - 1, r() * 2 - 1, 0.03, 0.8, 0.95, { hz: r() * 2 - 1 });
+    for (let i = 0; i < 5200; i++) add(6, r(), r() * 2 - 1, r() * 2 - 1, 0.03, 7 + r(), 0.95, { hz: r() * 2 - 1 });
     // ambient dust fills every remaining cube
     while (slots.length < NC) {
       const rad = 3 + 9 * Math.sqrt(r()), an = r() * TAU;
       const vis = slots.length - nStruct - 5200 < 4500;
-      if (vis) add(7, rad * Math.cos(an), 0.2 + 8.5 * Math.pow(r(), 1.3), rad * Math.sin(an) - 1.5, 0.009 + 0.012 * r(), 0.15 + 0.7 * r(), r(), { ph: r() * TAU });
+      if (vis) add(7, rad * Math.cos(an), 0.2 + 8.5 * Math.pow(r(), 1.3), rad * Math.sin(an) - 1.5, 0.009 + 0.012 * r(), (rad * Math.cos(an) > 0 ? 8 : 7) - 0.0, r(), { ph: r() * TAU });
       else { const g = 2.2 + 5.5 * Math.sqrt(r()); add(7, g * Math.cos(an), 0.04, g * Math.sin(an) - 1.5, 0, 0.3, r(), { ph: r() * TAU, ground: 1 }); }
     }
     return { slots, nStruct };

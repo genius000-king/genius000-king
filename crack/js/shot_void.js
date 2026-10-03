@@ -10,14 +10,15 @@
 
   // world camera while the paper is still there (and the first moments after)
   const KEYS = [
-    { t: 0.0, p: [0, 2.2, 30], look: [0, 6.5, 0], fov: 0.72 },
-    { t: 4.0, p: [0, 2.0, 22], look: [0, 5.2, 0], fov: 0.74 },
-    { t: 5.6, p: [0, 1.9, 17], look: [0, 4.0, -2], fov: 0.77 },
+    { t: 0.0, p: [-0.8, 2.2, 30], look: [0, 6.5, 0], fov: 0.72 },
+    { t: 4.0, p: [0.6, 2.0, 22], look: [0, 5.2, 0], fov: 0.74 },
+    { t: 5.6, p: [0.0, 1.9, 17], look: [0, 4.0, -2], fov: 0.77 },
     { t: 6.6, p: [0, 1.7, 12.5], look: [0, 2.8, -3], fov: 0.90 },
     { t: 7.5, p: [0, 1.4, 9.0], look: [0, 1.5, -1], fov: 0.84 },
     { t: 8.0, p: [0, 1.4, 8.4], look: [0, 1.5, -1], fov: 0.82 },
   ];
-  Film.voidCam = t => camFromKeys(KEYS, t);
+  const rollV = t => -0.05 * (1 - sstep(0.8, 6.2, t)) + 0.035 * Math.sin(t * 1.3) * (1 - sstep(5.0, 6.5, t));
+  Film.voidCam = t => { const c = camFromKeys(KEYS, t); c.roll = rollV(t); return c; };
 
   // paper pieces thrown outward / at the lens
   const PIECES = (() => {
@@ -45,6 +46,7 @@
     const lk = E.inExpo(lin(T_LINE0, T_CRACK, t));
     const lineA = 1 - sstep(T_CRACK, T_CRACK + 0.25, t);
     Paper.draw(c, (m) => {
+      m.translate(960, 540); m.rotate(rollV(t)); m.translate(-960, -540);
       // hairline + point on the paper (green channel)
       if (pop > 0) { m.fillStyle = 'rgb(0,255,0)'; m.beginPath(); m.arc(960, 540, 5.5 * pop * (1 - sstep(T_CRACK, T_CRACK + 0.9, t)), 0, TAU); m.fill(); }
       if (lk > 0 && lineA > 0) { m.strokeStyle = `rgb(0,${255 * lineA | 0},0)`; m.lineWidth = 2.2; m.beginPath(); m.moveTo(960 - 1000 * lk, 540); m.lineTo(960 + 1000 * lk, 540); m.stroke(); }

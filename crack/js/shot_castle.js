@@ -5,20 +5,25 @@
 // ══════════════════════════════════════════════════════════════
 (() => {
   const T0 = 30.0, T_MORPH_END = 34.6, CZ = -1.5;
-  const KEYS = [
-    { t: 28.4, p: [0.0, 7.0, 11.0], look: [0, 1.6, -1.5], fov: 0.92 },
-    { t: 30.0, p: [0.0, 5.2, 15.5], look: [0, 3.0, -1.5], fov: 0.84 },
-    { t: 32.2, p: [5.0, 3.4, 13.5], look: [0, 3.6, -1.5], fov: 0.84 },
-    { t: 34.6, p: [-3.8, 2.4, 10.2], look: [0, 3.8, -1.5], fov: 0.80 },
-    { t: 36.4, p: [-1.0, 1.9, 8.4], look: [0, 3.0, -1.5], fov: 0.76 },
-    { t: 37.5, p: [0.0, 1.6, 7.2], look: [0, 2.6, -1.5], fov: 0.74 },
-    { t: 38.5, p: [0.0, 1.6, 7.0], look: [0, 2.6, -1.5], fov: 0.74 },
+  const CK = [
+    { t: 30.0, p: [0.0, 5.2, 15.5], look: [0, 3.0, -1.5], fov: 0.84, roll: 0 },
+    { t: 31.0, p: [5.5, 2.6, 13.5], look: [0, 3.2, -1.5], fov: 0.84, roll: -0.05 },
+    { t: 32.2, p: [7.0, 1.6, 6.5], look: [0, 3.6, -1.5], fov: 0.82, roll: 0 },
+    { t: 33.0, p: [7.0, 1.6, 6.5], look: [0, 3.6, -1.5], fov: 0.82, roll: 0 },
   ];
+  // a low rising crane while the blocks climb, then a full circle of the fortress, ending face-on at the gate
   Film.castleCam = t => {
-    // before 30 the dragon's chase camera hands over to these keys
-    return camFromKeys(KEYS, t);
+    if (t < 32.2) return camFromKeys(CK, t);
+    const C = [0, 0, CZ];
+    if (t < 36.0) {
+      const u = clamp((t - 32.2) / 3.8), e = E.inOutSine(u);
+      return orbitCam(C, mix(10.6, 10.0, u), 1.6 + 1.6 * Math.sin(Math.PI * u) + 0.4 * u, 0.72 + (TAU - 0.72) * e, mix(3.6, 3.0, u), mix(0.82, 0.76, u), 0.06 * Math.sin(Math.PI * u));
+    }
+    const u = clamp((t - 36.0) / 1.5), e = E.inOutQuad(u);
+    return orbitCam(C, mix(10.0, 8.7, e), mix(2.0, 1.6, e), TAU, mix(3.0, 2.6, e), mix(0.76, 0.74, e), 0);
   };
 
+  const CMAP = { 0: 1, 1: 5, 2: 6, 3: 7 };           // wall → graphite · roof → purple energy · windows/gate → red energy · flags → sparks
   Film.castleForm = () => {
     if (Film._castle) return Film._castle;
     const DR = Film.dragon(), D = DR.D, NC = Dragon.NC;
@@ -38,7 +43,7 @@
     for (let i = 0; i < n; i++) {
       const cube = DR.map[hs[i]], v = cs[vs[i]];
       over.push([cube, v.x, v.y, v.z + CZ, v.size]);
-      aux[cube * 4] = v.cls; aux[cube * 4 + 1] = 0.25 + v.key * 2.4 + r() * 0.25; aux[cube * 4 + 2] = 0.85 + 0.4 * r(); aux[cube * 4 + 3] = 0;
+      aux[cube * 4] = CMAP[v.cls] + (v.cls === 3 ? (v.x > 0 ? 0.8 : 0) : 0); aux[cube * 4 + 1] = 0.25 + v.key * 2.4 + r() * 0.25; aux[cube * 4 + 2] = 0.85 + 0.4 * r(); aux[cube * 4 + 3] = 0;
     }
     const q0 = new Float32Array(131072); for (let i = 0; i < 32768; i++) q0[i * 4 + 3] = 1;
     const form = new World.Form(NC, 1, pos, q0, aux);
@@ -69,11 +74,12 @@
       World.computeState(c, set, 'swarm', { Q, form: { F: CF.form, phase: 0 }, src: set.scratch[0] });
     } else World.computeState(c, set, 'form', { Q, form: { F: CF.form, phase: 0 } });
     const tl = t - T0;
-    World.begin(c, cam, { mood: 0, tilt: 0.6, seam: 0.5, floorY: 0, fogD: 0.026, lines: 0.9, reveal: 80, ringC: [0, 0, CZ],
-      pulseR: tl * 12, pulseA: tl > 0 ? 0.5 * Math.exp(-tl * 2.2) : 0, shC: [0, CZ, 13], shK: 0.6 });
+    World.begin(c, cam, { ...Film.spaceWorld(t), ringC: [0, 0, CZ], pulseR: tl * 12, pulseA: tl > 0 ? 0.8 * Math.exp(-tl * 2.2) : 0, shC: [0, CZ, 13] });
     World.shadow(c, set);
-    World.drawFloor(c, 0);
+    World.drawCubes(c, set, { mirror: true });
+    World.drawFloor(c, 1);
     World.drawCubes(c, set, {});
-    fx.bloom = 0.12; fx.thresh = 1.2; fx.vig = 0.36; fx.streak = 0;
+    fx.bloom = 0.5; fx.thresh = 0.95; fx.vig = 0.5; fx.streak = 0.12;
+    fx.zoomBlur += 0.08 * pulse(t, T0, 0.12); fx.ca += 0.01 * pulse(t, T0, 0.15);
   };
 })();

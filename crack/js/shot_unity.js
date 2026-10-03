@@ -8,15 +8,20 @@
   const T0 = 52.5, T_CUBE = 54.65, T_TXT1 = 55.9, T_TXT2 = 57.55, T_WHITE = 59.25;
   Film.unityT = { T0, T_CUBE, T_TXT1, T_TXT2, T_WHITE };
   const C = Film.heroC, EDGE = Film.heroEdge, N = 32;
-  const KEYS = [
-    { t: 52.5, p: [1.5, 8.2, 14.5], look: [0, 0.6, -1.5], fov: 0.92 },
-    { t: 53.6, p: [3.2, 4.6, 11.0], look: [0, 1.8, 0], fov: 0.86 },
-    { t: 54.65, p: [0.8, 2.7, 7.4], look: [0, 1.9, 0], fov: 0.72 },
-    { t: 55.9, p: [-0.6, 2.6, 8.2], look: [0, 2.3, 0], fov: 0.74 },
-    { t: 57.0, p: [0.0, 2.7, 9.4], look: [0, 2.7, 0], fov: 0.70 },
-    { t: 60.0, p: [0.0, 2.7, 8.4], look: [0, 2.7, 0], fov: 0.70 },
+  const UK = [
+    { t: 55.9, p: [-0.6, 2.6, 8.2], look: [0, 2.3, 0], fov: 0.74, roll: 0 },
+    { t: 57.0, p: [0.0, 2.7, 9.4], look: [0, 2.7, 0], fov: 0.70, roll: 0 },
+    { t: 60.0, p: [0.0, 2.7, 8.4], look: [0, 2.7, 0], fov: 0.70, roll: 0 },
   ];
-  Film.unityCam = t => camFromKeys(KEYS, t);
+  // a spiral down out of the storm → a swing around the reborn cube → face-on to the words
+  Film.unityCam = t => {
+    if (t < T_CUBE) {
+      const u = clamp((t - T0) / (T_CUBE - T0)), e = E.inOutCubic(u);
+      return orbitCam([0, 0, 0], mix(14.6, 7.4, e), mix(8.2, 2.7, e), 0.103 + TAU * e, mix(0.6, 1.9, e), mix(0.92, 0.72, e), 0.14 * Math.sin(Math.PI * u));
+    }
+    if (t < T_TXT1) { const u = clamp((t - T_CUBE) / (T_TXT1 - T_CUBE)); return orbitCam([0, 0, 0], mix(7.4, 8.2, u), 2.7, 0.1 - 0.9 * Math.sin(Math.PI * u) + 0.0 * u, mix(1.9, 2.3, u), mix(0.72, 0.74, u), 0.05 * Math.sin(Math.PI * u)); }
+    return camFromKeys(UK, t);
+  };
   Film.unityYaw = t => Film.splitYaw(T0) * 0 + 0.55 * (t - T0) * (1 - 0.5 * sstep(T_CUBE, T_TXT1, t));
 
   Film.unity = () => {
@@ -87,16 +92,23 @@
       World.computeState(c, set, 'swarm', { Q, form: { F: U.form3, phase: 0, g0: ident.g0, g1: ident.g1 }, src: set.scratch[0] });
     }
     const dC = t - T_CUBE;
-    World.begin(c, cam, { ...Film.rivalWorld(t), ringC: [0, 0, 0], shC: [0, 0, 11], shK: 0.6, mirrorK: 0.4,
+    World.begin(c, cam, { ...Film.spaceWorld(t), ringC: [0, 0, 0], shC: [0, 0, 11], mirrorK: 0.4,
       pulseR: dC > 0 ? dC * 12 : 0, pulseA: dC > 0 ? 0.55 * Math.exp(-dC * 2.6) : 0, lines: 0.9 });
+    const dark = Film.spaceWorld(t).mood > 0.5;
     World.shadow(c, set);
-    World.drawFloor(c, 0);
+    if (dark) { World.drawCubes(c, set, { mirror: true }); World.drawFloor(c, 1); } else World.drawFloor(c, 0);
     World.drawCubes(c, set, {});
-    fx.bloom = 0.12; fx.thresh = 1.2; fx.vig = 0.36; fx.streak = 0;
-    fx.zoomBlur += 0.05 * pulse(t, T_CUBE, 0.12); fx.ca += 0.012 * pulse(t, T_CUBE, 0.16);
+    if (dark) { fx.bloom = 0.5; fx.thresh = 0.95; fx.vig = 0.5; fx.streak = 0.12; } else { fx.bloom = 0.12; fx.thresh = 1.2; fx.vig = 0.36; fx.streak = 0; }
+    // the world flips back to white: a flash, a glitch, a shove
+    const kk = t - T_CUBE;
+    if (kk >= -0.001) {
+      fx.flash = Math.max(fx.flash, 0.95 * Math.exp(-kk / 0.14)); fx.flashCol = [1, 1, 1];
+      fx.glitch = Math.max(fx.glitch, 0.7 * Math.exp(-kk / 0.22)); fx.ca += 0.03 * Math.exp(-kk / 0.3);
+      fx.zoomBlur += 0.16 * Math.exp(-kk / 0.15);
+    }
     fx.shake[0] += 0.006 * pulse(t, T_CUBE, 0.12) * Math.sin(t * 90);
     // and the page turns white again
-    fx.flashCol = [0.976, 0.974, 0.968]; fx.flash = Math.max(fx.flash, sstep(T_WHITE, 59.75, t));
+    if (t > T_WHITE - 0.01) { fx.flashCol = [0.976, 0.974, 0.968]; fx.flash = Math.max(fx.flash, sstep(T_WHITE, 59.75, t)); }
     // the only words that are not cubes: a signature in graphite on the white page
     const sa = sstep(59.5, 59.8, t);
     if (sa > 0.001) fx.crisp.push(x => { x.save(); x.globalAlpha = sa; x.fillStyle = '#161618'; x.font = F.reem(40, 700); x.direction = 'rtl'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('إخراج · Claude', 960, 940); x.restore(); });
