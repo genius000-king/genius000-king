@@ -47,21 +47,13 @@ p{margin:0}
 .pal[data-p="lime"]{background:linear-gradient(135deg,#6FB01B 50%,#FF9F1C 50%)}
 
 /* البطل */
-.hero{position:relative;text-align:center;padding-block:36px 0}
-.hero h1{font-size:clamp(3rem,10.5vw,7.4rem);position:relative;z-index:2}
-.hl{position:relative;display:inline-block;padding-inline:.12em}
-.hl::before{content:"";position:absolute;inset:.1em -.05em .02em;background:var(--pink);border-radius:46% 54% 42% 58%/55% 45% 55% 45%;z-index:-1;transform:rotate(-3deg)}
-.hl.b::before{background:var(--sun);transform:rotate(2deg)}
-.lead{max-width:34rem;margin:18px auto 0;font-size:1.08rem;font-weight:300;position:relative;z-index:2}
-.stage{position:relative;height:clamp(330px,52vw,470px);margin-top:10px}
-.blob{position:absolute;left:50%;top:52%;width:clamp(240px,40vw,380px);aspect-ratio:1;translate:-50% -50%;background:var(--hot);border-radius:50%;opacity:.95}
-.mascot{position:absolute;left:50%;bottom:0;translate:-50% 0;height:100%;width:auto;aspect-ratio:300/370;overflow:visible;cursor:pointer;animation:hop 1.4s ease-in-out infinite;transform-origin:50% 100%}
-@keyframes hop{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-14px) rotate(2deg)}}
-.mascot.pop{animation:pop .5s}
-@keyframes pop{0%{transform:scale(1)}30%{transform:scale(1.18,.86)}60%{transform:scale(.9,1.14)}100%{transform:scale(1)}}
-.sticker{position:absolute;pointer-events:none;z-index:1;animation:spin 14s linear infinite}
-@keyframes spin{to{rotate:360deg}}
-.sticker.slow{animation-duration:30s;animation-direction:reverse}
+.hero{position:relative;text-align:center;padding-block:48px 24px}
+.hero h1{font-size:clamp(3rem,11vw,7.6rem);line-height:1.25;position:relative;z-index:2}
+.fl,.bu{position:relative;display:inline-block;z-index:0}
+.fl::before,.bu::before{content:"";position:absolute;z-index:-1}
+.fl::before{inset:-.02em -.3em -.12em -.12em;background:var(--pink);border-radius:50% 50% 45% 55%/55% 45% 55% 45%;clip-path:polygon(50% 0,63% 12%,80% 6%,83% 26%,100% 33%,91% 50%,100% 68%,82% 73%,78% 94%,60% 86%,45% 100%,36% 82%,16% 90%,18% 68%,0 58%,12% 42%,2% 24%,22% 22%,28% 4%,44% 14%)}
+.bu::before{inset:-.18em 38% -.2em -.14em;background:var(--sun);clip-path:polygon(50% 0,60% 18%,78% 6%,78% 28%,98% 30%,86% 48%,100% 64%,80% 70%,82% 92%,62% 82%,50% 100%,38% 82%,18% 92%,20% 70%,0 64%,14% 48%,2% 30%,22% 28%,22% 6%,40% 18%)}
+.lead{max-width:34rem;margin:26px auto 0;font-size:1.08rem;font-weight:300;position:relative;z-index:2}
 .cta{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:28px}
 
 /* أزرار */
@@ -164,37 +156,11 @@ footer p{font-weight:300;margin-top:12px}
 
   <main>
     <div class="hero">
-      <h1>موقع <span class="hl">يصرخ</span><br>بألوانه، <span class="hl b">بذوق</span></h1>
+      <h1><span class="fl">ب</span>ــطل تســتخدم<br>الألوان <span class="bu">الصـارخة</span></h1>
       <p class="lead">ورق كريمي، حبر عنابي، وألوان ما تعرف تسكت. هذي معاينة للثيم فقط. المحتوى كله مكان مؤقت لين تقول لي وش تبغى فيه.</p>
 
-      <div class="stage">
-        <div class="blob"></div>
-        <!-- ملصقات -->
-        <svg class="sticker" style="right:6%;top:6%;width:84px" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 50 m0 0 c0-6 6-10 11-8 8 3 9 14 3 20-9 9-26 7-32-4-8-14 0-33 17-38 22-6 42 8 44 30" fill="none" stroke="var(--hot)" stroke-width="8" stroke-linecap="round"/></svg>
-        <svg class="sticker slow" style="left:7%;top:10%;width:70px" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 C54 34 66 46 96 50 C66 54 54 66 50 96 C46 66 34 54 4 50 C34 46 46 34 50 4Z" fill="var(--sky)" stroke="var(--ink)" stroke-width="5" stroke-linejoin="round"/></svg>
-        <svg class="sticker slow" style="left:14%;bottom:8%;width:120px" viewBox="0 0 120 80" aria-hidden="true"><path d="M5 20 C30 0 40 40 62 22 C80 8 85 40 112 24 M10 60 C32 42 45 78 66 62 C86 48 92 74 114 62" fill="none" stroke="var(--sun)" stroke-width="7" stroke-linecap="round"/></svg>
-        <svg class="sticker" style="right:10%;bottom:14%;width:100px" viewBox="0 0 100 100" aria-hidden="true"><g fill="var(--pink)" stroke="var(--ink)" stroke-width="4"><circle cx="50" cy="22" r="19"/><circle cx="78" cy="42" r="19"/><circle cx="67" cy="75" r="19"/><circle cx="33" cy="75" r="19"/><circle cx="22" cy="42" r="19"/></g><circle cx="50" cy="52" r="14" fill="var(--sun)" stroke="var(--ink)" stroke-width="4"/></svg>
-
-        <svg class="mascot" id="mascot" viewBox="0 0 300 370" role="img" aria-label="شخصية لهب كرتونية تبتسم وتقفز">
-          <ellipse cx="150" cy="356" rx="105" ry="10" fill="var(--ink)" opacity=".18"/>
-          <g stroke="var(--ink)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M126 306 L118 336" fill="none"/><path d="M176 306 L190 330" fill="none"/>
-            <ellipse cx="108" cy="345" rx="30" ry="14" fill="var(--sun)" transform="rotate(-12 108 345)"/>
-            <ellipse cx="206" cy="337" rx="32" ry="14" fill="var(--sun)" transform="rotate(-22 206 337)"/>
-            <path d="M150 20 C170 70 215 90 225 150 C250 120 245 100 240 85 C275 130 285 190 265 240 C250 285 205 310 150 310 C95 310 50 285 38 235 C25 185 45 140 75 110 C75 135 85 150 100 160 C95 110 120 60 150 20Z" fill="var(--hot)"/>
-          </g>
-          <path d="M150 118 C176 160 206 190 201 236 C197 270 176 286 150 286 C120 286 99 270 97 240 C94 200 130 170 150 118Z" fill="var(--sun)"/>
-          <g fill="none" stroke="var(--ink)" stroke-width="8" stroke-linecap="round"><path d="M64 214 Q34 244 30 284"/><path d="M236 214 Q268 240 274 276"/></g>
-          <g fill="var(--card)" stroke="var(--ink)" stroke-width="5"><circle cx="30" cy="292" r="20"/><circle cx="274" cy="284" r="20"/></g>
-          <g fill="var(--ink)"><ellipse cx="128" cy="204" rx="8" ry="12"/><ellipse cx="172" cy="204" rx="8" ry="12"/></g>
-          <g id="pupils" fill="var(--card)"><circle cx="126" cy="200" r="3"/><circle cx="170" cy="200" r="3"/></g>
-          <circle cx="150" cy="224" r="6" fill="var(--hot)" stroke="var(--ink)" stroke-width="3"/>
-          <path d="M114 236 Q150 276 186 236 Q150 246 114 236Z" fill="var(--card)" stroke="var(--ink)" stroke-width="5" stroke-linejoin="round"/>
-        </svg>
-      </div>
-
       <div class="cta">
-        <button class="btn" id="boom">اضغط على اللهب</button>
+        <button class="btn" id="boom">زر أساسي</button>
         <button class="btn pink" id="shuffle">لوحة عشوائية</button>
         <button class="btn ink">زر داكن</button>
       </div>
@@ -302,16 +268,8 @@ footer p{font-weight:300;margin-top:12px}
     var all=['fire','sea','grape','lime'],cur=body.getAttribute('data-pal')||'fire';
     var n;do{n=all[Math.floor(Math.random()*4)]}while(n===cur);setPal(n);
   };
-  var m=document.getElementById('mascot');
-  function boom(){m.classList.remove('pop');void m.getBoundingClientRect();m.classList.add('pop');toast('ألوان صارخة!')}
-  m.onclick=boom;document.getElementById('boom').onclick=boom;
+  document.getElementById('boom').onclick=function(){toast('ألوان صارخة!')};
 
-  var pu=document.getElementById('pupils');
-  window.addEventListener('pointermove',function(e){
-    var r=m.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height*.55;
-    var dx=e.clientX-cx,dy=e.clientY-cy,d=Math.hypot(dx,dy)||1,k=Math.min(1,d/200)*4;
-    pu.style.transform='translate('+(dx/d*k)+'px,'+(dy/d*k)+'px)';
-  });
 
   document.querySelectorAll('#tg button').forEach(function(b){b.onclick=function(){
     document.querySelectorAll('#tg button').forEach(function(x){x.setAttribute('aria-pressed','false')});b.setAttribute('aria-pressed','true')}});
