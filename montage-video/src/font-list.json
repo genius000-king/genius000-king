@@ -1,0 +1,82 @@
+[
+ {
+  "family": "Cairo",
+  "weight": "400",
+  "file": "fonts/Cairo-400.ttf"
+ },
+ {
+  "family": "Cairo",
+  "weight": "700",
+  "file": "fonts/Cairo-700.ttf"
+ },
+ {
+  "family": "Cairo",
+  "weight": "900",
+  "file": "fonts/Cairo-900.ttf"
+ },
+ {
+  "family": "Amiri",
+  "weight": "400",
+  "file": "fonts/Amiri-400.ttf"
+ },
+ {
+  "family": "Amiri",
+  "weight": "700",
+  "file": "fonts/Amiri-700.ttf"
+ },
+ {
+  "family": "Lalezar",
+  "weight": "400",
+  "file": "fonts/Lalezar-400.ttf"
+ },
+ {
+  "family": "IBM Plex Sans Arabic",
+  "weight": "200",
+  "file": "fonts/IBMPlexSansArabic-200.ttf"
+ },
+ {
+  "family": "IBM Plex Sans Arabic",
+  "weight": "300",
+  "file": "fonts/IBMPlexSansArabic-300.ttf"
+ },
+ {
+  "family": "IBM Plex Sans Arabic",
+  "weight": "500",
+  "file": "fonts/IBMPlexSansArabic-500.ttf"
+ },
+ {
+  "family": "Readex Pro",
+  "weight": "300",
+  "file": "fonts/ReadexPro-300.ttf"
+ },
+ {
+  "family": "Readex Pro",
+  "weight": "500",
+  "file": "fonts/ReadexPro-500.ttf"
+ },
+ {
+  "family": "Readex Pro",
+  "weight": "700",
+  "file": "fonts/ReadexPro-700.ttf"
+ },
+ {
+  "family": "Space Mono",
+  "weight": "400",
+  "file": "fonts/SpaceMono-400.ttf"
+ },
+ {
+  "family": "Space Mono",
+  "weight": "700",
+  "file": "fonts/SpaceMono-700.ttf"
+ },
+ {
+  "family": "Special Elite",
+  "weight": "400",
+  "file": "fonts/SpecialElite-400.ttf"
+ },
+ {
+  "family": "Cormorant Garamond",
+  "weight": "500",
+  "file": "fonts/CormorantGaramond-500.ttf"
+ }
+]
