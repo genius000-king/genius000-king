@@ -1,13 +1,13 @@
 import React from 'react';
-import {AbsoluteFill, Img, random, staticFile, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, random, staticFile, useCurrentFrame} from 'remotion';
+import {Art} from '../art';
 import {getWaveformPortion, useAudioData} from '@remotion/media-utils';
 import {F} from '../fonts';
 import {mix, ramp, useSec} from '../lib';
 
-export const img = (name: string) => staticFile(`img/${name}.jpg`);
 export const tex = (name: string) => staticFile(`tex/${name}`);
 
-/** Full-bleed photo with a Ken Burns move between seconds a and b. */
+/** Full-bleed illustration with a Ken Burns move between seconds a and b. */
 export const Photo: React.FC<{
   name: string;
   a?: number;
@@ -24,14 +24,11 @@ export const Photo: React.FC<{
   const t = ramp(s, a, b, (v) => v);
   return (
     <AbsoluteFill style={{overflow: 'hidden', ...style}}>
-      <Img
-        src={img(name)}
+      <Art
+        name={name}
         style={{
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          objectPosition: pos,
           transform: `translate(${mix(x[0], x[1], t)}px, ${mix(y[0], y[1], t)}px) scale(${mix(from, to, t)})`,
+          transformOrigin: pos,
           filter,
         }}
       />
@@ -149,7 +146,7 @@ export const tornClip = (seed: string, rough = 1.2, n = 18) => {
   return `polygon(${pts.join(',')})`;
 };
 
-/** Paper cutout: photo or children on a torn white border with a drop shadow. */
+/** Paper cutout: an illustration or children on a torn white border with a drop shadow. */
 export const Cutout: React.FC<{
   seed: string;
   w: number;
@@ -176,7 +173,7 @@ export const Cutout: React.FC<{
       }}
     >
       {photo ? (
-        <Img src={img(photo)} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: pos, filter}} />
+        <Art name={photo} style={{filter}} />
       ) : (
         children
       )}

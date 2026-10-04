@@ -1,12 +1,14 @@
 import {continueRender, delayRender, staticFile} from 'remotion';
 import list from './font-list.json';
 
+// Arabic: Thmanyah Sans everywhere (weights carry each style's character).
+const THM = 'Thmanyah Sans';
 export const F = {
-  cairo: 'Cairo',
-  amiri: 'Amiri',
-  lalezar: 'Lalezar',
-  plex: 'IBM Plex Sans Arabic',
-  readex: 'Readex Pro',
+  cairo: THM,
+  amiri: THM,
+  lalezar: 'Thmanyah Display',
+  plex: THM,
+  readex: THM,
   mono: 'Space Mono',
   type: 'Special Elite',
   serif: 'Cormorant Garamond',

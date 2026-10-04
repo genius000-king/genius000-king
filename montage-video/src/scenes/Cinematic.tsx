@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {ChapterTag, Grain, Letterbox, Photo, Vignette, VoiceWave} from '../components/common';
+import {Art} from '../art';
 import {F} from '../fonts';
 import {Center, ease, mix, pop, ramp, useSec, vis} from '../lib';
 
@@ -56,44 +57,40 @@ export const Cinematic: React.FC = () => {
   const wipe = ramp(s, 105.7, 106.6, ease);
   const mood = s < 106.9 ? -1 : s < 107.25 ? 0 : s < 107.6 ? 1 : s < 108.0 ? 2 : -1;
   const moods = [
-    {f: 'sepia(.55) saturate(1.5) contrast(1.1) brightness(1.02)', t: 'دافي'},
-    {f: 'hue-rotate(185deg) saturate(.9) contrast(1.1) brightness(.92)', t: 'بارد'},
-    {f: 'grayscale(1) contrast(1.35) brightness(.85)', t: 'حزين'},
+    {f: 'saturate(1.15) contrast(1.08)', tint: '#FF8A2A', t: 'دافي'},
+    {f: 'saturate(1.05) contrast(1.1) brightness(.92)', tint: '#2F6BFF', t: 'بارد'},
+    {f: 'grayscale(1) contrast(1.35) brightness(.85)', tint: '', t: 'حزين'},
   ];
 
   const soundO = ramp(s, 110.1, 110.6);
 
   const dofBlur = mix(0, 14, ramp(s, 102.46, 103.3, ease));
-  const S = 1.6;
-  const bx = 960 + (1021 - 960) * S;
-  const by = 540 + (580 - 540) * S;
 
   return (
     <AbsoluteFill style={{background: '#000'}}>
       {/* Shot 1: wide desert + title */}
       {s < 99.7 && (
         <AbsoluteFill style={{opacity: fadeIn}}>
-          <Photo name="desert-boy" pos="center 14%" from={1.0} to={1.1} a={96.05} b={99.7} filter={GRADE} />
+          <Photo name="desert-boy" pos="1010px 700px" from={1.0} to={1.1} a={96.05} b={99.7} filter={GRADE} />
           <Center style={{opacity: titleO, filter: `blur(${titleBlur}px)`, paddingBottom: 330}}>
             <div style={{textAlign: 'center'}}>
               <div style={{fontFamily: F.amiri, fontWeight: 700, fontSize: 150, color: CREAM, textShadow: '0 4px 40px rgba(0,0,0,.6)', direction: 'rtl'}}>السينمائي</div>
-              <div style={{fontFamily: F.serif, fontSize: 34, letterSpacing: 22, color: GOLD}}>CINEMATIC</div>
+              <div style={{fontFamily: F.serif, fontSize: 34, letterSpacing: 22, color: GOLD, marginTop: 30}}>CINEMATIC</div>
             </div>
           </Center>
         </AbsoluteFill>
       )}
-      {/* Shot 2: calm wide + slow camera move */}
+      {/* Shot 2: calm wide + slow camera move (real parallax between dune layers) */}
       {s >= 99.6 && s < 102.5 && (
-        <AbsoluteFill style={{opacity: ramp(s, 99.6, 100.0)}}>
-          <Photo name="dune-sunset" pos="center 62%" from={1.12} to={1.12} x={[60, -70]} a={99.6} b={102.5} filter={GRADE} />
+        <AbsoluteFill style={{opacity: ramp(s, 99.6, 100.0), filter: GRADE}}>
+          <Art name="dune-sunset" pan={mix(90, -90, ramp(s, 99.6, 102.5, (v) => v))} style={{transform: 'scale(1.06)'}} />
         </AbsoluteFill>
       )}
-      {/* Shot 3: shallow depth of field */}
+      {/* Shot 3: shallow depth of field — everything but the figure goes soft */}
       {s >= 102.4 && s < 105.7 && (
-        <AbsoluteFill style={{opacity: ramp(s, 102.4, 102.7)}}>
-          <Photo name="desert-boy" pos="center 30%" from={S} to={S} filter={`${GRADE} blur(${dofBlur}px)`} />
-          <AbsoluteFill style={{maskImage: `radial-gradient(ellipse 210px 440px at ${bx}px ${by}px, black 68%, transparent 100%)`, WebkitMaskImage: `radial-gradient(ellipse 210px 440px at ${bx}px ${by}px, black 68%, transparent 100%)`}}>
-            <Photo name="desert-boy" pos="center 30%" from={S} to={S} filter={GRADE} />
+        <AbsoluteFill style={{opacity: ramp(s, 102.4, 102.7), filter: GRADE}}>
+          <AbsoluteFill style={{transform: `scale(${mix(1.55, 1.65, ramp(s, 102.4, 105.7, (v) => v))})`, transformOrigin: '1010px 640px'}}>
+            <Art name="desert-boy" focus={dofBlur / 14} />
           </AbsoluteFill>
           {/* aspect-ratio annotation while the bars move */}
           <div style={{position: 'absolute', left: 120, top: '50%', transform: 'translateY(-50%)', opacity: vis(s, 104.4, 105.6, 0.2), fontFamily: F.serif, fontSize: 64, color: GOLD, letterSpacing: 4}}>2.39 : 1</div>
@@ -105,6 +102,7 @@ export const Cinematic: React.FC = () => {
           <Photo name="neon" filter={FLAT} from={1.05} to={1.12} a={105.6} b={110.6} />
           <AbsoluteFill style={{clipPath: `inset(0 0 0 ${(1 - wipe) * 100}%)`}}>
             <Photo name="neon" filter={mood >= 0 ? moods[mood].f : GRADE} from={1.05} to={1.12} a={105.6} b={110.6} />
+            {mood >= 0 && moods[mood].tint && <AbsoluteFill style={{background: moods[mood].tint, mixBlendMode: 'color', opacity: 0.6}} />}
           </AbsoluteFill>
           {wipe > 0 && wipe < 1 && <div style={{position: 'absolute', top: 0, bottom: 0, left: `${(1 - wipe) * 100}%`, width: 3, background: CREAM}} />}
           <div style={{position: 'absolute', top: BAR + 40, right: 80, fontFamily: F.amiri, fontSize: 44, color: CREAM, opacity: vis(s, 105.7, 106.8, 0.2)}}>بعد</div>

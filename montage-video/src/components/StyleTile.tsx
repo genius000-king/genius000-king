@@ -1,7 +1,8 @@
 import React from 'react';
-import {AbsoluteFill, Img} from 'remotion';
+import {AbsoluteFill} from 'remotion';
+import {Art} from '../art';
 import {F} from '../fonts';
-import {img, tex, tornClip} from './common';
+import {tex, tornClip} from './common';
 
 export type StyleId = 'collage' | 'doc' | 'motion' | 'cine' | 'fast' | 'minimal' | 'ad' | 'story';
 
@@ -25,8 +26,8 @@ export const StyleTile: React.FC<{id: StyleId; label?: boolean}> = ({id, label =
     case 'collage':
       return (
         <div style={{...base, backgroundImage: `url(${tex('kraft.jpg')})`, backgroundSize: 'cover'}}>
-          <Img src={img('camera')} style={{position: 'absolute', width: 190, height: 130, objectFit: 'cover', left: 30, top: 26, transform: 'rotate(-7deg)', border: '8px solid #f4efe4', boxShadow: '3px 5px 8px rgba(0,0,0,.35)'}} />
-          <Img src={img('desert-boy')} style={{position: 'absolute', width: 140, height: 170, objectFit: 'cover', right: 34, bottom: 18, transform: 'rotate(6deg)', border: '8px solid #f4efe4', boxShadow: '3px 5px 8px rgba(0,0,0,.35)'}} />
+          <Art name={'camera'} style={{position: 'absolute', width: 190, height: 130, objectFit: 'cover', left: 30, top: 26, transform: 'rotate(-7deg)', border: '8px solid #f4efe4', boxShadow: '3px 5px 8px rgba(0,0,0,.35)'}} />
+          <Art name={'desert-boy'} style={{position: 'absolute', width: 140, height: 170, objectFit: 'cover', right: 34, bottom: 18, transform: 'rotate(6deg)', border: '8px solid #f4efe4', boxShadow: '3px 5px 8px rgba(0,0,0,.35)'}} />
           {label && (
             <div style={{...center}}>
               <div style={{clipPath: tornClip(`tile-${id}`, 3), background: '#E63B2E', padding: '4px 30px', transform: 'rotate(-4deg)', fontFamily: F.lalezar, fontSize: 64, color: '#fff'}}>{name}</div>
@@ -37,7 +38,7 @@ export const StyleTile: React.FC<{id: StyleId; label?: boolean}> = ({id, label =
     case 'doc':
       return (
         <div style={{...base, background: '#111'}}>
-          <Img src={img('factory')} style={{width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(1) sepia(.35) contrast(1.1) brightness(.75)'}} />
+          <Art name={'factory'} style={{width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(1) sepia(.35) contrast(1.1) brightness(.75)'}} />
           {label && (
             <div style={{position: 'absolute', bottom: 22, right: 22, background: '#E9DFC9', padding: '2px 18px', fontFamily: F.amiri, fontSize: 46, color: '#222'}}>{name}</div>
           )}
@@ -46,17 +47,17 @@ export const StyleTile: React.FC<{id: StyleId; label?: boolean}> = ({id, label =
       );
     case 'motion':
       return (
-        <div style={{...base, background: '#0F1226'}}>
-          <div style={{position: 'absolute', width: 120, height: 120, borderRadius: '50%', background: '#FFCC00', left: 40, top: 30}} />
-          <div style={{position: 'absolute', width: 90, height: 90, background: '#FF5A5F', right: 60, top: 40, transform: 'rotate(18deg)', borderRadius: 14}} />
-          <div style={{position: 'absolute', width: 0, height: 0, borderLeft: '55px solid transparent', borderRight: '55px solid transparent', borderBottom: '95px solid #2EC4B6', right: 120, bottom: 24}} />
-          {label && <div style={{...center, fontFamily: F.readex, fontWeight: 700, fontSize: 52, color: '#fff'}}>{name}</div>}
+        <div style={{...base, background: '#F6F4FF', backgroundImage: 'radial-gradient(#DDD8F6 2px, transparent 2px)', backgroundSize: '24px 24px'}}>
+          <div style={{position: 'absolute', width: 110, height: 110, borderRadius: '50%', background: '#FFB938', left: 40, top: 30}} />
+          <div style={{position: 'absolute', width: 86, height: 86, background: '#FF6F59', right: 60, top: 40, transform: 'rotate(18deg)', borderRadius: 14}} />
+          <div style={{position: 'absolute', width: 0, height: 0, borderLeft: '55px solid transparent', borderRight: '55px solid transparent', borderBottom: '95px solid #5B4CF5', right: 120, bottom: 24}} />
+          {label && <div style={{...center, fontFamily: F.readex, fontWeight: 700, fontSize: 52, color: '#1C1745'}}>{name}</div>}
         </div>
       );
     case 'cine':
       return (
         <div style={{...base, background: '#000'}}>
-          <Img src={img('desert-boy')} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 33%', filter: 'contrast(1.1) saturate(1.15)'}} />
+          <Art name={'desert-boy'} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 33%', filter: 'contrast(1.1) saturate(1.15)'}} />
           <div style={{position: 'absolute', top: 0, left: 0, right: 0, height: 34, background: '#000'}} />
           <div style={{position: 'absolute', bottom: 0, left: 0, right: 0, height: 34, background: '#000'}} />
           {label && <div style={{position: 'absolute', bottom: 46, width: '100%', textAlign: 'center', fontFamily: F.amiri, fontSize: 46, color: '#F3E3C3', textShadow: '0 2px 12px rgba(0,0,0,.6)'}}>{name}</div>}

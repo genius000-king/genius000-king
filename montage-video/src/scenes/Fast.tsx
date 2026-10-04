@@ -1,6 +1,8 @@
 import React from 'react';
-import {AbsoluteFill, Img, random} from 'remotion';
-import {ChapterTag, img} from '../components/common';
+import {AbsoluteFill, random} from 'remotion';
+import {ChapterTag} from '../components/common';
+import {Phone3D, drawCover, useScreenImages} from '../components/Phone3D';
+import {Art} from '../art';
 import {F} from '../fonts';
 import {Center, ease, easeOut, mix, pop, ramp, useSec} from '../lib';
 import {WORDS} from '../words';
@@ -27,7 +29,7 @@ const Cuts: React.FC<{a: number; b: number; every: number; offset?: number; zoom
   const z = zoom ? mix(1.18, 1.05, easeOut(Math.min(1, local * 2))) : 1.05;
   return (
     <AbsoluteFill style={{overflow: 'hidden'}}>
-      <Img src={img(name)} style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${z}) rotate(${(random(`r${k}`) - 0.5) * 3}deg)`, filter: 'saturate(1.3) contrast(1.1)'}} />
+      <Art name={name} style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${z}) rotate(${(random(`r${k}`) - 0.5) * 3}deg)`, filter: 'saturate(1.3) contrast(1.1)'}} />
     </AbsoluteFill>
   );
 };
@@ -107,6 +109,7 @@ const SpeedLines: React.FC<{color: string; bg: string}> = ({color, bg}) => {
 
 export const Fast: React.FC = () => {
   const s = useSec();
+  const feed = useScreenImages(['sneakers-jump', 'skate-stairs']);
   const sh = shakeAt(s);
   const sx = (random(`sx${Math.round(s * 30)}`) - 0.5) * sh;
   const sy = (random(`sy${Math.round(s * 30)}`) - 0.5) * sh;
@@ -163,14 +166,14 @@ export const Fast: React.FC = () => {
         {/* Sudden zoom */}
         {s >= 123.64 && s < 124.76 && (
           <AbsoluteFill>
-            <Img src={img('skate-smoke')} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%', transform: `scale(${mix(1.0, 1.7, ramp(s, 123.64, 123.74, easeOut))})`}} />
+            <Art name={'skate-smoke'} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%', transform: `scale(${mix(1.0, 1.7, ramp(s, 123.64, 123.74, easeOut))})`}} />
             <Burst text="زووم!" at={123.7} x={1250} y={120} color={YEL} rot={-8} />
           </AbsoluteFill>
         )}
         {/* Sound effects */}
         {s >= 124.76 && s < 126.12 && (
           <AbsoluteFill>
-            <Img src={img('concert')} style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${s < 125.38 ? 1.05 : 1.25})`, filter: 'saturate(1.4)'}} />
+            <Art name={'concert'} style={{width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${s < 125.38 ? 1.05 : 1.25})`, filter: 'saturate(1.4)'}} />
             <Burst text="ووش!" at={124.76} x={140} y={160} color="#7FD7FF" rot={-10} />
             <Burst text="بوم!" at={125.38} x={1220} y={420} color={RED} rot={9} />
           </AbsoluteFill>
@@ -195,7 +198,7 @@ export const Fast: React.FC = () => {
             <div style={{position: 'absolute', left: 560, top: 70, width: 800, height: 450, overflow: 'hidden', borderRadius: 18, border: '4px solid #fff'}}>
               {(() => {
                 const k = s < 129.42 ? 0 : Math.floor((s - 129.42) / 0.45) % 3;
-                return <Img src={img('interview')} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 28%', transform: `scale(${[1, 1.22, 1.08][k]}) translateX(${[0, -30, 20][k]}px)`}} />;
+                return <Art name={'interview'} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 28%', transform: `scale(${[1, 1.22, 1.08][k]}) translateX(${[0, -30, 20][k]}px)`}} />;
               })()}
             </div>
             <div style={{position: 'absolute', left: 160, top: 610, width: 1600, height: 150, background: '#1f1f1f', borderRadius: 14, padding: '20px 30px', boxSizing: 'border-box', display: 'flex', direction: 'rtl', gap: 0}}>
@@ -253,19 +256,31 @@ export const Fast: React.FC = () => {
         {s >= 133.38 && s < 139.42 && (
           <AbsoluteFill style={{background: '#111'}}>
             <SpeedLines color="#171717" bg="#111" />
-            <div style={{position: 'absolute', left: 763, top: 70, width: 394, height: 700, borderRadius: 40, overflow: 'hidden', border: '8px solid #fff', background: '#000', transform: `scale(${pop(s, 133.38, {damping: 13})})`}}>
-              {[0, 1].map((k) => (
-                <div key={k} style={{position: 'absolute', inset: 0, transform: `translateY(${(k - swipe) * 100}%)`}}>
-                  <Img src={img(k ? 'skate-stairs' : 'sneakers-jump')} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
-                  <div style={{position: 'absolute', right: 18, bottom: 110, display: 'flex', flexDirection: 'column', gap: 22}}>
-                    {['#fff', '#fff', '#fff'].map((c, i) => (
-                      <div key={i} style={{width: 46, height: 46, borderRadius: '50%', background: 'rgba(255,255,255,.85)'}} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-              <div style={{position: 'absolute', left: 0, top: 0, height: 6, width: `${(timer / 2) * 100}%`, background: YEL}} />
-            </div>
+            <Phone3D
+              rot={[0, 0, 0]}
+              pos={[0, 2.6, 0]}
+              camZ={47.7}
+              scale={pop(s, 133.38, {damping: 13})}
+              studio={0.6}
+              rim="#FFE600"
+              paint={(ctx, w, h) => {
+                if (!feed) return;
+                drawCover(ctx, feed['sneakers-jump'], w, h, -swipe);
+                drawCover(ctx, feed['skate-stairs'], w, h, 1 - swipe);
+                // side actions + progress, like a short-video app
+                const u = w / 100;
+                for (let i = 0; i < 3; i++) {
+                  ctx.fillStyle = 'rgba(255,255,255,.9)';
+                  ctx.beginPath();
+                  ctx.arc(w - 10 * u, h * 0.55 + i * 14 * u, 4.6 * u, 0, Math.PI * 2);
+                  ctx.fill();
+                }
+                ctx.fillStyle = 'rgba(0,0,0,.35)';
+                ctx.fillRect(0, 0, w, 1.2 * u);
+                ctx.fillStyle = YEL;
+                ctx.fillRect(0, 0, (w * timer) / 2, 1.2 * u);
+              }}
+            />
             <div style={{position: 'absolute', right: 140, top: 230, textAlign: 'center', direction: 'rtl', opacity: ramp(s, 133.8, 134.0)}}>
               <div style={{fontFamily: F.cairo, fontWeight: 900, fontSize: 72, color: '#fff'}}>تيك توك</div>
               <div style={{fontFamily: F.cairo, fontWeight: 900, fontSize: 72, color: '#fff', opacity: ramp(s, 134.28, 134.45)}}>والريلز</div>

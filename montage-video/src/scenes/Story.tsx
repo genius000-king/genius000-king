@@ -1,7 +1,8 @@
 import React from 'react';
-import {AbsoluteFill, Img} from 'remotion';
-import {ChapterTag, Grain, Vignette, img} from '../components/common';
+import {AbsoluteFill} from 'remotion';
+import {ChapterTag, Grain, Vignette} from '../components/common';
 import {STYLES, StyleTile, TileFrame} from '../components/StyleTile';
+import {Art} from '../art';
 import {F} from '../fonts';
 import {Center, ease, easeOut, mix, pop, ramp, useSec, vis} from '../lib';
 
@@ -133,7 +134,7 @@ export const Story: React.FC = () => {
                         opacity: pretty ? 1 - close : 1,
                       }}
                     >
-                      <Img src={img(c)} style={{width: 300, height: '100%', objectFit: 'cover', filter: pretty ? 'saturate(1.2)' : 'saturate(.6) brightness(.8)'}} />
+                      <Art name={c} style={{width: 300, height: '100%', objectFit: 'cover', filter: pretty ? 'saturate(1.2)' : 'saturate(.6) brightness(.8)'}} />
                     </div>
                   )}
                 </div>

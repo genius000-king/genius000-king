@@ -56,7 +56,7 @@ export const Minimal: React.FC = () => {
       {/* title */}
       <div style={{position: 'absolute', top: 540, width: '100%', textAlign: 'center', opacity: titleO}}>
         <div style={{fontFamily: F.plex, fontWeight: 200, fontSize: 92, color: INK, direction: 'rtl'}}>مينيمال</div>
-        <div style={{fontFamily: F.mono, fontSize: 18, letterSpacing: 14, color: GREY, marginTop: 6}}>MINIMAL</div>
+        <div style={{fontFamily: F.mono, fontSize: 18, letterSpacing: 14, color: GREY, marginTop: 34}}>MINIMAL</div>
       </div>
       <Small o={ramp(s, 147.1, 147.6) * titleO} style={{bottom: 120, width: '100%', textAlign: 'center', color: GREY, fontSize: 30}}>
         عكس اللي قبله تمامًا

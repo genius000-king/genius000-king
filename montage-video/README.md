@@ -1,6 +1,7 @@
 # أساليب المونتاج: فيديو بـ Remotion
 
 فيديو تعليمي (3:52، ‏1920×1080، ‏30fps) يشرح ٨ أساليب مونتاج، وكل أسلوب ينشرح **بنفس أسلوبه**.
+كل اللقطات رسومات مبنية بالكود (بدون صور حقيقية)، والجوال موديل ثلاثي الأبعاد (Three.js)، والخط العربي **ثمانية** (Thmanyah Sans).
 
 | # | القسم | الوقت | كيف ينشرح |
 |---|---|---|---|
@@ -11,7 +12,7 @@
 | 04 | السينمائي | 1:36 | Letterbox ‏2.39:1، عمق ميدان، Color Grading قبل/بعد، «السر في الصوت» |
 | 05 | السريع | 1:59 | قصات على الإيقاع، زووم، كابشن تيك توك، عرض Jump Cut |
 | 06 | المينيمال | 2:26 | صمت مفاجئ، نقطة واحدة، فراغ |
-| 07 | الإعلاني | 2:45 | منتج وهمي مرسوم بالكود (لا علامة تجارية حقيقية)، CTA |
+| 07 | الإعلاني | 2:45 | جوال 3D لبراند وهمي «لَمحة»: ماكرو للعدسات، إضاءة، قصات على الإيقاع، CTA |
 | 08 | القصصي | 3:08 | منحنى القصة، وحذف «اللقطة الحلوة» من التايملاين |
 | — | الخاتمة | 3:27 | يفهم / يحس / يشتري / يوقف → الأسلوب المناسب |
 
@@ -19,12 +20,15 @@
 
 ```bash
 npm install
+# خط ثمانية غير مرفوع هنا: حط ملفات woff2 في public/fonts/thmanyah/
+#   thmanyah-sans-{Light,Regular,Medium,Bold,Black}.woff2
 npm run sound          # يبني public/audio/soundtrack.wav (الصوت + موسيقى ومؤثرات مولّدة بالكود)
+npm run art            # (اختياري) يعيد توليد صور شاشة الجوال في public/art
 npm run studio         # معاينة
-npm run render         # out/montage.mp4
+npx remotion render src/index.ts Montage out/montage.mp4 --gl=swangle   # بدون GPU
 ```
 
-لو المتصفح ما ينزل تلقائياً: `REMOTION_BROWSER=/path/to/chrome-headless-shell npm run render`.
+لو المتصفح ما ينزل تلقائياً: `REMOTION_BROWSER=/path/to/chrome-headless-shell`.
 
 مراجعة إطارات بسرعة: `node scripts/stills.mjs out/sheet.jpg 12.5 48 96.3` (يطلع لوحة مصغّرات).
 
@@ -33,11 +37,13 @@ npm run render         # out/montage.mp4
 - `src/timing.ts`: حدود الأقسام بالثواني، مأخوذة من توقيت الكلمات في الصوت.
 - `src/words.ts`: توقيت كل كلمة (faster-whisper ‏large-v3-turbo، من `scripts/transcribe.py`).
 - `src/scenes/*`: مشهد لكل قسم. كل الأوقات داخلها **ثواني مطلقة** من بداية الصوت (`useSec()`).
-- `src/components/`: عناصر مشتركة (صورة Ken Burns، حبيبات فيلم، موجة الصوت، قصاصات ورق، بلاطات الأساليب).
+- `src/art/`: مكتبة الرسومات (صحراء بطبقات وبارالاكس وعمق ميدان، شارع ليلي بنيون عربي، مصنع، تروس، خريطة، أشخاص، أغراض، حفلة…). كل رسمة لها اسم، والمشاهد تطلبها بالاسم.
+- `src/components/Phone3D.tsx`: الجوال ثلاثي الأبعاد (خامات PBR، إضاءة استوديو بـ Lightformers، عدسات، وشاشة ترسم عليها canvas).
+- `src/components/`: عناصر مشتركة (حركة Ken Burns، حبيبات فيلم، موجة الصوت، قصاصات ورق، بلاطات الأساليب).
 - `scripts/make-soundtrack.py`: كل الموسيقى والمؤثرات مولّدة بـ numpy/scipy، وتتوازن لكل قسم تحت الصوت (K-weighted)، والناتج النهائي ‎-15 LUFS.
 
 ## المصادر
 
-- الصور: [Pexels](https://www.pexels.com/license/) (مجانية)، والقائمة في `scripts/image-credits.txt`.
-- الخطوط: Google Fonts (Cairo, Amiri, Lalezar, IBM Plex Sans Arabic, Readex Pro, Space Mono, Special Elite, Cormorant Garamond).
+- الرسومات والجوال: مرسومة بالكود في هذا المشروع.
+- الخط العربي: Thmanyah Sans (من صاحب المشروع، غير مرفوع هنا). خطوط إنجليزية صغيرة: Google Fonts (Space Mono, Special Elite, Cormorant Garamond).
 - الصوت: ElevenLabs (من صاحب المشروع).

@@ -1,6 +1,7 @@
 import React from 'react';
-import {AbsoluteFill, Img} from 'remotion';
-import {ChapterTag, Grain, Photo, Vignette, VoiceStrip, img, tex, typed} from '../components/common';
+import {AbsoluteFill} from 'remotion';
+import {ChapterTag, Grain, Photo, Vignette, VoiceStrip, tex, typed} from '../components/common';
+import {Art} from '../art';
 import {F} from '../fonts';
 import {Center, ease, easeOut, mix, pop, ramp, useSec, vis} from '../lib';
 
@@ -58,7 +59,7 @@ const Clip: React.FC<{name: string; x: number; w: number; at: number}> = ({name,
   const p = pop(s, at, {damping: 15});
   return (
     <div style={{position: 'absolute', left: x, top: 8, width: w, height: 124, opacity: p, transform: `translateY(${(1 - p) * -50}px)`, border: `3px solid ${CREAM}`, borderRadius: 6, overflow: 'hidden'}}>
-      <Img src={img(name)} style={{width: '100%', height: '100%', objectFit: 'cover', filter: ARCH}} />
+      <Art name={name} style={{width: '100%', height: '100%', objectFit: 'cover', filter: ARCH}} />
     </div>
   );
 };
@@ -195,7 +196,7 @@ export const Documentary: React.FC = () => {
               boxShadow: '0 20px 40px rgba(0,0,0,.5)',
             }}
           >
-            <Img src={img('interview')} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', filter: 'saturate(.55)'}} />
+            <Art name={'interview'} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', filter: 'saturate(.55)'}} />
             <div style={{position: 'absolute', left: 0, bottom: 0, background: CREAM, fontFamily: F.type, fontSize: 24, padding: '4px 12px', opacity: ramp(s, 60.6, 60.8)}}>A-ROLL · المتكلم</div>
           </div>
           <div style={{position: 'absolute', left: 110, bottom: 110, direction: 'rtl', opacity: ramp(s, 60.4, 60.7)}}>
@@ -210,8 +211,7 @@ export const Documentary: React.FC = () => {
       {s >= 62.7 && s < 67.4 && (
         <AbsoluteFill style={{background: '#141414', opacity: vis(s, 62.7, 67.45, 0.15)}}>
           <div style={{position: 'absolute', left: 260, top: 150, width: 1400, height: 788, overflow: 'hidden', border: `4px solid ${CREAM}`}}>
-            <Img
-              src={img('machine')}
+            <Art name={'machine'}
               style={{
                 width: '100%',
                 height: '100%',

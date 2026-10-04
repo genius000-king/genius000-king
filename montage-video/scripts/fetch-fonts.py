@@ -1,11 +1,6 @@
 """Download static TTFs from Google Fonts into public/fonts and write src/font-list.json."""
 import json, re, subprocess, sys, os
 FAMILIES = {
-    "Cairo": [400, 700, 900],
-    "Amiri": [400, 700],
-    "Lalezar": [400],
-    "IBM Plex Sans Arabic": [200, 300, 500],
-    "Readex Pro": [300, 500, 700],
     "Space Mono": [400, 700],
     "Special Elite": [400],
     "Cormorant Garamond": [500],
@@ -22,4 +17,5 @@ for fam, weights in FAMILIES.items():
         subprocess.run(["curl", "-sS", "-o", f"public/fonts/{fn}", url], check=True)
         out.append({"family": fam, "weight": w, "file": f"fonts/{fn}"})
         print(fam, w, fn)
+# Thmanyah Sans (Arabic) is added separately from public/fonts/thmanyah (not redistributed here).
 json.dump(out, open("src/font-list.json", "w"), indent=1)

@@ -1,7 +1,8 @@
 import React from 'react';
-import {AbsoluteFill, Img, random, useCurrentFrame} from 'remotion';
-import {Grain, Vignette, img} from '../components/common';
+import {AbsoluteFill, random, useCurrentFrame} from 'remotion';
+import {Grain, Vignette} from '../components/common';
 import {STYLES, StyleTile, TileFrame} from '../components/StyleTile';
+import {Art} from '../art';
 import {F} from '../fonts';
 import {Center, ar, easeOut, mix, pop, ramp, useSec, vis} from '../lib';
 
@@ -68,7 +69,7 @@ const FilmFrame: React.FC<{photo: string; w: number; h: number; pos?: string; gl
       </React.Fragment>
     ))}
     <div style={{width: w, height: h, overflow: 'hidden'}}>
-      <Img src={img(photo)} style={{width: w, height: h, objectFit: 'cover', objectPosition: pos, transform: `scale(${bright > 1 ? 1.6 : 1})`, filter: `grayscale(1) contrast(1.15) brightness(${bright})`}} />
+      <Art name={photo} style={{width: w, height: h, objectFit: 'cover', objectPosition: pos, filter: `grayscale(1) contrast(1.15) brightness(${bright})`}} />
     </div>
   </div>
 );
@@ -93,7 +94,7 @@ export const Intro: React.FC = () => {
   // 3) Definition
   const defO = vis(s, 17.38, 23.85, 0.25);
   const title = pop(s, 18.18, {damping: 11});
-  const cut = ramp(s, 19.46, 19.9, easeOut);
+  const cut = ramp(s, 19.46, 19.7, easeOut) * (1 - ramp(s, 20.1, 20.5, easeOut));
   const order = pop(s, 20.38, {damping: 16});
   const meaning = pop(s, 21.34);
 
@@ -138,7 +139,7 @@ export const Intro: React.FC = () => {
             )}
             {/* row 1 soup */}
             <div style={{position: 'absolute', left: 620, top: 150, opacity: p1, transform: `translateX(${(1 - p1) * -60}px)`}}>
-              <FilmFrame photo="soup" w={faceW} h={faceH} bright={1.9} />
+              <FilmFrame photo="soup" w={faceW} h={faceH} />
             </div>
             {/* row 2 face + coffin */}
             <div style={{position: 'absolute', left: 1180, top: 570, opacity: r2, transform: `translateY(${(1 - r2) * 40}px)`}}>
@@ -225,7 +226,7 @@ export const Intro: React.FC = () => {
                   transform: `translateY(${(1 - appear) * 40}px) translateY(${Math.sin(order * Math.PI) * (p === 'face' ? -60 : 30)}px)`,
                 }}
               >
-                <Img src={img(p)} style={{width: 480, height: 300, objectFit: 'cover', objectPosition: p === 'face' ? 'center 30%' : 'center', filter: `grayscale(1) contrast(1.1) brightness(${p === 'soup' ? 1.9 : 1})`, border: `4px solid ${CREAM}`}} />
+                <Art name={p} style={{width: 480, height: 300, objectFit: 'cover', objectPosition: p === 'face' ? 'center 30%' : 'center', filter: 'grayscale(1) contrast(1.1)', border: `4px solid ${CREAM}`}} />
               </div>
             );
           })}
