@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ثيم شرارة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rakkas&family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: ورق كريمي، عنوان ضخم بملصقات متراكبة، شخصية كرتونية في المنتصف، شريط زخارف يتحرك في الأسفل. وجهة واحدة جريئة: الألوان. الباقي هادئ */
+:root{
+  --paper:#F6E9DA;   /* ورق */
+  --card:#FBF3DC;    /* ورق فاتح */
+  --ink:#5B2E48;     /* حبر عنابي */
+  --hot:#EC6A4A;     /* لهب */
+  --sun:#E3A84C;     /* عسل */
+  --pink:#F4A6C8;    /* ورد */
+  --sky:#2F8CF0;     /* سماء */
+  --font-display:'Rakkas','Noto Naskh Arabic','Segoe UI',serif;
+  --font-body:'Readex Pro','Segoe UI',Tahoma,sans-serif;
+  color-scheme:light;
+}
+body[data-pal="sea"]{--paper:#E1EEF2;--card:#F0F8F9;--ink:#19344D;--hot:#2C7BE5;--sun:#FFC94A;--pink:#FF8FA3;--sky:#1FBFA8}
+body[data-pal="grape"]{--paper:#EBE4F5;--card:#F6F1FB;--ink:#2D1B4E;--hot:#8F4BE0;--sun:#FFD23F;--pink:#FF8CC6;--sky:#22C39B}
+body[data-pal="lime"]{--paper:#F3F2CF;--card:#FAF9E3;--ink:#2B3A1E;--hot:#6FB01B;--sun:#FF9F1C;--pink:#FF6B9A;--sky:#3AA0FF}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--font-body);line-height:1.7;transition:background .4s,color .4s;overflow-x:hidden}
+.app{max-width:1100px;margin-inline:auto;padding-inline:20px;padding-block:0 0}
+h1,h2,h3{font-family:var(--font-display);font-weight:400;line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0}
+:focus-visible{outline:3px solid var(--sky);outline-offset:3px;border-radius:8px}
+
+/* شريط اختيار اللوحة */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-block:12px}
+.logo{font-family:var(--font-display);font-size:1.7rem;display:flex;align-items:center;gap:8px}
+.logo i{width:28px;height:28px;background:var(--hot);border:3px solid var(--ink);border-radius:50% 50% 50% 8px;transform:rotate(-45deg);display:block}
+.pals{display:flex;align-items:center;gap:10px;background:var(--card);border:3px solid var(--ink);border-radius:999px;padding:6px 8px 6px 14px;box-shadow:4px 4px 0 var(--ink)}
+.pals span{font-size:.82rem;font-weight:600}
+.pal{width:30px;height:30px;border-radius:50%;border:3px solid var(--ink);cursor:pointer;padding:0;transition:transform .15s}
+.pal:hover{transform:scale(1.15) rotate(-8deg)}
+.pal[aria-pressed="true"]{box-shadow:0 0 0 3px var(--card),0 0 0 6px var(--ink)}
+.pal[data-p="fire"]{background:linear-gradient(135deg,#EC6A4A 50%,#E3A84C 50%)}
+.pal[data-p="sea"]{background:linear-gradient(135deg,#2C7BE5 50%,#FFC94A 50%)}
+.pal[data-p="grape"]{background:linear-gradient(135deg,#8F4BE0 50%,#FFD23F 50%)}
+.pal[data-p="lime"]{background:linear-gradient(135deg,#6FB01B 50%,#FF9F1C 50%)}
+
+/* البطل */
+.hero{position:relative;text-align:center;padding-block:36px 0}
+.hero h1{font-size:clamp(3rem,10.5vw,7.4rem);position:relative;z-index:2}
+.hl{position:relative;display:inline-block;padding-inline:.12em}
+.hl::before{content:"";position:absolute;inset:.1em -.05em .02em;background:var(--pink);border-radius:46% 54% 42% 58%/55% 45% 55% 45%;z-index:-1;transform:rotate(-3deg)}
+.hl.b::before{background:var(--sun);transform:rotate(2deg)}
+.lead{max-width:34rem;margin:18px auto 0;font-size:1.08rem;font-weight:300;position:relative;z-index:2}
+.stage{position:relative;height:clamp(330px,52vw,470px);margin-top:10px}
+.blob{position:absolute;left:50%;top:52%;width:clamp(240px,40vw,380px);aspect-ratio:1;translate:-50% -50%;background:var(--hot);border-radius:50%;opacity:.95}
+.mascot{position:absolute;left:50%;bottom:0;translate:-50% 0;height:100%;width:auto;aspect-ratio:300/370;overflow:visible;cursor:pointer;animation:hop 1.4s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes hop{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-14px) rotate(2deg)}}
+.mascot.pop{animation:pop .5s}
+@keyframes pop{0%{transform:scale(1)}30%{transform:scale(1.18,.86)}60%{transform:scale(.9,1.14)}100%{transform:scale(1)}}
+.sticker{position:absolute;pointer-events:none;z-index:1;animation:spin 14s linear infinite}
+@keyframes spin{to{rotate:360deg}}
+.sticker.slow{animation-duration:30s;animation-direction:reverse}
+.cta{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:28px}
+
+/* أزرار */
+.btn{font:600 1rem var(--font-body);color:var(--ink);background:var(--sun);border:3px solid var(--ink);border-radius:999px;padding:.6em 1.5em;cursor:pointer;box-shadow:5px 5px 0 var(--ink);transition:transform .12s,box-shadow .12s}
+.btn:hover{transform:translate(-2px,-2px) rotate(-1deg);box-shadow:7px 7px 0 var(--ink)}
+.btn:active{transform:translate(4px,4px);box-shadow:1px 1px 0 var(--ink)}
+.btn.pink{background:var(--pink)}
+.btn.ink{background:var(--ink);color:var(--paper);box-shadow:5px 5px 0 var(--hot)}
+.btn.ghost{background:transparent;box-shadow:none}
+
+/* أقسام */
+section{padding-block:72px 0}
+.sec-h{display:flex;align-items:flex-end;justify-content:space-between;gap:12px 24px;flex-wrap:wrap;margin-bottom:28px}
+.sec-h h2{font-size:clamp(2rem,5vw,3.2rem)}
+.sec-h p{max-width:24rem;font-weight:300;font-size:.95rem}
+.tag{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.04em;background:var(--sky);color:#fff;border:2.5px solid var(--ink);border-radius:999px;padding:.05em .9em;transform:rotate(-3deg);margin-bottom:8px}
+
+/* لوحة الألوان */
+.sw{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:18px}
+.chip{font:inherit;color:var(--ink);text-align:center;cursor:pointer;background:var(--card);border:3px solid var(--ink);border-radius:28px;padding:14px 14px 12px;box-shadow:5px 5px 0 var(--ink);transition:transform .15s}
+.chip:hover{transform:rotate(-2deg) translateY(-3px)}
+.chip i{display:block;aspect-ratio:1;border:3px solid var(--ink);margin-bottom:10px}
+.chip:nth-child(1) i{background:var(--hot);border-radius:50%}
+.chip:nth-child(2) i{background:var(--sun);border-radius:38% 62% 55% 45%/50% 40% 60% 50%}
+.chip:nth-child(3) i{background:var(--pink);border-radius:50% 50% 8px 50%}
+.chip:nth-child(4) i{background:var(--sky);border-radius:20px}
+.chip:nth-child(5) i{background:var(--ink);border-radius:50% 50% 50% 8px}
+.chip:nth-child(6) i{background:var(--paper);border-radius:12px 50%}
+.chip b{display:block;font-family:var(--font-display);font-weight:400;font-size:1.5rem;line-height:1.2}
+.chip small{font:600 .75rem ui-monospace,Menlo,monospace;direction:ltr;display:block;opacity:.75}
+
+/* الخط */
+.type{display:grid;grid-template-columns:1.3fr 1fr;gap:20px}
+.panel{background:var(--card);border:3px solid var(--ink);border-radius:32px;padding:28px;box-shadow:6px 6px 0 var(--ink);min-width:0;position:relative}
+.big{font-family:var(--font-display);font-size:clamp(4rem,12vw,8rem);line-height:1;color:var(--hot);-webkit-text-stroke:3px var(--ink);paint-order:stroke fill;text-shadow:5px 5px 0 var(--ink)}
+.scale{display:flex;flex-direction:column;gap:6px;margin-top:18px}
+.scale div{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-top:2px dashed var(--ink);padding-top:6px}
+.scale em{font:600 .72rem ui-monospace,Menlo,monospace;font-style:normal;direction:ltr;opacity:.7;white-space:nowrap}
+.scale .d{font-family:var(--font-display)}
+
+/* القطع */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px}
+.proj{background:var(--card);border:3px solid var(--ink);border-radius:32px;padding:24px;box-shadow:6px 6px 0 var(--ink);display:flex;flex-direction:column;gap:12px;min-width:0;transition:transform .2s}
+.proj:nth-child(odd){transform:rotate(-1deg)}.proj:nth-child(even){transform:rotate(1deg)}
+.proj:hover{transform:rotate(0) translateY(-6px)}
+.proj .ic{width:64px;height:64px;border:3px solid var(--ink);display:grid;place-items:center;font-family:var(--font-display);font-size:2rem;border-radius:50%;background:var(--sun)}
+.proj:nth-child(2) .ic{background:var(--pink);border-radius:18px}
+.proj:nth-child(3) .ic{background:var(--sky);color:#fff;border-radius:50% 50% 50% 8px}
+.proj h3{font-size:1.7rem}
+.proj p{font-weight:300;font-size:.95rem}
+.proj .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.proj .tags span{font-size:.75rem;font-weight:600;border:2px solid var(--ink);border-radius:999px;padding:0 .8em}
+.row{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.demo{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px}
+label{font-weight:600;font-size:.9rem;display:block;margin-bottom:6px}
+input,textarea{width:100%;font:inherit;color:var(--ink);background:var(--paper);border:3px solid var(--ink);border-radius:18px;padding:.6em 1em;box-shadow:inset 3px 3px 0 rgba(91,46,72,.12)}
+input::placeholder{color:var(--ink);opacity:.45}
+.toggle{display:inline-flex;gap:8px;flex-wrap:wrap}
+.toggle button{font:600 .9rem var(--font-body);color:var(--ink);background:transparent;border:3px solid var(--ink);border-radius:999px;padding:.25em 1em;cursor:pointer}
+.toggle button[aria-pressed="true"]{background:var(--hot);color:var(--paper);box-shadow:3px 3px 0 var(--ink)}
+
+/* التذييل */
+footer{margin-top:80px;text-align:center;padding-bottom:28px}
+footer .big{font-size:clamp(2.6rem,8vw,5rem);-webkit-text-stroke:2px var(--ink);text-shadow:4px 4px 0 var(--ink)}
+footer p{font-weight:300;margin-top:12px}
+.strip{direction:ltr;overflow:hidden;border-top:4px solid var(--ink);background:var(--ink);margin-top:10px;padding-bottom:env(safe-area-inset-bottom,0px)}
+.track{display:flex;width:max-content;animation:slide 40s linear infinite}
+.strip:hover .track{animation-play-state:paused}
+@keyframes slide{to{transform:translateX(-50%)}}
+.tile{width:64px;height:64px;flex:none;display:grid;place-items:center}
+.tile svg{width:100%;height:100%;display:block}
+.full{width:100vw;margin-inline:calc(50% - 50vw)}
+.toast{position:fixed;inset-inline:0;bottom:calc(24px + env(safe-area-inset-bottom,0px));margin-inline:auto;width:max-content;max-width:90vw;background:var(--ink);color:var(--paper);border:3px solid var(--ink);border-radius:999px;padding:.4em 1.4em;font-weight:600;box-shadow:4px 4px 0 var(--hot);opacity:0;translate:0 20px;transition:.25s;pointer-events:none;z-index:50}
+.toast.on{opacity:1;translate:0 0}
+
+@media(max-width:760px){
+  .type,.demo{grid-template-columns:1fr}
+  section{padding-block:56px 0}
+  .pals span{display:none}
+  .panel{padding:20px}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+
+</head>
+<body>
+<div class="app" dir="rtl" lang="ar">
+  <header class="bar">
+    <div class="logo"><i></i> شرارة</div>
+    <div class="pals" role="group" aria-label="اختيار اللوحة">
+      <span>جرّب لوحة:</span>
+      <button class="pal" data-p="fire" aria-label="لهب" aria-pressed="true"></button>
+      <button class="pal" data-p="sea" aria-label="بحر" aria-pressed="false"></button>
+      <button class="pal" data-p="grape" aria-label="عنب" aria-pressed="false"></button>
+      <button class="pal" data-p="lime" aria-label="ليمون" aria-pressed="false"></button>
+    </div>
+  </header>
+
+  <main>
+    <div class="hero">
+      <h1>موقع <span class="hl">يصرخ</span><br>بألوانه، <span class="hl b">بذوق</span></h1>
+      <p class="lead">ورق كريمي، حبر عنابي، وألوان ما تعرف تسكت. هذي معاينة للثيم فقط. المحتوى كله مكان مؤقت لين تقول لي وش تبغى فيه.</p>
+
+      <div class="stage">
+        <div class="blob"></div>
+        <!-- ملصقات -->
+        <svg class="sticker" style="right:6%;top:6%;width:84px" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 50 m0 0 c0-6 6-10 11-8 8 3 9 14 3 20-9 9-26 7-32-4-8-14 0-33 17-38 22-6 42 8 44 30" fill="none" stroke="var(--hot)" stroke-width="8" stroke-linecap="round"/></svg>
+        <svg class="sticker slow" style="left:7%;top:10%;width:70px" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 C54 34 66 46 96 50 C66 54 54 66 50 96 C46 66 34 54 4 50 C34 46 46 34 50 4Z" fill="var(--sky)" stroke="var(--ink)" stroke-width="5" stroke-linejoin="round"/></svg>
+        <svg class="sticker slow" style="left:14%;bottom:8%;width:120px" viewBox="0 0 120 80" aria-hidden="true"><path d="M5 20 C30 0 40 40 62 22 C80 8 85 40 112 24 M10 60 C32 42 45 78 66 62 C86 48 92 74 114 62" fill="none" stroke="var(--sun)" stroke-width="7" stroke-linecap="round"/></svg>
+        <svg class="sticker" style="right:10%;bottom:14%;width:100px" viewBox="0 0 100 100" aria-hidden="true"><g fill="var(--pink)" stroke="var(--ink)" stroke-width="4"><circle cx="50" cy="22" r="19"/><circle cx="78" cy="42" r="19"/><circle cx="67" cy="75" r="19"/><circle cx="33" cy="75" r="19"/><circle cx="22" cy="42" r="19"/></g><circle cx="50" cy="52" r="14" fill="var(--sun)" stroke="var(--ink)" stroke-width="4"/></svg>
+
+        <svg class="mascot" id="mascot" viewBox="0 0 300 370" role="img" aria-label="شخصية لهب كرتونية تبتسم وتقفز">
+          <ellipse cx="150" cy="356" rx="105" ry="10" fill="var(--ink)" opacity=".18"/>
+          <g stroke="var(--ink)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M126 306 L118 336" fill="none"/><path d="M176 306 L190 330" fill="none"/>
+            <ellipse cx="108" cy="345" rx="30" ry="14" fill="var(--sun)" transform="rotate(-12 108 345)"/>
+            <ellipse cx="206" cy="337" rx="32" ry="14" fill="var(--sun)" transform="rotate(-22 206 337)"/>
+            <path d="M150 20 C170 70 215 90 225 150 C250 120 245 100 240 85 C275 130 285 190 265 240 C250 285 205 310 150 310 C95 310 50 285 38 235 C25 185 45 140 75 110 C75 135 85 150 100 160 C95 110 120 60 150 20Z" fill="var(--hot)"/>
+          </g>
+          <path d="M150 118 C176 160 206 190 201 236 C197 270 176 286 150 286 C120 286 99 270 97 240 C94 200 130 170 150 118Z" fill="var(--sun)"/>
+          <g fill="none" stroke="var(--ink)" stroke-width="8" stroke-linecap="round"><path d="M64 214 Q34 244 30 284"/><path d="M236 214 Q268 240 274 276"/></g>
+          <g fill="var(--card)" stroke="var(--ink)" stroke-width="5"><circle cx="30" cy="292" r="20"/><circle cx="274" cy="284" r="20"/></g>
+          <g fill="var(--ink)"><ellipse cx="128" cy="204" rx="8" ry="12"/><ellipse cx="172" cy="204" rx="8" ry="12"/></g>
+          <g id="pupils" fill="var(--card)"><circle cx="126" cy="200" r="3"/><circle cx="170" cy="200" r="3"/></g>
+          <circle cx="150" cy="224" r="6" fill="var(--hot)" stroke="var(--ink)" stroke-width="3"/>
+          <path d="M114 236 Q150 276 186 236 Q150 246 114 236Z" fill="var(--card)" stroke="var(--ink)" stroke-width="5" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <div class="cta">
+        <button class="btn" id="boom">اضغط على اللهب</button>
+        <button class="btn pink" id="shuffle">لوحة عشوائية</button>
+        <button class="btn ink">زر داكن</button>
+      </div>
+    </div>
+
+    <section>
+      <div class="sec-h">
+        <div><span class="tag">اللوحة</span><h2>ستة ألوان فقط</h2></div>
+        <p>اضغط على أي لون لنسخ قيمته. كل شيء في الصفحة مبني على هذه الستة.</p>
+      </div>
+      <div class="sw" id="sw"></div>
+    </section>
+
+    <section>
+      <div class="sec-h">
+        <div><span class="tag">الخط</span><h2>حروف بحبر ثقيل</h2></div>
+        <p>عنوان بخط عريض بتباين عالي، ونص قراءة خفيف بين الحروف. يتبدل بسهولة لما تحدد هويتك.</p>
+      </div>
+      <div class="type">
+        <div class="panel">
+          <div class="big">أبجد هوز</div>
+          <p style="margin-top:18px;font-weight:300;max-width:30rem">الحبر العنابي بدل الأسود يعطي الصفحة دفء بدون ما يضعف التباين. الحدود السميكة والظل المصمت يعطونها شكل ملصق مطبوع.</p>
+        </div>
+        <div class="panel">
+          <div class="scale">
+            <div><span class="d" style="font-size:3rem">عنوان</span><em>Rakkas · 3rem</em></div>
+            <div><span class="d" style="font-size:2rem">عنوان فرعي</span><em>Rakkas · 2rem</em></div>
+            <div><span style="font-size:1.1rem;font-weight:600">نص بارز للقراءة</span><em>Readex 600 · 1.1rem</em></div>
+            <div><span style="font-weight:300">نص عادي خفيف للفقرات الطويلة</span><em>Readex 300 · 1rem</em></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-h">
+        <div><span class="tag">القطع</span><h2>مكونات جاهزة</h2></div>
+        <p>بطاقات وأزرار ونماذج. المشاريع تحت أمثلة من عندي بس عشان تشوف الشكل.</p>
+      </div>
+      <div class="grid">
+        <article class="proj"><div class="ic">∑</div><h3>مختبر الرياضيات</h3><p>مثال: مسائل وبراهين مرتبة بمستويات، تبدأ من المبادئ الأولى.</p><div class="tags"><span>رياضيات</span><span>مثال</span></div></article>
+        <article class="proj"><div class="ic">⚛</div><h3>محرك فيزياء</h3><p>مثال: محاكاة أجسام بلغة C++ مع شرح كل معادلة داخل الكود.</p><div class="tags"><span>C++</span><span>فيزياء</span></div></article>
+        <article class="proj"><div class="ic">⌁</div><h3>دفتر خصوصي</h3><p>مثال: ملاحظات تبقى على جهازك، بدون حسابات ولا خوادم.</p><div class="tags"><span>خصوصية</span><span>بايثون</span></div></article>
+      </div>
+      <div class="demo">
+        <div class="panel">
+          <div class="row" style="margin-bottom:18px">
+            <button class="btn">أساسي</button>
+            <button class="btn pink">ثانوي</button>
+            <button class="btn ghost">شفاف</button>
+          </div>
+          <div class="toggle" id="tg" role="group" aria-label="مثال على الفلاتر">
+            <button aria-pressed="true">الكل</button><button aria-pressed="false">كود</button><button aria-pressed="false">أفكار</button><button aria-pressed="false">رياضيات</button>
+          </div>
+        </div>
+        <form class="panel" onsubmit="return false" id="f">
+          <label for="nm">الاسم</label>
+          <input id="nm" placeholder="اكتب اسمك هنا">
+          <div class="row" style="margin-top:14px"><button class="btn" type="submit" id="send">إرسال</button></div>
+        </form>
+      </div>
+    </section>
+
+    <footer>
+      <div class="big">جاهز؟</div>
+      <p>قل لي وش تبغى يكون هذا الموقع، وأبدّل المحتوى على نفس الثيم.</p>
+    </footer>
+  </main>
+</div>
+<div class="strip full" aria-hidden="true"><div class="track" id="track"></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  var body=document.body;
+  function setPal(p){
+    body.setAttribute('data-pal',p);
+    document.querySelectorAll('.pal').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.p===p?'true':'false')});
+    drawSwatches();
+  }
+  var names=['لهب','عسل','ورد','سماء','حبر','ورق'], vars=['--hot','--sun','--pink','--sky','--ink','--paper'];
+  function hex(c){
+    var m=c.match(/\d+/g); if(!m) return c.trim();
+    return '#'+m.slice(0,3).map(function(x){return ('0'+(+x).toString(16)).slice(-2)}).join('').toUpperCase();
+  }
+  function drawSwatches(){
+    var cs=getComputedStyle(body), box=document.getElementById('sw'); box.innerHTML='';
+    vars.forEach(function(v,i){
+      var val=cs.getPropertyValue(v).trim();
+      var b=document.createElement('button'); b.className='chip'; b.type='button';
+      b.innerHTML='<i></i><b>'+names[i]+'</b><small>'+val.toUpperCase()+'</small>';
+      b.onclick=function(){
+        var t=val.toUpperCase();
+        function done(){toast('نُسخ '+t)}
+        try{navigator.clipboard.writeText(t).then(done,done)}catch(e){done()}
+      };
+      box.appendChild(b);
+    });
+  }
+  var tt;
+  function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('on')},1600)}
+
+  document.querySelectorAll('.pal').forEach(function(b){b.onclick=function(){setPal(b.dataset.p)}});
+  document.getElementById('shuffle').onclick=function(){
+    var all=['fire','sea','grape','lime'],cur=body.getAttribute('data-pal')||'fire';
+    var n;do{n=all[Math.floor(Math.random()*4)]}while(n===cur);setPal(n);
+  };
+  var m=document.getElementById('mascot');
+  function boom(){m.classList.remove('pop');void m.getBoundingClientRect();m.classList.add('pop');toast('ألوان صارخة!')}
+  m.onclick=boom;document.getElementById('boom').onclick=boom;
+
+  var pu=document.getElementById('pupils');
+  window.addEventListener('pointermove',function(e){
+    var r=m.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height*.55;
+    var dx=e.clientX-cx,dy=e.clientY-cy,d=Math.hypot(dx,dy)||1,k=Math.min(1,d/200)*4;
+    pu.style.transform='translate('+(dx/d*k)+'px,'+(dy/d*k)+'px)';
+  });
+
+  document.querySelectorAll('#tg button').forEach(function(b){b.onclick=function(){
+    document.querySelectorAll('#tg button').forEach(function(x){x.setAttribute('aria-pressed','false')});b.setAttribute('aria-pressed','true')}});
+  document.getElementById('f').addEventListener('submit',function(){
+    var v=document.getElementById('nm').value.trim();toast(v?'أهلاً '+v:'اكتب اسمك أول');
+  });
+
+  // شريط الزخارف
+  var bg=['--sun','--sky','--pink','--hot','--card','--sun','--pink','--sky'];
+  var sh=[
+    '<path d="M32 8 C35 25 39 29 56 32 C39 35 35 39 32 56 C29 39 25 35 8 32 C25 29 29 25 32 8Z" fill="var(--ink)"/>',
+    '<g fill="var(--ink)"><circle cx="32" cy="17" r="10"/><circle cx="47" cy="28" r="10"/><circle cx="41" cy="46" r="10"/><circle cx="23" cy="46" r="10"/><circle cx="17" cy="28" r="10"/></g><circle cx="32" cy="34" r="7" fill="var(--paper)"/>',
+    '<circle cx="32" cy="32" r="18" fill="var(--paper)"/>',
+    '<path d="M8 8h16v16H8zM40 8h16v16H40zM24 24h16v16H24zM8 40h16v16H8zM40 40h16v16H40z" fill="var(--ink)"/>',
+    '<path d="M32 32m0 0c0-5 5-8 9-6 6 3 7 11 2 16-8 8-22 6-27-4-6-12 1-27 15-32" fill="none" stroke="var(--ink)" stroke-width="6" stroke-linecap="round"/>',
+    '<path d="M14 50A24 24 0 1 1 50 14A18 18 0 1 0 14 50Z" fill="var(--ink)"/>',
+    '<path d="M10 54V34a22 22 0 0 1 44 0v20h-12V34a10 10 0 0 0-20 0v20z" fill="var(--ink)"/>',
+    '<path d="M32 6l5 15 13-8-4 15 15 3-13 9 9 12-16-2-4 15-5-15-14 8 5-15-15-4 14-8-8-13 15 3z" fill="var(--paper)"/>'
+  ];
+  var html='';
+  for(var r=0;r<2;r++)for(var i=0;i<24;i++){
+    html+='<div class="tile" style="background:var('+bg[i%bg.length]+')"><svg viewBox="0 0 64 64">'+sh[(i*3)%sh.length]+'</svg></div>';
+  }
+  document.getElementById('track').innerHTML=html;
+
+  setPal('fire');
+})();
+</script>
+
+</body>
+</html>
