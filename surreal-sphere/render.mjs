@@ -40,6 +40,8 @@ if (mode === 'stills') {
     fs.writeFileSync(file, Buffer.from(url.split(',')[1], 'base64'));
     console.log(file, `${Date.now() - t0} ms`);
   }
+} else if (mode === 'points') {
+  for (const t of arg1.split(',').map(Number)) console.log(t, JSON.stringify(await page.evaluate((t) => window.debugPoints(t), t)));
 } else if (mode === 'video') {
   const out = arg1 || 'out/video.mp4';
   const total = Math.round(TL.duration * TL.fps);

@@ -66,17 +66,27 @@ function integrate(f, t, dt = 1 / 240) {
 const C0 = [0, 2.4, 0];
 const R0 = 1.0;
 const GRIPS = TL.hands.map((h) => h[1]);
-const SUN = nrm([-0.85, 0.40, -0.25]);
 
 function struggle(t) { return Math.pow(ssm(TL.dimStart, TL.inhale, t), 1.15); }
-function envAt(t) {
-  if (t >= TE) return mix(0.22, 1.25, ssm(TE + 0.05, TE + 1.7, t));
-  let e = mix(1.3, 1.0, ssm(5.5, 11.0, t));
-  e = mix(e, 0.66, ssm(TL.dimStart, TL.dimStart + 2.2, t));
-  e = mix(e, 0.38, ssm(TL.dimStart + 2.2, TL.climax, t));
-  e = mix(e, 0.22, ssm(TL.climax, TL.inhale + 0.3, t));
-  return e;
+// three lighting moods: the white void, the grey haze of the reference image, the dark climax
+const MOOD = {
+  void: { zen: [0.82, 0.83, 0.86], hor: [0.98, 0.98, 1.0], sun: [0.1, 0.1, 0.095] },
+  ref: { zen: [0.165, 0.17, 0.185], hor: [0.53, 0.52, 0.515], sun: [0.13, 0.125, 0.115] },
+  dark: { zen: [0.045, 0.046, 0.055], hor: [0.13, 0.128, 0.135], sun: [0.02, 0.02, 0.02] },
+};
+function moodAt(t) {
+  const L = (k) => {
+    let v = MOOD.void[k];
+    v = lerp3(v, MOOD.ref[k], ssm(9.6, 13.4, t));
+    v = lerp3(v, MOOD.dark[k], Math.pow(ssm(TL.hero[1], TL.inhale + 0.3, t), 1.2));
+    if (t >= TE) v = lerp3(MOOD.dark[k], MOOD.void[k], ssm(TE + 0.05, TE + 1.8, t));
+    return v;
+  };
+  const zen = L('zen'), hor = L('hor'), sun = L('sun');
+  const env = (zen[1] + hor[1]) / (MOOD.ref.zen[1] + MOOD.ref.hor[1]);
+  return { zen, hor, sun, env };
 }
+function envAt(t) { return moodAt(t).env; }
 function joltAt(t) {
   let j = 0, f = 0;
   for (const g of GRIPS) {
@@ -90,7 +100,7 @@ function joltAt(t) {
 function colorRate(t) {
   if (t < TL.pinch - 1.6) return 0;
   if (t >= TE) return 0.32;
-  return 0.69 + 3.4 * Math.pow(struggle(t), 1.6);
+  return 0.69 + 3.0 * Math.pow(struggle(t), 1.6);
 }
 const PALETTE = [
   [1.0, 0.04, 0.05], [0.05, 1.0, 0.28], [0.06, 0.28, 1.0], [0.62, 0.04, 1.0], [0.62, 1.0, 0.02],
@@ -103,6 +113,8 @@ function palette(phi) {
   return lerp3(PALETTE[i], PALETTE[(i + 1) % n], w);
 }
 
+const PHI0 = integrate(colorRate, TL.pinch);
+const PHI_FIX = (() => { const p = integrate(colorRate, TL.heroFrame) - PHI0; return Math.ceil(p / 9) * 9 - p; })();
 function sphereState(t, light = false) {
   const st = {
     C: [0, -6, 0], R: 0.5, amp: 0.03, freq: 1.4, nT: 0, colorAmt: 0, stretch: 1, glow: 0, tail: 0, iT: 0,
@@ -111,7 +123,8 @@ function sphereState(t, light = false) {
   if (!light) {
     st.nT = integrate((x) => 0.35 + 2.4 * struggle(x) + (x > TE ? 0.6 * Math.exp(-(x - TE) * 2) : 0), t);
     st.iT = integrate((x) => 0.5 + 2.5 * struggle(x), t);
-    st.phi = integrate(colorRate, t) - integrate(colorRate, TL.pinch);
+    st.phi = integrate(colorRate, t) - PHI0;
+    st.phi += PHI_FIX * ssm(11.4, 13.4, t);
   }
   const rs = TL.riseStart, pn = TL.pinch;
   if (t < rs) return st;
@@ -219,11 +232,11 @@ function buildHandModel() {
   P([0.045, 0.07, 0.025], [0.135, 0.215, 0.02], 0.074, 0.062);
   P([-0.075, 0.08, 0.012], [-0.125, 0.30, 0.012], 0.06, 0.054);
   const fingerDefs = [
-    { k: [0.150, 0.43, 0], fan: 5, L: [0.21, 0.125, 0.10], r: [0.049, 0.043, 0.038, 0.032] },
-    { k: [0.048, 0.455, 0], fan: 0, L: [0.23, 0.14, 0.105], r: [0.051, 0.045, 0.039, 0.033] },
-    { k: [-0.058, 0.44, 0], fan: -4, L: [0.215, 0.135, 0.10], r: [0.048, 0.042, 0.037, 0.031] },
-    { k: [-0.150, 0.395, 0], fan: -11, L: [0.17, 0.10, 0.09], r: [0.043, 0.037, 0.033, 0.028] },
-    { k: [0.085, 0.095, 0.03], dir: [0.62, 0.70, 0.36], L: [0.20, 0.145, 0.115], r: [0.064, 0.056, 0.05, 0.043], thumb: true },
+    { k: [0.150, 0.43, 0], fan: 8, L: [0.22, 0.13, 0.105], r: [0.042, 0.037, 0.032, 0.026] },
+    { k: [0.048, 0.455, 0], fan: 1, L: [0.24, 0.145, 0.11], r: [0.044, 0.038, 0.033, 0.027] },
+    { k: [-0.058, 0.44, 0], fan: -7, L: [0.225, 0.14, 0.105], r: [0.041, 0.036, 0.031, 0.026] },
+    { k: [-0.150, 0.395, 0], fan: -16, L: [0.18, 0.105, 0.095], r: [0.036, 0.031, 0.027, 0.023] },
+    { k: [0.085, 0.095, 0.03], dir: [0.66, 0.66, 0.36], L: [0.20, 0.15, 0.12], r: [0.058, 0.05, 0.044, 0.037], thumb: true },
   ];
   const fingers = [];
   fingerDefs.forEach((fd, fi) => {
@@ -238,7 +251,7 @@ function buildHandModel() {
 }
 const HAND = buildHandModel();
 const NBONES = 16;
-const SPREAD_W = [1.0, 0.0, -0.75, -1.5, 1.0];
+const SPREAD_W = [1.2, 0.1, -0.9, -1.8, 1.0];
 
 function sdTaper(p, c) {
   const ba = sub(c.b, c.a), pa = sub(p, c.a);
@@ -281,30 +294,70 @@ function sampleHandSurface(rng) {
   }
 }
 
+// ---------------------------------------------------------------- hero camera
+// Solved so that one stretch of the film reproduces the reference image: camera
+// 0.86 above the floor, horizon at 69% of the frame height, sphere centre at
+// (60%, 27%) of the frame and its diameter ≈ 55% of the frame height.
+const REF_W = 1672, REF_H = 941;
+const HERO = (() => {
+  const az = (20 * Math.PI) / 180, hd = 4.86, hc = 0.86, fov = 40;
+  const P = [C0[0] + Math.sin(az) * hd, hc, C0[2] + Math.cos(az) * hd];
+  const th = Math.tan((fov * Math.PI) / 360), asp = 16 / 9;
+  const basis = (yaw, pitch) => {
+    const f = [Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), Math.cos(yaw) * Math.cos(pitch)];
+    const r = nrm(cross(f, [0, 1, 0]));
+    return { f, r, u: cross(r, f) };
+  };
+  const proj = (yaw, pitch, X) => { const B = basis(yaw, pitch); const d = sub(X, P); const z = dot(d, B.f); return [dot(d, B.r) / z / (th * asp), dot(d, B.u) / z / th]; };
+  const target = [(1000 / REF_W) * 2 - 1, 1 - (250 / REF_H) * 2];
+  let yaw = Math.atan2(C0[0] - P[0], C0[2] - P[2]), pitch = 0.14;
+  for (let it = 0; it < 40; it++) {
+    const p = proj(yaw, pitch, C0), h = 1e-5;
+    const px = proj(yaw + h, pitch, C0), py = proj(yaw, pitch + h, C0);
+    const J = [(px[0] - p[0]) / h, (py[0] - p[0]) / h, (px[1] - p[1]) / h, (py[1] - p[1]) / h];
+    const e0 = target[0] - p[0], e1 = target[1] - p[1];
+    const det = J[0] * J[3] - J[1] * J[2];
+    yaw += (J[3] * e0 - J[1] * e1) / det;
+    pitch += (-J[2] * e0 + J[0] * e1) / det;
+  }
+  const B = basis(yaw, pitch);
+  const ray = (px, py) => nrm(add(B.f, add(scl(B.r, ((px / REF_W) * 2 - 1) * th * asp), scl(B.u, (1 - (py / REF_H) * 2) * th))));
+  return { pos: P, tgt: add(P, scl(B.f, 5)), fov, B, ray, th, az: Math.atan2(P[0] - C0[0], P[2] - C0[2]) };
+})();
+function refFloor(px, py, dmin, dmax) {
+  const d = HERO.ray(px, py);
+  const dh = Math.hypot(d[0], d[2]);
+  let th = d[1] < -1e-4 ? (-HERO.pos[1] / d[1]) * dh : dmax;
+  th = clamp(th, dmin, dmax);
+  return [HERO.pos[0] + (d[0] / dh) * th, 0, HERO.pos[2] + (d[2] / dh) * th];
+}
+// a direction expressed in the hero camera's frame (right, up, toward camera)
+const heroDir = (x, y, z) => nrm(add(add(scl(HERO.B.r, x), [0, y, 0]), scl(HERO.B.f, -z)));
+
 // ---------------------------------------------------------------- arms
-const ARM_DEFS = [
-  { u: [0.82, -0.28, 0.50], hint: [0, 1, 0], mir: 1, S: 2.0, ofs: 0.45, lean: 0.5, hero: true },
-  { u: [-0.80, -0.20, 0.56], hint: [0, 1, 0], mir: -1, S: 1.95, ofs: 0.5, lean: 0.5 },
-  { u: [0.12, 0.80, -0.58], hint: [0, 0.2, 1], mir: 1, S: 2.05, ofs: 0.7, lean: 0.35 },
-  { u: [0.05, -0.98, 0.20], hint: [0, 0, -1], mir: -1, S: 1.9, ofs: 0.5, lean: 0.6 },
-  { u: [0.62, 0.50, 0.60], hint: [0, 1, 0], mir: -1, S: 1.9, ofs: 0.6, lean: 0.45 },
-  { u: [-0.60, 0.52, 0.60], hint: [0, 1, 0], mir: 1, S: 1.9, ofs: 0.6, lean: 0.45 },
-  { u: [0.80, 0.10, -0.60], hint: [0, 1, 0], mir: -1, S: 2.0, ofs: 0.5, lean: 0.5 },
-  { u: [-0.78, 0.15, -0.60], hint: [0, 1, 0], mir: 1, S: 2.0, ofs: 0.5, lean: 0.5 },
-  { u: [0.05, -0.55, -0.83], hint: [0, 1, 0], mir: 1, S: 1.95, ofs: 0.5, lean: 0.5 },
-  { u: [-0.15, 0.96, 0.20], hint: [1, 0, 0], mir: -1, S: 2.0, ofs: 0.7, lean: 0.35 },
-];
-// a field of hands rising further away, clawing at the sphere they cannot reach
-const FAR_DEFS = [
-  { X: [-6.6, 0, -1.6], t0: 13.7, t1: 15.7, S: 2.0, mir: 1, lean: 0.45 },
-  { X: [-8.6, 0, 1.8], t0: 14.5, t1: 16.4, S: 2.1, mir: -1, lean: 0.4 },
-  { X: [-5.2, 0, -4.6], t0: 15.3, t1: 17.0, S: 1.85, mir: -1, lean: 0.5 },
-  { X: [-10.2, 0, -5.0], t0: 16.0, t1: 17.8, S: 2.2, mir: 1, lean: 0.35 },
-  { X: [-4.6, 0, 4.6], t0: 16.9, t1: 18.5, S: 1.85, mir: 1, lean: 0.5 },
-  { X: [5.6, 0, -5.4], t0: 17.7, t1: 19.2, S: 1.95, mir: -1, lean: 0.45 },
-  { X: [6.6, 0, 4.0], t0: 18.5, t1: 19.9, S: 2.0, mir: 1, lean: 0.45 },
-  { X: [-1.8, 0, -8.6], t0: 19.3, t1: 20.7, S: 2.1, mir: -1, lean: 0.4 },
-];
+// hero:  rises beside the sphere and grips its left side, as in the reference.
+// mid:   the three nearer background hands of the reference — rise, claw, then lunge in.
+// field: the small far hands near the horizon of the reference — they only claw.
+// side:  hands from outside the hero frame that join the struggle later.
+function armList() {
+  const L = [];
+  const g = TL.hands, f = TL.field;
+  const qv = (k, d) => (Q.get(k) ? Q.get(k).split(',').map(Number) : d);
+  L.push({ type: 'hero', S: +(Q.get('hs') || 1.6), mir: -1, u: heroDir(...qv('hu', [-0.85, -0.25, 0.45])), hint: heroDir(...qv('hh', [1, 0.75, 0])),
+           fdir: heroDir(...qv('hf', [-0.07, -1, 0.2])), ulean: 0.5, gap: +(Q.get('hgap') || 0.28), foreK: 1.3,
+           lean: -0.15, reachK: 0.5, yLean: 0.0, t0: g[0][0], t1: g[0][1] });
+  const mids = [[1490, 775, 250, 0.15], [300, 700, 290, 0.35]];
+  mids.forEach(([px, py, ph, elev], k) => L.push({ type: 'mid', ref: [px, py, ph], dmin: 6.5, dmax: 10.5, mir: k % 2 ? -1 : 1, elev,
+    t0: g[k + 1][0], t1: g[k + 1][1], lean: 0.45, gap: 0.24 }));
+  L.push({ type: 'field', ref: [1250, 720, 120], dmin: 6.5, dmax: 12, mir: 1, t0: g[3][0], lean: 0.4 });
+  const fields = [[970, 705, 65], [1115, 715, 65], [115, 660, 125], [1050, 712, 32]];
+  fields.forEach(([px, py, ph], k) => L.push({ type: 'field', ref: [px, py, ph], dmin: 13, dmax: 22, mir: k % 2 ? 1 : -1, t0: f[k], lean: 0.35 }));
+  const sides = [[115, 4.8, 0.1], [95, 4.6, 0.55], [-100, 5.0, 0.25], [150, 5.5, -0.35], [-150, 5.2, 0.9], [60, 6.0, -0.5], [-60, 6.2, 1.25]];
+  const slots = [3, 4, 5, 6, 7, 8, 9];
+  sides.forEach(([az, dist, elev], k) => L.push({ type: 'side', az, dist, elev, mir: k % 2 ? -1 : 1, S: 1.3 + 0.1 * (k % 3), gap: 0.24,
+    t0: g[slots[k]][0] + (k === 0 ? 2.7 : 0), t1: g[slots[k]][1], lean: 0.45 }));
+  return L;
+}
 
 const _m4 = new THREE.Matrix4();
 function quatFromBasis(X, Y, Z) {
@@ -328,56 +381,76 @@ function crossFloor(poly) {
   return hit;
 }
 
-function setupGripArm(def, idx) {
-  const u = nrm(def.u);
-  const v = nrm(sub(def.hint, scl(u, dot(def.hint, u))));
+function gripPose(u, hint, S, ofs, ulean, fdir, gap = 0.065) {
+  const v = nrm(sub(hint, scl(u, dot(hint, u))));
   const Z = scl(u, -1), Y = v, X = cross(Y, Z);
-  const S = def.S;
   const Rh = (R0 + 0.03) / S;
-  const cl = [0, 0.29, 0.065 + Rh];
-  const wOff = scl(add(scl(Y, cl[1]), scl(Z, cl[2])), -S);
+  const wOff = scl(add(scl(Y, 0.29), scl(Z, gap + Rh)), -S);
   const Wg = add(C0, wOff);
-  const f = nrm(add(scl(v, -1), scl(u, def.ofs)));
+  const f = fdir || nrm(add(scl(v, -1), scl(u, ofs)));
   const L2 = 1.35 * S;
   const Eg = add(Wg, scl(f, L2));
-  let out = [Eg[0], 0, Eg[2]];
+  let out = [Eg[0] - C0[0], 0, Eg[2] - C0[2]];
   out = len(out) > 1e-3 ? nrm(out) : [0, 0, 1];
-  const g = nrm(add(scl(out, def.lean), [0, -1, 0]));
+  const g = nrm(add(scl(out, ulean), [0, -1, 0]));
   const L1 = Math.max(1.45 * S, (Eg[1] + 1.7) / -g[1]);
   const Sh = add(Eg, scl(g, L1));
   const dSW = nrm(sub(Wg, Sh));
   const pole = nrm(sub(sub(Eg, Sh), scl(dSW, dot(sub(Eg, Sh), dSW))));
   const cr = crossFloor([Sh, Eg, Wg]);
   const X0 = cr ? cr.p : [Wg[0], 0, Wg[2]];
-  const Zs = nrm([C0[0] - X0[0], 0, C0[2] - X0[2]]);
-  const Ys = [0, 1, 0];
-  const Xs = cross(Ys, Zs);
-  const [t0, t1] = TL.hands[idx];
-  return {
-    idx, def, far: false, u, v, S, mir: def.mir, wOff, L1, L2, Sh, pole, X0,
-    Wstart: [X0[0], -2.7, X0[2]], B1: [X0[0], 1.0, X0[2]], hover: add(scl(u, 0.85), scl(v, -0.45)),
-    q0: quatFromBasis(Xs, Ys, Zs), qg: quatFromBasis(X, Y, Z), t0, t1, phase: idx * 1.7 + 0.3, Eg, Wg,
-  };
+  return { u, v, wOff, L1, L2, Sh, pole, X0, Eg, qg: quatFromBasis(X, Y, Z), hover: add(scl(u, 0.85), scl(v, -0.45)) };
 }
-function setupFarArm(def, idx) {
-  const S = def.S;
-  const X0 = def.X;
-  const toS = nrm(sub(C0, X0));
+function reachPose(Xe, S, lean, k, yLean, faceCam = 0) {
+  const toS = nrm(sub(C0, Xe));
   const hz = nrm([toS[0], 0, toS[2]]);
-  const fup = nrm(add(scl(hz, def.lean), [0, 1, 0]));
+  const fup = nrm(add(scl(hz, lean), [0, 1, 0]));
   const L2 = 1.35 * S;
-  const Wt = add(X0, scl(fup, L2 * 0.8));
-  const Y = nrm(add(fup, scl(hz, 0.4)));
-  const dW = nrm(sub(C0, Wt));
-  const Z = nrm(sub(dW, scl(Y, dot(dW, Y))));
-  const X = cross(Y, Z);
-  return {
-    idx, def, far: true, S, mir: def.mir, L1: 2, L2, X0, fup, Wt, Wstart: sub(X0, scl(fup, L2 * 1.25)),
-    q0: quatFromBasis(X, Y, Z), qg: quatFromBasis(X, Y, Z), t0: def.t0, t1: def.t1, phase: idx * 2.3 + 1.1,
-    u: scl(Z, -1), Eg: sub(Wt, scl(Y, L2)),
-  };
+  const Wr = add(Xe, scl(fup, L2 * k));
+  const Y = nrm(add(fup, scl(hz, yLean)));
+  const toCam = nrm([HERO.pos[0] - Wr[0], 0, HERO.pos[2] - Wr[2]]);
+  const dW = nrm(add(scl(nrm(sub(C0, Wr)), 1 - faceCam), scl(toCam, faceCam)));
+  let Z = sub(dW, scl(Y, dot(dW, Y)));
+  Z = len(Z) > 1e-3 ? nrm(Z) : hz;
+  return { Wr, Y, fup, q: quatFromBasis(cross(Y, Z), Y, Z), Wstart: sub(Xe, scl(fup, L2 * 1.25)) };
 }
-const ARMS = [...ARM_DEFS.map(setupGripArm), ...FAR_DEFS.map((d, i) => setupFarArm(d, ARM_DEFS.length + i))];
+function setupArm(d, idx) {
+  let S = d.S, Xe, grip = null;
+  if (d.type === 'mid' || d.type === 'field') {
+    Xe = refFloor(d.ref[0], d.ref[1], d.dmin, d.dmax);
+    const dist = len(sub(Xe, HERO.pos));
+    S = clamp(((d.ref[2] / REF_H) * 2 * HERO.th * dist) / 1.95, 0.6, 2.4);
+  }
+  if (d.type === 'side') {
+    const a = (d.az * Math.PI) / 180 + HERO.az;
+    Xe = [C0[0] + Math.sin(a) * d.dist, 0, C0[2] + Math.cos(a) * d.dist];
+  }
+  if (d.type !== 'field') {
+    let u, hint;
+    if (d.type === 'hero') { u = d.u; hint = d.hint; }
+    else {
+      const hz = nrm([Xe[0] - C0[0], 0, Xe[2] - C0[2]]);
+      u = nrm(add(hz, [0, d.elev, 0]));
+      hint = Math.abs(u[1]) > 0.75 ? scl(hz, -1) : [0, 1, 0];
+    }
+    grip = gripPose(u, hint, S, d.ofs ?? 0.5, d.ulean ?? 0.5, d.fdir, d.gap);
+    if (d.type === 'hero') {
+      const out = nrm([grip.X0[0] - C0[0], 0, grip.X0[2] - C0[2]]);
+      Xe = add(grip.X0, scl(add(out, scl(HERO.B.r, -0.6)), 0.9));
+    }
+  }
+  const reach = reachPose(Xe, S, d.lean, d.reachK ?? 0.8, d.yLean ?? 0.4, d.type === 'mid' || d.type === 'field' ? 0.85 : 0);
+  let tr, tm, t1;
+  if (d.type === 'hero') { tr = d.t0 + 1.25; tm = tr; t1 = d.t1; }
+  else if (d.type === 'mid') { tr = d.t0 + 1.4; t1 = d.t1; tm = t1 - 1.2; }
+  else if (d.type === 'side') { tr = d.t0 + 1.0; t1 = d.t1; tm = t1 - 1.0; }
+  else { tr = d.t0 + 1.4; tm = Infinity; t1 = Infinity; }
+  return { idx, d, type: d.type, hero: d.type === 'hero', S, mir: d.mir, Xe, reach, grip, t0: d.t0, tr, tm, t1, foreK: d.foreK ?? 1,
+           phase: idx * 1.7 + 0.3, L2: 1.35 * S, Eg: grip ? grip.Eg : sub(reach.Wr, scl(reach.Y, 1.35 * S)) };
+}
+const SUN = nrm(add(add(HERO.B.f, scl(HERO.B.r, 0.3)), [0, 0.5, 0]));
+const KEY = nrm(add(add(scl(HERO.B.r, -0.5), [0, 0.6, 0]), scl(HERO.B.f, -0.65)));
+const ARMS = armList().map(setupArm);
 const NARM = ARMS.length;
 
 // ---------------------------------------------------------------- particles
@@ -386,15 +459,15 @@ function pickShape(r) { let i = 0; while (r > SHAPE_CDF[i]) i++; return i; }
 
 const plan = ARMS.map((a) => {
   const D = DENSITY;
-  if (a.far) return { hand: Math.round(6000 * D), fore: Math.round(3800 * D), elbow: 0, upper: 0, debris: Math.round(700 * D) };
-  const hero = a.def.hero;
+  if (a.type === 'field') return { hand: Math.round(4000 * D), fore: Math.round(2500 * D), elbow: 0, upper: 0, debris: Math.round(400 * D) };
+  const hero = a.hero;
   const upVis = Math.max(0.5, a.Eg[1] + 0.5);
   return {
-    hand: Math.round((hero ? 17000 : 12000) * D),
-    fore: Math.round((hero ? 9000 : 6500) * D),
-    elbow: Math.round(700 * D),
-    upper: Math.round(Math.min(10000, 1300 * upVis + 1500) * D),
-    debris: Math.round((hero ? 2400 : 1500) * D),
+    hand: Math.round((hero ? 15000 : 9500) * D),
+    fore: Math.round((hero ? 15000 : 5500) * D),
+    elbow: Math.round(600 * D),
+    upper: Math.round(Math.min(8000, 1100 * upVis + 1400) * D),
+    debris: Math.round((hero ? 3200 : 1200) * D),
   };
 });
 const NA = plan.reduce((s, p) => s + p.hand + p.fore + p.elbow + p.upper + p.debris, 0);
@@ -409,15 +482,16 @@ const dropDefs = [];
     if (t < TL.pinch || t >= TE) return 0;
     let d = t < TL.dimStart ? 0.5 : 0.5 + 16 * Math.pow(struggle(t), 1.4);
     for (const g of GRIPS) if (t >= g) d += 7 * Math.exp(-(t - g) * 3);
+    if (t > TL.hero[0] - 0.8 && t < TL.hero[1]) d += 9;
     return d;
   };
   const ts = [], cdf = [];
   let acc = 0;
   for (let t = TL.pinch; t < TE; t += 0.005) { acc += dens(t) * 0.005; ts.push(t); cdf.push(acc); }
-  const gripping = (t) => ARMS.filter((a) => !a.far && a.t1 <= t);
+  const gripping = (t) => ARMS.filter((a) => a.grip && a.t1 <= t);
   const group = (t0, dir, speed, size0, life, n, hue) => {
     for (let k = 0; k < n; k++) {
-      dropDefs.push({ t0, dir, speed, size: Math.max(size0 * (1 - 0.1 * k), 0.006), life, delay: k * 0.028 + (rng() - 0.5) * 0.006, hue, jit: randUnit(rng) });
+      dropDefs.push({ t0, dir, speed, size: Math.max(size0 * (1 - 0.1 * k), 0.006), life, delay: k * 0.016 + (rng() - 0.5) * 0.004, hue, jit: randUnit(rng) });
     }
   };
   // snap of the pinch: a ring of droplets thrown from the neck
@@ -435,7 +509,7 @@ const dropDefs = [];
     let dir;
     if (gr.length && rng() < 0.65) {
       const a = gr[Math.floor(rng() * gr.length)];
-      dir = nrm(add(a.u, scl(randUnit(rng), 0.6)));
+      dir = nrm(add(a.grip.u, scl(randUnit(rng), 0.6)));
     } else {
       dir = randUnit(rng);
       dir[1] = Math.abs(dir[1]) * 0.8 + 0.1;
@@ -443,8 +517,8 @@ const dropDefs = [];
     }
     const S = struggle(t0);
     const hr = rng();
-    group(t0, dir, 1.2 + 3.5 * rng() + 3 * S, 0.016 + 0.045 * Math.pow(rng(), 1.5) * (0.6 + S), 0.55 + 0.7 * rng(),
-          2 + Math.floor(rng() * 8), hr < 0.5 ? 0 : hr < 0.8 ? 1 : 2);
+    group(t0, dir, 0.7 + 2.6 * rng() + 3 * S, 0.016 + 0.045 * Math.pow(rng(), 1.5) * (0.6 + S), 0.35 + 0.6 * rng(),
+          2 + Math.floor(rng() * 7), hr < 0.4 ? 0 : hr < 0.7 ? 1 : 2);
   }
   // the burst at the explosion
   for (let g = 0; g < NBURST; g++) {
@@ -489,8 +563,8 @@ let explosionCached = false;
   // inset depth → ambient occlusion baked into the albedo
   const inset = (size) => {
     const k = rng();
-    const depth = size * (0.15 + 0.75 * k * k);
-    pInfo[i * 4 + 3] = (0.74 + 0.26 * rng()) * (1 - 0.42 * sat((depth / size - 0.2) / 0.7));
+    const depth = size * (0.3 + 0.65 * k * k);
+    pInfo[i * 4 + 3] = (0.72 + 0.28 * rng()) * (1 - 0.62 * sat((depth / size - 0.3) / 0.6));
     return depth;
   };
   ARMS.forEach((arm, ai) => {
@@ -498,8 +572,9 @@ let explosionCached = false;
     arm.start = i;
     const S = arm.S, sc = S / 2;
     for (let k = 0; k < pl.hand; k++, i++) {
-      const size = common(0.014 * sc, 0.058 * sc, 1.9);
       const smp = sampleHandSurface(rng);
+      const fingerK = smp.bone === 0 ? 1.0 : 0.58;
+      const size = common(0.016 * sc * fingerK, 0.068 * sc * fingerK, 1.9);
       const off = (-inset(size) + (rng() < 0.06 ? 0.03 * rng() : 0)) / S;
       kind[i] = 0; bone[i] = smp.bone;
       lp.set(add(smp.p, scl(smp.n, off)), i * 3);
@@ -508,7 +583,7 @@ let explosionCached = false;
     }
     for (let k = 0; k < pl.fore; k++, i++) {
       const s = -0.06 + 1.1 * rng();
-      const size = common(0.02 * sc, (0.07 + 0.03 * sat(s)) * sc, 1.6);
+      const size = common(0.024 * sc * arm.foreK, (0.08 + 0.035 * sat(s)) * sc * arm.foreK, 1.6);
       kind[i] = 1;
       lp.set([s, rng() * Math.PI * 2, -inset(size)], i * 3);
       uu[i] = mix(0.35, 0.65, sat(s));
@@ -531,7 +606,7 @@ let explosionCached = false;
       pInfo[i * 4 + 3] = 0.72 + 0.28 * rng();
       kind[i] = 4;
       const early = rng() < 0.35;
-      const td = early ? arm.t0 + 0.25 + 1.1 * rng() : mix(arm.t1, TE - 0.3, Math.sqrt(rng()));
+      const td = early ? arm.t0 + 0.25 + 1.1 * rng() : mix(arm.tr, TE - 0.3, Math.sqrt(rng()));
       const dist = (0.35 + 2.3 * Math.pow(rng(), 1.6)) * sc + size;
       lp.set([0.15 + 1.4 * rng(), rng() * Math.PI * 2, dist], i * 3);
       ln.set([rng() * Math.PI * 2, 0.45 + 0.5 * rng(), 0.2 + 0.6 * rng()], i * 3);
@@ -552,7 +627,7 @@ let explosionCached = false;
 // ---------------------------------------------------------------- arm pose
 function solveFinger(fg, curl, spread, cl, Rh, jit, out) {
   const spreadAng = fg.thumb ? 0 : spread * SPREAD_W[fg.fi];
-  let Qp = fg.thumb ? I3 : rotAxis([0, 0, 1], spreadAng);
+  let Qp = fg.thumb ? I3 : rotAxis([0, 0, 1], -spreadAng);
   let J = fg.J[0];
   const rel = fg.thumb ? [0.05, 0.10, 0.12] : [0.10, 0.16, 0.09];
   const mx = fg.thumb ? [0.55, 0.65, 0.95] : [1.35, 1.65, 1.15];
@@ -588,45 +663,57 @@ function solveFinger(fg, curl, spread, cl, Rh, jit, out) {
 }
 
 function armTension(arm, t) {
-  if (arm.far) return t < arm.t1 ? 0 : 0.15 + 0.5 * struggle(t);
-  if (t < arm.t1) return 0;
+  if (!arm.grip) return t < arm.tr ? 0 : 0.15 + 0.5 * struggle(t);
+  if (t < arm.t1) return 0.06 * sstep(arm.tr, arm.tr + 1, t);
   return ssm(arm.t1, arm.t1 + 0.8, t) * (0.3 + 0.7 * struggle(t));
 }
 
+const HANDTEST = DBG.includes('handtest');
 function poseArm(arm, t, sph) {
-  if (t < arm.t0) { arm.active = false; return; }
+  if (HANDTEST && !arm.hero) { arm.active = false; return; }
+  if (t < arm.t0 && !HANDTEST) { arm.active = false; return; }
   arm.active = true;
   const tt = Math.min(t, TE);
-  const tau = sat((tt - arm.t0) / (arm.t1 - arm.t0));
-  const e = ssm(0, 1, tau);
   const tens = armTension(arm, tt);
-  let W, B, curl, spread, cl, Rh;
-  const mir = arm.mir;
-  if (arm.far) {
-    const sway = [0.12 * Math.sin(tt * 0.7 + arm.phase), 0.06 * Math.sin(tt * 0.9 + arm.phase * 2), 0.12 * Math.sin(tt * 0.6 + arm.phase * 3)];
-    W = add(lerp3(arm.Wstart, arm.Wt, e), scl(sway, e));
-    B = basisFromQuat(arm.qg);
-    curl = mix(-0.4, 0.15 + 0.3 * (0.5 + 0.5 * Math.sin(tt * 1.5 + arm.phase)) + 0.25 * tens, ssm(0.5, 1, tau));
-    spread = mix(0.3, 0.12, ssm(0.5, 1, tau));
-    cl = [0, 0, 50];
-    Rh = 0.1;
+  const mir = arm.mir, R = arm.reach, G = arm.grip;
+  let W, q, curl, spread, cl = [0, 0, 50], Rh = 0.1, approach = 0;
+  const claw = -0.1 + 0.25 * (0.5 + 0.5 * Math.sin(tt * 1.5 + arm.phase)) + 0.2 * tens;
+  const sway = scl([Math.sin(tt * 0.7 + arm.phase), 0.5 * Math.sin(tt * 0.9 + arm.phase * 2), Math.sin(tt * 0.6 + arm.phase * 3)], arm.hero ? 0.03 : 0.1);
+  const stance = arm.hero ? -0.2 : claw;
+  if (tt < arm.tm) {
+    const e = ssm(arm.t0, arm.tr, tt);
+    W = add(lerp3(R.Wstart, R.Wr, e), scl(sway, e));
+    q = R.q;
+    curl = mix(-0.5, stance, ssm(arm.t0 + 0.4 * (arm.tr - arm.t0), arm.tr, tt));
+    spread = 0.3;
+    arm.tau = 0;
   } else {
-    const Wg = add(add(sph.C, arm.wOff), scl(arm.u, (sph.R - R0) * 0.9));
-    const B2 = add(Wg, arm.hover);
-    W = bezier(arm.Wstart, arm.B1, B2, Wg, e);
-    const q = new THREE.Quaternion().slerpQuaternions(arm.q0, arm.qg, ssm(0.12, 0.85, tau));
-    B = basisFromQuat(q);
-    const { j } = joltAt(tt);
-    W = add(W, scl(arm.u, 0.05 * j * sat(tau * 4 - 3)));
-    W = add(W, scl(B.X, tens * 0.05 * Math.sin(tt * 13 + arm.phase)));
-    curl = tau < 1 ? mix(-0.6, 1.0, ssm(0.78, 1.0, tau)) : 1.0;
+    const tau = sat((tt - arm.tm) / (arm.t1 - arm.tm));
+    const e = ssm(0, 1, tau);
+    approach = Math.max(e, 1e-3);
+    const Wg = add(add(sph.C, G.wOff), scl(G.u, (sph.R - R0) * 0.9));
+    const Wr = add(R.Wr, sway);
+    W = bezier(Wr, add(Wr, scl(R.fup, 0.6)), add(Wg, G.hover), Wg, e);
+    q = new THREE.Quaternion().slerpQuaternions(R.q, G.qg, ssm(0.1, 0.8, tau));
+    curl = tau < 1 ? mix(mix(stance, -0.6, ssm(0, 0.35, tau)), 1.0, ssm(0.78, 1.0, tau)) : 1.0;
     spread = mix(0.3, 0.06, ssm(0.75, 1.0, tau));
+    arm.tau = tau;
   }
-  arm.W = W; arm.B = B; arm.tau = tau; arm.tension = tens;
+  let B = basisFromQuat(q);
+  if (HANDTEST) {
+    W = [0, 1, 0]; B = { X: [1, 0, 0], Y: [0, 1, 0], Z: [0, 0, 1] };
+    curl = +(Q.get('curl') || 0); spread = +(Q.get('spread') || 0.3); approach = 0;
+  }
+  if (approach > 0) {
+    const { j } = joltAt(tt);
+    W = add(W, scl(G.u, 0.05 * j * sat(arm.tau * 4 - 3)));
+    W = add(W, scl(B.X, tens * 0.05 * Math.sin(tt * 13 + arm.phase)));
+  }
+  arm.W = W; arm.B = B; arm.tension = HANDTEST ? 0 : tens;
   const Xm = scl(B.X, mir);
   const Bm = [Xm[0], B.Y[0], B.Z[0], Xm[1], B.Y[1], B.Z[1], Xm[2], B.Y[2], B.Z[2]];
   arm.Bm = Bm;
-  if (!arm.far) {
+  if (approach > 0) {
     const dC = sub(sph.C, W);
     cl = [dot(Xm, dC) / arm.S, dot(B.Y, dC) / arm.S, dot(B.Z, dC) / arm.S];
     Rh = (sph.R + sph.amp * 0.4 + 0.015) / arm.S;
@@ -646,29 +733,31 @@ function poseArm(arm, t, sph) {
     arm.boneM.set(M, b * 9);
     arm.boneT.set(T, b * 3);
   }
-  if (arm.far) {
-    arm.E = sub(W, scl(B.Y, arm.L2));
-    arm.Sh = add(arm.E, [0, -2, 0]);
+  const Estr = sub(W, scl(B.Y, arm.L2));
+  if (approach === 0) {
+    arm.E = Estr;
+    arm.Sh = sub(Estr, scl(R.fup, 2.0));
   } else {
-    const Estr = sub(W, scl(B.Y, arm.L2));
-    const d0 = sub(W, arm.Sh);
+    const Sh = lerp3(sub(sub(R.Wr, scl(R.Y, arm.L2)), scl(R.fup, 2.0)), G.Sh, approach);
+    const d0 = sub(W, Sh);
     let dl = len(d0);
     const dir = scl(d0, 1 / dl);
     let Eik;
-    if (dl >= arm.L1 + arm.L2 - 1e-3) Eik = add(arm.Sh, scl(dir, (dl * arm.L1) / (arm.L1 + arm.L2)));
+    const L1 = G.L1, L2 = arm.L2;
+    if (dl >= L1 + L2 - 1e-3) Eik = add(Sh, scl(dir, (dl * L1) / (L1 + L2)));
     else {
-      dl = Math.max(dl, Math.abs(arm.L1 - arm.L2) + 1e-3);
-      const a = (arm.L1 * arm.L1 - arm.L2 * arm.L2 + dl * dl) / (2 * dl);
-      const h = Math.sqrt(Math.max(arm.L1 * arm.L1 - a * a, 0));
-      const pp = nrm(sub(arm.pole, scl(dir, dot(arm.pole, dir))));
-      Eik = add(add(arm.Sh, scl(dir, a)), scl(pp, h));
+      dl = Math.max(dl, Math.abs(L1 - L2) + 1e-3);
+      const a = (L1 * L1 - L2 * L2 + dl * dl) / (2 * dl);
+      const h = Math.sqrt(Math.max(L1 * L1 - a * a, 0));
+      const pp = nrm(sub(G.pole, scl(dir, dot(G.pole, dir))));
+      Eik = add(add(Sh, scl(dir, a)), scl(pp, h));
     }
-    const bl = ssm(0.3, 0.95, tau);
+    const bl = ssm(0.3, 0.95, arm.tau);
     const Ed = nrm(lerp3(sub(Estr, W), sub(Eik, W), bl));
-    arm.E = add(W, scl(Ed, arm.L2));
+    arm.E = add(W, scl(Ed, L2));
+    arm.Sh = Sh;
   }
   arm.tip = add(W, scl(B.Y, arm.S * 0.9));
-  // where the arm pierces the liquid floor
   const radii = [0.235, 0.2, 0.15, 0.1].map((r) => r * arm.S);
   const hit = crossFloor([arm.Sh, arm.E, arm.W, arm.tip]);
   if (hit) {
@@ -712,11 +801,10 @@ function writeArmParticles(arm, t, sph) {
   const cr = arm.cross;
   const sleeveTop = cr ? cr.X[1] + 0.5 : 0.5;
   // debris frame
-  const dX = cr ? cr.X : [arm.X0[0], 0, arm.X0[2]];
+  const dX = cr ? cr.X : [arm.Xe[0], 0, arm.Xe[2]];
   const dDir = cr ? cr.dir : [0, 1, 0];
   const dR = cr ? cr.r : 0.2 * S;
   const db1 = nrm(cross(dDir, [0, 0, 1])), db2 = cross(dDir, db1);
-  const restC = arm.X0;
   for (let i = start; i < end; i++) {
     const k = kind[i];
     const i3 = i * 3, i4 = i * 4;
@@ -729,6 +817,7 @@ function writeArmParticles(arm, t, sph) {
       const ox = dX[0] + dDir[0] * h0 + (db1[0] * Math.cos(th) + db2[0] * Math.sin(th)) * dR;
       const oy = Math.max(dX[1] + dDir[1] * h0, 0.2) + (db1[1] * Math.cos(th) + db2[1] * Math.sin(th)) * dR;
       const oz = dX[2] + dDir[2] * h0 + (db1[2] * Math.cos(th) + db2[2] * Math.sin(th)) * dR;
+      const restC = arm.grip && td >= arm.tm ? arm.grip.X0 : arm.Xe;
       const rx = restC[0] + Math.cos(phi) * dist, rz = restC[2] + Math.sin(phi) * dist;
       const ry = flareY(dist, dR * 0.9, 0.35 + 0.9 * dR) + size * 0.42;
       const s = sat((t - td) / dur);
@@ -756,7 +845,7 @@ function writeArmParticles(arm, t, sph) {
     } else if (k === 1) {
       const s = lp[i3], th = lp[i3 + 1], dep = lp[i3 + 2];
       const sp = Math.pow(sat(s), 0.8);
-      const rx = S * mix(0.145, 0.205, sp) * (1 + 0.08 * Math.sin(Math.PI * sat(s))), rz = S * mix(0.088, 0.17, sp);
+      const rx = S * arm.foreK * mix(0.145, 0.205, sp) * (1 + 0.08 * Math.sin(Math.PI * sat(s))), rz = S * arm.foreK * mix(0.088, 0.17, sp);
       const c = Math.cos(th), sn = Math.sin(th);
       const gx = e1[0] * c / rx + e2[0] * sn / rz, gy = e1[1] * c / rx + e2[1] * sn / rz, gz = e1[2] * c / rx + e2[2] * sn / rz;
       const gl = Math.hypot(gx, gy, gz);
@@ -791,34 +880,34 @@ function writeArmParticles(arm, t, sph) {
       px += nx * swell; py += ny * swell; pz += nz * swell;
     }
     // loose fragments drifting off the surface
-    if (sb < 0.07 + 0.12 * tens) {
+    if (sb < (arm.hero ? 0.035 : 0.07) + 0.12 * tens && !HANDTEST) {
       const loose = (0.04 + tens * 0.35 + 0.12 * emerging) * (0.2 + sa) * (0.6 + 0.4 * Math.sin(t * 2.1 + sa * 40)) * (S / 2);
       px += nx * loose; py += ny * loose + loose * 0.3 * Math.sin(t * 1.3 + sb * 30); pz += nz * loose;
     }
     px += jitA * Math.sin(t * 47 + sa * 91);
     py += jitA * Math.sin(t * 53 + sb * 57);
     pz += jitA * Math.sin(t * 59 + sa * 23 + sb * 11);
-    if (inh > 0 && !arm.far) {
+    if (inh > 0 && arm.grip) {
       const f = 1 - 0.07 * inh;
       px = C[0] + (px - C[0]) * f; py = C[1] + (py - C[1]) * f; pz = C[2] + (pz - C[2]) * f;
     }
     // the limb crumbles where it leaves the liquid
     let sizeMul = 1;
-    const crumble = 1.1 + 0.25 * S;
+    const crumble = 0.35 + 0.3 * S;
     if (py < sleeveTop + crumble) {
-      const a = Math.pow(1 - sat((py - sleeveTop * 0.3) / crumble), 2) * floorAct;
+      const a = Math.pow(1 - sat((py - sleeveTop * 0.5) / crumble), 2) * floorAct * 0.8;
       const hx = Math.sin(sa * 71.3 + t * 0.7), hz = Math.sin(sb * 53.1 - t * 0.6);
       px += (hx * 0.3 + nx * 0.5) * a * 0.32 * (S / 2);
       pz += (hz * 0.3 + nz * 0.5) * a * 0.32 * (S / 2);
       py -= a * 0.05 * (0.5 + 0.5 * Math.sin(t * 2 + sa * 10));
-      sizeMul = 1 + 0.35 * a * sb;
+      sizeMul = 1 + 0.5 * a * sb;
       if (py < 0) sizeMul *= sstep(-0.25, 0.05, py);
     }
     const dx = C[0] - px, dy = C[1] - py, dz = C[2] - pz;
     const dl = Math.hypot(dx, dy, dz);
     const facing = sat(((nx * dx + ny * dy + nz * dz) / dl) * 0.6 + 0.45);
     const surf = Math.max(dl - sph.R, 0);
-    const energy = arm.far ? 0 : tens * (0.45 * Math.exp(-surf * 5) + 0.2 * Math.exp(-u * 3)) + inh * 0.8 * Math.exp(-surf * 2);
+    const energy = !arm.grip ? 0 : tens * (0.45 * Math.exp(-surf * 5) + 0.2 * Math.exp(-u * 3)) + inh * 0.8 * Math.exp(-surf * 2);
     pPos[i3] = px; pPos[i3 + 1] = py; pPos[i3 + 2] = pz;
     pDyn[i4] = t * tum * (sa - 0.5) * 2;
     pDyn[i4 + 1] = energy;
@@ -891,34 +980,45 @@ function writeDroplets(t) {
 }
 
 // ---------------------------------------------------------------- camera
-// time, position, target, fov, depth-of-field aperture (px of blur at 1080p)
+// One continuous crane move: high over the white void, down to the floor as the
+// sphere is born, into the reference angle while the first hand holds the sphere,
+// then around the struggle and back out for the explosion.
+// aperture = depth-of-field blur in px at 720p.
+function orbitKey(t, dAz, dist, h, ty, fov, aper) {
+  const a = HERO.az + (dAz * Math.PI) / 180;
+  return { t, pos: [C0[0] + Math.sin(a) * dist, h, C0[2] + Math.cos(a) * dist], tgt: [C0[0], ty, C0[2]], fov, aper };
+}
+function heroKey(t, dolly, aper) {
+  const d = scl(HERO.B.f, dolly);
+  return { t, pos: add(HERO.pos, d), tgt: add(HERO.tgt, d), fov: HERO.fov, aper };
+}
 const CAM_KEYS = [
-  [0.0, [0.0, 4.3, 14.5], [0, 0.6, 0], 36, 0],
-  [2.2, [0.3, 3.8, 12.6], [0, 0.2, 0], 36, 1],
-  [5.2, [1.0, 3.1, 9.8], [0, 0.0, 0], 36, 3],
-  [8.2, [2.4, 2.3, 8.0], [0, 1.9, 0], 36, 5],
-  [10.0, [4.8, 1.5, 5.6], [0.3, 1.9, 0.2], 36, 8],
-  [12.2, [5.0, 0.9, 2.5], [0.7, 1.7, 0.4], 34, 12],
-  [13.6, [3.7, 0.8, 1.0], [0.5, 1.9, 0.3], 32, 15],
-  [15.8, [5.6, 0.8, -1.1], [0.4, 1.6, 0.1], 38, 18],
-  [17.6, [6.2, 1.2, -2.2], [0.0, 1.9, 0.0], 40, 15],
-  [18.8, [7.4, 2.2, 3.6], [0.0, 2.0, 0.0], 40, 11],
-  [20.2, [2.6, 2.9, 9.4], [0.0, 2.0, 0.0], 40, 9],
-  [21.7, [-3.2, 3.4, 9.6], [0.0, 2.1, 0.0], 41, 8],
-  [23.7, [-2.4, 2.9, 7.8], [0.0, 2.2, 0.0], 38, 8],
-  [24.2, [-2.3, 2.8, 7.6], [0.0, 2.2, 0.0], 38, 8],
-  [25.6, [-3.7, 3.5, 11.2], [0.0, 2.0, 0.0], 45, 6],
-  [30.0, [-4.6, 4.3, 13.8], [0.0, 2.1, 0.0], 43, 4],
+  orbitKey(0.0, 0, 14.0, 4.4, 0.4, 38, 0),
+  orbitKey(2.2, 2, 12.0, 3.7, 0.2, 38, 0),
+  orbitKey(5.2, 5, 9.6, 2.8, 0.0, 38, 1),
+  orbitKey(8.2, 8, 7.6, 2.0, 1.9, 38, 2),
+  orbitKey(10.2, 5, 6.3, 1.3, 1.85, 39, 3.5),
+  heroKey(12.2, -0.55, 5),
+  heroKey(TL.hero[0], -0.22, 2.6),
+  heroKey(TL.heroFrame, 0, 3),
+  heroKey(TL.hero[1], 0.16, 3),
+  orbitKey(18.6, 35, 8.4, 2.2, 2.0, 42, 4),
+  orbitKey(20.4, 60, 10.5, 4.2, 2.1, 42, 3),
+  orbitKey(21.7, 75, 10.0, 4.6, 2.2, 41, 3),
+  orbitKey(23.7, 90, 8.2, 4.0, 2.3, 38, 3),
+  orbitKey(24.2, 92, 8.0, 3.9, 2.3, 38, 3),
+  orbitKey(25.6, 100, 9.0, 3.6, 2.2, 44, 2),
+  orbitKey(30.0, 115, 10.5, 3.9, 2.3, 42, 1.5),
 ];
 function hermite(keys, t, sel) {
   const n = keys.length;
-  if (t <= keys[0][0]) return sel(keys[0]);
-  if (t >= keys[n - 1][0]) return sel(keys[n - 1]);
+  if (t <= keys[0].t) return sel(keys[0]);
+  if (t >= keys[n - 1].t) return sel(keys[n - 1]);
   let i = 0;
-  while (t > keys[i + 1][0]) i++;
-  const t0 = keys[i][0], t1 = keys[i + 1][0], h = t1 - t0, s = (t - t0) / h;
+  while (t > keys[i + 1].t) i++;
+  const t0 = keys[i].t, t1 = keys[i + 1].t, h = t1 - t0, s = (t - t0) / h;
   const P = (j) => sel(keys[clamp(j, 0, n - 1)]);
-  const T = (j) => keys[clamp(j, 0, n - 1)][0];
+  const T = (j) => keys[clamp(j, 0, n - 1)].t;
   const tan = (j) => {
     const a = clamp(j - 1, 0, n - 1), b = clamp(j + 1, 0, n - 1);
     const pa = P(a), pb = P(b), dt = T(b) - T(a);
@@ -930,13 +1030,14 @@ function hermite(keys, t, sel) {
   return p0v * h00 + m0 * h10 * h + p1v * h01 + m1 * h11 * h;
 }
 function cameraAt(t) {
-  let pos = hermite(CAM_KEYS, t, (k) => k[1]);
-  let tgt = hermite(CAM_KEYS, t, (k) => k[2]);
-  const fov = hermite(CAM_KEYS, t, (k) => k[3]);
-  const aper = Math.max(0, hermite(CAM_KEYS, t, (k) => k[4]));
-  const focus = len(sub(tgt, pos));
+  let pos = hermite(CAM_KEYS, t, (k) => k.pos);
+  let tgt = hermite(CAM_KEYS, t, (k) => k.tgt);
+  const fov = hermite(CAM_KEYS, t, (k) => k.fov);
+  const aper = Math.max(0, hermite(CAM_KEYS, t, (k) => k.aper));
   const S = struggle(t);
-  let amp = 0.003 + 0.03 * S * S + (t > TL.climax ? 0.03 * ssm(TL.climax, TL.inhale, t) : 0);
+  // the hero window stays almost still so the frame keeps the reference composition
+  const calm = 1 - 0.85 * (ssm(TL.hero[0] - 0.4, TL.hero[0], t) - ssm(TL.hero[1], TL.hero[1] + 0.4, t));
+  let amp = (0.003 + 0.03 * S * S + (t > TL.climax ? 0.03 * ssm(TL.climax, TL.inhale, t) : 0)) * calm;
   if (t >= TE) {
     const te = t - TE;
     amp = 0.004 + 0.28 * Math.exp(-3.5 * te);
@@ -944,7 +1045,8 @@ function cameraAt(t) {
     pos = add(pos, scl(back, 1.3 * (1 - Math.exp(-7 * te)) * Math.exp(-0.6 * te)));
   }
   const { f } = joltAt(Math.min(t, TE));
-  amp += 0.02 * f * (t > TL.dimStart ? 1 : 0);
+  amp += 0.02 * f * (t > TL.dimStart ? 1 : 0) * calm;
+  const focus = t >= TL.hero[0] - 1.5 && t <= TL.hero[1] + 0.5 ? len(sub(C0, pos)) - 0.6 : len(sub(tgt, pos));
   const sh = [wob(t * 13, 0.3), wob(t * 11.7, 2.1), wob(t * 12.3, 4.4)];
   const sh2 = [wob(t * 9.1, 5.3), wob(t * 10.3, 6.7), wob(t * 8.7, 8.9)];
   pos = add(pos, scl(sh, amp));
@@ -964,10 +1066,11 @@ const gl = renderer.getContext();
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(36, 16 / 9, 0.1, 400);
 
-const v4s = (n) => Array.from({ length: n }, () => new THREE.Vector4());
+const v4s = (n) => Array.from({ length: n }, () => new THREE.Vector4(0, 0, 0, 0));
 const worldMat = new THREE.ShaderMaterial({
   vertexShader: quadVert,
   fragmentShader: worldFrag,
+  defines: Object.fromEntries((Q.get('wdef') || '').split(',').filter(Boolean).map((k) => [k, ''])),
   depthTest: true,
   depthWrite: true,
   depthFunc: THREE.AlwaysDepth,
@@ -979,7 +1082,7 @@ const worldMat = new THREE.ShaderMaterial({
     uSlA: { value: v4s(18) }, uSlB: { value: v4s(18) }, uCapA: { value: v4s(48) }, uCapB: { value: v4s(48) },
     uEnv: { value: 1 }, uCol1: { value: new THREE.Vector3() }, uCol2: { value: new THREE.Vector3() }, uCol3: { value: new THREE.Vector3() },
     uStrange: { value: 0 }, uLightCol: { value: new THREE.Vector3() }, uTension: { value: 0 }, uFogD: { value: 0.03 }, uColPhase: { value: 0 },
-    uSun: { value: new THREE.Vector3(...SUN) }, uSunCol: { value: new THREE.Vector3() }, uZen: { value: new THREE.Vector3() }, uHor: { value: new THREE.Vector3() },
+    uSun: { value: new THREE.Vector3(...SUN) }, uKey: { value: new THREE.Vector3(...KEY) }, uDune: { value: new THREE.Vector2() }, uSphEmis: { value: 1 }, uLipNear: { value: 0.55 }, uSunCol: { value: new THREE.Vector3() }, uZen: { value: new THREE.Vector3() }, uHor: { value: new THREE.Vector3() },
   },
 });
 const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), worldMat);
@@ -1024,9 +1127,9 @@ const dofMat = new THREE.ShaderMaterial({ uniforms: dofUniforms(), vertexShader:
 const combMat = new THREE.ShaderMaterial({ uniforms: { ...dofUniforms(), tBlur: { value: dofRT.texture } }, vertexShader: passVert, fragmentShader: dofCombineFrag });
 const gradeMat = new THREE.ShaderMaterial({
   uniforms: {
-    tDiffuse: { value: null }, uSrcRes: { value: new THREE.Vector2(IW, IH) }, uExposure: { value: 1.6 }, uFlash: { value: 0 },
+    tDiffuse: { value: null }, uSrcRes: { value: new THREE.Vector2(IW, IH) }, uExposure: { value: 1.0 }, uFlash: { value: 0 },
     uFade: { value: 0 }, uVig: { value: 0.2 }, uCA: { value: 0.001 }, uGrain: { value: 0.02 }, uTime: { value: 0 },
-    uShock: { value: new THREE.Vector4(0.5, 0.5, 0, 0) }, uTint: { value: new THREE.Vector3(1, 1, 1) }, uContrast: { value: 1.05 },
+    uShock: { value: new THREE.Vector4(0.5, 0.5, 0, 0) }, uTint: { value: new THREE.Vector3(1, 1, 1) }, uContrast: { value: 1.14 },
   },
   vertexShader: passVert,
   fragmentShader: gradeFrag,
@@ -1036,13 +1139,16 @@ const bloom = new UnrealBloomPass(new THREE.Vector2(IW, IH), 0.3, 0.6, 1.2);
 
 // ---------------------------------------------------------------- frame
 const _v = new THREE.Vector3();
-const SKY_ZEN = [0.48, 0.49, 0.515], SKY_HOR = [0.62, 0.625, 0.64], SUN_COL = [0.42, 0.40, 0.37];
 function setFrame(t) {
   const sph = sphereState(t);
+  if (HANDTEST) sph.C = [0, -30, 0];
   const fl = floorState(t);
-  const env = envAt(t);
+  const mood = moodAt(t);
+  const env = mood.env;
   const S = struggle(t);
   const cam = cameraAt(t);
+  const dc = Q.get('dbgcam');
+  if (dc) { const v = dc.split(',').map(Number); cam.pos = v.slice(0, 3); cam.tgt = v.slice(3, 6); cam.fov = v[6] || 40; cam.aper = 0; }
   camera.fov = cam.fov;
   camera.position.set(...cam.pos);
   camera.lookAt(...cam.tgt);
@@ -1050,7 +1156,7 @@ function setFrame(t) {
   camera.updateMatrixWorld();
 
   // colours
-  const strange = t < TL.dimStart ? mix(0.12, 0.35, ssm(TL.pinch, TL.dimStart, t)) : mix(0.35, 0.85, ssm(TL.dimStart, TL.climax, t));
+  const strange = t < TL.dimStart ? mix(0.12, 0.35, ssm(TL.pinch, TL.dimStart, t)) : mix(0.35, 0.9, ssm(TL.dimStart, TL.hero[0], t));
   let c1 = palette(sph.phi);
   let c2 = palette(sph.phi + 1.0);
   let c3 = palette(sph.phi + 2.0);
@@ -1059,13 +1165,17 @@ function setFrame(t) {
   c2 = lerp3([1, 1, 1], c2, preColor);
   c3 = lerp3([1, 1, 1], c3, preColor);
   const avg = lerp3(c1, lerp3(c2, c3, 0.5), strange * 0.5);
-  let lightCol = scl(avg, sph.glow * 0.08);
-  lightCol = lerp3(lightCol, scl([1, 1, 1], sph.glow * 0.08), sph.white);
-  const darkTint = scl(avg, (1 - Math.min(env, 1)) * 0.035 * (t < TE ? 1 : 0));
-  const zen = add(scl(SKY_ZEN, env), darkTint);
-  const hor = add(scl(SKY_HOR, env), darkTint);
-  const sunCol = scl(SUN_COL, env * env);
-  const fogD = t < TL.dimStart ? 0.022 : t < TE ? mix(0.022, 0.04, ssm(TL.dimStart, TL.climax, t)) : mix(0.04, 0.02, ssm(TE, TE + 2, t));
+  let lightCol = scl(avg, sph.glow * 0.05);
+  lightCol = lerp3(lightCol, scl([1, 1, 1], sph.glow * 0.05), sph.white);
+  const darkTint = scl(avg, sat(1 - env) * 0.03 * (t < TE ? 1 : 0));
+  const zen = add(mood.zen, darkTint);
+  const hor = add(mood.hor, darkTint);
+  const sunCol = mood.sun;
+  const fogD = t >= TE ? mix(0.05, 0.02, ssm(TE, TE + 2, t)) : mix(mix(0.02, 0.028, ssm(9.6, 13.4, t)), 0.05, ssm(TL.hero[1], TL.climax, t));
+  const { f: jf0 } = joltAt(Math.min(t, TE));
+  let sphEmis = 0.9 + 1.6 * S * S + 0.6 * jf0;
+  if (t >= TL.inhale && t < TE) sphEmis = mix(sphEmis, 3.2, ssm(TL.inhale, TE, t));
+  if (t >= TE) sphEmis = 1.0 + 5 * Math.exp(-5 * (t - TE));
 
   const u = worldMat.uniforms;
   u.uCamWorld.value.copy(camera.matrixWorld);
@@ -1088,6 +1198,10 @@ function setFrame(t) {
   u.uFogD.value = fogD;
   u.uColPhase.value = sph.phi;
   u.uSunCol.value.set(...sunCol); u.uZen.value.set(...zen); u.uHor.value.set(...hor);
+  u.uDune.value.set(t >= TE ? 1 : ssm(8.0, 12.5, t), t);
+  u.uSphEmis.value = sphEmis;
+  // the steep gravity well needs careful steps; afterwards the floor is gentle
+  u.uLipNear.value = t < 10.5 || (t >= TE && t < TE + 2.5) ? 0.55 : 0.88;
 
   // arms, sleeves, occlusion capsules
   const slA = u.uSlA.value, slB = u.uSlB.value, capA = u.uCapA.value, capB = u.uCapB.value;
@@ -1100,15 +1214,18 @@ function setFrame(t) {
       const cr = arm.active ? arm.cross : null;
       if (cr) {
         const rise = sat((arm.tip[1] + 0.2) / 1.2);
-        const hs = cr.r * (1.5 + 0.3 * Math.sin(t * 1.1 + arm.phase)) * cr.str * rise + 0.05;
+        const big = arm.hero ? 1.9 : 1.0;
+        cr.r *= arm.foreK;
+        const hs = cr.r * (1.5 + 0.3 * Math.sin(t * 1.1 + arm.phase)) * big * cr.str * rise + 0.05;
         const A = sub(cr.X, scl(cr.dir, 0.6)), Bp = add(cr.X, scl(cr.dir, hs));
-        slA[ai].set(A[0], A[1], A[2], cr.r * 0.88 * cr.str);
-        slB[ai].set(Bp[0], Bp[1], Bp[2], (0.3 + 0.95 * cr.r) * cr.str);
-        arm.sleeveAtTE = [A, Bp, cr.r * 0.88 * cr.str, (0.3 + 0.95 * cr.r) * cr.str];
+        const rr = cr.r * 0.88 * cr.str, kk = (0.3 + 0.95 * cr.r) * big * cr.str;
+        slA[ai].set(A[0], A[1], A[2], rr);
+        slB[ai].set(Bp[0], Bp[1], Bp[2], kk);
+        arm.sleeveAtTE = [A, Bp, rr, kk];
       } else { slA[ai].set(0, 0, 0, 0); slB[ai].set(0, 0, 0, 0); arm.sleeveAtTE = null; }
       if (arm.active) {
         const handC = add(arm.W, scl(arm.B.Y, arm.S * 0.35));
-        if (!arm.far) { capA[ci].set(...arm.Sh, 0.22 * arm.S); capB[ci].set(...arm.E, 1); ci++; }
+        if (arm.grip) { capA[ci].set(...arm.Sh, 0.22 * arm.S); capB[ci].set(...arm.E, 1); ci++; }
         capA[ci].set(...arm.E, 0.17 * arm.S); capB[ci].set(...arm.W, 1); ci++;
         capA[ci].set(...arm.W, 0.2 * arm.S); capB[ci].set(...handC, 0.9); ci++;
       }
@@ -1126,6 +1243,8 @@ function setFrame(t) {
       slB[ai].set(Bp[0], Bp[1], Bp[2], s[3] * Math.max(f, 0.3));
     });
   }
+  if (DBG.includes('nosleeve')) for (let i = 0; i < 18; i++) u.uSlA.value[i].w = 0;
+  if (DBG.includes('nocap')) for (let i = 0; i < 48; i++) u.uCapB.value[i].w = 0;
   writeDroplets(t);
   posAttr.needsUpdate = true;
   dynAttr.needsUpdate = true;
@@ -1149,29 +1268,30 @@ function setFrame(t) {
   // depth of field
   for (const m of [dofMat, combMat]) {
     m.uniforms.uFocus.value = cam.focus;
-    m.uniforms.uAper.value = cam.aper;
-    m.uniforms.uMaxCoc.value = Math.max(cam.aper * 1.25, 2);
+    m.uniforms.uAper.value = cam.aper * (IH / 720);
+    m.uniforms.uMaxCoc.value = Math.max(cam.aper * 1.35, 2) * (IH / 720);
   }
 
   // post
   const te = t - TE;
   const jf = joltAt(Math.min(t, TE)).f;
-  bloom.threshold = t < TL.dimStart ? 1.15 : t < TE ? mix(1.15, 0.55, ssm(TL.dimStart, TL.dimStart + 1.8, t)) : mix(0.35, 1.15, ssm(TE + 0.3, TE + 2.0, t));
-  bloom.strength = t < TL.dimStart ? 0.45 : t < TE ? 0.6 + 0.6 * S + 0.25 * jf : 0.45 + 2.0 * Math.exp(-2 * te);
-  bloom.radius = 0.55 + 0.25 * S;
+  const voidW = t >= TE ? ssm(TE + 0.3, TE + 2.0, t) : 1 - ssm(9.6, 13.4, t);
+  bloom.threshold = mix(mix(0.85, 0.5, ssm(TL.hero[1], TL.climax, t)), 2.2, voidW);
+  bloom.strength = (t < TE ? 0.32 + 0.4 * S + 0.2 * jf : 0.4 + 2.0 * Math.exp(-2 * te));
+  bloom.radius = 0.5 + 0.3 * S;
   const g = gradeMat.uniforms;
   g.uTime.value = t;
-  g.uExposure.value = 1.6 * (t >= TL.inhale && t < TE ? 1 - 0.2 * ssm(TL.inhale, TE, t) : 1);
+  g.uExposure.value = 1.0 * (t >= TL.inhale && t < TE ? 1 - 0.2 * ssm(TL.inhale, TE, t) : 1);
   g.uFlash.value = t >= TE ? 2.5 * Math.exp(-te * 4.5) : 0;
   g.uFade.value = ssm(TL.fadeStart, TL.duration, t);
-  g.uVig.value = mix(0.25, 0.6, 1 - Math.min(env, 1));
+  g.uVig.value = mix(0.3, 0.6, sat(1 - env)) * (1 - 0.6 * voidW);
   g.uCA.value = 0.0015 + 0.006 * S * S + 0.004 * jf + (t >= TE ? 0.03 * Math.exp(-te * 3) : 0);
-  g.uGrain.value = 0.02 + 0.012 * (1 - Math.min(env, 1));
+  g.uGrain.value = 0.022 + 0.012 * sat(1 - env);
   if (t >= TE) {
     _v.set(...sphCR(TE)[0]).project(camera);
     g.uShock.value.set(_v.x * 0.5 + 0.5, _v.y * 0.5 + 0.5, 0.05 + 1.25 * (1 - Math.exp(-1.6 * te)), 1.4 * Math.exp(-2.2 * te));
   } else g.uShock.value.set(0.5, 0.5, 0, 0);
-  const cool = 1 - Math.min(env, 1);
+  const cool = sat(1 - env);
   g.uTint.value.set(1 - 0.035 * cool, 1, 1 + 0.045 * cool);
   return cam;
 }
@@ -1185,7 +1305,7 @@ function renderAt(t) {
   quad.visible = !DBG.includes('noworld');
   renderer.setRenderTarget(sceneRT);
   renderer.render(scene, camera);
-  if (DBG.includes('prof')) { gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4)); T.push(performance.now()); }
+  if (DBG.includes('prof')) { const b = new Uint16Array(4); renderer.readRenderTargetPixels(sceneRT, 0, 0, 1, 1, b); T.push(performance.now()); }
   let src = sceneRT;
   if (cam.aper > 0.4 && !DBG.includes('nodof')) {
     fsq.material = dofMat; renderer.setRenderTarget(dofRT); fsq.render(renderer);
@@ -1215,6 +1335,18 @@ function toB64(u8) {
   return btoa(s);
 }
 
+window.debugPoints = (t) => {
+  setFrame(t);
+  const P = (p) => { _v.set(...p).project(camera); return [Math.round((_v.x * 0.5 + 0.5) * REF_W), Math.round((0.5 - _v.y * 0.5) * REF_H)]; };
+  const h = ARMS[0];
+  const sl = worldMat.uniforms.uSlA.value.map((v, i) => [i, ARMS[i] ? ARMS[i].type : '-', v.toArray().map((x) => +x.toFixed(2)), worldMat.uniforms.uSlB.value[i].toArray().map((x) => +x.toFixed(2))]).filter((x) => x[2][3] > 0);
+  const pal = (o) => o.map((x) => +x.toFixed(2));
+  const look = add(h.W, scl(h.B.Y, h.S * 0.45));
+  const eye = add(look, scl(h.B.Z, -2.6 * (h.S / 1.6)));
+  const knuck = P(add(h.W, mv(h.Bm, [0, 0.45 * h.S, 0])));
+  return { knuck, handcam: [...pal(eye), ...pal(look)], sl, hero: { W: h.W.map((x) => +x.toFixed(2)), E: h.E.map((x) => +x.toFixed(2)), Sh: h.Sh.map((x) => +x.toFixed(2)), cam: camera.position.toArray().map((x) => +x.toFixed(2)) }, sphere: P(sphereState(t).C), wrist: P(h.W), tip: P(h.tip), elbow: P(h.E), cross: h.cross ? P(h.cross.X) : null,
+           arms: ARMS.map((a) => (a.active ? [a.type, P(a.W), a.S.toFixed(2)] : [a.type, 'off'])) };
+};
 window.renderFrame = (t) => { renderAt(t); return toB64(readRGB()); };
 window.renderStill = (t) => { renderAt(t); return canvas.toDataURL('image/png'); };
 window.timeline = TL;

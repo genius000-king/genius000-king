@@ -52,9 +52,9 @@ uniform vec3 uSunCol;
 uniform vec3 uZen;
 uniform vec3 uHor;
 vec3 skyCol(vec3 rd){
-  vec3 c = mix(uHor, uZen, smoothstep(-0.02, 0.7, rd.y));
+  vec3 c = mix(uHor, uZen, pow(smoothstep(-0.03, 0.42, rd.y), 0.7));
   float s = max(dot(rd, uSun), 0.0);
-  c += uSunCol * (0.22 * pow(s, 3.0) + 0.55 * pow(s, 16.0) + 0.9 * pow(s, 90.0));
+  c += uSunCol * (0.06 * pow(s, 3.0) + 0.5 * pow(s, 14.0) + 0.9 * pow(s, 80.0));
   return c;
 }
 vec3 skySoft(vec3 rd){
@@ -64,8 +64,10 @@ vec3 skySoft(vec3 rd){
   return c;
 }
 vec3 skyIrr(vec3 n){
-  vec3 c = mix(uHor * 0.92, uZen, n.y * 0.5 + 0.5);
-  c += uSunCol * 0.16 * (dot(n, uSun) * 0.5 + 0.5);
+  vec3 up = 0.5 * (uZen + uHor);
+  vec3 dn = uHor * 0.5;
+  vec3 c = mix(dn, up, n.y * 0.5 + 0.5) + uHor * 0.22 * (1.0 - abs(n.y));
+  c += uSunCol * 0.25 * max(dot(n, uSun), 0.0);
   return c;
 }
 `;
@@ -108,6 +110,10 @@ uniform vec3 uLightCol;
 uniform float uTension;
 uniform float uFogD;
 uniform float uColPhase;
+uniform vec2 uDune;      // amplitude, time
+uniform vec3 uKey;       // front-left key light (world)
+uniform float uSphEmis;
+uniform float uLipNear;
 varying vec2 vUv;
 
 ${NOISE}
@@ -132,6 +138,12 @@ float floorH(vec2 q){
   h += uFlC.x * exp(-r2 / (uFlC.y * uFlC.y));
   float dr = r - uFlC.z;
   h += uFlC.w * sin(dr * 3.2) * exp(-dr * dr * 0.55);
+  // broad cream dunes once the floor has come alive
+  if(uDune.x > 0.0){
+    float tt = uDune.y;
+    vec2 w = q + vec2(sin(q.y * 0.31 + tt * 0.11), sin(q.x * 0.27 - tt * 0.09)) * 1.6;
+    h += uDune.x * (0.13 * sin(w.x * 0.62 + tt * 0.21) * sin(w.y * 0.47 - tt * 0.17) + 0.07 * sin(w.x * 1.31 - w.y * 0.93 + tt * 0.3));
+  }
   return h;
 }
 
@@ -140,12 +152,22 @@ float flowDetail(vec2 q){
   vec2 w = q + 0.7 * vec2(sin(q.y * 0.83 + uTime * 0.13), sin(q.x * 0.71 - uTime * 0.11));
   float a = sin(w.x * 2.1 + w.y * 0.9) * sin(w.y * 2.6 - w.x * 0.6 + uTime * 0.18);
   float b = sin(w.x * 5.3 + w.y * 3.9 + a * 1.5) * 0.4;
-  return 0.007 * (a + b);
+  float h = 0.012 * (a + b);
+  for(int i = 0; i < NSL; i++){
+    if((gMask & (1u << uint(i))) == 0u) continue;
+    vec2 c = uSlA[i].xz + (uSlB[i].xz - uSlA[i].xz) * 0.5;
+    vec2 d = q - c;
+    float r = length(d) + 1e-3;
+    float th = atan(d.y, d.x);
+    float fall = exp(-r / (0.8 + 2.5 * uSlA[i].w)) * smoothstep(uSlA[i].w * 0.6, uSlA[i].w * 1.6, r);
+    h += fall * (0.03 * sin(th * 9.0 + log(r) * 6.0 - uTime * 0.7 + float(i)) + 0.012 * sin(th * 21.0 - log(r) * 13.0));
+  }
+  return h;
 }
 
 float lipK(vec3 p){
   float r = length(p.xz);
-  return mix(0.55, 1.0, smoothstep(4.5, 8.0, r)) * uFlD.z;
+  return mix(uLipNear, 1.0, smoothstep(4.5, 8.0, r)) * uFlD.z;
 }
 
 float sdCol(vec3 p){
@@ -178,6 +200,19 @@ float sdSleeve(vec3 p, int i, bool detail){
 float mapWorldK(vec3 p, bool detail){
   float fh = floorH(p.xz);
   if(detail) fh += flowDetail(p.xz);
+#ifndef NO_SWIRL
+  if(detail && gMask != 0u && p.y < gSlTop){
+    for(int i = 0; i < NSL; i++){
+      if((gMask & (1u << uint(i))) == 0u) continue;
+      vec2 d = p.xz - uSlA[i].xz - (uSlB[i].xz - uSlA[i].xz) * 0.35;
+      float r = length(d) + 1e-3;
+      float rs = uSlA[i].w;
+      float th = atan(d.y, d.x);
+      float env = smoothstep(rs * 0.8, rs * 2.2, r) * exp(-r / (0.4 + 1.8 * rs)) * (1.0 - smoothstep(rs * 2.2 + 1.2, rs * 2.2 + 2.2, r));
+      fh += env * rs * (0.32 * sin(th * 3.0 + log(r) * 5.0 - uTime * 0.9 + float(i)) + 0.12 * sin(th * 7.0 - log(r) * 9.0 + uTime * 0.6));
+    }
+  }
+#endif
   float d = (p.y - fh) * lipK(p);
   if(uFlB.x > 0.0) d = smin(d, sdCol(p), uFlB.z);
   if(gMask != 0u && p.y < gSlTop){
@@ -212,6 +247,25 @@ float sdSph(vec3 p){
 }
 
 float map(vec3 p){ return smin(mapWorldK(p, false), sdSph(p), uFlB.w); }
+
+float marchStep(vec3 p, vec3 rd){
+  float r = length(p.xz);
+  float other = length(p - uSph.xyz) - uSph.w * max(uSphB.x, 1.0) - uSphA.x * 2.0 - uSphB.z - 0.35;
+  if(uFlB.x > 0.0) other = min(other, sdCol(p) - uFlB.z - 0.2);
+  if(gMask != 0u){
+    for(int i = 0; i < NSL; i++){
+      if((gMask & (1u << uint(i))) == 0u) continue;
+      vec3 a = uSlA[i].xyz, b = uSlB[i].xyz, ba = b - a, pa = p - a;
+      float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+      other = min(other, length(pa - ba * h) - uSlA[i].w * 3.4 - uSlB[i].w - 2.2);
+    }
+  }
+  bool steep = r < 4.8 || uFlC.w > 0.005 || other < 0.05;
+  if(steep) return map(p);
+  float y = p.y - floorH(p.xz);
+  float hs = rd.y < 0.0 ? y / (-rd.y + 0.3) : y;
+  return min(hs, other + 0.04);
+}
 float mapDetail(vec3 p){ return smin(mapWorldK(p, true), sdSph(p), uFlB.w); }
 
 vec3 calcNormal(vec3 p, float eps){
@@ -223,12 +277,12 @@ vec3 calcNormal(vec3 p, float eps){
 float calcAO(vec3 p, vec3 n){
   float occ = 0.0, sca = 1.0;
   for(int i = 0; i < 5; i++){
-    float h = 0.03 + 0.2 * float(i);
+    float h = 0.02 + 0.09 * float(i);
     float d = map(p + n * h);
-    occ += (h - d) * sca;
-    sca *= 0.75;
+    occ += max(h - d, 0.0) * sca;
+    sca *= 0.7;
   }
-  return clamp(1.0 - 1.1 * occ, 0.0, 1.0);
+  return clamp(1.0 - 1.6 * occ, 0.35, 1.0);
 }
 
 float sphSoftShadow(vec3 ro, vec3 rd, vec4 sph, float k){
@@ -263,17 +317,18 @@ void armOcclusion(vec3 p, vec3 n, out float ao, out float sh){
     float d = length(dv);
     float r = A.w;
     if(d > r * 9.0) continue;
-    float o = clamp(dot(n, dv / d) * 0.5 + 0.5, 0.0, 1.0) * (r * r) / (d * d);
-    ao *= 1.0 - B.w * clamp(o * 1.3, 0.0, 0.8);
+    float inside = smoothstep(r * 1.3, r * 2.8, d);
+    float o = clamp(dot(n, dv / d) * 0.5 + 0.5, 0.0, 1.0) * (r * r) / (d * d) * inside;
+    ao *= 1.0 - B.w * clamp(o * 1.3, 0.0, 0.7);
     vec3 w0 = A.xyz - p;
-    float bb = dot(ba, uSun);
+    float bb = dot(ba, uKey);
     float aa = dot(ba, ba);
     float dd = dot(ba, w0);
-    float ee = dot(uSun, w0);
+    float ee = dot(uKey, w0);
     float den = aa - bb * bb;
     float sc = den > 1e-5 ? clamp((bb * ee - dd) / den, 0.0, 1.0) : 0.0;
     vec3 cp = A.xyz + ba * sc;
-    sh *= mix(1.0, sphSoftShadow(p, uSun, vec4(cp, r), 1.0), B.w);
+    sh *= mix(1.0, sphSoftShadow(p, uKey, vec4(cp, r), 1.0), B.w * inside);
   }
 }
 
@@ -289,14 +344,14 @@ vec3 halo(vec3 ro, vec3 rd, float tmax){
 
 // three-hue marbled field used for the sphere interior
 vec3 marble(vec3 q, out float veins){
-  vec3 wq = q * 1.55 + vec3(0.0, uSphB.w * 0.22, uSphB.w * 0.11);
-  float w = snoise(wq * 0.7 - uSphB.w * 0.15);
-  float a = snoise(wq + vec3(w * 0.9));
-  float b = snoise(wq * 1.25 + vec3(7.1, -3.3, 1.7) + vec3(w * 0.6));
-  veins = 1.0 - smoothstep(0.0, 0.085, abs(a));
-  vec3 alt = mix(uCol2, uCol3, smoothstep(-0.25, 0.25, b));
-  vec3 hue = mix(uCol1, alt, uStrange * smoothstep(-0.15, 0.45, b * 0.7 + w * 0.6));
-  return hue;
+  vec3 wq = q * 0.75 + vec3(0.0, uSphB.w * 0.22, uSphB.w * 0.11);
+  float w = snoise(wq * 0.6 - uSphB.w * 0.12);
+  float a = snoise(wq + vec3(w * 1.1));
+  veins = pow(1.0 - smoothstep(0.0, 0.1, abs(a)), 3.0);
+  // three hue territories drifting across the sphere
+  float b = snoise(q * 0.55 + vec3(7.1, -3.3, uSphB.w * 0.05)) * 0.6 + q.x * 0.9;
+  vec3 alt = b < 0.0 ? mix(uCol1, uCol3, smoothstep(-0.45, 0.0, b)) : mix(uCol3, uCol2, smoothstep(0.0, 0.45, b));
+  return mix(uCol1, alt, uStrange);
 }
 
 vec3 shadeSphere(vec3 p, vec3 n, vec3 rd){
@@ -308,48 +363,58 @@ vec3 shadeSphere(vec3 p, vec3 n, vec3 rd){
   vec3 acc = vec3(0.0);
   float trans = 1.0;
   vec3 pp = q;
+#ifdef NO_MARBLE
+  for(int i = 0; i < 0; i++){
+#else
   for(int i = 0; i < 7; i++){
+#endif
     pp += rr * 0.2;
     if(dot(pp, pp) > 1.05) break;
     float veins;
     vec3 hue = marble(pp, veins);
-    float depthW = 1.0 - 0.5 * length(pp);
-    acc += hue * (veins * 2.2 + 0.32 + 0.25 * depthW) * trans;
-    trans *= 0.8;
+    float depthW = 1.0 - 0.6 * length(pp);
+    acc += hue * (veins * 4.2 + 0.16 * depthW) * trans;
+    trans *= 0.72;
   }
   acc *= 0.24;
-  float glow = uSphB.y;
-  vec3 emis = acc * (0.45 + glow);
-  emis += mix(uCol1, vec3(1.0), 0.5) * pow(ndv, 6.0) * glow * 0.25 * uTension;
-  vec3 body = uCol1 * 0.04 * uEnv;
+  vec3 emis = acc * uSphEmis;
+  emis += mix(uCol1, vec3(1.0), 0.5) * pow(ndv, 6.0) * uSphEmis * 0.2 * uTension;
+  vec3 body = vec3(0.008, 0.007, 0.01);
   vec3 refl = skySoft(reflect(rd, n));
   refl += uLightCol * 3.0;
-  float spec = pow(max(dot(reflect(rd, n), uSun), 0.0), 220.0) * 6.0 * (uEnv + 0.2);
+  float spec = pow(max(dot(reflect(rd, n), uSun), 0.0), 220.0) * 4.0 * (uEnv + 0.2)
+             + pow(max(dot(reflect(rd, n), normalize(vec3(-0.5, 0.8, 0.3))), 0.0), 90.0) * 1.2 * (uEnv + 0.1);
   vec3 col = body + emis;
-  col = mix(col, refl, fres * 0.85);
+  col = mix(col, refl, fres * 0.55);
+  col += uHor * 2.2 * pow(max(dot(reflect(rd, n), uKey), 0.0), 160.0);
   col += spec * vec3(1.0, 0.98, 0.95);
   // thin bright rim, glass-like
-  col += skySoft(n) * pow(1.0 - ndv, 3.0) * 0.25;
+  col += skySoft(n) * pow(1.0 - ndv, 3.0) * 0.18;
   col = mix(col, vec3(1.0) * (2.0 + 6.0 * uFlD.w), clamp(uFlD.w, 0.0, 1.0));
   return col;
 }
 
 vec3 shadeFloor(vec3 p, vec3 n, vec3 rd, float t){
+#ifdef NO_AO
+  float ao = 1.0, aao = 1.0, ash = 1.0;
+#else
   float ao = calcAO(p, n);
   float aao, ash;
   armOcclusion(p, n, aao, ash);
+#endif
   vec3 dc = uSph.xyz - p;
   float dl = length(dc);
   vec3 L = dc / dl;
   float sphAO = 1.0 - clamp(dot(n, L) * 0.5 + 0.5, 0.0, 1.0) * pow(uSph.w / dl, 2.0) * 0.9;
-  float sh = sphSoftShadow(p + n * 0.01, uSun, vec4(uSph.xyz, uSph.w * 0.95), 1.4) * ash;
+  float sh = sphSoftShadow(p + n * 0.01, uKey, vec4(uSph.xyz, uSph.w * 0.95), 1.4) * ash;
   float occ = ao * aao * sphAO;
-  vec3 alb = vec3(0.83, 0.835, 0.845);
-  vec3 col = alb * (skyIrr(n) * occ + uSunCol * 0.32 * max(dot(n, uSun), 0.0) * sh);
+  vec3 alb = vec3(0.88, 0.875, 0.87);
+  float kd = max(dot(n, uKey), 0.0);
+  vec3 col = alb * (skyIrr(n) * occ * 0.72 + uHor * 0.42 * kd * sh * mix(1.0, occ, 0.4));
   // satin liquid gloss
   vec3 r = reflect(rd, n);
   float ndv = max(dot(n, -rd), 0.0);
-  float F = 0.03 + 0.62 * pow(1.0 - ndv, 5.0);
+  float F = 0.04 + 0.8 * pow(1.0 - ndv, 4.0);
   vec3 refl = skySoft(r);
   vec2 hs = sphHit(p, r, uSph.xyz, uSph.w);
   if(hs.x > 0.0){
@@ -360,9 +425,10 @@ vec3 shadeFloor(vec3 p, vec3 n, vec3 rd, float t){
   }
   float so = mix(occ, 1.0, 0.25) * mix(sh, 1.0, 0.6);
   col += refl * F * so;
-  col += uSunCol * pow(max(dot(r, uSun), 0.0), 50.0) * 0.6 * sh;
+  col += uSunCol * pow(max(dot(r, uSun), 0.0), 40.0) * 1.2 + uHor * 0.35 * pow(max(dot(r, normalize(vec3(uSun.x, 0.05, uSun.z))), 0.0), 12.0) * so;
+  col += uHor * (0.9 * pow(max(dot(r, uKey), 0.0), 70.0) + 0.25 * pow(max(dot(r, uKey), 0.0), 12.0)) * sh;
   float dif = max(dot(n, L), 0.0);
-  col += alb * uLightCol * dif / (1.0 + 0.22 * dl * dl) * mix(1.0, aao, 0.6) * 9.0;
+  col += alb * uLightCol * dif / (1.0 + 0.3 * dl * dl) * mix(1.0, aao, 0.6) * 1.5;
   return col;
 }
 
@@ -399,7 +465,7 @@ void main(){
   }
   float tmax = 90.0;
   if(!skip){
-    for(int i = 0; i < 180; i++){
+    for(int i = 0; i < 170; i++){
       vec3 p = ro + rd * t;
       float d = map(p);
       if(abs(d) < 0.0005 * (1.0 + t)) { hit = true; break; }
@@ -431,6 +497,10 @@ void main(){
     t = 200.0;
   }
   col += halo(ro, rd, min(t, 60.0)) * 0.3;
+  vec3 oc = uSph.xyz - ro;
+  float tc = max(dot(oc, rd), 0.0);
+  float dd = length(oc - rd * tc);
+  if(t > tc) col += (uHor * 0.5 + uLightCol * 2.0) * exp(-max(dd - uSph.w, 0.0) * 2.2) * 0.35 * uEnv;
   gl_FragColor = vec4(col, 1.0);
   gl_FragDepth = depth;
 }
@@ -592,10 +662,10 @@ void main(){
   float alb = vInfo.w;
   float up = dot(n, uUpV);
   // matte ceramic: sky dome + soft front fill + backlight + sphere light
-  vec3 col = mix(uHor * 0.85, uZen * 1.05, up * 0.5 + 0.5);
-  col *= 0.78 + 0.22 * up;
-  col += uEnv * 0.32 * max(dot(n, normalize(vec3(-0.45, 0.55, 0.7))), 0.0) * vec3(1.0, 0.99, 0.97);
-  col += uSunCol * 0.45 * max(dot(n, uSunV), 0.0);
+  vec3 col = mix(uHor * 0.22, 0.42 * (uZen + uHor), up * 0.5 + 0.5) + uHor * 0.1 * (1.0 - abs(up));
+  float key = max(dot(n, normalize(vec3(-0.5, 0.55, 0.68))), 0.0);
+  col += uHor * 0.95 * key * key;
+  col += uSunCol * 0.8 * max(dot(n, uSunV), 0.0);
   vec3 L = uSphV - vC;
   float dl = length(L);
   L /= dl;
