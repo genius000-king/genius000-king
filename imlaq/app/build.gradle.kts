@@ -30,7 +30,12 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // R8 shrinks the unused library code (most of a Compose app's size) and resources.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // Same key as debug builds for now, so either installs over the other.
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 

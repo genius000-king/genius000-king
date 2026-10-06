@@ -49,8 +49,13 @@ jobs:
       - name: Unit tests
         run: ./gradlew test
 
-      - name: Assemble debug APK
-        run: ./gradlew :app:assembleDebug
+      - name: Assemble APKs
+        run: ./gradlew :app:assembleDebug :app:assembleRelease
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: imlaq-apk
+          path: imlaq/app/build/outputs/apk/release/app-release.apk
 
       - uses: actions/upload-artifact@v4
         with:
