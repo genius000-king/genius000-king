@@ -5,6 +5,7 @@ local.properties
 keystore.properties
 *.jks
 *.keystore
+!keystore/imlaq-debug.keystore
 .idea/
 *.iml
 .DS_Store

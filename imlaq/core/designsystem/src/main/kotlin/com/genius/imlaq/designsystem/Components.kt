@@ -223,3 +223,49 @@ fun ProgressTrack(fraction: Float, modifier: Modifier = Modifier) {
         Box(Modifier.fillMaxWidth(fraction.coerceIn(0f, 1f)).height(5.dp).clip(PillShape).background(c.text))
     }
 }
+
+/**
+ * A one-line glass capsule to type in (search, a link), with an action at its end.
+ * The chat composer is the same shape with room for several lines.
+ */
+@Composable
+fun GlassField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    modifier: Modifier = Modifier,
+    leading: ImageVector? = null,
+    keyboardOptions: androidx.compose.foundation.text.KeyboardOptions = androidx.compose.foundation.text.KeyboardOptions.Default,
+    keyboardActions: androidx.compose.foundation.text.KeyboardActions = androidx.compose.foundation.text.KeyboardActions.Default,
+    trailing: @Composable RowScope.() -> Unit = {},
+) {
+    val c = Imlaq.colors
+    Row(
+        modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = ImlaqDimens.buttonHeight)
+            .glass(PillShape, blur = ImlaqDimens.barBlur, strong = true)
+            .padding(start = 16.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        if (leading != null) Icon(leading, contentDescription = null, tint = c.faint, modifier = Modifier.size(18.dp))
+        androidx.compose.foundation.text.BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            singleLine = true,
+            textStyle = MaterialTheme.typography.bodyLarge.copy(color = c.text),
+            cursorBrush = androidx.compose.ui.graphics.SolidColor(c.text),
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            modifier = Modifier.weight(1f),
+            decorationBox = { field ->
+                Box(contentAlignment = Alignment.CenterStart) {
+                    if (value.isEmpty()) Text(placeholder, style = MaterialTheme.typography.bodyLarge, color = c.faint, maxLines = 1)
+                    field()
+                }
+            },
+        )
+        trailing()
+    }
+}

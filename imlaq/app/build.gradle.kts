@@ -11,9 +11,21 @@ android {
         applicationId = "com.genius.imlaq"
         minSdk = 29
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
         ndk { abiFilters += "arm64-v8a" }
+    }
+
+    // One fixed key for every debug build, here and in CI: a new APK installs over the old one
+    // instead of forcing an uninstall, which would delete the downloaded models with the app.
+    // It is public on purpose and only for debug builds; a store release gets its own private key.
+    signingConfigs {
+        getByName("debug") {
+            storeFile = rootProject.file("keystore/imlaq-debug.keystore")
+            storePassword = "imlaq-debug"
+            keyAlias = "imlaq"
+            keyPassword = "imlaq-debug"
+        }
     }
 
     buildTypes {

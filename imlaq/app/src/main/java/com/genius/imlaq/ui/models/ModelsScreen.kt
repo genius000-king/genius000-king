@@ -27,13 +27,18 @@ import com.genius.imlaq.designsystem.ProgressTrack
 import com.genius.imlaq.designsystem.StatusDot
 import com.genius.imlaq.designsystem.glass
 import com.genius.imlaq.models.catalog.CatalogEntry
+import com.genius.imlaq.models.catalog.Fit
 import com.genius.imlaq.models.catalog.FitLevel
+import com.genius.imlaq.models.download.ActiveTransfer
 import com.genius.imlaq.models.download.DownloadState
 import com.genius.imlaq.ui.formatGb
 
 interface ModelsActions {
-    fun download(entry: CatalogEntry)
-    fun cancelDownload(entry: CatalogEntry)
+    fun addFromPhone()
+    fun addFromInternet()
+    fun downloadSuggested(entry: CatalogEntry)
+    fun cancel(transfer: ActiveTransfer)
+    fun retry(transfer: ActiveTransfer)
     fun run(row: InstalledRow)
     fun stop()
     fun armDelete(row: InstalledRow?)
@@ -54,6 +59,21 @@ fun ModelsScreen(state: ModelsUiState, actions: ModelsActions, modifier: Modifie
                 Text(stringResource(R.string.models_subtitle), style = MaterialTheme.typography.bodyMedium, color = c.muted)
             }
         }
+        item {
+            Row(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                GhostButton(stringResource(R.string.add_from_phone), onClick = actions::addFromPhone, icon = ImlaqIcons.Phone, small = false, modifier = Modifier.weight(1f))
+                PillButton(stringResource(R.string.add_from_internet), onClick = actions::addFromInternet, icon = ImlaqIcons.Globe, modifier = Modifier.weight(1f))
+            }
+        }
+        state.notice?.let { note ->
+            item { StatusDot(note, c.bad, Modifier.padding(horizontal = 4.dp)) }
+        }
+
+        if (state.transfers.isNotEmpty()) {
+            item { SectionLabel(stringResource(R.string.models_transfers)) }
+            items(state.transfers, key = { "t:" + it.spec.id }) { TransferCard(it, actions) }
+        }
+
         item { SectionLabel(stringResource(R.string.models_installed)) }
         if (!state.loading && state.installed.isEmpty()) {
             item {
@@ -65,18 +85,19 @@ fun ModelsScreen(state: ModelsUiState, actions: ModelsActions, modifier: Modifie
                 )
             }
         }
-        items(state.installed, key = { it.model.entry.path }) { row ->
+        items(state.installed, key = { "i:" + it.model.entry.path }) { row ->
             InstalledCard(row, armed = state.deleteArmed == row.model.entry.path, actions)
         }
-        if (state.available.isNotEmpty()) {
-            item { SectionLabel(stringResource(R.string.models_available)) }
-            items(state.available, key = { it.entry.id }) { row -> AvailableCard(row, actions) }
+
+        if (state.suggested.isNotEmpty()) {
+            item { SectionLabel(stringResource(R.string.models_suggested)) }
+            items(state.suggested, key = { "s:" + it.entry.id }) { SuggestedCard(it, actions) }
         }
     }
 }
 
 @Composable
-private fun SectionLabel(text: String) {
+internal fun SectionLabel(text: String) {
     Text(
         text,
         style = MaterialTheme.typography.labelSmall,
@@ -85,8 +106,9 @@ private fun SectionLabel(text: String) {
     )
 }
 
+/** The card every model is shown in: title and size, an action at the end, details below. */
 @Composable
-private fun ModelCard(
+internal fun ModelCard(
     title: String,
     bytes: Long,
     action: @Composable () -> Unit,
@@ -99,8 +121,10 @@ private fun ModelCard(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.titleMedium, color = c.text)
-                Text(stringResource(R.string.size_gb, formatGb(bytes)), style = MaterialTheme.typography.bodySmall, color = c.muted)
+                Text(title, style = MaterialTheme.typography.titleMedium, color = c.text, maxLines = 2)
+                if (bytes > 0) {
+                    Text(stringResource(R.string.size_gb, formatGb(bytes)), style = MaterialTheme.typography.bodySmall, color = c.muted)
+                }
             }
             action()
         }
@@ -119,6 +143,7 @@ private fun InstalledCard(row: InstalledRow, armed: Boolean, actions: ModelsActi
                 when (row.status) {
                     RunStatus.RUNNING -> GhostButton(stringResource(R.string.action_stop), onClick = actions::stop)
                     RunStatus.LOADING -> GhostButton(stringResource(R.string.status_loading), onClick = {}, enabled = false)
+                    RunStatus.UNSUPPORTED -> Unit
                     else -> PillButton(stringResource(R.string.action_run), onClick = { actions.run(row) }, icon = ImlaqIcons.Play, small = true)
                 }
                 IconCircle(
@@ -134,6 +159,7 @@ private fun InstalledCard(row: InstalledRow, armed: Boolean, actions: ModelsActi
             RunStatus.RUNNING -> StatusDot(stringResource(R.string.status_running), c.ok)
             RunStatus.LOADING -> StatusDot(stringResource(R.string.status_loading), c.warn)
             RunStatus.FAILED -> StatusDot(stringResource(R.string.status_failed, row.failure.orEmpty()), c.bad)
+            RunStatus.UNSUPPORTED -> StatusDot(stringResource(R.string.status_unsupported), c.faint)
             RunStatus.IDLE -> StatusDot(stringResource(R.string.status_ready), c.ok)
         }
         if (armed) {
@@ -152,31 +178,25 @@ private fun InstalledCard(row: InstalledRow, armed: Boolean, actions: ModelsActi
 }
 
 @Composable
-private fun AvailableCard(row: AvailableRow, actions: ModelsActions) {
+private fun TransferCard(t: ActiveTransfer, actions: ModelsActions) {
     val c = Imlaq.colors
-    val entry = row.entry
-    val canDownload = row.fit.level == FitLevel.GOOD || row.fit.level == FitLevel.SLOW
     ModelCard(
-        title = entry.name,
-        bytes = entry.totalBytes,
+        title = t.spec.title,
+        bytes = t.spec.totalBytes,
         action = {
-            when (row.download) {
-                is DownloadState.Running -> GhostButton(stringResource(R.string.action_stop), onClick = { actions.cancelDownload(entry) })
-                is DownloadState.Failed -> GhostButton(stringResource(R.string.action_retry), onClick = { actions.download(entry) })
-                DownloadState.Idle -> GhostButton(
-                    stringResource(R.string.action_download),
-                    onClick = { actions.download(entry) },
-                    icon = ImlaqIcons.ArrowDown,
-                    enabled = canDownload,
-                )
+            when (t.state) {
+                is DownloadState.Failed -> Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    IconCircle(ImlaqIcons.Close, stringResource(R.string.action_stop), onClick = { actions.cancel(t) }, tint = c.muted)
+                    GhostButton(stringResource(R.string.action_retry), onClick = { actions.retry(t) })
+                }
+                else -> GhostButton(stringResource(R.string.action_stop), onClick = { actions.cancel(t) })
             }
         },
     ) {
-        when (val d = row.download) {
+        when (val d = t.state) {
             is DownloadState.Running -> {
-                val pct = (d.fraction * 100).toInt()
                 Text(
-                    if (d.done > 0) stringResource(R.string.download_progress, pct, formatGb(d.done), formatGb(d.total))
+                    if (d.done > 0) stringResource(R.string.download_progress, (d.fraction * 100).toInt(), formatGb(d.done), formatGb(d.total))
                     else stringResource(R.string.download_waiting),
                     style = MaterialTheme.typography.bodySmall,
                     color = c.muted,
@@ -184,18 +204,38 @@ private fun AvailableCard(row: AvailableRow, actions: ModelsActions) {
                 ProgressTrack(d.fraction)
             }
             is DownloadState.Failed -> StatusDot(stringResource(R.string.download_failed, d.message), c.bad)
-            DownloadState.Idle -> FitLine(row)
+            DownloadState.Idle -> Unit
         }
     }
 }
 
 @Composable
-private fun FitLine(row: AvailableRow) {
+private fun SuggestedCard(row: SuggestedRow, actions: ModelsActions) {
+    val canDownload = row.fit.level != FitLevel.NO_SPACE && row.fit.level != FitLevel.NOT_ENOUGH_RAM
+    ModelCard(
+        title = row.entry.name,
+        bytes = row.entry.totalBytes,
+        action = {
+            GhostButton(
+                stringResource(R.string.action_download),
+                onClick = { actions.downloadSuggested(row.entry) },
+                icon = ImlaqIcons.ArrowDown,
+                enabled = canDownload,
+            )
+        },
+    ) { FitLine(row.fit, minRamGb = row.entry.minRam.gib.toInt()) }
+}
+
+/** One coloured line that says what a model means for this phone. */
+@Composable
+internal fun FitLine(fit: Fit, minRamGb: Int = 0) {
     val c = Imlaq.colors
-    when (row.fit.level) {
+    when (fit.level) {
         FitLevel.GOOD -> StatusDot(stringResource(R.string.fit_good), c.ok)
+        FitLevel.FITS_RAM -> StatusDot(stringResource(R.string.fit_in_ram), c.ok)
         FitLevel.SLOW -> StatusDot(stringResource(R.string.fit_slow), c.warn)
-        FitLevel.NO_SPACE -> StatusDot(stringResource(R.string.fit_no_space, formatGb(row.fit.missing.value)), c.bad)
-        FitLevel.NOT_ENOUGH_RAM -> StatusDot(stringResource(R.string.fit_no_ram, row.entry.minRam.gib.toInt()), c.bad)
+        FitLevel.STREAMS -> StatusDot(stringResource(R.string.fit_streams), c.warn)
+        FitLevel.NO_SPACE -> StatusDot(stringResource(R.string.fit_no_space, formatGb(fit.missing.value)), c.bad)
+        FitLevel.NOT_ENOUGH_RAM -> StatusDot(stringResource(R.string.fit_no_ram, minRamGb), c.bad)
     }
 }

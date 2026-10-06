@@ -14,6 +14,12 @@ enum class FitLevel {
 
     /** This phone's RAM is below what the model needs even when streamed. */
     NOT_ENOUGH_RAM,
+
+    /** A model with no measured speed that fits in RAM with room to spare: it runs at full speed. */
+    FITS_RAM,
+
+    /** A model with no measured speed that is bigger than the RAM it can have: it streams from storage. */
+    STREAMS,
 }
 
 data class Fit(val level: FitLevel, /** For NO_SPACE: how much more space is needed. */ val missing: Bytes = Bytes.ZERO)
@@ -34,6 +40,17 @@ object FitJudge {
         if (!hasRam(totalRam, entry.minRam)) return Fit(FitLevel.NOT_ENOUGH_RAM)
         val fast = entry.referenceTokensPerSecond >= CHATTY_TOKENS_PER_SECOND && hasRam(totalRam, entry.comfortableRam)
         return Fit(if (fast) FitLevel.GOOD else FitLevel.SLOW)
+    }
+
+    /**
+     * For any model off the internet, where no speed was ever measured: only what is certain.
+     * It fits the storage or not, and it fits in RAM (half of it, leaving the phone the rest) or
+     * it streams from storage, which is slower but is exactly what this app is for.
+     */
+    fun assessSize(totalBytes: Long, totalRam: Bytes, freeStorage: Bytes, alreadyDownloaded: Bytes = Bytes.ZERO): Fit {
+        val needed = Bytes(totalBytes) - alreadyDownloaded
+        if (needed > freeStorage) return Fit(FitLevel.NO_SPACE, needed - freeStorage)
+        return Fit(if (totalBytes <= totalRam.value / 2) FitLevel.FITS_RAM else FitLevel.STREAMS)
     }
 
     /**

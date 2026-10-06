@@ -19,7 +19,15 @@ import com.genius.imlaq.session.SessionState
 import com.genius.imlaq.ui.chat.ChatActions
 import com.genius.imlaq.ui.chat.ChatMessage
 import com.genius.imlaq.ui.chat.ChatUiState
-import com.genius.imlaq.ui.models.AvailableRow
+import com.genius.imlaq.models.catalog.FitJudge
+import com.genius.imlaq.models.download.ActiveTransfer
+import com.genius.imlaq.models.download.DownloadSpec
+import com.genius.imlaq.models.download.TransferFile
+import com.genius.imlaq.models.hub.HubModelFile
+import com.genius.imlaq.models.hub.HubRepo
+import com.genius.imlaq.ui.models.OnlineActions
+import com.genius.imlaq.ui.models.OnlineUiState
+import com.genius.imlaq.ui.models.SuggestedRow
 import com.genius.imlaq.ui.models.InstalledRow
 import com.genius.imlaq.ui.models.ModelsActions
 import com.genius.imlaq.ui.models.ModelsUiState
@@ -48,15 +56,18 @@ class ScreensScreenshotTest {
 
     @Test fun modelsDark() = shot("models-dark", dark = true, tab = Tab.MODELS)
     @Test fun modelsLight() = shot("models-light", dark = false, tab = Tab.MODELS)
+    @Test fun onlineSearchDark() = shot("online-search-dark", dark = true, tab = Tab.MODELS, page = ModelsPage.ONLINE, online = sampleSearch())
+    @Test fun onlineFilesDark() = shot("online-files-dark", dark = true, tab = Tab.MODELS, page = ModelsPage.ONLINE, online = sampleFiles())
     @Test fun chatDark() = shot("chat-dark", dark = true, tab = Tab.CHAT)
     @Test fun chatLight() = shot("chat-light", dark = false, tab = Tab.CHAT)
 
-    private fun shot(name: String, dark: Boolean, tab: Tab) {
+    private fun shot(name: String, dark: Boolean, tab: Tab, page: ModelsPage = ModelsPage.LIST, online: OnlineUiState = OnlineUiState()) {
         compose.setContent {
             ImlaqTheme(dark = dark) {
                 AppFrame(
                     tab = tab, onTab = {}, dark = dark, onToggleTheme = {},
-                    models = sampleModels(), modelsActions = NoModelsActions,
+                    modelsPage = page, models = sampleModels(), modelsActions = NoModelsActions,
+                    online = online, fitForSize = ::sampleFit, onlineActions = NoOnlineActions,
                     chat = sampleChat(), input = "", onInput = {}, chatActions = NoChatActions,
                 )
             }
@@ -72,16 +83,40 @@ class ScreensScreenshotTest {
         val file = File("/m/${qwen.entryFileName}")
         val summary = ModelSummary(ModelKind.TEXT_MOE, "qwen3moe", "Qwen3 30B", 128, 8, 48, 40960,
             Bytes(qwen.totalBytes), Bytes(qwen.totalBytes - 1_500_000_000L), Bytes(1_500_000_000L))
-        fun row(id: String, fit: FitLevel, dl: DownloadState = DownloadState.Idle) =
-            AvailableRow(Catalog.byId(id)!!, Fit(fit), dl)
+        val hubGemma = DownloadSpec("hf:x", "gemma-3-27b-it-Q4_K_M", listOf(TransferFile("gemma-3-27b-it-Q4_K_M.gguf", "https://x", 16_550_000_000L)))
         return ModelsUiState(
             loading = false,
             installed = listOf(InstalledRow(LocalModel(file, listOf(file), summary, null), "Qwen3 30B", qwen.totalBytes, RunStatus.IDLE)),
-            available = listOf(
-                row("gemma4-26b", FitLevel.GOOD, DownloadState.Running(7_160_000_000L, 17_035_038_112L)),
-                row("qwen3.6-35b", FitLevel.GOOD),
-                row("gpt-oss-120b", FitLevel.SLOW),
-                AvailableRow(Catalog.byId("deepseek-v4-flash")!!, Fit(FitLevel.NO_SPACE, Bytes(12_400_000_000L)), DownloadState.Idle),
+            transfers = listOf(ActiveTransfer(hubGemma, DownloadState.Running(6_900_000_000L, 16_550_000_000L))),
+            suggested = listOf(
+                SuggestedRow(Catalog.byId("gemma4-26b")!!, Fit(FitLevel.GOOD)),
+                SuggestedRow(Catalog.byId("gpt-oss-120b")!!, Fit(FitLevel.SLOW)),
+                SuggestedRow(Catalog.byId("deepseek-v4-flash")!!, Fit(FitLevel.NO_SPACE, Bytes(12_400_000_000L))),
+            ),
+        )
+    }
+
+    private fun sampleFit(bytes: Long): Fit = FitJudge.assessSize(bytes, Bytes.gib(11.2), Bytes(60_000_000_000L))
+
+    private fun sampleSearch() = OnlineUiState(
+        query = "qwen3 30b",
+        results = listOf(
+            HubRepo("unsloth/Qwen3-30B-A3B-GGUF", 1_250_000, 410),
+            HubRepo("unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF", 6_928_970, 1113),
+            HubRepo("bartowski/Qwen_Qwen3-30B-A3B-GGUF", 312_000, 95),
+        ),
+    )
+
+    private fun sampleFiles(): OnlineUiState {
+        fun f(label: String, bytes: Long) = HubModelFile("unsloth/Qwen3-30B-A3B-GGUF", label, listOf(TransferFile("$label.gguf", "https://x", bytes)))
+        return OnlineUiState(
+            query = "qwen3 30b",
+            repo = HubRepo("unsloth/Qwen3-30B-A3B-GGUF", 1_250_000, 410),
+            files = listOf(
+                f("Qwen3-30B-A3B-Q2_K", 11_258_610_432L),
+                f("Qwen3-30B-A3B-Q4_K_M", 18_556_686_912L),
+                f("Qwen3-30B-A3B-Q8_0", 32_483_935_424L),
+                f("Qwen3-30B-A3B-BF16", 61_095_803_424L),
             ),
         )
     }
@@ -98,12 +133,26 @@ class ScreensScreenshotTest {
     )
 
     private object NoModelsActions : ModelsActions {
-        override fun download(entry: CatalogEntry) = Unit
-        override fun cancelDownload(entry: CatalogEntry) = Unit
+        override fun addFromPhone() = Unit
+        override fun addFromInternet() = Unit
+        override fun downloadSuggested(entry: CatalogEntry) = Unit
+        override fun cancel(transfer: ActiveTransfer) = Unit
+        override fun retry(transfer: ActiveTransfer) = Unit
         override fun run(row: InstalledRow) = Unit
         override fun stop() = Unit
         override fun armDelete(row: InstalledRow?) = Unit
         override fun delete(row: InstalledRow) = Unit
+    }
+
+    private object NoOnlineActions : OnlineActions {
+        override fun back() = Unit
+        override fun onQuery(q: String) = Unit
+        override fun search() = Unit
+        override fun open(repo: HubRepo) = Unit
+        override fun closeRepo() = Unit
+        override fun download(file: HubModelFile) = Unit
+        override fun onLink(link: String) = Unit
+        override fun downloadLink() = Unit
     }
 
     private object NoChatActions : ChatActions {

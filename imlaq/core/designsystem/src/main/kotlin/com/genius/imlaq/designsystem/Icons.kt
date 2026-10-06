@@ -15,8 +15,8 @@ import androidx.compose.ui.unit.dp
  */
 object ImlaqIcons {
 
-    private fun line(name: String, filled: Boolean = false, build: PathBuilder.() -> Unit) =
-        ImageVector.Builder(name, 24.dp, 24.dp, 24f, 24f).path(
+    private fun line(name: String, filled: Boolean = false, mirror: Boolean = false, build: PathBuilder.() -> Unit) =
+        ImageVector.Builder(name, 24.dp, 24.dp, 24f, 24f, autoMirror = mirror).path(
             fill = if (filled) SolidColor(Color.Black) else null,
             stroke = if (filled) null else SolidColor(Color.Black),
             strokeLineWidth = 1.7f,
@@ -66,5 +66,29 @@ object ImlaqIcons {
         moveTo(4f, 7f); lineTo(20f, 7f)
         moveTo(9f, 7f); lineTo(9f, 4f); lineTo(15f, 4f); lineTo(15f, 7f)
         moveTo(6f, 7f); lineTo(7f, 20f); lineTo(17f, 20f); lineTo(18f, 7f)
+    }
+
+    val Search = line("search") {
+        moveTo(17f, 11f); arcTo(6f, 6f, 0f, true, true, 5f, 11f); arcTo(6f, 6f, 0f, true, true, 17f, 11f)
+        moveTo(15.5f, 15.5f); lineTo(20f, 20f)
+    }
+
+    /** Points the way "back" goes: left in a left-to-right layout, right in Arabic. */
+    val Back = line("back", mirror = true) {
+        moveTo(19f, 12f); lineTo(5f, 12f); moveTo(11f, 6f); lineTo(5f, 12f); lineTo(11f, 18f)
+    }
+
+    val Phone = line("phone") {
+        moveTo(8f, 3f); lineTo(16f, 3f); arcTo(2f, 2f, 0f, false, true, 18f, 5f); lineTo(18f, 19f)
+        arcTo(2f, 2f, 0f, false, true, 16f, 21f); lineTo(8f, 21f); arcTo(2f, 2f, 0f, false, true, 6f, 19f)
+        lineTo(6f, 5f); arcTo(2f, 2f, 0f, false, true, 8f, 3f); close()
+        moveTo(11f, 18f); lineTo(13f, 18f)
+    }
+
+    val Globe = line("globe") {
+        moveTo(21f, 12f); arcTo(9f, 9f, 0f, true, true, 3f, 12f); arcTo(9f, 9f, 0f, true, true, 21f, 12f)
+        moveTo(3f, 12f); lineTo(21f, 12f)
+        moveTo(12f, 3f); curveTo(14.5f, 5.5f, 15.5f, 8.5f, 15.5f, 12f); curveTo(15.5f, 15.5f, 14.5f, 18.5f, 12f, 21f)
+        curveTo(9.5f, 18.5f, 8.5f, 15.5f, 8.5f, 12f); curveTo(8.5f, 8.5f, 9.5f, 5.5f, 12f, 3f)
     }
 }

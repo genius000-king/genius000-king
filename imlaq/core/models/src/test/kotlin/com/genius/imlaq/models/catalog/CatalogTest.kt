@@ -61,4 +61,14 @@ class CatalogTest {
     fun anEightGigPhoneRunsTheThirtyBClassSlowly() {
         assertEquals(FitLevel.SLOW, FitJudge.assess(gemma, Bytes.gib(7.5), Bytes.gib(100)).level)
     }
+
+    @Test
+    fun anyModelIsJudgedOnlyOnWhatIsCertain() {
+        val ram = Bytes.gib(11.2)
+        assertEquals(FitLevel.FITS_RAM, FitJudge.assessSize(4_000_000_000L, ram, Bytes.gib(50)).level)
+        assertEquals(FitLevel.STREAMS, FitJudge.assessSize(18_556_686_912L, ram, Bytes.gib(50)).level)
+        val noSpace = FitJudge.assessSize(60_000_000_000L, ram, Bytes(50_000_000_000L))
+        assertEquals(FitLevel.NO_SPACE, noSpace.level)
+        assertEquals(Bytes(10_000_000_000L), noSpace.missing)
+    }
 }

@@ -3,6 +3,7 @@ package com.genius.imlaq.ui
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,11 @@ import com.genius.imlaq.designsystem.ImlaqBackground
 import com.genius.imlaq.designsystem.ImlaqIcons
 import com.genius.imlaq.designsystem.SegmentedTabs
 import com.genius.imlaq.models.catalog.CatalogEntry
+import com.genius.imlaq.models.catalog.Fit
+import com.genius.imlaq.models.download.ActiveTransfer
+import com.genius.imlaq.models.hub.HubModelFile
+import com.genius.imlaq.models.hub.HubRepo
+import com.genius.imlaq.models.hub.HuggingFace
 import com.genius.imlaq.ui.chat.ChatActions
 import com.genius.imlaq.ui.chat.ChatScreen
 import com.genius.imlaq.ui.chat.ChatUiState
@@ -45,21 +51,31 @@ import com.genius.imlaq.ui.models.ModelsActions
 import com.genius.imlaq.ui.models.ModelsScreen
 import com.genius.imlaq.ui.models.ModelsUiState
 import com.genius.imlaq.ui.models.ModelsViewModel
+import com.genius.imlaq.ui.models.OnlineActions
+import com.genius.imlaq.ui.models.OnlineScreen
+import com.genius.imlaq.ui.models.OnlineUiState
+import com.genius.imlaq.ui.models.OnlineViewModel
 
 enum class Tab { MODELS, CHAT }
 
-/** Wires the two screens to their view models. */
+/** Inside the models tab: the list, or the page that finds a model online. */
+enum class ModelsPage { LIST, ONLINE }
+
+/** Wires the screens to their view models. */
 @Composable
 fun AppRoot(container: AppContainer, dark: Boolean, onToggleTheme: () -> Unit) {
-    val models = viewModel { ModelsViewModel(container) }
+    val context = LocalContext.current
+    val models = viewModel { ModelsViewModel(container, context.applicationContext) }
+    val online = viewModel { OnlineViewModel(HuggingFace(), startDownload = models::download) }
     val chat = viewModel { ChatViewModel(container.session) }
     val modelsState by models.state.collectAsStateWithLifecycle()
+    val onlineState by online.state.collectAsStateWithLifecycle()
     val chatState by chat.state.collectAsStateWithLifecycle()
     var tab by rememberSaveable { mutableStateOf(Tab.MODELS) }
+    var page by rememberSaveable { mutableStateOf(ModelsPage.LIST) }
     var input by rememberSaveable { mutableStateOf("") }
 
     // Downloads and the loaded model show a notification; ask once, on the first action that needs it.
-    val context = LocalContext.current
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
     fun askForNotifications() {
         if (Build.VERSION.SDK_INT >= 33 &&
@@ -68,20 +84,45 @@ fun AppRoot(container: AppContainer, dark: Boolean, onToggleTheme: () -> Unit) {
             permission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
+    // The system file picker: one file, or every shard of a split model at once.
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+        if (uris.isNotEmpty()) { askForNotifications(); models.importFromPhone(uris) }
+    }
+
+    // The phone's back gesture steps back through the online page instead of leaving the app.
+    BackHandler(enabled = tab == Tab.MODELS && page == ModelsPage.ONLINE) {
+        if (onlineState.repo != null) online.closeRepo() else page = ModelsPage.LIST
+    }
 
     AppFrame(
         tab = tab,
         onTab = { tab = it },
         dark = dark,
         onToggleTheme = onToggleTheme,
+        modelsPage = page,
         models = modelsState,
         modelsActions = object : ModelsActions {
-            override fun download(entry: CatalogEntry) { askForNotifications(); models.download(entry) }
-            override fun cancelDownload(entry: CatalogEntry) = models.cancelDownload(entry)
+            override fun addFromPhone() = picker.launch(arrayOf("*/*"))
+            override fun addFromInternet() { page = ModelsPage.ONLINE }
+            override fun downloadSuggested(entry: CatalogEntry) { askForNotifications(); models.downloadSuggested(entry) }
+            override fun cancel(transfer: ActiveTransfer) = models.cancel(transfer)
+            override fun retry(transfer: ActiveTransfer) = models.download(transfer.spec)
             override fun run(row: InstalledRow) { askForNotifications(); models.run(row); tab = Tab.CHAT }
             override fun stop() = models.stop()
             override fun armDelete(row: InstalledRow?) = models.armDelete(row)
             override fun delete(row: InstalledRow) = models.delete(row)
+        },
+        online = onlineState,
+        fitForSize = models::fitForSize,
+        onlineActions = object : OnlineActions {
+            override fun back() { page = ModelsPage.LIST }
+            override fun onQuery(q: String) = online.onQuery(q)
+            override fun search() = online.search()
+            override fun open(repo: HubRepo) = online.open(repo)
+            override fun closeRepo() = online.closeRepo()
+            override fun download(file: HubModelFile) { askForNotifications(); online.download(file); page = ModelsPage.LIST }
+            override fun onLink(link: String) = online.onLink(link)
+            override fun downloadLink() { askForNotifications(); online.downloadLink(onStarted = { page = ModelsPage.LIST }) }
         },
         chat = chatState,
         input = input,
@@ -102,8 +143,12 @@ fun AppFrame(
     onTab: (Tab) -> Unit,
     dark: Boolean,
     onToggleTheme: () -> Unit,
+    modelsPage: ModelsPage,
     models: ModelsUiState,
     modelsActions: ModelsActions,
+    online: OnlineUiState,
+    fitForSize: (Long) -> Fit?,
+    onlineActions: OnlineActions,
     chat: ChatUiState,
     input: String,
     onInput: (String) -> Unit,
@@ -128,7 +173,10 @@ fun AppFrame(
             }
             Box(Modifier.weight(1f)) {
                 when (tab) {
-                    Tab.MODELS -> ModelsScreen(models, modelsActions)
+                    Tab.MODELS -> when (modelsPage) {
+                        ModelsPage.LIST -> ModelsScreen(models, modelsActions)
+                        ModelsPage.ONLINE -> OnlineScreen(online, fitForSize, onlineActions)
+                    }
                     Tab.CHAT -> ChatScreen(chat, input, onInput, chatActions)
                 }
             }
