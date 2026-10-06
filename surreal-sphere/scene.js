@@ -980,35 +980,54 @@ function writeDroplets(t) {
 }
 
 // ---------------------------------------------------------------- camera
-// One continuous crane move: high over the white void, down to the floor as the
-// sphere is born, into the reference angle while the first hand holds the sphere,
-// then around the struggle and back out for the explosion.
-// aperture = depth-of-field blur in px at 720p.
+// The camera never stops: a drone glide over the white void, circling the well
+// as it forms, craning up with the bulb, spinning around the newborn sphere,
+// diving to the floor beside the first hand, sliding through the reference
+// angle, whipping through the clutching hands, then thrown back by the blast.
+// Orbit angles are in degrees relative to the hero camera and keep unwrapping
+// (one long continuous spiral). aperture = depth-of-field blur in px at 720p.
 function orbitKey(t, dAz, dist, h, ty, fov, aper) {
   const a = HERO.az + (dAz * Math.PI) / 180;
   return { t, pos: [C0[0] + Math.sin(a) * dist, h, C0[2] + Math.cos(a) * dist], tgt: [C0[0], ty, C0[2]], fov, aper };
 }
-function heroKey(t, dolly, aper) {
-  const d = scl(HERO.B.f, dolly);
-  return { t, pos: add(HERO.pos, d), tgt: add(HERO.tgt, d), fov: HERO.fov, aper };
+function heroKey(t, dolly, side, rise, aper) {
+  const d = add(add(scl(HERO.B.f, dolly), scl(HERO.B.r, side)), [0, rise, 0]);
+  return { t, pos: add(HERO.pos, d), tgt: add(HERO.tgt, scl(d, 0.6)), fov: HERO.fov, aper };
+}
+// low along the floor beside the first hand as it rises out of the liquid
+function diveKey(t) {
+  const h1 = ARMS[0];
+  const out = nrm([h1.Xe[0] - C0[0], 0, h1.Xe[2] - C0[2]]);
+  const side = cross([0, 1, 0], out);
+  return { t, pos: add(add(h1.Xe, scl(out, 2.4)), add(scl(side, -1.3), [0, 0.5, 0])), tgt: add(h1.reach.Wr, [0, 0.5, 0]), fov: 38, aper: 5 };
 }
 const CAM_KEYS = [
-  orbitKey(0.0, 0, 14.0, 4.4, 0.4, 38, 0),
-  orbitKey(2.2, 2, 12.0, 3.7, 0.2, 38, 0),
-  orbitKey(5.2, 5, 9.6, 2.8, 0.0, 38, 1),
-  orbitKey(8.2, 8, 7.6, 2.0, 1.9, 38, 2),
-  orbitKey(10.2, 5, 6.3, 1.3, 1.85, 39, 3.5),
-  heroKey(12.2, -0.55, 5),
-  heroKey(TL.hero[0], -0.22, 2.6),
-  heroKey(TL.heroFrame, 0, 3),
-  heroKey(TL.hero[1], 0.16, 3),
-  orbitKey(18.6, 35, 8.4, 2.2, 2.0, 42, 4),
-  orbitKey(20.4, 60, 10.5, 4.2, 2.1, 42, 3),
-  orbitKey(21.7, 75, 10.0, 4.6, 2.2, 41, 3),
-  orbitKey(23.7, 90, 8.2, 4.0, 2.3, 38, 3),
-  orbitKey(24.2, 92, 8.0, 3.9, 2.3, 38, 3),
-  orbitKey(25.6, 100, 9.0, 3.6, 2.2, 44, 2),
-  orbitKey(30.0, 115, 10.5, 3.9, 2.3, 42, 1.5),
+  orbitKey(0.0, 25, 17.0, 5.2, 0.0, 46, 0),
+  orbitKey(1.6, 12, 13.0, 2.6, 0.0, 46, 0),
+  orbitKey(3.0, -8, 9.0, 1.5, -0.2, 44, 1),
+  orbitKey(4.3, -45, 5.6, 2.3, -0.5, 42, 2),
+  orbitKey(5.5, -95, 4.4, 3.3, -0.3, 40, 2),
+  orbitKey(6.7, -145, 4.0, 1.9, 1.0, 38, 3),
+  orbitKey(7.8, -195, 4.4, 2.3, 2.0, 38, 3),
+  orbitKey(8.8, -245, 3.4, 2.9, 2.4, 36, 4),
+  orbitKey(9.8, -295, 3.6, 2.2, 2.3, 36, 4),
+  diveKey(11.0),
+  orbitKey(12.2, -345, 5.2, 0.85, 1.9, 39, 4),
+  heroKey(TL.hero[0], -0.45, -0.35, 0.0, 3),
+  heroKey(TL.heroFrame, 0, 0, 0, 3),
+  heroKey(TL.hero[1], 0.3, 0.45, 0.12, 3.5),
+  orbitKey(18.2, -385, 5.0, 2.0, 2.2, 40, 4),
+  orbitKey(19.0, -425, 4.1, 2.9, 2.4, 40, 5),
+  orbitKey(19.8, -470, 3.3, 1.5, 2.3, 40, 6),
+  orbitKey(20.6, -515, 4.0, 3.4, 2.4, 40, 5),
+  orbitKey(21.4, -560, 5.6, 4.4, 2.3, 42, 4),
+  orbitKey(22.5, -600, 4.6, 5.2, 2.3, 42, 4),
+  orbitKey(23.7, -640, 4.2, 4.6, 2.4, 40, 4),
+  orbitKey(24.2, -650, 4.1, 4.4, 2.4, 40, 4),
+  orbitKey(25.1, -690, 8.6, 3.3, 2.3, 44, 4),
+  orbitKey(26.6, -712, 7.0, 1.6, 2.2, 42, 4),
+  orbitKey(28.2, -735, 6.4, 2.4, 2.4, 40, 3),
+  orbitKey(30.0, -760, 7.6, 3.3, 2.5, 40, 2),
 ];
 function hermite(keys, t, sel) {
   const n = keys.length;
@@ -1029,30 +1048,46 @@ function hermite(keys, t, sel) {
   if (Array.isArray(p0v)) return add(add(scl(p0v, h00), scl(m0, h10 * h)), add(scl(p1v, h01), scl(m1, h11 * h)));
   return p0v * h00 + m0 * h10 * h + p1v * h01 + m1 * h11 * h;
 }
+const camPath = (t) => hermite(CAM_KEYS, t, (k) => k.pos);
 function cameraAt(t) {
-  let pos = hermite(CAM_KEYS, t, (k) => k.pos);
+  let pos = camPath(t);
   let tgt = hermite(CAM_KEYS, t, (k) => k.tgt);
   const fov = hermite(CAM_KEYS, t, (k) => k.fov);
   const aper = Math.max(0, hermite(CAM_KEYS, t, (k) => k.aper));
   const S = struggle(t);
-  // the hero window stays almost still so the frame keeps the reference composition
-  const calm = 1 - 0.85 * (ssm(TL.hero[0] - 0.4, TL.hero[0], t) - ssm(TL.hero[1], TL.hero[1] + 0.4, t));
-  let amp = (0.003 + 0.03 * S * S + (t > TL.climax ? 0.03 * ssm(TL.climax, TL.inhale, t) : 0)) * calm;
+  // slower and steadier while passing through the reference angle
+  const calm = 1 - 0.8 * (ssm(TL.hero[0] - 0.6, TL.heroFrame - 0.3, t) - ssm(TL.heroFrame + 0.3, TL.hero[1] + 0.4, t));
+  // bank into the turns like a drone, plus a slow breathing roll
+  const az = (p) => Math.atan2(p[0] - C0[0], p[2] - C0[2]);
+  let dAz = az(camPath(t + 0.05)) - az(camPath(t - 0.05));
+  dAz = Math.atan2(Math.sin(dAz), Math.cos(dAz)) / 0.1;
+  let roll = clamp(0.07 * dAz, -0.2, 0.2) + 0.04 * Math.sin(0.47 * t) + 0.025 * Math.sin(1.13 * t + 1.0);
+  roll *= mix(0.25, 1, calm);
+  // floating drift (the camera "breathes" through the world)
+  const drift = mix(0.25, 1, calm);
+  pos = add(pos, scl([0.14 * Math.sin(0.61 * t), 0.09 * Math.sin(0.83 * t + 1.1), 0.14 * Math.sin(0.53 * t + 2.3)], drift));
+  tgt = add(tgt, scl([0.08 * Math.sin(0.71 * t + 0.5), 0.06 * Math.sin(0.97 * t + 2.0), 0.08 * Math.sin(0.66 * t + 4.1)], drift));
+  let amp = (0.003 + 0.03 * S * S + (t > TL.climax ? 0.035 * ssm(TL.climax, TL.inhale, t) : 0)) * calm;
   if (t >= TE) {
     const te = t - TE;
-    amp = 0.004 + 0.28 * Math.exp(-3.5 * te);
+    amp = 0.004 + 0.3 * Math.exp(-3.5 * te);
     const back = nrm(sub(pos, tgt));
-    pos = add(pos, scl(back, 1.3 * (1 - Math.exp(-7 * te)) * Math.exp(-0.6 * te)));
+    pos = add(pos, scl(back, 1.6 * (1 - Math.exp(-7 * te)) * Math.exp(-0.7 * te)));
+    roll += 0.25 * Math.exp(-2.5 * te) * Math.sin(te * 9);
   }
   const { f } = joltAt(Math.min(t, TE));
   amp += 0.02 * f * (t > TL.dimStart ? 1 : 0) * calm;
-  const focus = t >= TL.hero[0] - 1.5 && t <= TL.hero[1] + 0.5 ? len(sub(C0, pos)) - 0.6 : len(sub(tgt, pos));
   const sh = [wob(t * 13, 0.3), wob(t * 11.7, 2.1), wob(t * 12.3, 4.4)];
   const sh2 = [wob(t * 9.1, 5.3), wob(t * 10.3, 6.7), wob(t * 8.7, 8.9)];
   pos = add(pos, scl(sh, amp));
   tgt = add(tgt, scl(sh2, amp * 0.6));
-  if (pos[1] < 0.35) pos[1] = 0.35;
-  return { pos, tgt, fov, aper, focus };
+  // never inside the sphere, never under the liquid
+  const C = sphCR(t)[0];
+  const dc = sub(pos, C), dl = len(dc);
+  if (dl < 1.9) pos = add(C, scl(dc, 1.9 / dl));
+  if (pos[1] < 0.4) pos[1] = 0.4;
+  const focus = len(sub(tgt, pos));
+  return { pos, tgt, fov, aper, focus, roll };
 }
 
 // ---------------------------------------------------------------- renderer
@@ -1151,6 +1186,10 @@ function setFrame(t) {
   if (dc) { const v = dc.split(',').map(Number); cam.pos = v.slice(0, 3); cam.tgt = v.slice(3, 6); cam.fov = v[6] || 40; cam.aper = 0; }
   camera.fov = cam.fov;
   camera.position.set(...cam.pos);
+  const fwd = nrm(sub(cam.tgt, cam.pos));
+  const r0 = nrm(cross(fwd, [0, 1, 0])), u0 = cross(r0, fwd);
+  const rl = cam.roll || 0;
+  camera.up.set(...add(scl(u0, Math.cos(rl)), scl(r0, Math.sin(rl))));
   camera.lookAt(...cam.tgt);
   camera.updateProjectionMatrix();
   camera.updateMatrixWorld();
@@ -1173,7 +1212,7 @@ function setFrame(t) {
   const sunCol = mood.sun;
   const fogD = t >= TE ? mix(0.05, 0.02, ssm(TE, TE + 2, t)) : mix(mix(0.02, 0.028, ssm(9.6, 13.4, t)), 0.05, ssm(TL.hero[1], TL.climax, t));
   const { f: jf0 } = joltAt(Math.min(t, TE));
-  let sphEmis = 0.9 + 1.6 * S * S + 0.6 * jf0;
+  let sphEmis = 0.9 + 0.9 * S * S + 0.45 * jf0;
   if (t >= TL.inhale && t < TE) sphEmis = mix(sphEmis, 3.2, ssm(TL.inhale, TE, t));
   if (t >= TE) sphEmis = 1.0 + 5 * Math.exp(-5 * (t - TE));
 
@@ -1277,7 +1316,7 @@ function setFrame(t) {
   const jf = joltAt(Math.min(t, TE)).f;
   const voidW = t >= TE ? ssm(TE + 0.3, TE + 2.0, t) : 1 - ssm(9.6, 13.4, t);
   bloom.threshold = mix(mix(0.85, 0.5, ssm(TL.hero[1], TL.climax, t)), 2.2, voidW);
-  bloom.strength = (t < TE ? 0.32 + 0.4 * S + 0.2 * jf : 0.4 + 2.0 * Math.exp(-2 * te));
+  bloom.strength = (t < TE ? 0.3 + 0.22 * S + 0.15 * jf : 0.4 + 2.0 * Math.exp(-2 * te));
   bloom.radius = 0.5 + 0.3 * S;
   const g = gradeMat.uniforms;
   g.uTime.value = t;
@@ -1347,6 +1386,7 @@ window.debugPoints = (t) => {
   return { knuck, handcam: [...pal(eye), ...pal(look)], sl, hero: { W: h.W.map((x) => +x.toFixed(2)), E: h.E.map((x) => +x.toFixed(2)), Sh: h.Sh.map((x) => +x.toFixed(2)), cam: camera.position.toArray().map((x) => +x.toFixed(2)) }, sphere: P(sphereState(t).C), wrist: P(h.W), tip: P(h.tip), elbow: P(h.E), cross: h.cross ? P(h.cross.X) : null,
            arms: ARMS.map((a) => (a.active ? [a.type, P(a.W), a.S.toFixed(2)] : [a.type, 'off'])) };
 };
+window.camTrack = () => Array.from({ length: 901 }, (_, f) => { const c = cameraAt(f / 30); return [...c.pos, ...c.tgt, c.roll, c.fov]; });
 window.renderFrame = (t) => { renderAt(t); return toB64(readRGB()); };
 window.renderStill = (t) => { renderAt(t); return canvas.toDataURL('image/png'); };
 window.timeline = TL;

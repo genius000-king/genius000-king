@@ -548,7 +548,7 @@ void main(){
   float k = uP11 * uViewH * 0.5 / z;
   float ext = iInfo.x > 4.5 && iInfo.x < 5.5 ? 1.3 : 0.95;
   float halfPx = s * ext * k + 1.0;
-  gl_PointSize = clamp(2.0 * halfPx, 1.0, 250.0);
+  gl_PointSize = clamp(2.0 * halfPx, 1.0, 640.0);
   vHalf = gl_PointSize * 0.5 / k;
   gl_Position = projectionMatrix * mv;
   vInfo = vec4(iInfo.x, s, iInfo.z, iInfo.w);

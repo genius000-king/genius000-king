@@ -40,6 +40,8 @@ if (mode === 'stills') {
     fs.writeFileSync(file, Buffer.from(url.split(',')[1], 'base64'));
     console.log(file, `${Date.now() - t0} ms`);
   }
+} else if (mode === 'cam') {
+  fs.writeFileSync(arg1, JSON.stringify(await page.evaluate(() => window.camTrack())));
 } else if (mode === 'points') {
   for (const t of arg1.split(',').map(Number)) console.log(t, JSON.stringify(await page.evaluate((t) => window.debugPoints(t), t)));
 } else if (mode === 'video') {
@@ -48,14 +50,16 @@ if (mode === 'stills') {
   const start = +(arg2 || 0), end = +(arg3 || total);
   const crf = arg4 || '14';
   fs.mkdirSync(path.dirname(out), { recursive: true });
-  const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', '1280x720', '-r', String(TL.fps), '-i', '-',
+  const STEP = +(process.env.STEP || 1);
+  const SIZE = process.env.SIZE || '1280x720';
+  const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', SIZE, '-r', String(TL.fps / STEP), '-i', '-',
     '-vf', 'vflip', '-c:v', 'libx264', '-preset', 'slow', '-crf', crf, '-pix_fmt', 'yuv420p', out], { stdio: ['pipe', 'inherit', 'inherit'] });
   const t0 = Date.now();
-  for (let f = start; f < end; f++) {
+  for (let f = start; f < end; f += STEP) {
     const b64 = await page.evaluate((t) => window.renderFrame(t), f / TL.fps);
     const buf = Buffer.from(b64, 'base64');
     if (!ff.stdin.write(buf)) await new Promise((r) => ff.stdin.once('drain', r));
-    if ((f - start) % 15 === 0) {
+    if ((f - start) % (15 * STEP) === 0) {
       const el = (Date.now() - t0) / 1000, done = f - start + 1;
       console.log(`frame ${f}/${end}  ${(el / done).toFixed(2)} s/frame  eta ${((end - f - 1) * el / done / 60).toFixed(1)} min`);
     }
