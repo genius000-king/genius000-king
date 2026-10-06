@@ -21,6 +21,16 @@ git submodule update --init --recursive   # المحرك (BigMoeOnEdge + llama.c
 
 بدون جهاز كمبيوتر؟ كل push يشغّل GitHub Actions، وتنزّل الـ APK من صفحة الـ run (Artifacts) مباشرة على جوالك.
 
+اختبار التطبيق مع المحرك **الحقيقي** على الكمبيوتر (نسخة Linux من bmoe-cli ونموذج MoE صغير):
+
+```bash
+cmake -S third_party/bigmoeonedge -B build-native/host -G Ninja -DCMAKE_BUILD_TYPE=Release \
+      -DBMOE_BUILD_TESTS=OFF -DLLAMA_CURL=OFF && cmake --build build-native/host --target bmoe-cli
+python third_party/bigmoeonedge/scripts/make-tiny-moe.py --arch qwen3moe --out /tmp/tiny-moe.gguf
+IMLAQ_HOST_ENGINE=$PWD/build-native/host/cli/bmoe-cli IMLAQ_TINY_MOE=/tmp/tiny-moe.gguf \
+  ./gradlew :engine:host:testDebugUnitTest --tests '*IntegrationTest*'
+```
+
 صورة للواجهة بدون جوال ولا محاكي:
 
 ```bash

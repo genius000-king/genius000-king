@@ -63,3 +63,45 @@ jobs:
           name: screenshots
           path: imlaq/app/build/screenshots/
           if-no-files-found: ignore
+
+  # The Kotlin side against the REAL engine: a host build of bmoe-cli streaming a tiny MoE model.
+  # Guards the session protocol whenever the BigMoeOnEdge submodule is bumped.
+  engine-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: imlaq
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build bmoe-cli for the host
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q ninja-build
+          cmake -S third_party/bigmoeonedge -B build-native/host -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release -DBMOE_BUILD_TESTS=OFF -DLLAMA_CURL=OFF
+          cmake --build build-native/host -j "$(nproc)" --target bmoe-cli
+
+      - name: Make tiny MoE models
+        run: |
+          python3 -m venv /tmp/venv
+          /tmp/venv/bin/pip install -q numpy third_party/bigmoeonedge/third_party/llama.cpp/gguf-py
+          mkdir -p /tmp/models/sharded
+          /tmp/venv/bin/python third_party/bigmoeonedge/scripts/make-tiny-moe.py --arch qwen3moe --out /tmp/models/tiny-moe.gguf
+          /tmp/venv/bin/python third_party/bigmoeonedge/scripts/make-tiny-moe.py --arch qwen3moe \
+            --split-max-tensors 20 --out /tmp/models/sharded/tiny-moe.gguf
+
+      - name: Integration tests
+        env:
+          IMLAQ_HOST_ENGINE: ${{ github.workspace }}/imlaq/build-native/host/cli/bmoe-cli
+          IMLAQ_TINY_MOE: /tmp/models/tiny-moe.gguf
+        run: ./gradlew :engine:host:testDebugUnitTest --tests '*IntegrationTest*'
