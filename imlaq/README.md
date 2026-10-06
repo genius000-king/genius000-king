@@ -34,8 +34,8 @@ IMLAQ_HOST_ENGINE=$PWD/build-native/host/cli/bmoe-cli IMLAQ_TINY_MOE=/tmp/tiny-m
 صورة للواجهة بدون جوال ولا محاكي:
 
 ```bash
-./gradlew :app:testDebugUnitTest --tests '*HomeScreenshotTest*'
-# ← app/build/screenshots/home-dark.png و home-light.png
+./gradlew :app:testDebugUnitTest --tests '*ScreensScreenshotTest*'
+# ← app/build/screenshots/: models-dark.png و chat-dark.png وغيرها
 ```
 
 ## الهيكل

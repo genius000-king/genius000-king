@@ -1,6 +1,5 @@
 package com.genius.imlaq.designsystem
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -8,12 +7,10 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,250 +28,198 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlin.math.cos
-import kotlin.math.sin
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
 
 val PillShape = RoundedCornerShape(percent = 50)
-val CardShape = RoundedCornerShape(28.dp)
+val CardShape = RoundedCornerShape(ImlaqDimens.cardRadius)
 
-/** A faint fill plus a hairline border: the "glass" every panel in the app is made of. */
+/**
+ * Frosted glass: the backdrop behind this element blurred by [blur], a translucent fill over
+ * it, and a hairline border. Where blur is unavailable (before Android 12) Haze draws the
+ * stronger fill alone, so text stays readable.
+ */
 @Composable
-fun Modifier.glass(shape: Shape, strong: Boolean = false): Modifier {
+fun Modifier.glass(shape: Shape, blur: Dp = ImlaqDimens.cardBlur, strong: Boolean = false): Modifier {
     val c = Imlaq.colors
-    return this
-        .clip(shape)
-        .background(if (strong) c.glassStrong else c.glass, shape)
-        .border(1.dp, c.hairline, shape)
+    val backdrop = LocalBackdrop.current
+    val fill = if (strong) c.glassHi else c.glass
+    val base = clip(shape)
+    val glassed = if (backdrop != null) {
+        base.hazeEffect(
+            backdrop,
+            HazeStyle(
+                backgroundColor = c.background,
+                tints = listOf(HazeTint(fill)),
+                blurRadius = blur,
+                noiseFactor = 0f,
+                fallbackTint = HazeTint(c.glassHi),
+            ),
+        )
+    } else {
+        base.background(fill, shape)
+    }
+    return glassed.border(1.dp, c.line, shape)
 }
 
 @Composable
-private fun Modifier.pressScale(interaction: MutableInteractionSource): Modifier {
+private fun Modifier.pressable(enabled: Boolean, onClick: () -> Unit): Modifier {
+    val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     return scale(if (pressed) 0.97f else 1f)
+        .clickable(interaction, indication = null, enabled = enabled, role = Role.Button, onClick = onClick)
 }
 
-/** The one thing to press on a screen: solid cream (ink in the light theme). */
+/** The main action: a solid cream pill (ink in the light theme), 52 dp tall. */
 @Composable
 fun PillButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    leading: (@Composable () -> Unit)? = null,
+    icon: ImageVector? = null,
+    small: Boolean = false,
 ) {
     val c = Imlaq.colors
-    val interaction = remember { MutableInteractionSource() }
+    val height = if (small) ImlaqDimens.smallButtonHeight else ImlaqDimens.buttonHeight
     Row(
         modifier
-            .pressScale(interaction)
+            .defaultMinSize(minHeight = height)
             .clip(PillShape)
             .background(if (enabled) c.accent else c.accent.copy(alpha = 0.35f), PillShape)
-            .clickable(interaction, indication = null, enabled = enabled, onClick = onClick)
-            .padding(horizontal = 28.dp, vertical = 16.dp),
+            .pressable(enabled, onClick)
+            .padding(horizontal = if (small) 18.dp else 26.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (leading != null) {
-            leading()
-            Spacer(Modifier.width(10.dp))
+        if (icon != null) {
+            Icon(icon, contentDescription = null, tint = c.onAccent, modifier = Modifier.size(16.dp))
+            Spacer(Modifier.width(8.dp))
         }
-        Text(text, style = MaterialTheme.typography.labelLarge, color = c.onAccent)
+        Text(text, style = if (small) MaterialTheme.typography.labelMedium else MaterialTheme.typography.labelLarge, color = c.onAccent)
     }
 }
 
-/** The secondary action: transparent, hairline outline. */
+/** The secondary action: transparent pill with a hairline. */
 @Composable
-fun GhostPillButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
+fun GhostButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    icon: ImageVector? = null,
+    small: Boolean = true,
+    color: Color? = null,
+) {
     val c = Imlaq.colors
-    val interaction = remember { MutableInteractionSource() }
+    val height = if (small) ImlaqDimens.smallButtonHeight else ImlaqDimens.buttonHeight
+    val ink = color ?: if (enabled) c.text else c.faint
+    Row(
+        modifier
+            .defaultMinSize(minHeight = height)
+            .clip(PillShape)
+            .border(1.dp, c.line, PillShape)
+            .pressable(enabled, onClick)
+            .padding(horizontal = if (small) 16.dp else 26.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (icon != null) {
+            Icon(icon, contentDescription = null, tint = ink, modifier = Modifier.size(16.dp))
+            Spacer(Modifier.width(8.dp))
+        }
+        Text(text, style = MaterialTheme.typography.labelMedium, color = ink)
+    }
+}
+
+/** A round hairline button for one icon (theme toggle, delete). */
+@Composable
+fun IconCircle(
+    icon: ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    filled: Boolean = false,
+    enabled: Boolean = true,
+    tint: Color? = null,
+) {
+    val c = Imlaq.colors
     Box(
         modifier
-            .pressScale(interaction)
-            .clip(PillShape)
-            .border(1.dp, c.hairline, PillShape)
-            .clickable(interaction, indication = null, enabled = enabled, onClick = onClick)
-            .padding(horizontal = 28.dp, vertical = 16.dp),
+            .size(ImlaqDimens.smallButtonHeight)
+            .clip(CircleShape)
+            .then(if (filled) Modifier.background(if (enabled) c.accent else c.accent.copy(alpha = 0.35f), CircleShape) else Modifier.border(1.dp, c.line, CircleShape))
+            .pressable(enabled, onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            text,
-            style = MaterialTheme.typography.labelLarge,
-            color = if (enabled) c.textPrimary else c.textMuted,
+        Icon(
+            icon,
+            contentDescription = contentDescription,
+            tint = tint ?: if (filled) c.onAccent else c.text,
+            modifier = Modifier.size(18.dp),
         )
     }
 }
 
-/** A round glass button for a single icon (the theme toggle in the top bar). */
+/** Two or three options in one hairline pill; the selected one is solid. */
 @Composable
-fun IconCircleButton(onClick: () -> Unit, modifier: Modifier = Modifier, size: Dp = 46.dp, icon: @Composable () -> Unit) {
-    val interaction = remember { MutableInteractionSource() }
-    Box(
-        modifier
-            .size(size)
-            .pressScale(interaction)
-            .glass(CircleShape, strong = true)
-            .clickable(interaction, indication = null, onClick = onClick),
-        contentAlignment = Alignment.Center,
-    ) { icon() }
+fun SegmentedTabs(options: List<String>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
+    val c = Imlaq.colors
+    Row(
+        modifier.clip(PillShape).border(1.dp, c.line, PillShape).padding(3.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+    ) {
+        options.forEachIndexed { i, label ->
+            val on = i == selected
+            Box(
+                Modifier
+                    .clip(PillShape)
+                    .background(if (on) c.accent else Color.Transparent, PillShape)
+                    .clickable(role = Role.Tab) { onSelect(i) }
+                    .padding(horizontal = 14.dp, vertical = 6.dp),
+            ) {
+                Text(label, style = MaterialTheme.typography.labelMedium, color = if (on) c.onAccent else c.muted)
+            }
+        }
+    }
 }
 
-/** The floating pill header: brand at the start, actions at the end. */
+/** The floating glass bar at the top of every screen. */
 @Composable
-fun FloatingTopBar(
-    modifier: Modifier = Modifier,
-    brand: @Composable RowScope.() -> Unit,
-    actions: @Composable RowScope.() -> Unit,
-) {
+fun GlassTopBar(modifier: Modifier = Modifier, content: @Composable RowScope.() -> Unit) {
     Row(
         modifier
             .fillMaxWidth()
-            .glass(PillShape, strong = true)
-            .padding(start = 18.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
+            .glass(PillShape, blur = ImlaqDimens.barBlur)
+            .padding(start = 16.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, content = brand)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically, content = actions)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        content = content,
+    )
+}
+
+/** "● label" — state in a colour and a word. */
+@Composable
+fun StatusDot(text: String, color: Color, modifier: Modifier = Modifier) {
+    Row(modifier, verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(7.dp).background(color, CircleShape))
+        Spacer(Modifier.width(8.dp))
+        Text(text, style = MaterialTheme.typography.bodySmall, color = Imlaq.colors.muted)
     }
 }
 
-/** "● available for new projects" — a status line inside a hairline pill. */
+/** A 5 dp progress track. */
 @Composable
-fun StatusChip(text: String, dot: Color, modifier: Modifier = Modifier) {
+fun ProgressTrack(fraction: Float, modifier: Modifier = Modifier) {
     val c = Imlaq.colors
-    Row(
-        modifier
-            .clip(PillShape)
-            .border(1.dp, c.hairline, PillShape)
-            .padding(horizontal = 18.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(Modifier.size(9.dp).background(dot, CircleShape))
-        Spacer(Modifier.width(10.dp))
-        Text(text, style = MaterialTheme.typography.labelMedium, color = c.textSecondary)
-    }
-}
-
-/** A large glass card with an optional eyebrow label. */
-@Composable
-fun GlassCard(
-    modifier: Modifier = Modifier,
-    eyebrow: String? = null,
-    contentPadding: PaddingValues = PaddingValues(24.dp),
-    content: @Composable ColumnScope.() -> Unit,
-) {
-    Column(modifier.fillMaxWidth().glass(CardShape).padding(contentPadding)) {
-        if (eyebrow != null) {
-            Text(eyebrow, style = MaterialTheme.typography.labelMedium, color = Imlaq.colors.textMuted)
-            Spacer(Modifier.height(14.dp))
-        }
-        content()
-    }
-}
-
-/** The two-tone headline: first line bright, second line dimmed, centred. */
-@Composable
-fun HeroTitle(primary: String, secondary: String, modifier: Modifier = Modifier) {
-    val c = Imlaq.colors
-    Column(modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(primary, style = MaterialTheme.typography.displayLarge, color = c.textPrimary, textAlign = TextAlign.Center)
-        Text(secondary, style = MaterialTheme.typography.displayLarge, color = c.textMuted, textAlign = TextAlign.Center)
-    }
-}
-
-/** Section heading: small muted eyebrow over a bold title. */
-@Composable
-fun SectionHeader(eyebrow: String, title: String, modifier: Modifier = Modifier) {
-    val c = Imlaq.colors
-    Column(modifier.fillMaxWidth()) {
-        Text(eyebrow, style = MaterialTheme.typography.labelMedium, color = c.textMuted)
-        Spacer(Modifier.height(6.dp))
-        Text(title, style = MaterialTheme.typography.headlineMedium, color = c.textPrimary)
-    }
-}
-
-/** One "label …… value" row inside a card. */
-@Composable
-fun StatRow(label: String, value: String, modifier: Modifier = Modifier, valueColor: Color? = null) {
-    val c = Imlaq.colors
-    Row(modifier.fillMaxWidth().padding(vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = c.textSecondary, modifier = Modifier.weight(1f))
-        Text(value, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = valueColor ?: c.textPrimary)
-    }
-}
-
-/** A thin bar for "how much of X is used". */
-@Composable
-fun UsageBar(fraction: Float, modifier: Modifier = Modifier, color: Color? = null) {
-    val c = Imlaq.colors
-    val fill = color ?: c.accent
-    Box(modifier.fillMaxWidth().height(6.dp).clip(PillShape).background(c.glassStrong)) {
-        Box(Modifier.fillMaxWidth(fraction.coerceIn(0f, 1f)).height(6.dp).clip(PillShape).background(fill))
-    }
-}
-
-/** A small hairline tag ("MoE", "كثيف", …). */
-@Composable
-fun Tag(text: String, modifier: Modifier = Modifier, color: Color? = null) {
-    val c = Imlaq.colors
-    Box(
-        modifier
-            .clip(PillShape)
-            .border(1.dp, (color ?: c.hairline).copy(alpha = if (color != null) 0.6f else 1f), PillShape)
-            .padding(horizontal = 12.dp, vertical = 4.dp),
-    ) {
-        Text(text, style = MaterialTheme.typography.labelSmall, color = color ?: c.textSecondary)
-    }
-}
-
-// ── icons drawn in code (no icon font, no image assets) ──
-
-@Composable
-fun SunIcon(modifier: Modifier = Modifier.size(20.dp), color: Color = Imlaq.colors.textPrimary) {
-    Canvas(modifier) {
-        val r = size.minDimension / 2
-        val center = Offset(size.width / 2, size.height / 2)
-        drawCircle(color, radius = r * 0.36f, center = center, style = Stroke(width = r * 0.14f))
-        repeat(8) { i ->
-            val a = Math.toRadians(i * 45.0)
-            val start = Offset(center.x + (r * 0.62f * cos(a)).toFloat(), center.y + (r * 0.62f * sin(a)).toFloat())
-            val end = Offset(center.x + (r * 0.92f * cos(a)).toFloat(), center.y + (r * 0.92f * sin(a)).toFloat())
-            drawLine(color, start, end, strokeWidth = r * 0.14f, cap = StrokeCap.Round)
-        }
-    }
-}
-
-@Composable
-fun MoonIcon(modifier: Modifier = Modifier.size(20.dp), color: Color = Imlaq.colors.textPrimary) {
-    Canvas(modifier) {
-        val r = size.minDimension / 2
-        val cx = size.width / 2
-        val cy = size.height / 2
-        val disc = Path().apply { addOval(Rect(Offset(cx, cy), r * 0.78f)) }
-        val bite = Path().apply { addOval(Rect(Offset(cx + r * 0.42f, cy - r * 0.32f), r * 0.62f)) }
-        drawPath(Path().apply { op(disc, bite, PathOperation.Difference) }, color)
-    }
-}
-
-/** The brand mark: the letter ع inside a ring. */
-@Composable
-fun BrandMark(modifier: Modifier = Modifier, size: Dp = 34.dp) {
-    val c = Imlaq.colors
-    Box(
-        modifier.size(size).border(1.5.dp, c.textPrimary, CircleShape),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text("ع", style = MaterialTheme.typography.titleMedium, color = c.textPrimary)
+    Box(modifier.fillMaxWidth().height(5.dp).clip(PillShape).background(c.line)) {
+        Box(Modifier.fillMaxWidth(fraction.coerceIn(0f, 1f)).height(5.dp).clip(PillShape).background(c.text))
     }
 }

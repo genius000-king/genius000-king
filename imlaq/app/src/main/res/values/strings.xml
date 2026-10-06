@@ -2,64 +2,54 @@
 <resources>
     <string name="app_name">عملاق</string>
 
-    <string name="nav_models">النماذج</string>
-    <string name="theme_toggle">تبديل الوضع الفاتح والداكن</string>
+    <string name="tab_models">النماذج</string>
+    <string name="tab_chat">المحادثة</string>
+    <string name="theme_light">الوضع الفاتح</string>
+    <string name="theme_dark">الوضع الداكن</string>
 
-    <string name="status_engine_ready">المحرك جاهز للنماذج العملاقة</string>
-    <string name="status_engine_missing">المحرك غير مضمّن في هذه النسخة</string>
+    <!-- النماذج -->
+    <string name="models_title">النماذج</string>
+    <string name="models_subtitle">نزّل نموذج مرة وحدة، وشغّله بضغطة.</string>
+    <string name="models_installed">على جوالك</string>
+    <string name="models_installed_empty">ما عندك نماذج للحين. اختر واحد من تحت.</string>
+    <string name="models_available">للتنزيل</string>
+    <string name="size_gb">%1$s جيجا</string>
 
-    <string name="hero_primary">أكبر النماذج</string>
-    <string name="hero_secondary">على جوالك.</string>
-    <string name="hero_body">النموذج كامل ما يحتاج يدخل الرام. الجزء اللي يشتغل مع كل توكن يبقى في الذاكرة، والباقي ينقرا من التخزين وقت الحاجة.</string>
-    <string name="cta_pick_model">اختر نموذج</string>
-    <string name="cta_device">جهازك</string>
+    <string name="action_run">تشغيل</string>
+    <string name="action_stop">إيقاف</string>
+    <string name="action_download">تنزيل</string>
+    <string name="action_retry">حاول مرة ثانية</string>
+    <string name="action_delete">احذف</string>
+    <string name="action_keep">لا</string>
+    <string name="action_delete_model">حذف النموذج</string>
 
-    <string name="device_eyebrow">جهازك</string>
-    <string name="device_title">وش يعرف التطبيق عن جوالك.</string>
-    <string name="device_card_label">الأرقام اللي يبني عليها التطبيق قراراته</string>
-    <string name="device_model">الجهاز</string>
-    <string name="device_soc">المعالج</string>
-    <string name="device_cores">الأنوية السريعة</string>
-    <string name="device_cores_value">%1$d من %2$d</string>
-    <string name="device_ram_total">الرام</string>
-    <string name="device_ram_available">المتاح الآن</string>
-    <string name="device_reserve">محجوز للجوال</string>
-    <string name="device_budget">مساحة النماذج في الرام</string>
-    <string name="device_storage">التخزين الفاضي</string>
-    <string name="device_thermal">الحرارة</string>
-    <string name="thermal_cool">بارد</string>
-    <string name="thermal_warm">دافئ</string>
-    <string name="thermal_hot">قريب من الخنق</string>
-    <string name="thermal_unknown">ما يبلّغ عنها</string>
-    <string name="unknown">غير معروف</string>
+    <string name="status_ready">جاهز</string>
+    <string name="status_loading">يجهّز…</string>
+    <string name="status_running">شغّال الحين</string>
+    <string name="status_failed">ما اشتغل: %1$s</string>
+    <string name="delete_confirm">تحذفه؟ يفضّي %1$s جيجا.</string>
 
-    <string name="models_eyebrow">نماذجك</string>
-    <string name="models_title">كل نموذج، ووش بيكلّف جوالك.</string>
-    <string name="models_empty_title">ما فيه نماذج للحين</string>
-    <string name="models_empty_body">التنزيل من داخل التطبيق جاي في المرحلة الأولى. للحين حط ملفات GGUF هنا:</string>
-    <string name="model_kind_moe">MoE</string>
-    <string name="model_kind_dense">كثيف</string>
-    <string name="model_kind_vision">رؤية</string>
-    <string name="model_kind_other">غير معروف</string>
-    <string name="model_size">الحجم</string>
-    <string name="model_experts">الخبراء لكل توكن</string>
-    <string name="model_experts_value">%1$d من %2$d</string>
-    <string name="model_resident">يبقى في الرام دائمًا</string>
-    <string name="model_flash_per_token">من التخزين لكل توكن</string>
-    <string name="model_speed">السرعة المتوقعة</string>
-    <string name="model_speed_value">~%1$s توكن/ث</string>
-    <string name="model_not_runnable">الجزء الدائم أكبر من الرام المتاحة</string>
-    <string name="model_estimate_note">تقدير متحفّظ بافتراض قراءة تخزين %1$s جيجابايت/ث. يتبدّل بالقياس الحقيقي بعد أول تشغيل.</string>
-    <string name="model_error">الملف ما انقرا: %1$s</string>
+    <string name="fit_good">يناسب جوالك</string>
+    <string name="fit_slow">يشتغل، بس بطيء</string>
+    <string name="fit_no_space">يحتاج %1$s جيجا زيادة في التخزين</string>
+    <string name="fit_no_ram">يحتاج جوال رامه %1$d جيجا أو أكثر</string>
+    <string name="download_progress">ينزل… %1$d٪ · %2$s من %3$s جيجا</string>
+    <string name="download_waiting">ينتظر الإنترنت…</string>
+    <string name="download_failed">ما كمل التنزيل: %1$s</string>
 
-    <string name="how_eyebrow">كيف يشتغل</string>
-    <string name="how_title">الرام للي يتكرر، والتخزين للباقي.</string>
-    <string name="how_1_title">الجزء الدائم في الرام</string>
-    <string name="how_1_body">طبقات الانتباه والأوزان المشتركة تشتغل مع كل كلمة، فتبقى في الذاكرة.</string>
-    <string name="how_2_title">الخبراء من التخزين</string>
-    <string name="how_2_body">نماذج MoE تشغّل كم خبير بس لكل توكن. نقرا اللي نحتاجه من التخزين ونخلي الأكثر استخدامًا في كاش.</string>
-    <string name="how_3_title">الجوال ما يعلّق</string>
-    <string name="how_3_body">جزء من الرام محجوز للجوال دائمًا، ولما يضيق النظام يصغر الكاش بدل ما يعلّق الجوال.</string>
-
-    <string name="footer">عملاق · %1$s</string>
+    <!-- المحادثة -->
+    <string name="chat_no_model_title">ما فيه نموذج شغّال</string>
+    <string name="chat_no_model_body">اختر نموذج من «النماذج» وشغّله، وارجع هنا.</string>
+    <string name="chat_go_models">النماذج</string>
+    <string name="chat_loading_title">يجهّز %1$s…</string>
+    <string name="chat_loading_body">أول تشغيل ياخذ دقيقة أو أكثر حسب حجم النموذج.</string>
+    <string name="chat_failed_title">ما اشتغل %1$s</string>
+    <string name="chat_empty_hint">اسأل %1$s أي شي.</string>
+    <string name="chat_new">محادثة جديدة</string>
+    <string name="chat_placeholder">اكتب سؤالك…</string>
+    <string name="chat_send">إرسال</string>
+    <string name="chat_stop">إيقاف الرد</string>
+    <string name="chat_thinking">يفكّر…</string>
+    <string name="chat_speed">%1$s توكن/ث</string>
+    <string name="chat_error">ما كمّل الرد: %1$s</string>
 </resources>

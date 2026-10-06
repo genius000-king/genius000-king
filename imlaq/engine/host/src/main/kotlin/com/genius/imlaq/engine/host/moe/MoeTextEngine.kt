@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
 
 /**
@@ -45,6 +46,9 @@ class MoeTextEngine(
     @Volatile private var unloading = false
     @Volatile private var readyInfo: Map<String, String> = emptyMap()
     private var nextId = 1
+    /** The request the open turn waits for, and the one the engine says it is running. */
+    @Volatile private var turnId = 0
+    @Volatile private var engineTurnId = 0
 
     override suspend fun load(model: File) = lifecycle.withLock {
         stopProcess()
@@ -65,6 +69,8 @@ class MoeTextEngine(
 
     override fun generate(request: TextRequest): Flow<TextEvent> = flow {
         turns.withLock {
+            // A cancelled turn ends a moment later (its DONE is still on the way): wait it out.
+            if (_state.value == EngineState.Busy) withTimeoutOrNull(BUSY_WAIT_MS) { _state.first { it != EngineState.Busy } }
             val p = process
             if (p == null || _state.value !is EngineState.Ready) {
                 emit(TextEvent.Failed("no model loaded", fatal = false))
@@ -75,9 +81,11 @@ class MoeTextEngine(
                 return@withLock
             }
             val ch = Channel<TextEvent>(Channel.UNLIMITED)
+            val id = nextId++
+            turnId = id
             turn = ch
             try {
-                if (!p.send(BmoeProtocol.generate(nextId++, request))) {
+                if (!p.send(BmoeProtocol.generate(id, request))) {
                     emit(TextEvent.Failed("engine is not accepting input", fatal = true))
                     return@withLock
                 }
@@ -103,16 +111,26 @@ class MoeTextEngine(
                 readyInfo = BmoeProtocol.readyInfo(event)
                 _state.value = EngineState.Ready(readyInfo)
             }
-            else -> for (e in BmoeProtocol.toTextEvents(event)) {
-                when (e) {
-                    is TextEvent.Started -> _state.value = EngineState.Busy
-                    is TextEvent.Finished -> _state.value = EngineState.Ready(readyInfo)
-                    // A failed turn that is not fatal leaves the model loaded and ready.
-                    is TextEvent.Failed -> _state.value =
-                        if (e.fatal) EngineState.Failed(e.message) else EngineState.Ready(readyInfo)
-                    else -> Unit
+            else -> {
+                if (event.name == "BEGIN") engineTurnId = event.int("id") ?: 0
+                // Route by request id: the tail of a cancelled turn must not land in the next one.
+                // PROGRESS carries no id; it belongs to the turn the last BEGIN opened.
+                val forCurrentTurn = when (event.name) {
+                    "PROGRESS" -> engineTurnId == turnId
+                    "ERROR" -> event.int("id").let { it == turnId || it == 0 }
+                    else -> event.int("id") == turnId
                 }
-                turn?.trySend(e)
+                for (e in BmoeProtocol.toTextEvents(event)) {
+                    when (e) {
+                        is TextEvent.Started -> _state.value = EngineState.Busy
+                        is TextEvent.Finished -> _state.value = EngineState.Ready(readyInfo)
+                        // A failed turn that is not fatal leaves the model loaded and ready.
+                        is TextEvent.Failed -> _state.value =
+                            if (e.fatal) EngineState.Failed(e.message) else EngineState.Ready(readyInfo)
+                        else -> Unit
+                    }
+                    if (forCurrentTurn) turn?.trySend(e)
+                }
             }
         }
     }
@@ -137,5 +155,9 @@ class MoeTextEngine(
         reader?.join()
         process = null
         _state.value = EngineState.Idle
+    }
+
+    private companion object {
+        const val BUSY_WAIT_MS = 10_000L
     }
 }

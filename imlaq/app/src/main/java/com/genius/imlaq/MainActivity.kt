@@ -9,12 +9,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.genius.imlaq.designsystem.DarkColors
 import com.genius.imlaq.designsystem.ImlaqTheme
 import com.genius.imlaq.designsystem.LightColors
-import com.genius.imlaq.ui.HomeRoute
-import com.genius.imlaq.ui.HomeViewModel
+import com.genius.imlaq.ui.AppRoot
 
 class MainActivity : ComponentActivity() {
 
@@ -26,12 +24,7 @@ class MainActivity : ComponentActivity() {
             val dark by container.settings.darkTheme.collectAsStateWithLifecycle()
             LaunchedEffect(dark) { applySystemBars(dark) }
             ImlaqTheme(dark = dark) {
-                val vm = viewModel { HomeViewModel(container) }
-                HomeRoute(
-                    viewModel = vm,
-                    dark = dark,
-                    onToggleTheme = { container.settings.setDarkTheme(!dark) },
-                )
+                AppRoot(container, dark, onToggleTheme = { container.settings.setDarkTheme(!dark) })
             }
         }
     }

@@ -19,5 +19,7 @@ dependencies {
     api(libs.androidx.compose.ui)
     api(libs.androidx.compose.material3)
     api(libs.androidx.compose.ui.tooling.preview)
+    // Backdrop blur for the frosted glass (RenderEffect on Android 12+, a translucent scrim below).
+    api(libs.haze)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

@@ -3,12 +3,13 @@ package com.genius.imlaq
 import android.app.Application
 import android.content.Context
 import com.genius.imlaq.device.DeviceProfiler
-import com.genius.imlaq.device.MemoryWatcher
 import com.genius.imlaq.engine.host.Runner
 import com.genius.imlaq.engine.host.RunnerBinaries
 import com.genius.imlaq.engine.host.moe.MoeTextEngine
-import com.genius.imlaq.memory.MemoryPlanner
 import com.genius.imlaq.models.ModelStore
+import com.genius.imlaq.models.download.ModelDownloads
+import com.genius.imlaq.session.EngineModelSession
+import com.genius.imlaq.session.ModelSession
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -34,20 +35,24 @@ class AppContainer(context: Context) {
     val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     val deviceProfiler = DeviceProfiler(context)
-    val memoryWatcher = MemoryWatcher(context)
-    val memoryPlanner = MemoryPlanner()
 
     /** Internal storage on purpose: O_DIRECT expert reads need a real filesystem, not /sdcard. */
     val modelsDir: File = File(context.filesDir, "models").apply { mkdirs() }
     val modelStore = ModelStore(modelsDir)
+    val downloads = ModelDownloads(context, modelsDir)
 
     val runners: RunnerBinaries by lazy { RunnerBinaries(context) }
 
-    val textEngine: MoeTextEngine by lazy {
-        MoeTextEngine(
-            executable = runners.executable(Runner.TEXT),
-            libraryDir = runners.libraryDir,
-            workDir = File(context.cacheDir, "engine").apply { mkdirs() },
+    val session: ModelSession by lazy {
+        EngineModelSession(
+            context = context,
+            engine = MoeTextEngine(
+                executable = runners.executable(Runner.TEXT),
+                libraryDir = runners.libraryDir,
+                workDir = File(context.cacheDir, "engine").apply { mkdirs() },
+                scope = appScope,
+            ),
+            profiler = deviceProfiler,
             scope = appScope,
         )
     }

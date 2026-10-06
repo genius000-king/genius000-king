@@ -15,64 +15,87 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * The palette: charcoal with a stone texture, warm cream for the one thing to press, glass
- * panels drawn as a faint fill plus a hairline border, and text in three steps of contrast.
- * Every colour the UI uses comes from here — screens never hard-code one.
+ * Every colour the UI uses. Values are the ones chosen in the design lab: charcoal and warm
+ * cream, glass panels as a translucent fill over a blurred backdrop plus a 10% hairline, and
+ * text in three steps of contrast. Screens never hard-code a colour.
  */
 @Immutable
 data class ImlaqColors(
     val isDark: Boolean,
     val background: Color,
-    val backgroundGlow: Color,
+    /** Primary text and icons. */
+    val text: Color,
+    /** Secondary text (62%). */
+    val muted: Color,
+    /** Labels, placeholders, meta (38%). */
+    val faint: Color,
+    /** Hairline borders and tracks (10%). */
+    val line: Color,
+    /** Glass fill, drawn over the blurred backdrop. */
     val glass: Color,
-    val glassStrong: Color,
-    val hairline: Color,
+    /** Stronger glass, for floating bars and the fallback when blur is unavailable. */
+    val glassHi: Color,
+    /** The solid button colour, and the user's own message bubble. */
     val accent: Color,
     val onAccent: Color,
-    val textPrimary: Color,
-    val textSecondary: Color,
-    val textMuted: Color,
-    val success: Color,
-    val warning: Color,
-    val danger: Color,
+    val ok: Color,
+    val warn: Color,
+    val bad: Color,
+    /** Highlight used by the stone texture's clouds. */
+    val cloud: Color,
 )
+
+private val Cream = Color(0xFFF1F0EC)
+private val Charcoal = Color(0xFF0A0A0A)
+private val Ink = Color(0xFF111110)
 
 val DarkColors = ImlaqColors(
     isDark = true,
-    background = Color(0xFF141414),
-    backgroundGlow = Color(0xFF2E2D2B),
-    glass = Color.White.copy(alpha = 0.035f),
-    glassStrong = Color.White.copy(alpha = 0.07f),
-    hairline = Color.White.copy(alpha = 0.11f),
-    accent = Color(0xFFF1EEE7),
-    onAccent = Color(0xFF151515),
-    textPrimary = Color(0xFFF2F0EB),
-    textSecondary = Color(0xFFB9B6AF),
-    textMuted = Color(0xFF77746E),
-    success = Color(0xFF34C77B),
-    warning = Color(0xFFE0A84A),
-    danger = Color(0xFFE5675F),
+    background = Charcoal,
+    text = Cream,
+    muted = Cream.copy(alpha = 0.62f),
+    faint = Cream.copy(alpha = 0.38f),
+    line = Cream.copy(alpha = 0.10f),
+    glass = Color(18, 18, 18).copy(alpha = 0.58f),
+    glassHi = Color(28, 28, 28).copy(alpha = 0.72f),
+    accent = Cream,
+    onAccent = Charcoal,
+    ok = Color(0xFF3DDC84),
+    warn = Color(0xFFE8B14F),
+    bad = Color(0xFFEF6B62),
+    cloud = Color.White.copy(alpha = 0.07f),
 )
 
 val LightColors = ImlaqColors(
     isDark = false,
-    background = Color(0xFFF1EEE7),
-    backgroundGlow = Color(0xFFFFFFFF),
-    glass = Color.Black.copy(alpha = 0.03f),
-    glassStrong = Color.Black.copy(alpha = 0.06f),
-    hairline = Color.Black.copy(alpha = 0.12f),
-    accent = Color(0xFF161616),
-    onAccent = Color(0xFFF1EEE7),
-    textPrimary = Color(0xFF151515),
-    textSecondary = Color(0xFF55524D),
-    textMuted = Color(0xFF8E8A83),
-    success = Color(0xFF1E9E5E),
-    warning = Color(0xFFB7791F),
-    danger = Color(0xFFC0443C),
+    background = Color(0xFFE9E8E4),
+    text = Ink,
+    muted = Ink.copy(alpha = 0.64f),
+    faint = Ink.copy(alpha = 0.40f),
+    line = Ink.copy(alpha = 0.10f),
+    glass = Color.White.copy(alpha = 0.55f),
+    glassHi = Color.White.copy(alpha = 0.78f),
+    accent = Ink,
+    onAccent = Cream,
+    ok = Color(0xFF1F9D5C),
+    warn = Color(0xFFB07A1C),
+    bad = Color(0xFFC4453C),
+    cloud = Color.White.copy(alpha = 0.70f),
 )
+
+/** Shape and blur constants from the lab: 22 dp cards, pills, 16 dp blur on cards, 18 on bars. */
+object ImlaqDimens {
+    val cardRadius = 22.dp
+    val bubbleTail = 8.dp
+    val cardBlur = 16.dp
+    val barBlur = 18.dp
+    val buttonHeight = 52.dp
+    val smallButtonHeight = 40.dp
+}
 
 val LocalImlaqColors = staticCompositionLocalOf { DarkColors }
 
@@ -87,42 +110,25 @@ private fun style(size: Int, weight: FontWeight, line: Int) =
     TextStyle(fontFamily = PlexArabic, fontWeight = weight, fontSize = size.sp, lineHeight = line.sp)
 
 private val ImlaqTypography = Typography(
-    displayLarge = style(46, FontWeight.Bold, 56),
-    displayMedium = style(38, FontWeight.Bold, 48),
-    headlineLarge = style(32, FontWeight.Bold, 42),
     headlineMedium = style(26, FontWeight.Bold, 36),
-    titleLarge = style(21, FontWeight.SemiBold, 30),
-    titleMedium = style(17, FontWeight.SemiBold, 26),
-    bodyLarge = style(17, FontWeight.Normal, 30),
-    bodyMedium = style(15, FontWeight.Normal, 26),
-    bodySmall = style(13, FontWeight.Normal, 22),
+    titleLarge = style(20, FontWeight.Bold, 28),
+    titleMedium = style(16, FontWeight.SemiBold, 24),
+    bodyLarge = style(16, FontWeight.Normal, 28),
+    bodyMedium = style(14, FontWeight.Normal, 24),
+    bodySmall = style(12, FontWeight.Normal, 20),
     labelLarge = style(16, FontWeight.SemiBold, 24),
-    labelMedium = style(14, FontWeight.Medium, 20),
+    labelMedium = style(14, FontWeight.SemiBold, 20),
     labelSmall = style(12, FontWeight.Medium, 18),
 )
 
-/**
- * The app theme. Arabic-first, so the layout is right-to-left whatever the system language.
- */
+/** The app theme. Arabic-first, so the layout is right-to-left whatever the system language. */
 @Composable
 fun ImlaqTheme(dark: Boolean = true, content: @Composable () -> Unit) {
     val c = if (dark) DarkColors else LightColors
     val scheme = if (dark) {
-        darkColorScheme(
-            primary = c.accent, onPrimary = c.onAccent,
-            background = c.background, onBackground = c.textPrimary,
-            surface = c.background, onSurface = c.textPrimary,
-            surfaceVariant = c.glassStrong, onSurfaceVariant = c.textSecondary,
-            outline = c.hairline, error = c.danger,
-        )
+        darkColorScheme(primary = c.accent, onPrimary = c.onAccent, background = c.background, onBackground = c.text, surface = c.background, onSurface = c.text, outline = c.line, error = c.bad)
     } else {
-        lightColorScheme(
-            primary = c.accent, onPrimary = c.onAccent,
-            background = c.background, onBackground = c.textPrimary,
-            surface = c.background, onSurface = c.textPrimary,
-            surfaceVariant = c.glassStrong, onSurfaceVariant = c.textSecondary,
-            outline = c.hairline, error = c.danger,
-        )
+        lightColorScheme(primary = c.accent, onPrimary = c.onAccent, background = c.background, onBackground = c.text, surface = c.background, onSurface = c.text, outline = c.line, error = c.bad)
     }
     CompositionLocalProvider(
         LocalImlaqColors provides c,
