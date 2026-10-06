@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">عملاق</string>
+
+    <string name="nav_models">النماذج</string>
+    <string name="theme_toggle">تبديل الوضع الفاتح والداكن</string>
+
+    <string name="status_engine_ready">المحرك جاهز للنماذج العملاقة</string>
+    <string name="status_engine_missing">المحرك غير مضمّن في هذه النسخة</string>
+
+    <string name="hero_primary">أكبر النماذج</string>
+    <string name="hero_secondary">على جوالك.</string>
+    <string name="hero_body">النموذج كامل ما يحتاج يدخل الرام. الجزء اللي يشتغل مع كل توكن يبقى في الذاكرة، والباقي ينقرا من التخزين وقت الحاجة.</string>
+    <string name="cta_pick_model">اختر نموذج</string>
+    <string name="cta_device">جهازك</string>
+
+    <string name="device_eyebrow">جهازك</string>
+    <string name="device_title">وش يعرف التطبيق عن جوالك.</string>
+    <string name="device_card_label">الأرقام اللي يبني عليها التطبيق قراراته</string>
+    <string name="device_model">الجهاز</string>
+    <string name="device_soc">المعالج</string>
+    <string name="device_cores">الأنوية السريعة</string>
+    <string name="device_cores_value">%1$d من %2$d</string>
+    <string name="device_ram_total">الرام</string>
+    <string name="device_ram_available">المتاح الآن</string>
+    <string name="device_reserve">محجوز للجوال</string>
+    <string name="device_budget">مساحة النماذج في الرام</string>
+    <string name="device_storage">التخزين الفاضي</string>
+    <string name="device_thermal">الحرارة</string>
+    <string name="thermal_cool">بارد</string>
+    <string name="thermal_warm">دافئ</string>
+    <string name="thermal_hot">قريب من الخنق</string>
+    <string name="thermal_unknown">ما يبلّغ عنها</string>
+    <string name="unknown">غير معروف</string>
+
+    <string name="models_eyebrow">نماذجك</string>
+    <string name="models_title">كل نموذج، ووش بيكلّف جوالك.</string>
+    <string name="models_empty_title">ما فيه نماذج للحين</string>
+    <string name="models_empty_body">التنزيل من داخل التطبيق جاي في المرحلة الأولى. للحين حط ملفات GGUF هنا:</string>
+    <string name="model_kind_moe">MoE</string>
+    <string name="model_kind_dense">كثيف</string>
+    <string name="model_kind_vision">رؤية</string>
+    <string name="model_kind_other">غير معروف</string>
+    <string name="model_size">الحجم</string>
+    <string name="model_experts">الخبراء لكل توكن</string>
+    <string name="model_experts_value">%1$d من %2$d</string>
+    <string name="model_resident">يبقى في الرام دائمًا</string>
+    <string name="model_flash_per_token">من التخزين لكل توكن</string>
+    <string name="model_speed">السرعة المتوقعة</string>
+    <string name="model_speed_value">~%1$s توكن/ث</string>
+    <string name="model_not_runnable">الجزء الدائم أكبر من الرام المتاحة</string>
+    <string name="model_estimate_note">تقدير متحفّظ بافتراض قراءة تخزين %1$s جيجابايت/ث. يتبدّل بالقياس الحقيقي بعد أول تشغيل.</string>
+    <string name="model_error">الملف ما انقرا: %1$s</string>
+
+    <string name="how_eyebrow">كيف يشتغل</string>
+    <string name="how_title">الرام للي يتكرر، والتخزين للباقي.</string>
+    <string name="how_1_title">الجزء الدائم في الرام</string>
+    <string name="how_1_body">طبقات الانتباه والأوزان المشتركة تشتغل مع كل كلمة، فتبقى في الذاكرة.</string>
+    <string name="how_2_title">الخبراء من التخزين</string>
+    <string name="how_2_body">نماذج MoE تشغّل كم خبير بس لكل توكن. نقرا اللي نحتاجه من التخزين ونخلي الأكثر استخدامًا في كاش.</string>
+    <string name="how_3_title">الجوال ما يعلّق</string>
+    <string name="how_3_body">جزء من الرام محجوز للجوال دائمًا، ولما يضيق النظام يصغر الكاش بدل ما يعلّق الجوال.</string>
+
+    <string name="footer">عملاق · %1$s</string>
+</resources>

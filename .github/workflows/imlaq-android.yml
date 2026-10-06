@@ -1,0 +1,65 @@
+name: Imlaq Android
+
+# Builds the engine for arm64 and the APK on every push that touches the app, so a debug APK is
+# always one tap away (Actions → run → Artifacts) without a computer.
+on:
+  push:
+    paths:
+      - "imlaq/**"
+      - ".github/workflows/imlaq-android.yml"
+  pull_request:
+    paths:
+      - "imlaq/**"
+  workflow_dispatch:
+
+concurrency:
+  group: imlaq-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: imlaq
+    env:
+      NDK_VERSION: 29.0.14206865
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Install NDK, CMake platform and Ninja
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;$NDK_VERSION" > /dev/null
+          sudo apt-get update -q && sudo apt-get install -y -q ninja-build
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$NDK_VERSION" >> "$GITHUB_ENV"
+
+      - name: Build native engines
+        run: ./scripts/build-native.sh
+
+      - name: Unit tests
+        run: ./gradlew test
+
+      - name: Assemble debug APK
+        run: ./gradlew :app:assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: imlaq-debug-apk
+          path: imlaq/app/build/outputs/apk/debug/app-debug.apk
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshots
+          path: imlaq/app/build/screenshots/
+          if-no-files-found: ignore

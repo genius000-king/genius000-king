@@ -1,0 +1,17 @@
+Imlaq includes or builds on the following third-party work.
+
+BigMoeOnEdge — https://github.com/Helldez/BigMoeOnEdge
+  Licensed under the Apache License, Version 2.0.
+  Included as a git submodule (third_party/bigmoeonedge) and built into the APK as
+  libimlaq_text.so, libimlaq_iobench.so and libimlaq_membench.so. The engine's session protocol,
+  build flags and Android packaging approach (engines as lib*.so executables run via
+  ProcessBuilder) follow its examples/android app.
+
+llama.cpp / ggml — https://github.com/ggml-org/llama.cpp
+  Copyright (c) 2023-2026 The ggml authors. Licensed under the MIT License.
+  Built from BigMoeOnEdge's fork (third_party/bigmoeonedge/third_party/llama.cpp).
+
+IBM Plex Sans Arabic — https://github.com/IBM/plex
+  Copyright © 2017 IBM Corp. Licensed under the SIL Open Font License, Version 1.1.
+  Bundled in core/designsystem/src/main/res/font; license text in
+  core/designsystem/OFL-IBMPlexSansArabic.txt.
