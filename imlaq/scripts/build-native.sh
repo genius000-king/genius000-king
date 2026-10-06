@@ -83,7 +83,8 @@ for so in "$JNI"/*.so; do "$STRIP" --strip-unneeded "$so"; done
 # 16 KB page alignment: required on Android 15+ devices with 16 KB pages, and by Google Play.
 READELF="$(find "$NDK/toolchains/llvm/prebuilt" -name llvm-readelf -print -quit)"
 for so in "$JNI"/*.so; do
-  align="$("$READELF" -lW "$so" | awk '$1=="LOAD"{print $NF; exit}')"
+  # awk reads to the end: exiting early breaks readelf's pipe, and LLVM tools exit 74 on that.
+  align="$("$READELF" -lW "$so" | awk '$1=="LOAD" && !a {a=$NF} END {print a}')"
   if [[ "$align" != "0x4000" && "$align" != "0x10000" ]]; then
     echo "warning: $(basename "$so") LOAD alignment $align (want >= 0x4000)" >&2
   fi
