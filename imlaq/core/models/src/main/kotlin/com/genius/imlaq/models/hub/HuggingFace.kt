@@ -1,8 +1,11 @@
 package com.genius.imlaq.models.hub
 
+import com.genius.imlaq.models.ModelType
+import com.genius.imlaq.models.ModelTypes
 import com.genius.imlaq.models.download.DownloadSpec
 import com.genius.imlaq.models.download.TransferFile
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonArray
@@ -15,15 +18,20 @@ import java.net.URLDecoder
 import java.net.URLEncoder
 
 /** A model repository on Hugging Face. */
-data class HubRepo(val id: String, val downloads: Long, val likes: Long)
+data class HubRepo(val id: String, val downloads: Long, val likes: Long, val type: ModelType = ModelType.UNKNOWN)
 
 /**
  * One runnable model inside a repo: a single `.gguf`, or every shard of a split one.
  * [label] is the file name without the extension and the shard suffix (e.g. "Qwen3-30B-A3B-Q4_K_M").
  */
-data class HubModelFile(val repo: String, val label: String, val files: List<TransferFile>) {
+data class HubModelFile(
+    val repo: String,
+    val label: String,
+    val files: List<TransferFile>,
+    val type: ModelType = ModelType.UNKNOWN,
+) {
     val totalBytes: Long get() = files.sumOf { it.bytes }
-    fun toSpec() = DownloadSpec(id = "hf:$repo:$label", title = label, files = files)
+    fun toSpec() = DownloadSpec(id = "hf:$repo:$label", title = label, files = files, type = type)
 }
 
 class HubException(message: String) : IOException(message)
@@ -42,15 +50,16 @@ class HuggingFace(private val base: String = "https://huggingface.co") {
         val arr = getJson("$base/api/models?search=$q&filter=gguf&sort=downloads&direction=-1&limit=$limit").jsonArray
         return arr.map { it.jsonObject }.mapNotNull { o ->
             val id = o.string("id") ?: o.string("modelId") ?: return@mapNotNull null
-            HubRepo(id, o.long("downloads"), o.long("likes"))
+            val tags = (o["tags"] as? JsonArray)?.mapNotNull { (it as? JsonPrimitive)?.content }.orEmpty()
+            HubRepo(id, o.long("downloads"), o.long("likes"), ModelTypes.fromHub(o.string("pipeline_tag"), tags, id))
         }
     }
 
     /**
-     * Every GGUF model in [repo], smallest first. Split models are grouped; vision projectors
+     * Every GGUF model in [repo], smallest first, each labelled [type] (the repo's, from the search). Split models are grouped; vision projectors
      * (mmproj) are left out because they do nothing on their own.
      */
-    fun files(repo: String): List<HubModelFile> {
+    fun files(repo: String, type: ModelType = ModelType.UNKNOWN): List<HubModelFile> {
         val arr = getJson("$base/api/models/$repo/tree/main?recursive=true").jsonArray
         val ggufs = arr.map { it.jsonObject }
             .filter { it.string("type") == "file" }
@@ -69,6 +78,7 @@ class HuggingFace(private val base: String = "https://huggingface.co") {
                     repo = repo,
                     label = key.substringAfterLast('/'),
                     files = sorted.map { (path, size) -> TransferFile(path.substringAfterLast('/'), resolveUrl(repo, path), size) },
+                    type = type,
                 )
             }
             .filter { m -> SHARD.matchEntire(m.files.first().name)?.let { it.groupValues[3].toInt() == m.files.size } ?: true }

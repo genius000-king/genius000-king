@@ -269,3 +269,30 @@ fun GlassField(
         trailing()
     }
 }
+
+/**
+ * A small hairline label with an icon, for what a thing is (a model's type). [tint] colours the
+ * icon and border; without it the chip stays in the text colour like everything else.
+ */
+@Composable
+fun Chip(text: String, modifier: Modifier = Modifier, icon: ImageVector? = null, tint: Color? = null, dim: Boolean = false) {
+    val c = Imlaq.colors
+    val ink = when {
+        dim -> c.faint
+        tint != null -> tint
+        else -> c.muted
+    }
+    Row(
+        modifier
+            .clip(PillShape)
+            .border(1.dp, if (tint != null && !dim) tint.copy(alpha = 0.45f) else c.line, PillShape)
+            .padding(horizontal = 10.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (icon != null) {
+            Icon(icon, contentDescription = null, tint = ink, modifier = Modifier.size(13.dp))
+            Spacer(Modifier.width(6.dp))
+        }
+        Text(text, style = MaterialTheme.typography.labelSmall, color = if (dim) c.faint else c.text.copy(alpha = 0.86f), maxLines = 1)
+    }
+}

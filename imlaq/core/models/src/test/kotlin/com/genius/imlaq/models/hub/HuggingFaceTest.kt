@@ -1,5 +1,6 @@
 package com.genius.imlaq.models.hub
 
+import com.genius.imlaq.models.ModelType
 import com.genius.imlaq.models.download.DownloadSpec
 import com.sun.net.httpserver.HttpServer
 import org.junit.After
@@ -18,8 +19,9 @@ class HuggingFaceTest {
 
     // Shapes copied from huggingface.co/api responses (trimmed).
     private val searchJson = """
-        [{"_id":"a","id":"unsloth/Qwen3-30B-A3B-GGUF","likes":1113,"downloads":6928970,"tags":["gguf"]},
-         {"_id":"b","modelId":"bartowski/gemma-GGUF","likes":5,"downloads":100}]
+        [{"_id":"a","id":"unsloth/Qwen3-30B-A3B-GGUF","likes":1113,"downloads":6928970,"tags":["gguf"],"pipeline_tag":"text-generation"},
+         {"_id":"b","modelId":"bartowski/gemma-GGUF","likes":5,"downloads":100,"tags":["gguf","image-text-to-text"]},
+         {"_id":"c","id":"city96/FLUX.1-dev-gguf","likes":9,"downloads":7,"pipeline_tag":"text-to-image"}]
     """
     private val treeJson = """
         [{"type":"directory","path":"BF16","size":0},
@@ -73,8 +75,9 @@ class HuggingFaceTest {
     @Test
     fun searchAsksForGgufReposByDownloads() {
         val repos = HuggingFace(base).search("qwen3 30b")
-        assertEquals(listOf("unsloth/Qwen3-30B-A3B-GGUF", "bartowski/gemma-GGUF"), repos.map { it.id })
+        assertEquals(listOf("unsloth/Qwen3-30B-A3B-GGUF", "bartowski/gemma-GGUF", "city96/FLUX.1-dev-gguf"), repos.map { it.id })
         assertEquals(6928970L, repos[0].downloads)
+        assertEquals(listOf(ModelType.TEXT, ModelType.VISION, ModelType.IMAGE), repos.map { it.type })
         val q = queries.single()
         assertTrue(q, q.contains("search=qwen3+30b") && q.contains("filter=gguf") && q.contains("sort=downloads"))
     }
@@ -91,10 +94,11 @@ class HuggingFaceTest {
     }
 
     @Test
-    fun aHubFileBecomesOneTransferWithAStableId() {
-        val q4 = HuggingFace(base).files("unsloth/Qwen3-30B-A3B-GGUF").first { it.label.endsWith("Q4_K_M") }
+    fun aHubFileBecomesOneTransferWithAStableIdAndItsType() {
+        val q4 = HuggingFace(base).files("unsloth/Qwen3-30B-A3B-GGUF", ModelType.TEXT).first { it.label.endsWith("Q4_K_M") }
         val spec = q4.toSpec()
         assertEquals("hf:unsloth/Qwen3-30B-A3B-GGUF:Qwen3-30B-A3B-Q4_K_M", spec.id)
+        assertEquals(ModelType.TEXT, spec.type)
         assertEquals(spec, DownloadSpec.decode(spec.encode()))
     }
 

@@ -10,6 +10,7 @@ import com.genius.imlaq.designsystem.ImlaqTheme
 import com.genius.imlaq.models.LocalModel
 import com.genius.imlaq.models.ModelKind
 import com.genius.imlaq.models.ModelSummary
+import com.genius.imlaq.models.ModelType
 import com.genius.imlaq.models.catalog.Catalog
 import com.genius.imlaq.models.catalog.Fit
 import com.genius.imlaq.models.catalog.FitLevel
@@ -83,11 +84,15 @@ class ScreensScreenshotTest {
         val file = File("/m/${qwen.entryFileName}")
         val summary = ModelSummary(ModelKind.TEXT_MOE, "qwen3moe", "Qwen3 30B", 128, 8, 48, 40960,
             Bytes(qwen.totalBytes), Bytes(qwen.totalBytes - 1_500_000_000L), Bytes(1_500_000_000L))
-        val hubGemma = DownloadSpec("hf:x", "gemma-3-27b-it-Q4_K_M", listOf(TransferFile("gemma-3-27b-it-Q4_K_M.gguf", "https://x", 16_550_000_000L)))
+        val hubGemma = DownloadSpec("hf:x", "gemma-3-27b-it-Q4_K_M", listOf(TransferFile("gemma-3-27b-it-Q4_K_M.gguf", "https://x", 16_550_000_000L)), ModelType.VISION)
+        val flux = DownloadSpec("hf:f", "flux1-dev-Q4_K_S", listOf(TransferFile("flux1-dev-Q4_K_S.gguf", "https://x", 6_810_000_000L)), ModelType.IMAGE)
         return ModelsUiState(
             loading = false,
-            installed = listOf(InstalledRow(LocalModel(file, listOf(file), summary, null), "Qwen3 30B", qwen.totalBytes, RunStatus.IDLE)),
-            transfers = listOf(ActiveTransfer(hubGemma, DownloadState.Running(6_900_000_000L, 16_550_000_000L))),
+            installed = listOf(InstalledRow(LocalModel(file, listOf(file), summary, null), "Qwen3 30B", qwen.totalBytes, ModelType.TEXT, RunStatus.IDLE)),
+            transfers = listOf(
+                ActiveTransfer(hubGemma, DownloadState.Running(6_900_000_000L, 16_550_000_000L)),
+                ActiveTransfer(flux, DownloadState.Running(0L, 6_810_000_000L)),
+            ),
             suggested = listOf(
                 SuggestedRow(Catalog.byId("gemma4-26b")!!, Fit(FitLevel.GOOD)),
                 SuggestedRow(Catalog.byId("gpt-oss-120b")!!, Fit(FitLevel.SLOW)),
@@ -101,17 +106,19 @@ class ScreensScreenshotTest {
     private fun sampleSearch() = OnlineUiState(
         query = "qwen3 30b",
         results = listOf(
-            HubRepo("unsloth/Qwen3-30B-A3B-GGUF", 1_250_000, 410),
-            HubRepo("unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF", 6_928_970, 1113),
-            HubRepo("bartowski/Qwen_Qwen3-30B-A3B-GGUF", 312_000, 95),
+            HubRepo("unsloth/Qwen3-30B-A3B-GGUF", 1_250_000, 410, ModelType.TEXT),
+            HubRepo("unsloth/Qwen2.5-VL-32B-Instruct-GGUF", 6_928_970, 1113, ModelType.VISION),
+            HubRepo("city96/FLUX.1-dev-gguf", 312_000, 95, ModelType.IMAGE),
+            HubRepo("city96/Wan2.1-T2V-14B-gguf", 88_000, 61, ModelType.VIDEO),
+            HubRepo("ggerganov/whisper.cpp", 41_000, 230, ModelType.SPEECH_TO_TEXT),
         ),
     )
 
     private fun sampleFiles(): OnlineUiState {
-        fun f(label: String, bytes: Long) = HubModelFile("unsloth/Qwen3-30B-A3B-GGUF", label, listOf(TransferFile("$label.gguf", "https://x", bytes)))
+        fun f(label: String, bytes: Long) = HubModelFile("unsloth/Qwen3-30B-A3B-GGUF", label, listOf(TransferFile("$label.gguf", "https://x", bytes)), ModelType.TEXT)
         return OnlineUiState(
             query = "qwen3 30b",
-            repo = HubRepo("unsloth/Qwen3-30B-A3B-GGUF", 1_250_000, 410),
+            repo = HubRepo("unsloth/Qwen3-30B-A3B-GGUF", 1_250_000, 410, ModelType.TEXT),
             files = listOf(
                 f("Qwen3-30B-A3B-Q2_K", 11_258_610_432L),
                 f("Qwen3-30B-A3B-Q4_K_M", 18_556_686_912L),

@@ -33,6 +33,9 @@ data class ModelSummary(
     val expertBytes: Bytes,
     val denseBytes: Bytes,
 ) {
+    /** What the model does, from its architecture. */
+    val type: ModelType get() = ModelTypes.fromGguf(architecture, kind)
+
     /** Weights touched per token, assuming routing spreads evenly over the experts. */
     val activeBytesPerToken: Bytes
         get() = if (expertCount > 0 && expertUsedCount > 0) {

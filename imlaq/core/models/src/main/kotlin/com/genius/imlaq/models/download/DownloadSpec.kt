@@ -1,5 +1,6 @@
 package com.genius.imlaq.models.download
 
+import com.genius.imlaq.models.ModelType
 import com.genius.imlaq.models.catalog.CatalogEntry
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -16,7 +17,13 @@ data class TransferFile(val name: String, val source: String, val bytes: Long)
  * model is one spec with several files; the engine later opens the first.
  */
 @Serializable
-data class DownloadSpec(val id: String, val title: String, val files: List<TransferFile>) {
+data class DownloadSpec(
+    val id: String,
+    val title: String,
+    val files: List<TransferFile>,
+    /** What the model does, known before the bytes arrive, so the list can say it while downloading. */
+    val type: ModelType = ModelType.UNKNOWN,
+) {
     val totalBytes: Long get() = files.sumOf { it.bytes }
 
     fun encode(): String = json.encodeToString(serializer(), this)
@@ -30,6 +37,7 @@ data class DownloadSpec(val id: String, val title: String, val files: List<Trans
             id = "catalog:${entry.id}",
             title = entry.name,
             files = entry.files.map { TransferFile(it.name, it.url, it.bytes) },
+            type = ModelType.TEXT,
         )
     }
 }

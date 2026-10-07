@@ -30,7 +30,8 @@
     <string name="status_loading">يجهّز…</string>
     <string name="status_running">شغّال الحين</string>
     <string name="status_failed">ما اشتغل: %1$s</string>
-    <string name="status_unsupported">نوع ما يشتغل للحين (مو نموذج نصي)</string>
+    <string name="status_unsupported">محفوظ على جوالك — تشغيل هالنوع جاي في تحديث قادم</string>
+    <string name="status_projector">ملف رؤية مساعد — ما يشتغل لحاله، يرافق نموذجه النصي</string>
     <string name="delete_confirm">تحذفه؟ يفضّي %1$s جيجا.</string>
 
     <string name="fit_good">يناسب جوالك</string>
@@ -42,6 +43,17 @@
     <string name="download_progress">ينزل… %1$d٪ · %2$s من %3$s جيجا</string>
     <string name="download_waiting">ينتظر الإنترنت…</string>
     <string name="download_failed">ما كمل التنزيل: %1$s</string>
+
+    <!-- نوع النموذج -->
+    <string name="type_text">نص</string>
+    <string name="type_vision">نص + صور</string>
+    <string name="type_image">يرسم صور</string>
+    <string name="type_video">فيديو</string>
+    <string name="type_stt">صوت إلى نص</string>
+    <string name="type_tts">نص إلى صوت</string>
+    <string name="type_embedding">بحث وفهرسة</string>
+    <string name="type_unknown">نوع غير معروف</string>
+    <string name="type_soon">%1$s · قريبًا</string>
 
     <!-- من الإنترنت -->
     <string name="online_title">من الإنترنت</string>

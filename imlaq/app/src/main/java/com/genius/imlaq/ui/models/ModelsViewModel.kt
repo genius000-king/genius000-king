@@ -10,6 +10,8 @@ import com.genius.imlaq.AppContainer
 import com.genius.imlaq.common.Bytes
 import com.genius.imlaq.models.LocalModel
 import com.genius.imlaq.models.ModelKind
+import com.genius.imlaq.models.ModelType
+import com.genius.imlaq.models.ModelTypes
 import com.genius.imlaq.models.catalog.Catalog
 import com.genius.imlaq.models.catalog.CatalogEntry
 import com.genius.imlaq.models.catalog.Fit
@@ -27,12 +29,21 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-enum class RunStatus { IDLE, LOADING, RUNNING, FAILED, UNSUPPORTED }
+enum class RunStatus {
+    IDLE, LOADING, RUNNING, FAILED,
+
+    /** Downloaded fine, but no engine for its type yet (pictures, video, voice). */
+    UNSUPPORTED,
+
+    /** A vision projector: not a model on its own, it rides along with a text model. */
+    COMPANION,
+}
 
 data class InstalledRow(
     val model: LocalModel,
     val title: String,
     val bytes: Long,
+    val type: ModelType,
     val status: RunStatus,
     val failure: String? = null,
 )
@@ -68,7 +79,7 @@ class ModelsViewModel(private val container: AppContainer, private val context: 
                 .filter { it.complete && it.entry.name !in busyNames }
                 .map { m ->
                     val (status, failure) = statusOf(m, session)
-                    InstalledRow(m, titleOf(m), m.shards.sumOf { it.length() }, status, failure)
+                    InstalledRow(m, titleOf(m), m.shards.sumOf { it.length() }, typeOf(m), status, failure)
                 }
             val present = installed.map { it.model.entry.name }.toSet() + busyNames
             val suggested = Catalog.entries
@@ -145,7 +156,13 @@ class ModelsViewModel(private val container: AppContainer, private val context: 
                     TransferFile(name, uri.toString(), size)
                 }.sortedBy { it.name }
                 val title = files.first().name.removeSuffix(".gguf").replace(Regex("""-\d{5}-of-\d{5}$"""), "")
-                container.downloads.start(DownloadSpec(id = "phone:" + files.joinToString("|") { it.name }, title = title, files = files))
+                val spec = DownloadSpec(
+                    id = "phone:" + files.joinToString("|") { it.name },
+                    title = title,
+                    files = files,
+                    type = ModelTypes.fromHub(null, emptyList(), title),
+                )
+                container.downloads.start(spec)
                 null
             }
             notice.value = result
@@ -179,8 +196,13 @@ class ModelsViewModel(private val container: AppContainer, private val context: 
         Catalog.ownerOf(m.entry.name)?.name ?: m.summary?.name?.takeIf { it.isNotBlank() }
             ?: m.entry.name.removeSuffix(".gguf").replace(Regex("""-\d{5}-of-\d{5}$"""), "")
 
+    /** The file's own architecture once it is on the phone; its name until the header can be read. */
+    private fun typeOf(m: LocalModel): ModelType =
+        m.summary?.type ?: ModelTypes.fromHub(null, emptyList(), m.entry.name)
+
     private fun statusOf(m: LocalModel, s: SessionState): Pair<RunStatus, String?> = when {
-        m.summary?.kind.let { it == ModelKind.VISION_PROJECTOR || it == ModelKind.OTHER } -> RunStatus.UNSUPPORTED to null
+        m.summary?.kind == ModelKind.VISION_PROJECTOR -> RunStatus.COMPANION to null
+        m.summary?.type?.runsToday == false -> RunStatus.UNSUPPORTED to null
         s is SessionState.Loading && s.model.file == m.entry -> RunStatus.LOADING to null
         s is SessionState.Ready && s.model.file == m.entry -> RunStatus.RUNNING to null
         s is SessionState.Failed && s.model.file == m.entry -> RunStatus.FAILED to s.message

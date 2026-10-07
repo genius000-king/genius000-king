@@ -26,6 +26,7 @@ import com.genius.imlaq.designsystem.PillButton
 import com.genius.imlaq.designsystem.ProgressTrack
 import com.genius.imlaq.designsystem.StatusDot
 import com.genius.imlaq.designsystem.glass
+import com.genius.imlaq.models.ModelType
 import com.genius.imlaq.models.catalog.CatalogEntry
 import com.genius.imlaq.models.catalog.Fit
 import com.genius.imlaq.models.catalog.FitLevel
@@ -106,11 +107,12 @@ internal fun SectionLabel(text: String) {
     )
 }
 
-/** The card every model is shown in: title and size, an action at the end, details below. */
+/** The card every model is shown in: title, what it does and its size, an action at the end, details below. */
 @Composable
 internal fun ModelCard(
     title: String,
     bytes: Long,
+    type: ModelType?,
     action: @Composable () -> Unit,
     content: @Composable () -> Unit,
 ) {
@@ -122,8 +124,15 @@ internal fun ModelCard(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text(title, style = MaterialTheme.typography.titleMedium, color = c.text, maxLines = 2)
-                if (bytes > 0) {
-                    Text(stringResource(R.string.size_gb, formatGb(bytes)), style = MaterialTheme.typography.bodySmall, color = c.muted)
+                Row(
+                    Modifier.padding(top = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    if (type != null) TypeChip(type)
+                    if (bytes > 0) {
+                        Text(stringResource(R.string.size_gb, formatGb(bytes)), style = MaterialTheme.typography.bodySmall, color = c.muted)
+                    }
                 }
             }
             action()
@@ -138,12 +147,13 @@ private fun InstalledCard(row: InstalledRow, armed: Boolean, actions: ModelsActi
     ModelCard(
         title = row.title,
         bytes = row.bytes,
+        type = row.type,
         action = {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 when (row.status) {
                     RunStatus.RUNNING -> GhostButton(stringResource(R.string.action_stop), onClick = actions::stop)
                     RunStatus.LOADING -> GhostButton(stringResource(R.string.status_loading), onClick = {}, enabled = false)
-                    RunStatus.UNSUPPORTED -> Unit
+                    RunStatus.UNSUPPORTED, RunStatus.COMPANION -> Unit
                     else -> PillButton(stringResource(R.string.action_run), onClick = { actions.run(row) }, icon = ImlaqIcons.Play, small = true)
                 }
                 IconCircle(
@@ -160,6 +170,7 @@ private fun InstalledCard(row: InstalledRow, armed: Boolean, actions: ModelsActi
             RunStatus.LOADING -> StatusDot(stringResource(R.string.status_loading), c.warn)
             RunStatus.FAILED -> StatusDot(stringResource(R.string.status_failed, row.failure.orEmpty()), c.bad)
             RunStatus.UNSUPPORTED -> StatusDot(stringResource(R.string.status_unsupported), c.faint)
+            RunStatus.COMPANION -> StatusDot(stringResource(R.string.status_projector), c.faint)
             RunStatus.IDLE -> StatusDot(stringResource(R.string.status_ready), c.ok)
         }
         if (armed) {
@@ -183,6 +194,7 @@ private fun TransferCard(t: ActiveTransfer, actions: ModelsActions) {
     ModelCard(
         title = t.spec.title,
         bytes = t.spec.totalBytes,
+        type = t.spec.type,
         action = {
             when (t.state) {
                 is DownloadState.Failed -> Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -215,6 +227,7 @@ private fun SuggestedCard(row: SuggestedRow, actions: ModelsActions) {
     ModelCard(
         title = row.entry.name,
         bytes = row.entry.totalBytes,
+        type = ModelType.TEXT,
         action = {
             GhostButton(
                 stringResource(R.string.action_download),

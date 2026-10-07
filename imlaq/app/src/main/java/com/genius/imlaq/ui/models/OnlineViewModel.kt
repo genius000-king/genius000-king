@@ -2,6 +2,7 @@ package com.genius.imlaq.ui.models
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.genius.imlaq.models.ModelTypes
 import com.genius.imlaq.models.download.DownloadSpec
 import com.genius.imlaq.models.hub.DirectLink
 import com.genius.imlaq.models.hub.HubModelFile
@@ -57,7 +58,7 @@ class OnlineViewModel(
         job?.cancel()
         _state.update { it.copy(repo = repo, files = null, error = null) }
         job = viewModelScope.launch {
-            val r = withContext(Dispatchers.IO) { runCatching { hub.files(repo.id) } }
+            val r = withContext(Dispatchers.IO) { runCatching { hub.files(repo.id, repo.type) } }
             _state.update { it.copy(files = r.getOrNull() ?: emptyList(), error = r.exceptionOrNull()?.message) }
         }
     }
@@ -75,7 +76,8 @@ class OnlineViewModel(
             val r = withContext(Dispatchers.IO) { runCatching { DirectLink.inspect(link) } }
             val file = r.getOrNull()
             if (file != null) {
-                startDownload(DownloadSpec(id = "url:" + file.source, title = file.name.removeSuffix(".gguf"), files = listOf(file)))
+                val title = file.name.removeSuffix(".gguf")
+                startDownload(DownloadSpec("url:" + file.source, title, listOf(file), ModelTypes.fromHub(null, emptyList(), file.source + " " + title)))
                 _state.update { it.copy(checkingLink = false, link = "") }
                 onStarted()
             } else {

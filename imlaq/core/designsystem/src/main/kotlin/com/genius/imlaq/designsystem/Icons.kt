@@ -91,4 +91,61 @@ object ImlaqIcons {
         moveTo(12f, 3f); curveTo(14.5f, 5.5f, 15.5f, 8.5f, 15.5f, 12f); curveTo(15.5f, 15.5f, 14.5f, 18.5f, 12f, 21f)
         curveTo(9.5f, 18.5f, 8.5f, 15.5f, 8.5f, 12f); curveTo(8.5f, 8.5f, 9.5f, 5.5f, 12f, 3f)
     }
+
+    // ---- what a model does ----
+
+    val Chat = line("chat") {
+        moveTo(5f, 4f); lineTo(19f, 4f); arcTo(2f, 2f, 0f, false, true, 21f, 6f); lineTo(21f, 15f)
+        arcTo(2f, 2f, 0f, false, true, 19f, 17f); lineTo(10f, 17f); lineTo(5f, 21f); lineTo(5f, 17f)
+        arcTo(2f, 2f, 0f, false, true, 3f, 15f); lineTo(3f, 6f); arcTo(2f, 2f, 0f, false, true, 5f, 4f); close()
+        moveTo(8f, 9f); lineTo(16f, 9f); moveTo(8f, 12.5f); lineTo(13f, 12.5f)
+    }
+
+    val Eye = line("eye") {
+        moveTo(2f, 12f); curveTo(4.5f, 7f, 8f, 5f, 12f, 5f); curveTo(16f, 5f, 19.5f, 7f, 22f, 12f)
+        curveTo(19.5f, 17f, 16f, 19f, 12f, 19f); curveTo(8f, 19f, 4.5f, 17f, 2f, 12f); close()
+        moveTo(15f, 12f); arcTo(3f, 3f, 0f, true, true, 9f, 12f); arcTo(3f, 3f, 0f, true, true, 15f, 12f)
+    }
+
+    val Picture = line("picture") {
+        moveTo(5f, 4f); lineTo(19f, 4f); arcTo(2f, 2f, 0f, false, true, 21f, 6f); lineTo(21f, 18f)
+        arcTo(2f, 2f, 0f, false, true, 19f, 20f); lineTo(5f, 20f); arcTo(2f, 2f, 0f, false, true, 3f, 18f)
+        lineTo(3f, 6f); arcTo(2f, 2f, 0f, false, true, 5f, 4f); close()
+        moveTo(3f, 16f); lineTo(8.5f, 11f); lineTo(13f, 15f); lineTo(16f, 12.5f); lineTo(21f, 17f)
+        moveTo(17f, 8.5f); arcTo(1.5f, 1.5f, 0f, true, true, 14f, 8.5f); arcTo(1.5f, 1.5f, 0f, true, true, 17f, 8.5f)
+    }
+
+    val Film = line("film") {
+        moveTo(5f, 4f); lineTo(19f, 4f); arcTo(2f, 2f, 0f, false, true, 21f, 6f); lineTo(21f, 18f)
+        arcTo(2f, 2f, 0f, false, true, 19f, 20f); lineTo(5f, 20f); arcTo(2f, 2f, 0f, false, true, 3f, 18f)
+        lineTo(3f, 6f); arcTo(2f, 2f, 0f, false, true, 5f, 4f); close()
+        moveTo(7f, 4f); lineTo(7f, 20f); moveTo(17f, 4f); lineTo(17f, 20f)
+        moveTo(3f, 9f); lineTo(7f, 9f); moveTo(3f, 15f); lineTo(7f, 15f)
+        moveTo(17f, 9f); lineTo(21f, 9f); moveTo(17f, 15f); lineTo(21f, 15f)
+    }
+
+    val Mic = line("mic") {
+        moveTo(12f, 3f); arcTo(3f, 3f, 0f, false, true, 15f, 6f); lineTo(15f, 11f)
+        arcTo(3f, 3f, 0f, false, true, 9f, 11f); lineTo(9f, 6f); arcTo(3f, 3f, 0f, false, true, 12f, 3f); close()
+        moveTo(5.5f, 11f); arcTo(6.5f, 6.5f, 0f, false, false, 18.5f, 11f)
+        moveTo(12f, 17.5f); lineTo(12f, 21f)
+    }
+
+    val Speaker = line("speaker") {
+        moveTo(4f, 9f); lineTo(8f, 9f); lineTo(13f, 5f); lineTo(13f, 19f); lineTo(8f, 15f); lineTo(4f, 15f); close()
+        moveTo(16.5f, 9f); curveTo(17.5f, 10.5f, 17.5f, 13.5f, 16.5f, 15f)
+        moveTo(19f, 6.5f); curveTo(21.5f, 9.5f, 21.5f, 14.5f, 19f, 17.5f)
+    }
+
+    val Layers = line("layers") {
+        moveTo(12f, 3f); lineTo(21f, 8f); lineTo(12f, 13f); lineTo(3f, 8f); close()
+        moveTo(3f, 12f); lineTo(12f, 17f); lineTo(21f, 12f)
+        moveTo(3f, 16f); lineTo(12f, 21f); lineTo(21f, 16f)
+    }
+
+    val Question = line("question") {
+        moveTo(21f, 12f); arcTo(9f, 9f, 0f, true, true, 3f, 12f); arcTo(9f, 9f, 0f, true, true, 21f, 12f)
+        moveTo(9.5f, 9.5f); curveTo(9.5f, 6.5f, 14.5f, 6.5f, 14.5f, 9.5f); curveTo(14.5f, 11.5f, 12f, 11.5f, 12f, 13.5f)
+        moveTo(12f, 16.8f); lineTo(12f, 17f)
+    }
 }

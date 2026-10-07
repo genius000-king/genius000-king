@@ -68,13 +68,15 @@ fun OnlineScreen(
         item {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 IconCircle(ImlaqIcons.Back, stringResource(R.string.online_back), onClick = { if (repo != null) actions.closeRepo() else actions.back() })
-                Text(
-                    repo?.id ?: stringResource(R.string.online_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = c.text,
-                    maxLines = 2,
-                    modifier = Modifier.weight(1f),
-                )
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        repo?.id ?: stringResource(R.string.online_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = c.text,
+                        maxLines = 2,
+                    )
+                    if (repo != null) TypeChip(repo.type)
+                }
             }
         }
 
@@ -143,12 +145,18 @@ private fun RepoCard(repo: HubRepo, onClick: () -> Unit) {
     ) {
         Text(name, style = MaterialTheme.typography.titleMedium, color = c.text, maxLines = 2)
         Text(owner, style = MaterialTheme.typography.bodySmall, color = c.muted)
-        Text(
-            stringResource(R.string.online_stats, compact(repo.downloads), compact(repo.likes)),
-            style = MaterialTheme.typography.labelSmall,
-            color = c.faint,
-            modifier = Modifier.padding(top = 4.dp),
-        )
+        Row(
+            Modifier.padding(top = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            TypeChip(repo.type)
+            Text(
+                stringResource(R.string.online_stats, compact(repo.downloads), compact(repo.likes)),
+                style = MaterialTheme.typography.labelSmall,
+                color = c.faint,
+            )
+        }
     }
 }
 
@@ -158,6 +166,7 @@ private fun HubFileCard(file: HubModelFile, fit: Fit?, onDownload: () -> Unit) {
     ModelCard(
         title = file.label,
         bytes = file.totalBytes,
+        type = file.type,
         action = { GhostButton(stringResource(R.string.action_download), onClick = onDownload, icon = ImlaqIcons.ArrowDown, enabled = canDownload) },
     ) {
         if (fit != null) FitLine(fit)
