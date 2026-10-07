@@ -1,10 +1,5 @@
 package com.genius.imlaq.ui.chat
 
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,10 +23,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
@@ -129,7 +122,8 @@ private fun Conversation(
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
                     items(state.messages, key = { it.id }) { m ->
-                        if (m.fromUser) UserBubble(m.text) else Reply(m)
+                        if (m.fromUser) UserBubble(m.text)
+                        else Reply(m, streaming = state.generating && m.id == state.messages.last().id)
                     }
                 }
             }
@@ -167,13 +161,13 @@ private fun UserBubble(text: String) {
 
 /** The model's reply: open text, no bubble — easier to read when it runs long. */
 @Composable
-private fun Reply(m: ChatMessage) {
+private fun Reply(m: ChatMessage, streaming: Boolean) {
     val c = Imlaq.colors
     Column(Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
         if (m.text.isNotEmpty()) {
-            Text(m.text, style = MaterialTheme.typography.bodyLarge, color = c.text)
-        } else if (m.thinking) {
-            Thinking()
+            StreamingText(m.text, streaming)
+        } else if (m.thinking || streaming) {
+            ThinkingIndicator()
         }
         when {
             m.error != null -> Text(stringResource(R.string.chat_error, m.error), style = MaterialTheme.typography.bodySmall, color = c.bad)
@@ -185,17 +179,6 @@ private fun Reply(m: ChatMessage) {
             )
         }
     }
-}
-
-@Composable
-private fun Thinking() {
-    val pulse by rememberInfiniteTransition(label = "thinking").animateFloat(
-        initialValue = 0.35f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(900), RepeatMode.Reverse),
-        label = "alpha",
-    )
-    Text(stringResource(R.string.chat_thinking), style = MaterialTheme.typography.bodyLarge, color = Imlaq.colors.muted, modifier = Modifier.alpha(pulse))
 }
 
 /** The floating glass capsule you write in, with the send (or stop) button inside it. */
