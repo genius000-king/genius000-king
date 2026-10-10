@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Character and Cloud Recreation</title>
+<style>
+  :root {
+    --page: #e9e9e6;
+    --gutter: 16px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --page: #1d1d1c; }
+  }
+  :root[data-theme="dark"] { --page: #1d1d1c; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--page);
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding: var(--gutter);
+  }
+  .grid {
+    display: grid;
+    gap: var(--gutter);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+    align-items: start;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  figure { margin: 0; overflow: hidden; }
+  .phone {
+    aspect-ratio: 1035 / 1380;
+    border-radius: 36px;
+    background: #e4e7e2;
+  }
+  .front {
+    aspect-ratio: 762 / 978;
+    border-radius: 36px;
+    background: #2f302c;
+    padding: 0 26px;
+    box-sizing: border-box;
+  }
+  .front > svg {
+    border-radius: 34px;
+  }
+  .cloud {
+    grid-column: 1 / -1;
+    aspect-ratio: 757 / 557;
+    border-radius: 14px;
+    background: #3d3d3d;
+  }
+  svg, canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+</head>
+<body>
+<main class="grid">
+
+  <!-- Reference 1: character, three-quarter back view with UI back button -->
+  <figure class="phone" aria-label="Character, three-quarter back view">
+    <svg viewBox="0 0 1035 1380" xmlns="http://www.w3.org/2000/svg" role="img">
+      <defs>
+        <linearGradient id="bg1" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#e4e7e2"/>
+          <stop offset="1" stop-color="#8e8f89"/>
+        </linearGradient>
+        <linearGradient id="card1" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#efe6e3"/>
+          <stop offset="1" stop-color="#e2dbee"/>
+        </linearGradient>
+      </defs>
+
+      <rect width="1035" height="1380" fill="url(#bg1)"/>
+
+      <!-- Backdrop card -->
+      <rect x="180" y="185" width="675" height="790" rx="60" fill="url(#card1)"/>
+
+      <!-- Card detail marks (right edge) -->
+      <rect x="782" y="232" width="40" height="88" rx="6" fill="#efd98a"/>
+      <rect x="782" y="298" width="40" height="60" rx="6" fill="#e8b97a"/>
+      <rect x="784" y="372" width="28" height="6" rx="3" fill="#c9bfe8"/>
+      <rect x="784" y="394" width="28" height="6" rx="3" fill="#c9bfe8"/>
+      <rect x="784" y="416" width="28" height="6" rx="3" fill="#c9bfe8"/>
+      <rect x="784" y="438" width="20" height="6" rx="3" fill="#c9bfe8"/>
+      <rect x="806" y="732" width="12" height="18" rx="6" fill="#bdb0e6"/>
+      <rect x="806" y="762" width="12" height="18" rx="6" fill="#bdb0e6"/>
+      <rect x="810" y="800" width="10" height="60" rx="5" fill="#9f92dc"/>
+      <circle cx="805" cy="922" r="18" fill="none" stroke="#e0a87a" stroke-width="4"/>
+
+      <!-- Shadow on floor -->
+      <ellipse cx="298" cy="1196" rx="122" ry="32" transform="rotate(-8 298 1196)" fill="#5e6378" opacity="0.28"/>
+
+      <!-- Back arm (far side) -->
+      <path d="M555 520 Q600 540 620 600 L612 690 L585 700 L572 640 L545 600 Z" fill="#e5694b"/>
+      <path d="M575 672 Q600 660 622 690 L612 712 Q590 722 575 705 Z" fill="#9a5a33"/>
+
+      <!-- Far leg -->
+      <path d="M520 600 L595 600 L690 1000 L697 1048 L552 1070 L540 960 Z" fill="#6f80d6"/>
+      <path d="M552 1010 L697 1036 L695 1068 L550 1074 Z" fill="#7487dc"/>
+
+      <!-- Near leg -->
+      <path d="M398 585 L522 590 L522 1000 L515 1060 L372 1078 L380 960 Z" fill="#8193e4"/>
+      <path d="M372 1040 L516 1032 L516 1088 L370 1094 Z" fill="#7d8ee0"/>
+      <path d="M430 700 L470 690 L478 800 L436 808 Z" fill="none" stroke="#6575cc" stroke-width="5"/>
+
+      <!-- Waistband -->
+      <path d="M408 540 L582 552 L594 618 L402 612 Z" fill="#7f90e3"/>
+
+      <!-- Ankle socks -->
+      <path d="M405 1080 L500 1076 L505 1110 L410 1118 Z" fill="#a8474a"/>
+
+      <!-- Far shoe (right) -->
+      <path d="M520 1112 L590 1082 L650 1078 L690 1120 L700 1186 L690 1200 L540 1200 L520 1170 Z" fill="#f0e8d6"/>
+      <path d="M590 1082 L650 1078 L664 1100 L600 1105 Z" fill="#b8474a"/>
+      <path d="M522 1170 L690 1182 L700 1200 L690 1204 L540 1204 Z" fill="#c9a4e6"/>
+
+      <!-- Near shoe (left) -->
+      <path d="M292 1190 L335 1140 L372 1112 L470 1100 L512 1110 L545 1180 L538 1224 L430 1246 L335 1240 L300 1222 Z" fill="#f2ead6"/>
+      <path d="M360 1120 L420 1112 L440 1150 L372 1160 Z" fill="#b4443f"/>
+      <path d="M305 1205 L430 1228 L532 1206 L530 1214 L430 1236 L305 1214 Z" fill="#b4443f"/>
+      <path d="M300 1222 L335 1240 L430 1246 L538 1224 L540 1244 L430 1258 L320 1252 L296 1236 Z" fill="#d7a2b2"/>
+      <text x="356" y="1200" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="64" fill="#b4443f" transform="rotate(-10 380 1190)">N</text>
+
+      <!-- Back shoulder strap -->
+      <path d="M548 418 Q560 480 556 560" fill="none" stroke="#1f1f1f" stroke-width="10" stroke-linecap="round"/>
+
+      <!-- Tee -->
+      <path d="M440 428 Q520 410 600 420 L616 558 Q570 580 520 572 Q480 580 440 556 Z" fill="#f5f3dc"/>
+      <path d="M440 428 L470 425 L462 556 L440 556 Z" fill="#f2c2c0" opacity="0.6"/>
+
+      <!-- Bag strap -->
+      <path d="M478 420 L440 540 L418 620" fill="none" stroke="#1f1f1f" stroke-width="10" stroke-linecap="round"/>
+
+      <!-- Near arm -->
+      <path d="M458 500 Q500 500 512 560 L500 640 L470 700 L440 690 L446 620 Z" fill="#e8694b"/>
+
+      <!-- Crossbody bag -->
+      <path d="M380 612 L468 596 L482 690 L392 706 Z" fill="#7a4a2a"/>
+      <path d="M380 612 L468 596 L470 630 L384 646 Z" fill="#8c5a36"/>
+
+      <!-- Near hand -->
+      <path d="M345 720 Q352 678 400 676 L462 690 L468 740 L452 790 L400 802 L352 786 Z" fill="#94552d"/>
+      <path d="M402 712 L440 718 M404 742 L442 748" stroke="#6e3c1e" stroke-width="3" fill="none"/>
+
+      <!-- Head: hair back -->
+      <path d="M448 330 Q452 262 520 258 Q598 262 626 318 L640 378 L612 366 L598 398 L578 372 L552 422 L522 398 L486 420 L460 396 Z" fill="#e8372d"/>
+      <path d="M598 300 Q628 320 640 378 L612 366 L600 330 Z" fill="#f7d74a"/>
+      <path d="M560 262 Q600 268 626 318 L600 320 Q580 290 560 262 Z" fill="#f0a52c" opacity="0.8"/>
+
+      <!-- Neck -->
+      <path d="M478 380 L520 388 L524 430 L480 430 Z" fill="#dc5f42"/>
+
+      <!-- Face and ear -->
+      <path d="M452 300 Q470 272 506 292 L516 340 L500 388 L478 398 L450 372 L440 330 Z" fill="#e8704f"/>
+      <ellipse cx="482" cy="330" rx="16" ry="26" fill="#d9583e"/>
+      <path d="M440 336 L458 332 L456 342 Z" fill="#2a2a48"/>
+
+      <!-- Fringe -->
+      <path d="M446 320 Q480 300 520 300 Q560 296 590 310 L598 332 Q560 318 520 326 Q480 330 452 346 Z" fill="#e8372d"/>
+
+      <!-- Cap -->
+      <path d="M356 366 L414 322 L452 292 Q480 252 538 250 L586 266 L578 290 Q516 268 462 300 L428 340 Z" fill="#7d8fe6"/>
+      <path d="M356 366 L428 340 L440 352 L380 392 Z" fill="#6f80dc"/>
+      <path d="M540 252 L580 262 L576 280 L540 270 Z" fill="#4e5ab0"/>
+
+      <!-- Back button -->
+      <rect x="0" y="10" width="134" height="135" rx="36" fill="#eef0eb"/>
+      <path d="M78 46 L44 78 L78 110" fill="none" stroke="#111" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </figure>
+
+  <!-- Reference 2: character, front view -->
+  <figure class="front" aria-label="Character, front view">
+    <svg viewBox="0 0 762 978" xmlns="http://www.w3.org/2000/svg" role="img">
+      <defs>
+        <linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#e3e5e0"/>
+          <stop offset="1" stop-color="#d4d5d0"/>
+        </linearGradient>
+        <linearGradient id="card2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#efe6e3"/>
+          <stop offset="1" stop-color="#e2dbee"/>
+        </linearGradient>
+      </defs>
+
+      <rect width="762" height="978" fill="url(#bg2)"/>
+
+      <!-- Backdrop card -->
+      <rect x="120" y="135" width="516" height="607" rx="45" fill="url(#card2)"/>
+
+      <!-- Card detail marks (right edge) -->
+      <rect x="580" y="172" width="28" height="70" rx="5" fill="#efd98a"/>
+      <rect x="580" y="246" width="28" height="30" rx="5" fill="#e8b97a"/>
+      <rect x="582" y="290" width="20" height="5" rx="2.5" fill="#c9bfe8"/>
+      <rect x="582" y="306" width="20" height="5" rx="2.5" fill="#c9bfe8"/>
+      <rect x="582" y="322" width="14" height="5" rx="2.5" fill="#c9bfe8"/>
+      <circle cx="600" cy="700" r="14" fill="none" stroke="#e0a87a" stroke-width="3"/>
+
+      <!-- Floor shadow -->
+      <ellipse cx="330" cy="878" rx="180" ry="26" fill="#6b6f90" opacity="0.22"/>
+
+      <!-- Far leg -->
+      <path d="M420 430 L488 430 L548 800 L542 828 L444 826 L430 700 Z" fill="#7d8de0"/>
+      <path d="M440 790 L546 806 L542 834 L444 826 Z" fill="#6f7fd6"/>
+
+      <!-- Near leg -->
+      <path d="M318 430 L424 430 L418 700 L400 800 L300 806 L318 700 Z" fill="#8290e4"/>
+      <path d="M298 776 L400 778 L404 812 L296 810 Z" fill="#6f7fd6"/>
+
+      <!-- Pants waist and patches -->
+      <path d="M330 420 L490 420 L498 470 L326 470 Z" fill="#7f8fe3"/>
+      <path d="M340 520 L370 510 L380 600 L346 610 Z" fill="#f4a3b0" opacity="0.6"/>
+      <path d="M430 560 L470 560 L462 630 L424 620 Z" fill="#f7d86a" opacity="0.7"/>
+      <path d="M350 650 L400 640 L392 700 L350 700 Z" fill="#f2a1c0" opacity="0.5"/>
+      <path d="M466 640 L500 640 L502 720 L462 720 Z" fill="none" stroke="#6474cc" stroke-width="4"/>
+
+      <!-- Far shoe (right) -->
+      <path d="M432 830 L470 806 L520 800 L546 836 L544 896 L530 942 L440 946 L430 900 Z" fill="#f4e6d0"/>
+      <path d="M436 920 L544 912 L540 942 L440 946 Z" fill="#c5a0e4"/>
+      <path d="M480 806 L520 800 L528 826 L486 834 Z" fill="#e7a8b8"/>
+      <text x="466" y="846" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="20" fill="#b4443f">98</text>
+
+      <!-- Near shoe (left) -->
+      <path d="M190 840 L232 800 L300 790 L370 800 L384 860 L370 900 L260 916 L196 900 Z" fill="#f3e2cc"/>
+      <path d="M250 830 L300 812 L330 840 L262 860 Z" fill="#e7a8b8"/>
+      <path d="M196 890 L370 890 L372 916 L260 918 L196 904 Z" fill="#c5a0e4"/>
+      <text x="266" y="868" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="46" fill="#b4443f">N</text>
+
+      <!-- Tee -->
+      <path d="M300 340 Q340 318 380 320 Q430 318 470 334 Q494 350 500 380 L492 438 Q420 452 330 440 Q300 432 296 410 Z" fill="#f4f1e2"/>
+      <path d="M300 350 L340 340 L338 400 L300 412 Z" fill="#f3b7bb" opacity="0.8"/>
+      <path d="M420 360 L470 352 L478 420 L430 430 Z" fill="#f0a5a8" opacity="0.7"/>
+      <path d="M350 380 L400 378 L398 430 L346 432 Z" fill="#f7e27a" opacity="0.7"/>
+
+      <!-- Near arm -->
+      <path d="M300 372 Q272 420 262 470 L266 520 L290 530 L312 480 L326 420 Z" fill="#e8784a"/>
+      <!-- Near fist -->
+      <path d="M262 524 Q262 500 292 504 L312 530 L300 572 Q290 606 272 600 Q258 590 262 560 Z" fill="#f2c657"/>
+
+      <!-- Far arm -->
+      <path d="M470 362 Q510 390 520 440 L528 500 L500 510 L484 460 L462 420 Z" fill="#d86a44"/>
+      <!-- Far hand -->
+      <path d="M514 500 Q530 486 550 498 L572 560 Q574 590 556 596 Q536 600 530 580 L514 540 Z" fill="#8c4a26"/>
+
+      <!-- Bag strap and bag -->
+      <path d="M440 340 L500 470" stroke="#2a211c" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <path d="M484 470 L528 460 L538 530 L492 540 Z" fill="#6f4426"/>
+      <path d="M484 470 L528 460 L530 490 L486 500 Z" fill="#8b5a33"/>
+
+      <!-- Head: hair -->
+      <path d="M330 268 Q326 300 336 332 L370 326 L392 300 Z" fill="#e8372d"/>
+      <path d="M430 262 Q480 262 500 300 L512 326 L480 320 L454 320 L440 300 Z" fill="#f3d44c"/>
+      <path d="M440 268 L486 282 L470 310 L440 302 Z" fill="#e8372d"/>
+
+      <!-- Neck -->
+      <path d="M372 320 L404 322 L404 340 L372 340 Z" fill="#c8673c"/>
+
+      <!-- Face -->
+      <path d="M346 250 Q380 232 420 252 L426 298 Q420 320 384 322 Q350 318 344 290 Z" fill="#c8673c"/>
+      <ellipse cx="434" cy="270" rx="12" ry="22" fill="#e07a48"/>
+      <path d="M350 264 Q360 258 372 264 Q362 270 350 264 Z" fill="#2b3a6b"/>
+      <path d="M396 262 Q408 256 420 262 Q410 268 396 262 Z" fill="#2b3a6b"/>
+
+      <!-- Cap -->
+      <path d="M304 250 Q318 182 382 160 Q430 154 446 194 L438 222 Q400 212 350 236 Z" fill="#8f99ea"/>
+      <path d="M304 250 L350 236 L372 248 L330 262 Z" fill="#7986de"/>
+      <path d="M392 180 L412 176 L416 196 L396 200 Z" fill="#f7d26a"/>
+    </svg>
+  </figure>
+
+  <!-- Reference 3: Blender-style volumetric cloud -->
+  <figure class="cloud" aria-label="Blue-shaded white cloud in a dark viewport">
+    <canvas id="cloud" width="1514" height="1114" aria-hidden="true"></canvas>
+  </figure>
+
+</main>
+
+<script>
+(function () {
+  var W = 757, H = 557, DPR = 2;
+  var canvas = document.getElementById('cloud');
+  canvas.width = W * DPR;
+  canvas.height = H * DPR;
+  var g = canvas.getContext('2d');
+  g.scale(DPR, DPR);
+
+  // Seeded RNG so the cloud is identical on every load
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  var rnd = mulberry32(7);
+  var clamp = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
+
+  // Viewport background: radial gradient, Blender-like dark grey
+  var bg = g.createRadialGradient(380, 240, 40, 380, 260, 620);
+  bg.addColorStop(0, '#474747');
+  bg.addColorStop(1, '#2c2c2c');
+  g.fillStyle = bg;
+  g.fillRect(0, 0, W, H);
+
+  // Floor grid in perspective
+  var vp = { x: 390, y: 300 };
+  g.lineWidth = 1;
+  g.strokeStyle = 'rgba(255,255,255,0.09)';
+  for (var gx = -900; gx <= 1700; gx += 110) {
+    g.beginPath();
+    g.moveTo(vp.x, vp.y);
+    g.lineTo(gx, H + 20);
+    g.stroke();
+  }
+  for (var k = 1; k <= 9; k++) {
+    var gy = vp.y + Math.pow(k / 9, 1.9) * (H - vp.y + 40);
+    g.beginPath();
+    g.moveTo(0, gy);
+    g.lineTo(W, gy);
+    g.stroke();
+  }
+
+  // Axis lines: red X and green Y
+  g.lineWidth = 2.2;
+  g.strokeStyle = 'rgba(200,55,58,0.9)';
+  g.beginPath(); g.moveTo(0, 398); g.lineTo(540, H); g.stroke();
+  g.strokeStyle = 'rgba(95,174,60,0.9)';
+  g.beginPath(); g.moveTo(215, H); g.lineTo(W, 396); g.stroke();
+
+  // Cloud: puffs distributed over the silhouette
+  var ellipses = [
+    { x: 250, y: 275, rx: 150, ry: 105 },
+    { x: 430, y: 190, rx: 150, ry: 115 },
+    { x: 560, y: 262, rx: 130, ry: 105 },
+    { x: 380, y: 335, rx: 220, ry: 85 },
+    { x: 330, y: 125, rx: 90, ry: 65 }
+  ];
+  var puffs = [];
+  for (var i = 0; i < 420; i++) {
+    var e = ellipses[Math.floor(rnd() * ellipses.length)];
+    var ang = rnd() * Math.PI * 2;
+    var rr = Math.sqrt(rnd());
+    var x = e.x + Math.cos(ang) * e.rx * rr;
+    var y = e.y + Math.sin(ang) * e.ry * rr;
+    var r = 18 + rnd() * 46 * (1 - rr * 0.4);
+    puffs.push({ x: x, y: y, r: r });
+  }
+  puffs.sort(function (a, b) { return a.y - b.y; });
+
+  function puffColor(p) {
+    // Bottom and left pick up blue; top and right stay white
+    var t = Math.pow(clamp((p.y - 250) / 170, 0, 1), 1.1);
+    var l = clamp((320 - p.x) / 170, 0, 1) * clamp((p.y - 230) / 130, 0, 1) * 0.6;
+    var mix = clamp(t + l, 0, 1);
+    var white = [244, 246, 250];
+    var blue = [96, 130, 210];
+    var deep = [40, 70, 165];
+    var c = [0, 0, 0];
+    for (var j = 0; j < 3; j++) {
+      var b = mix < 0.8 ? blue[j] : blue[j] + (deep[j] - blue[j]) * (mix - 0.8) / 0.2;
+      c[j] = Math.round(white[j] + (b - white[j]) * mix);
+    }
+    return c;
+  }
+
+  puffs.forEach(function (p) {
+    var c = puffColor(p);
+    var str = 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')';
+    var grd = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+    grd.addColorStop(0, 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',1)');
+    grd.addColorStop(0.85, 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',0.9)');
+    grd.addColorStop(1, 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',0)');
+    g.fillStyle = grd;
+    g.beginPath();
+    g.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    g.fill();
+  });
+
+  // Bright highlights on the upper right of the cloud
+  for (var h = 0; h < 90; h++) {
+    var hx = 300 + rnd() * 330, hy = 120 + rnd() * 170;
+    if (hy > 280) continue;
+    var hr = 12 + rnd() * 30;
+    var hg = g.createRadialGradient(hx, hy, 0, hx, hy, hr);
+    hg.addColorStop(0, 'rgba(255,255,255,0.7)');
+    hg.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = hg;
+    g.beginPath();
+    g.arc(hx, hy, hr, 0, Math.PI * 2);
+    g.fill();
+  }
+
+  // Blender navigation gizmo fragment, top right
+  g.lineCap = 'round';
+  g.strokeStyle = '#f0821e';
+  g.lineWidth = 12;
+  g.beginPath(); g.moveTo(757, 36); g.lineTo(728, 58); g.lineTo(706, 92); g.stroke();
+})();
+</script>
+</body>
+</html>
