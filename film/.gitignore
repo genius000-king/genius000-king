@@ -1,3 +1,6 @@
 node_modules/
 out/frames_*/
 out/preview/
+out/*.wav
+out/*.log
+__pycache__/

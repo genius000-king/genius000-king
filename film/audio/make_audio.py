@@ -149,7 +149,7 @@ def main():
     fade = np.clip(t / 2.0, 0, 1) * np.clip((DUR - t) / 2.0, 0, 1)
     fade = np.where(t > 28.0, 0.5 - 0.5 * np.cos(np.pi * np.clip((DUR - t) / 2.0, 0, 1)), fade)
     fade = np.minimum(fade, 1.0)
-    bed_gain = float(os.environ.get('BED_GAIN', '1.0'))
+    bed_gain = float(os.environ.get('BED_GAIN', '2.1'))
     final = vo + mix_music * fade[:, None] * bed_gain
     peak = np.max(np.abs(final))
     if peak > 0.97:
