@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مجسم ثلاثي الأبعاد</title>
+<style>
+  :root {
+    --bg: #2f2f2f;
+    --fg: #f2f2ef;
+    --panel: rgba(20, 20, 20, 0.55);
+  }
+  html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
+  }
+  #stage { position: fixed; inset: 0; }
+  #stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+  .bar {
+    position: fixed;
+    left: 50%;
+    bottom: 16px;
+    transform: translateX(-50%);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px;
+    max-width: calc(100% - 32px);
+    background: var(--panel);
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .bar button {
+    font: inherit;
+    color: var(--fg);
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+  .bar button[aria-pressed="true"] { background: var(--fg); color: #222; }
+  .bar button:focus-visible { outline: 2px solid #7d8fe6; outline-offset: 2px; }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<div id="stage"></div>
+<nav class="bar" role="group" aria-label="اختيار المشهد">
+  <button type="button" data-view="hero" aria-pressed="false">الشخصية</button>
+  <button type="button" data-view="cloud" aria-pressed="false">السحابة</button>
+  <button type="button" data-view="both" aria-pressed="true">المشهد كاملاً</button>
+</nav>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ---------- Renderer, scene, camera ----------
+const stage = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+stage.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x2f2f2f);
+
+const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(3.6, 3.0, 13.5);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(3.4, 1.6, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 3;
+controls.maxDistance = 30;
+controls.maxPolarAngle = Math.PI * 0.52;
+controls.update();
+
+// ---------- Lights ----------
+scene.add(new THREE.HemisphereLight(0xffffff, 0x4a4a5a, 1.2));
+const sun = new THREE.DirectionalLight(0xffffff, 2.2);
+sun.position.set(3, 7, 5);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.left = -8;
+sun.shadow.camera.right = 8;
+sun.shadow.camera.top = 8;
+sun.shadow.camera.bottom = -8;
+sun.shadow.camera.near = 1;
+sun.shadow.camera.far = 30;
+sun.shadow.bias = -0.0005;
+sun.shadow.normalBias = 0.02;
+scene.add(sun);
+
+// ---------- Floor, shadow catcher, axis lines (as in the Blender viewport) ----------
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(60, 60),
+  new THREE.ShadowMaterial({ opacity: 0.28 })
+);
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+scene.add(floor);
+
+const grid = new THREE.GridHelper(60, 30, 0x5a5a5a, 0x3e3e3e);
+grid.position.y = 0.002;
+scene.add(grid);
+
+function axisLine(a, b, color) {
+  const geo = new THREE.BufferGeometry().setFromPoints([a, b]);
+  return new THREE.Line(geo, new THREE.LineBasicMaterial({ color }));
+}
+scene.add(axisLine(new THREE.Vector3(-30, 0.004, 0), new THREE.Vector3(30, 0.004, 0), 0xc8373a));
+scene.add(axisLine(new THREE.Vector3(0, 0.004, -30), new THREE.Vector3(0, 0.004, 30), 0x5fae3c));
+
+// ---------- Helpers ----------
+const mat = (color, roughness = 0.7) =>
+  new THREE.MeshStandardMaterial({ color, roughness, metalness: 0 });
+
+function part(geo, material, x = 0, y = 0, z = 0) {
+  const mesh = new THREE.Mesh(geo, material);
+  mesh.position.set(x, y, z);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  return mesh;
+}
+
+// Seeded RNG so the cloud is identical on every load
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+// ---------- Character (built from primitives, colors taken from the references) ----------
+const C = {
+  skin: 0xe8694b, face: 0xe8704f, ear: 0xd9583e,
+  hairRed: 0xe8372d, hairYellow: 0xf7d74a,
+  cap: 0x7d8fe6, capDark: 0x4e5ab0,
+  pants: 0x8193e4, pantsFar: 0x6f80d6, pocket: 0x6575cc, cuff: 0x7d8ee0,
+  tee: 0xf5f3dc, shoe: 0xf2ead6, sole: 0xc9a4e6, red: 0xb4443f,
+  bag: 0x7a4a2a, bagFlap: 0x8c5a36, hand: 0x94552d, strap: 0x1f1f1f, eye: 0x2a2a48
+};
+
+const hero = new THREE.Group();
+scene.add(hero);
+
+// Hips and waist
+const hips = part(new THREE.CylinderGeometry(0.42, 0.36, 0.42, 36), mat(C.pants, 0.85), 0, 1.3, 0);
+hips.scale.set(1.12, 1, 0.82);
+hero.add(hips);
+
+// Legs (wide cargo pants with rolled cuffs)
+function leg(x, z, far) {
+  const g = new THREE.Group();
+  const m = mat(far ? C.pantsFar : C.pants, 0.85);
+  g.add(part(new THREE.CylinderGeometry(0.2, 0.165, 0.95, 32), m, 0, 0.72, 0));
+  g.add(part(new THREE.CylinderGeometry(0.182, 0.178, 0.12, 32), mat(C.cuff, 0.85), 0, 0.3, 0));
+  if (!far) {
+    g.add(part(new THREE.BoxGeometry(0.14, 0.16, 0.03), mat(C.pocket, 0.85), 0, 0.92, 0.19));
+  }
+  g.position.set(x, 0, z);
+  return g;
+}
+hero.add(leg(0.22, -0.02, true));
+hero.add(leg(-0.22, 0.05, false));
+
+// Shoes: cream upper, lilac sole, red heel and side accent
+function shoe(x, z, rotY, side) {
+  const g = new THREE.Group();
+  g.add(part(new THREE.BoxGeometry(0.36, 0.2, 0.62), mat(C.shoe, 0.6), 0, 0.12, 0.06));
+  g.add(part(new THREE.BoxGeometry(0.38, 0.06, 0.66), mat(C.sole, 0.8), 0, 0.03, 0.06));
+  g.add(part(new THREE.BoxGeometry(0.37, 0.07, 0.1), mat(C.red, 0.6), 0, 0.2, -0.22));
+  g.add(part(new THREE.BoxGeometry(0.02, 0.07, 0.34), mat(C.red, 0.6), side * 0.185, 0.14, 0.08));
+  g.position.set(x, 0, z);
+  g.rotation.y = rotY;
+  return g;
+}
+hero.add(shoe(0.26, -0.05, -0.1, 1));
+hero.add(shoe(-0.24, 0.1, 0.05, -1));
+
+// Torso: cropped tee
+const tee = part(new THREE.CylinderGeometry(0.4, 0.36, 0.56, 36), mat(C.tee, 0.75), 0, 1.8, 0);
+tee.scale.set(1.15, 1, 0.8);
+hero.add(tee);
+
+// Neck
+hero.add(part(new THREE.CylinderGeometry(0.14, 0.16, 0.22, 24), mat(C.face, 0.7), 0, 2.15, 0));
+
+// Head
+const head = part(new THREE.SphereGeometry(0.42, 40, 30), mat(C.face, 0.7), 0, 2.5, 0);
+head.scale.set(1, 1.05, 0.97);
+hero.add(head);
+
+// Ears
+[-1, 1].forEach((s) => {
+  const ear = part(new THREE.SphereGeometry(0.09, 20, 16), mat(C.ear, 0.7), s * 0.42, 2.48, 0);
+  ear.scale.set(0.6, 1, 0.8);
+  hero.add(ear);
+});
+
+// Eyes
+[-1, 1].forEach((s) => {
+  const eye = part(new THREE.SphereGeometry(0.045, 16, 12), mat(C.eye, 0.4), s * 0.15, 2.5, 0.38);
+  eye.scale.set(1, 1, 0.5);
+  hero.add(eye);
+});
+
+// Hair: red crown under the cap, bob at the back, yellow tips on the right
+hero.add(part(new THREE.SphereGeometry(0.44, 40, 24, 0, Math.PI * 2, 0, Math.PI * 0.45), mat(C.hairRed, 0.6), 0, 2.5, 0));
+const bob = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.46, 0.44, 0.42, 36, 1, true, Math.PI * 0.55, Math.PI * 0.9),
+  new THREE.MeshStandardMaterial({ color: C.hairRed, roughness: 0.6, side: THREE.DoubleSide })
+);
+bob.position.set(0, 2.22, 0);
+bob.castShadow = true;
+hero.add(bob);
+const tips = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.455, 0.44, 0.14, 36, 1, true, Math.PI / 2 - 0.55, 0.95),
+  new THREE.MeshStandardMaterial({ color: C.hairYellow, roughness: 0.6, side: THREE.DoubleSide })
+);
+tips.position.set(0, 2.14, 0);
+tips.castShadow = true;
+hero.add(tips);
+
+// Cap: blue crown and forward brim
+const crown = part(new THREE.SphereGeometry(0.5, 40, 20, 0, Math.PI * 2, 0, Math.PI * 0.5), mat(C.cap, 0.55), 0, 2.5, 0);
+crown.scale.set(1, 0.9, 1.02);
+hero.add(crown);
+hero.add(part(new THREE.BoxGeometry(0.46, 0.03, 0.34), mat(C.capDark, 0.55), 0, 2.52, 0.64).rotateX(-0.1));
+hero.add(part(new THREE.BoxGeometry(0.2, 0.08, 0.06), mat(C.capDark, 0.55), 0, 2.72, -0.45));
+
+// Arms: pivot at the shoulder, angled outward
+function arm(x, rz, far) {
+  const g = new THREE.Group();
+  g.position.set(x, 1.98, far ? -0.05 : 0.02);
+  g.rotation.z = rz;
+  g.add(part(new THREE.CapsuleGeometry(0.1, 0.52, 8, 18), mat(C.skin, 0.7), 0, -0.38, 0));
+  const hand = part(new THREE.SphereGeometry(0.13, 20, 16), mat(C.hand, 0.7), 0, -0.8, 0.02);
+  hand.scale.set(1, 1.1, 0.9);
+  g.add(hand);
+  return g;
+}
+hero.add(arm(-0.46, -0.18, false));
+hero.add(arm(0.46, 0.25, true));
+
+// Crossbody bag and its strap
+hero.add(part(new THREE.BoxGeometry(0.26, 0.3, 0.12), mat(C.bag, 0.8), -0.28, 1.42, 0.36).rotateY(0.2));
+hero.add(part(new THREE.BoxGeometry(0.27, 0.1, 0.13), mat(C.bagFlap, 0.8), -0.28, 1.58, 0.36).rotateY(0.2));
+const strapCurve = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(0.22, 2.05, 0.42),
+  new THREE.Vector3(0.0, 1.8, 0.5),
+  new THREE.Vector3(-0.26, 1.55, 0.42)
+]);
+const strap = new THREE.Mesh(new THREE.TubeGeometry(strapCurve, 32, 0.025, 10), mat(C.strap, 0.6));
+strap.castShadow = true;
+hero.add(strap);
+
+// Back shoulder strap
+const backStrap = new THREE.Mesh(
+  new THREE.TubeGeometry(new THREE.CatmullRomCurve3([
+    new THREE.Vector3(0.3, 2.06, -0.3),
+    new THREE.Vector3(0.36, 1.8, -0.36),
+    new THREE.Vector3(0.36, 1.55, -0.34)
+  ]), 16, 0.025, 10),
+  mat(C.strap, 0.6)
+);
+backStrap.castShadow = true;
+hero.add(backStrap);
+
+// ---------- Cloud (instanced puffs, white top, blue underside) ----------
+const cloud = new THREE.Group();
+cloud.position.set(6.2, 0.6, -0.3);
+scene.add(cloud);
+
+const rnd = mulberry32(7);
+const blobs = [
+  { x: 0.0,  y: 1.35, z: 0.0,  rx: 1.7, ry: 0.95, rz: 1.1, n: 90 },
+  { x: -0.9, y: 1.0,  z: 0.2,  rx: 1.0, ry: 0.7,  rz: 0.9, n: 60 },
+  { x: 0.95, y: 1.45, z: 0.1,  rx: 1.0, ry: 0.9,  rz: 0.9, n: 60 },
+  { x: 0.2,  y: 0.8,  z: 0.0,  rx: 1.6, ry: 0.5,  rz: 1.0, n: 50 }
+];
+const puffs = [];
+blobs.forEach((b) => {
+  for (let i = 0; i < b.n; i++) {
+    // Uniform point inside an ellipsoid
+    let u, v, w, s;
+    do {
+      u = rnd() * 2 - 1; v = rnd() * 2 - 1; w = rnd() * 2 - 1;
+      s = u * u + v * v + w * w;
+    } while (s > 1);
+    puffs.push({
+      x: b.x + u * b.rx,
+      y: b.y + v * b.ry,
+      z: b.z + w * b.rz,
+      r: 0.28 + rnd() * 0.32
+    });
+  }
+});
+
+const cloudMesh = new THREE.InstancedMesh(
+  new THREE.SphereGeometry(1, 20, 14),
+  new THREE.MeshStandardMaterial({ roughness: 0.95, metalness: 0 }),
+  puffs.length
+);
+const dummy = new THREE.Object3D();
+const white = new THREE.Color(0xf4f6fa);
+const blue = new THREE.Color(0x6082d2);
+const deep = new THREE.Color(0x2846a5);
+const tint = new THREE.Color();
+puffs.forEach((p, i) => {
+  dummy.position.set(p.x, p.y, p.z);
+  dummy.scale.setScalar(p.r);
+  dummy.updateMatrix();
+  cloudMesh.setMatrixAt(i, dummy.matrix);
+
+  // Blue rises from the base and on the left side, deep blue at the bottom edge
+  const t = THREE.MathUtils.clamp((p.y - 0.4) / 1.3, 0, 1);
+  const side = THREE.MathUtils.clamp((-p.x - 0.4) / 1.6, 0, 1) * THREE.MathUtils.clamp((p.y - 0.6) / 0.8, 0, 1) * 0.5;
+  const k = THREE.MathUtils.clamp(1 - t + side, 0, 1);
+  tint.copy(white).lerp(blue, k * 0.85);
+  if (k > 0.8) tint.lerp(deep, (k - 0.8) / 0.2 * 0.6);
+  cloudMesh.setColorAt(i, tint);
+});
+cloudMesh.instanceMatrix.needsUpdate = true;
+cloudMesh.instanceColor.needsUpdate = true;
+cloudMesh.castShadow = true;
+cloudMesh.receiveShadow = true;
+cloud.add(cloudMesh);
+
+// ---------- Camera focus buttons ----------
+const views = {
+  hero:  { pos: new THREE.Vector3(4.2, 2.6, 7.2),   tgt: new THREE.Vector3(0.2, 1.6, 0) },
+  cloud: { pos: new THREE.Vector3(10.6, 3.6, 8.4),  tgt: new THREE.Vector3(6.2, 1.6, -0.3) },
+  both:  { pos: new THREE.Vector3(3.6, 3.0, 13.5),  tgt: new THREE.Vector3(3.4, 1.6, 0) }
+};
+let goal = null;
+const buttons = document.querySelectorAll('[data-view]');
+buttons.forEach((btn) => {
+  btn.addEventListener('click', () => {
+    goal = views[btn.dataset.view];
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+  });
+});
+// A manual drag takes control back from the animated focus
+controls.addEventListener('start', () => { goal = null; });
+
+// ---------- Loop and resize ----------
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+renderer.setAnimationLoop(() => {
+  if (goal) {
+    camera.position.lerp(goal.pos, 0.06);
+    controls.target.lerp(goal.tgt, 0.06);
+    if (camera.position.distanceTo(goal.pos) < 0.01) goal = null;
+  }
+  controls.update();
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
