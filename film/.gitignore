@@ -4,3 +4,4 @@ out/preview/
 out/*.wav
 out/*.log
 __pycache__/
+out/*.log
