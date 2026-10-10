@@ -1,0 +1,18 @@
+.gradle/
+.kotlin/
+build/
+local.properties
+keystore.properties
+*.jks
+*.keystore
+!keystore/imlaq-debug.keystore
+.idea/
+*.iml
+.DS_Store
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Native build output and the staged engine binaries (built by scripts/build-native.sh, never committed)
+build-native/
+engine/host/src/main/jniLibs/**/*.so

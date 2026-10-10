@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">عملاق</string>
+
+    <string name="tab_models">النماذج</string>
+    <string name="tab_chat">المحادثة</string>
+    <string name="theme_light">الوضع الفاتح</string>
+    <string name="theme_dark">الوضع الداكن</string>
+
+    <!-- النماذج -->
+    <string name="models_title">النماذج</string>
+    <string name="models_subtitle">أضف أي نموذج، وشغّله بضغطة.</string>
+    <string name="add_from_phone">من جوالك</string>
+    <string name="add_from_internet">من الإنترنت</string>
+    <string name="models_transfers">ينزل الحين</string>
+    <string name="models_suggested">مقترحة</string>
+    <string name="models_installed">على جوالك</string>
+    <string name="models_installed_empty">ما عندك نماذج للحين. أضف واحد من فوق، أو اختر من المقترحة.</string>
+    <string name="size_gb">%1$s جيجا</string>
+
+    <string name="action_run">تشغيل</string>
+    <string name="action_stop">إيقاف</string>
+    <string name="action_download">تنزيل</string>
+    <string name="action_retry">حاول مرة ثانية</string>
+    <string name="action_delete">احذف</string>
+    <string name="action_keep">لا</string>
+    <string name="action_delete_model">حذف النموذج</string>
+
+    <string name="status_ready">جاهز</string>
+    <string name="status_loading">يجهّز…</string>
+    <string name="status_running">شغّال الحين</string>
+    <string name="status_failed">ما اشتغل: %1$s</string>
+    <string name="status_unsupported">محفوظ على جوالك — تشغيل هالنوع جاي في تحديث قادم</string>
+    <string name="status_projector">ملف رؤية مساعد — ما يشتغل لحاله، يرافق نموذجه النصي</string>
+    <string name="delete_confirm">تحذفه؟ يفضّي %1$s جيجا.</string>
+
+    <string name="fit_good">يناسب جوالك</string>
+    <string name="fit_slow">يشتغل، بس بطيء</string>
+    <string name="fit_no_space">يحتاج %1$s جيجا زيادة في التخزين</string>
+    <string name="fit_no_ram">يحتاج جوال رامه %1$d جيجا أو أكثر</string>
+    <string name="fit_in_ram">يدخل الرام كامل</string>
+    <string name="fit_streams">أكبر من الرام، يشتغل من التخزين</string>
+    <string name="download_progress">ينزل… %1$d٪ · %2$s من %3$s جيجا</string>
+    <string name="download_waiting">ينتظر الإنترنت…</string>
+    <string name="download_failed">ما كمل التنزيل: %1$s</string>
+
+    <!-- نوع النموذج -->
+    <string name="type_text">نص</string>
+    <string name="type_vision">نص + صور</string>
+    <string name="type_image">يرسم صور</string>
+    <string name="type_video">فيديو</string>
+    <string name="type_stt">صوت إلى نص</string>
+    <string name="type_tts">نص إلى صوت</string>
+    <string name="type_embedding">بحث وفهرسة</string>
+    <string name="type_unknown">نوع غير معروف</string>
+    <string name="type_soon">%1$s · قريبًا</string>
+
+    <!-- من الإنترنت -->
+    <string name="online_title">من الإنترنت</string>
+    <string name="online_back">رجوع</string>
+    <string name="online_search_hint">ابحث في Hugging Face…</string>
+    <string name="online_search">بحث</string>
+    <string name="online_link_label">عندك رابط مباشر لملف GGUF من أي موقع؟</string>
+    <string name="online_link_hint">الصق الرابط هنا…</string>
+    <string name="online_searching">يبحث…</string>
+    <string name="online_no_results">ما لقيت نماذج GGUF بهالاسم.</string>
+    <string name="online_loading_files">يجيب الملفات…</string>
+    <string name="online_no_files">ما فيه ملفات GGUF تشتغل في هذا المستودع.</string>
+    <string name="online_stats">%1$s تنزيل · %2$s إعجاب</string>
+    <string name="online_pick_hint">النسخ الأصغر أسرع وأخف، والأكبر أدق.</string>
+
+    <!-- المحادثة -->
+    <string name="chat_no_model_title">ما فيه نموذج شغّال</string>
+    <string name="chat_no_model_body">اختر نموذج من «النماذج» وشغّله، وارجع هنا.</string>
+    <string name="chat_go_models">النماذج</string>
+    <string name="chat_loading_title">يجهّز %1$s…</string>
+    <string name="chat_loading_body">أول تشغيل ياخذ دقيقة أو أكثر حسب حجم النموذج.</string>
+    <string name="chat_failed_title">ما اشتغل %1$s</string>
+    <string name="chat_empty_hint">اسأل %1$s أي شي.</string>
+    <string name="chat_new">محادثة جديدة</string>
+    <string name="chat_placeholder">اكتب سؤالك…</string>
+    <string name="chat_send">إرسال</string>
+    <string name="chat_stop">إيقاف الرد</string>
+    <string name="chat_thinking">يفكّر…</string>
+    <string name="chat_speed">%1$s توكن/ث</string>
+    <string name="chat_error">ما كمّل الرد: %1$s</string>
+</resources>

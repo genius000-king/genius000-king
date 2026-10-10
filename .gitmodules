@@ -1,0 +1,3 @@
+[submodule "imlaq/third_party/bigmoeonedge"]
+	path = imlaq/third_party/bigmoeonedge
+	url = https://github.com/Helldez/BigMoeOnEdge.git
