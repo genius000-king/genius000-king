@@ -5,17 +5,25 @@ Owners write only their paths. Cross-owner changes go through the coordinator.
 ## Autoloads (load order)
 `Settings` (core/settings.gd) → `Audio` (core/audio.gd) → `Story` (story/story.gd) → `Game` (core/game.gd) → `DevTools`.
 
-## Player (`scripts/player/player.gd`, class `Player`, owner: coordinator)
-- Nodes: `head` (Node3D) → `camera` (Camera3D) → `viewmodel_anchor` (Node3D at camera origin).
-- `add_shake(amount: float)` 0..1.5 · `look_dir() -> Vector3` · `extra_fov: float` (additive, for zoom/charge)
-- `gravity_scale: float` (Lift sets < 1) · `external_velocity: Vector3` (dash/knockback impulses, decays)
-- `input_locked`, `look_locked` (dialogue/cutscenes) · `velocity` (CharacterBody3D) · `teleport(pos, yaw)`
-- Touch UI writes: `move_input: Vector2` (x right, y back; −1..1), `look_input: Vector2` (pixels, accumulated),
-  `touch_sprint: bool`. Touch buttons should call `Input.action_press/action_release` for actions.
-- Signals: `footstep(surface, running)`, `landed(impact)`, `interact_target_changed(target)`.
+## Player = Blu the slime (`scripts/player/player.gd`, class `Player`, owner: coordinator)
+- Player is a CharacterBody3D (capsule r 0.38, h 0.8). Blu is ~0.75 m tall; the world is human-scaled around it.
+- Visual: `player.slime` (class `SlimeBody`, `scripts/player/slime_body.gd`, Node3D under `player.body_pivot`
+  which yaws toward movement/aim). SlimeBody API: `impulse_squash(amount: float)` (+ = squash flat, − = stretch
+  tall), `set_charge(ratio: float)` (core glow / body swell while gathering plasma), `set_mouth(open: float)`,
+  `emote(name: String)` ("happy","surprised","angry","sad","blink","determined"), `flash(color: Color)`,
+  anchors: `core_anchor` (Node3D at the glowing core, inside the body), `mouth_anchor` (front, where shots leave),
+  `ground_anchor` (bottom center), `eye_anchor`. Signal `wobble_peak`.
+- Camera rig: `player.camera` (Camera3D) on a SpringArm3D behind/above Blu (third person, default); first-person
+  mode (`Settings.first_person`) puts the camera at `eye_anchor`. `player.aim_point() -> Vector3` = world point
+  under the crosshair (ray from camera, 400 m max); `player.look_dir()` = camera forward; `add_shake(amount)`,
+  `extra_fov`, `hitstop(seconds)` (brief time freeze for impact frames).
+- Movement: `gravity_scale`, `external_velocity` (impulses), `input_locked`, `look_locked`, `teleport(pos, yaw)`,
+  touch fields `move_input`, `look_input`, `touch_sprint`. Signals `footstep(surface, running)` (each hop/squish),
+  `landed(impact)`, `jumped()`, `interact_target_changed(target)`.
 - Plug-ins auto-attached in `Player._ready()` when the script exists:
-  `res://scripts/weapons/weapon_system.gd` (child "Weapons", must have `setup(player: Player)`),
+  `res://scripts/weapons/weapon_system.gd` (child "Weapons", `setup(player)`),
   `res://scripts/weapons/ability_system.gd` (child "Abilities", `setup(player)`).
+  Weapons fire from `slime.mouth_anchor` toward `player.aim_point()`.
 
 ## Input actions (registered in Settings)
 move_forward/back/left/right, jump, sprint, crouch, interact, fire, alt_fire, weapon_next, weapon_prev,

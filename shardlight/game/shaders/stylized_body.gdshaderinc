@@ -7,7 +7,8 @@
 
 uniform vec4 tint : source_color = vec4(1.0);
 uniform float use_vertex_color : hint_range(0.0, 1.0) = 1.0;
-uniform float saturation : hint_range(0.0, 2.0) = 1.08;
+uniform float saturation : hint_range(0.0, 2.0) = 1.15;
+uniform float posterize : hint_range(0.0, 1.0) = 0.6;   // flattens baked gradients into painted color areas
 
 #ifdef SL_FOLIAGE
 instance uniform float sway_height = 4.0;
@@ -63,6 +64,11 @@ void vertex() {
 void fragment() {
 	vec3 vc = mix(vec3(1.0), COLOR.rgb, use_vertex_color);
 	vec3 albedo = vc * tint.rgb;
+	// posterize value (keep hue): baked gradients become flat comic color areas
+	float lum = max(max(albedo.r, albedo.g), albedo.b) + 1e-4;
+	float qlum = (floor(pow(lum, 0.6) * 5.0 + 0.5) / 5.0);
+	qlum = pow(max(qlum, 0.06), 1.0 / 0.6);
+	albedo = mix(albedo, albedo / lum * qlum, posterize);
 	float brush = sl_brush_sample(v_world_pos, v_world_normal);
 #ifdef SL_ROUGH
 	brush = mix(0.5, brush, 1.6);
@@ -85,14 +91,13 @@ void fragment() {
 	if (!FRONT_FACING) {
 		NORMAL = -NORMAL;
 	}
-	BACKLIGHT = translucency_color * translucency;
 #endif
 }
 
 void light() {
-	sl_light(NORMAL, LIGHT, VIEW, LIGHT_COLOR, ATTENUATION, LIGHT_IS_DIRECTIONAL, v_brush, ALBEDO, DIFFUSE_LIGHT, SPECULAR_LIGHT);
+	sl_light(NORMAL, LIGHT, VIEW, LIGHT_COLOR, ATTENUATION, LIGHT_IS_DIRECTIONAL, v_brush, ALBEDO, FRAGCOORD.xy, DIFFUSE_LIGHT, SPECULAR_LIGHT);
 #ifdef SL_FOLIAGE
 	float back = clamp(dot(-NORMAL, LIGHT), 0.0, 1.0);
-	DIFFUSE_LIGHT += LIGHT_COLOR / PI * translucency_color * back * translucency * ATTENUATION;
+	DIFFUSE_LIGHT += LIGHT_COLOR / PI * translucency_color * step(0.4, back) * translucency * 0.6 * step(0.5, ATTENUATION);
 #endif
 }

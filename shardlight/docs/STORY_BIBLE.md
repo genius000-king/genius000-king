@@ -27,6 +27,14 @@ Revelations are delivered through *environmental discovery* (echoes, objects, pl
 - Idris was at the core. His body was lost; his mind was imprinted into the Institute's prototype safety
   drone, which wakes with fragmented memory and the name tag **LUMEN**.
 
+## PROTAGONIST UPDATE (user direction): the player is **Blu**, a blue resonance slime (Specimen 7)
+Blu wakes in the crater, wearing a small blue cap it found in the debris (Rae's cap — foreshadowing). Blu cannot
+speak; it chirps, emotes with big comic eyes, and Lumen "translates". Blu's body stores the Loom's energy: it
+gathers plasma in its core and fires it. The final truth extends reveal R5/R6: at 04:17, Rae's pulled
+consciousness had nowhere to land — it poured into Specimen 7. **Blu is Rae.** Reveals that referred to
+"Rae finding her own grave" now read: *Blu* finds Rae's grave, and the slime's reaction (it knows the name, it
+cries) is the first hint. Rae appears in memory echoes and visions as a human (comic style).
+
 ## Main cast
 | Character | Role | Notes |
 |---|---|---|

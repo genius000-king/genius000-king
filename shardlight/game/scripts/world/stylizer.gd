@@ -11,7 +11,21 @@ const SHADERS := {
 	"TERRAIN": preload("res://shaders/stylized_terrain.gdshader"),
 }
 
+const OUTLINE := preload("res://shaders/outline.gdshader")
+
 static var _cache := {}
+static var _outline_mats := {}
+
+
+static func outline_material(width := 2.6) -> ShaderMaterial:
+	var key := str(width)
+	if not _outline_mats.has(key):
+		var m := ShaderMaterial.new()
+		m.shader = OUTLINE
+		m.set_shader_parameter("width_px", width)
+		m.render_priority = -1
+		_outline_mats[key] = m
+	return _outline_mats[key]
 static var _brush: Texture2D
 
 
@@ -67,6 +81,8 @@ static func material(kind: String, params: Dictionary = {}) -> ShaderMaterial:
 		m.set_shader_parameter(k, params[k])
 	if kind == "GLASS":
 		m.render_priority = 1
+	if kind in ["VC", "VC_ROUGH", "VC_FOLIAGE", "EMIT", "TERRAIN"] and Settings.outlines(kind):
+		m.next_pass = outline_material(1.6 if kind == "VC_FOLIAGE" else 2.4)
 	_cache[key] = m
 	return m
 

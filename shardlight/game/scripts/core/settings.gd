@@ -96,6 +96,18 @@ func shadows_size() -> int:
 	return [1024, 2048, 4096, 4096][quality]
 
 
+func outlines(kind: String) -> bool:
+	if kind == "TERRAIN":
+		return false   # terrain is inked by the screen-space pass (hulls on heightfields look bad)
+	if is_mobile() and kind == "VC_FOLIAGE":
+		return quality >= Quality.HIGH
+	return true
+
+
+func screen_ink() -> bool:
+	return quality >= Quality.MEDIUM
+
+
 func volumetric_fog() -> bool:
 	return quality >= Quality.HIGH and not is_mobile()
 

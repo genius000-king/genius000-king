@@ -53,10 +53,9 @@ void fragment() {
 	float brush = sl_brush_sample(v_world_pos, vec3(0.0, 1.0, 0.0));
 	v_brush = brush;
 	ALBEDO = sl_painterly_albedo(c, brush);
-	BACKLIGHT = tip * 0.35 * v_h;
 	ROUGHNESS = 0.85;
 	SPECULAR = 0.1;
 }
 void light() {
-	sl_light(NORMAL, LIGHT, VIEW, LIGHT_COLOR, ATTENUATION, LIGHT_IS_DIRECTIONAL, v_brush, ALBEDO, DIFFUSE_LIGHT, SPECULAR_LIGHT);
+	sl_light(NORMAL, LIGHT, VIEW, LIGHT_COLOR, ATTENUATION, LIGHT_IS_DIRECTIONAL, v_brush, ALBEDO, FRAGCOORD.xy, DIFFUSE_LIGHT, SPECULAR_LIGHT);
 }

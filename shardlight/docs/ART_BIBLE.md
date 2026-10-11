@@ -3,16 +3,24 @@
 Every model, shader and VFX in the game follows this file. If something here blocks good work, report it to the
 coordinator — do not silently diverge.
 
-## 1. Look
-- **Painterly stylized 3D.** Reference: `docs/refs/ref_char_front.jpg`, `ref_char_back.jpg`, `ref_cloud.jpg`,
-  and Slime Rancher's soft rounded, candy-saturated world.
-- Shapes: chunky, rounded, slightly exaggerated silhouettes; big readable forms first, then a few crisp details.
-  Avoid noisy micro-detail. Bevels and soft curves rather than hard boxes. Nothing should read as a default
-  primitive — every cube is beveled, tapered, leaned, or noise-displaced.
-- Lighting language (from the reference): **warm key** (peach/orange) and **cool violet shadow** (#6B5BD6 tint),
-  soft toon ramp, rim light, subtle brush-stroke breakup.
-- Color comes from **vertex colors** (painted/baked in Blender), not image textures. This keeps draw calls low on
-  Android and gives the painterly gradient look.
+## 1. Look — COMIC BOOK 3D, CEL SHADED (user direction, supersedes the earlier painterly look)
+Reference game: **Hi-Fi Rush**. The world must look like a living comic book.
+- **Cel shading**: hard light/shadow terminator, 2 tones per surface (lit / colored shadow), optional hard spec.
+  Shadows are hue-shifted (violet/blue), never grey. Screen-space **halftone dots** deepen shadows.
+- **Ink outlines** on everything: inverted-hull outlines per mesh + screen-space ink pass for interior lines.
+  Modeling must give the ink something to draw: clear silhouettes, crisp creases, separated shapes
+  (a leaf clump is a few big readable lobes, not hundreds of tiny triangles).
+- **Flat, rich, saturated color areas**. Color variation comes from *designed color blocking* (distinct parts
+  painted distinct flat colors, accent stripes, panel lines), not from noise or smooth gradients. Gradients
+  in vertex colors are posterized by the shader — so paint deliberate 2–3-step bands if you want variation.
+- **Cartoon proportions**: chunky, exaggerated, appealing. Big shapes; few but crisp details: bolts, seams,
+  rims, trims, stitches, cracks drawn as geometry or darker painted lines.
+- **Painted, not plastic**: never glossy-smooth blobs. Add drawn detail (painted line accents, cross-hatch
+  bands on undersides, highlight shapes painted as flat light color).
+- **Comic VFX**: speed lines, graphic star-burst explosions with outlines, flat-color smoke puffs with ink,
+  halftone dissolves, impact frames, onomatopoeia text (Arabic + English: «بووم!» KA-BOOM, «طَخ!» ZAP…),
+  colored energy auras. Every action has VFX: walking, landing, attacking, charging, abilities, pickups.
+- Reference images in docs/refs remain useful for color harmony only (warm key / cool violet shadow).
 
 ## 2. Units, axes, origin
 - 1 Blender unit = 1 meter. Blender Z-up; glTF exporter converts to Godot Y-up.
@@ -34,7 +42,7 @@ coordinator — do not silently diverge.
 Material base color in Blender should be white (vertex color carries the color). Use as few materials per asset as
 possible (ideally 1–2).
 
-## 4. Vertex color painting
+## 4. Vertex color painting (comic: paint flat color *blocks*; `bake_ao` strength ≤ 0.2 or skip)
 Use `art/lib/sl_common.py`:
 - `paint_gradient(obj, bottom, top, noise=…)` — height gradient + hue/value jitter.
 - `paint_faces(obj, fn)` — per-face color by rule.

@@ -75,6 +75,7 @@ func _ready() -> void:
 	camera.far = 3000.0
 	camera.current = true
 	head.add_child(camera)
+	ComicPost.attach(camera)
 	viewmodel_anchor = Node3D.new()
 	viewmodel_anchor.name = "ViewmodelAnchor"
 	camera.add_child(viewmodel_anchor)
