@@ -1,0 +1,1392 @@
+{
+ "pack": "terrain_features",
+ "assets": [
+  {
+   "id": "verdant_rock_river_a",
+   "file": "verdant_rock_river_a.glb",
+   "category": "rock",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.496,
+   "radius": 0.551,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 1.4,
+    "slope_max": 40,
+    "min_spacing": 2.0,
+    "cluster": 0.5,
+    "zone": "meadow"
+   },
+   "tris": 320,
+   "family": "boulder",
+   "size_class": "small"
+  },
+  {
+   "id": "verdant_rock_river_b",
+   "file": "verdant_rock_river_b.glb",
+   "category": "rock",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 2.249,
+   "radius": 2.984,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.12,
+    "slope_max": 25,
+    "min_spacing": 14,
+    "cluster": 0.2,
+    "zone": "shore"
+   },
+   "tris": 480,
+   "family": "boulder",
+   "size_class": "large"
+  },
+  {
+   "id": "amber_rock_river_a",
+   "file": "amber_rock_river_a.glb",
+   "category": "rock",
+   "worlds": [
+    "amber"
+   ],
+   "height": 0.667,
+   "radius": 0.893,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.8,
+    "slope_max": 40,
+    "min_spacing": 3,
+    "cluster": 0.5,
+    "zone": "shore"
+   },
+   "tris": 480,
+   "family": "boulder",
+   "size_class": "small"
+  },
+  {
+   "id": "glass_rock_river_a",
+   "file": "glass_rock_river_a.glb",
+   "category": "rock",
+   "worlds": [
+    "glass"
+   ],
+   "height": 0.993,
+   "radius": 1.083,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.5,
+    "slope_max": 40,
+    "min_spacing": 4,
+    "cluster": 0.5,
+    "zone": "any"
+   },
+   "tris": 320,
+   "family": "boulder",
+   "size_class": "medium"
+  },
+  {
+   "id": "hub_rock_river_a",
+   "file": "hub_rock_river_a.glb",
+   "category": "rock",
+   "worlds": [
+    "hub"
+   ],
+   "height": 0.8,
+   "radius": 1.0,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.8,
+    "slope_max": 40,
+    "min_spacing": 3,
+    "cluster": 0.5,
+    "zone": "any"
+   },
+   "tris": 480,
+   "family": "boulder",
+   "size_class": "small"
+  },
+  {
+   "id": "verdant_rock_chunk_a",
+   "file": "verdant_rock_chunk_a.glb",
+   "category": "rock",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.828,
+   "radius": 1.134,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 1.0,
+    "slope_max": 40,
+    "min_spacing": 3,
+    "cluster": 0.5,
+    "zone": "any"
+   },
+   "tris": 480,
+   "family": "boulder",
+   "size_class": "medium"
+  },
+  {
+   "id": "verdant_rock_chunk_b",
+   "file": "verdant_rock_chunk_b.glb",
+   "category": "rock",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 3.185,
+   "radius": 2.858,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.1,
+    "slope_max": 45,
+    "min_spacing": 16,
+    "cluster": 0.2,
+    "zone": "cliff"
+   },
+   "tris": 480,
+   "family": "boulder",
+   "size_class": "large"
+  },
+  {
+   "id": "amber_rock_chunk_a",
+   "file": "amber_rock_chunk_a.glb",
+   "category": "rock",
+   "worlds": [
+    "amber"
+   ],
+   "height": 1.054,
+   "radius": 1.346,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 1.0,
+    "slope_max": 40,
+    "min_spacing": 3,
+    "cluster": 0.5,
+    "zone": "any"
+   },
+   "tris": 480,
+   "family": "boulder",
+   "size_class": "medium"
+  },
+  {
+   "id": "amber_rock_chunk_b",
+   "file": "amber_rock_chunk_b.glb",
+   "category": "rock",
+   "worlds": [
+    "amber"
+   ],
+   "height": 3.122,
+   "radius": 3.058,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.1,
+    "slope_max": 45,
+    "min_spacing": 16,
+    "cluster": 0.2,
+    "zone": "cliff"
+   },
+   "tris": 480,
+   "family": "boulder",
+   "size_class": "large"
+  },
+  {
+   "id": "ember_rock_chunk_a",
+   "file": "ember_rock_chunk_a.glb",
+   "category": "rock",
+   "worlds": [
+    "ember"
+   ],
+   "height": 0.922,
+   "radius": 1.263,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 1.2,
+    "slope_max": 40,
+    "min_spacing": 3,
+    "cluster": 0.5,
+    "zone": "any"
+   },
+   "tris": 480,
+   "family": "boulder",
+   "size_class": "medium"
+  },
+  {
+   "id": "ember_rock_chunk_b",
+   "file": "ember_rock_chunk_b.glb",
+   "category": "rock",
+   "worlds": [
+    "ember"
+   ],
+   "height": 3.928,
+   "radius": 4.146,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.1,
+    "slope_max": 45,
+    "min_spacing": 16,
+    "cluster": 0.2,
+    "zone": "cliff"
+   },
+   "tris": 480,
+   "family": "boulder",
+   "size_class": "large"
+  },
+  {
+   "id": "glass_rock_chunk_a",
+   "file": "glass_rock_chunk_a.glb",
+   "category": "rock",
+   "worlds": [
+    "glass"
+   ],
+   "height": 1.242,
+   "radius": 1.103,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.8,
+    "slope_max": 40,
+    "min_spacing": 3,
+    "cluster": 0.5,
+    "zone": "any"
+   },
+   "tris": 480,
+   "family": "boulder",
+   "size_class": "medium"
+  },
+  {
+   "id": "hub_rock_chunk_a",
+   "file": "hub_rock_chunk_a.glb",
+   "category": "rock",
+   "worlds": [
+    "hub"
+   ],
+   "height": 1.246,
+   "radius": 1.182,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.8,
+    "slope_max": 40,
+    "min_spacing": 3,
+    "cluster": 0.5,
+    "zone": "any"
+   },
+   "tris": 480,
+   "family": "boulder",
+   "size_class": "medium"
+  },
+  {
+   "id": "verdant_rock_menhir_a",
+   "file": "verdant_rock_menhir_a.glb",
+   "category": "rock",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 4.363,
+   "radius": 1.311,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.06,
+    "slope_max": 20,
+    "min_spacing": 20,
+    "cluster": 0.1,
+    "zone": "meadow"
+   },
+   "tris": 556,
+   "family": "boulder",
+   "size_class": "tall"
+  },
+  {
+   "id": "amber_rock_menhir_a",
+   "file": "amber_rock_menhir_a.glb",
+   "category": "rock",
+   "worlds": [
+    "amber"
+   ],
+   "height": 5.632,
+   "radius": 1.723,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.06,
+    "slope_max": 20,
+    "min_spacing": 20,
+    "cluster": 0.1,
+    "zone": "any"
+   },
+   "tris": 586,
+   "family": "boulder",
+   "size_class": "tall"
+  },
+  {
+   "id": "ember_rock_menhir_a",
+   "file": "ember_rock_menhir_a.glb",
+   "category": "rock",
+   "worlds": [
+    "ember"
+   ],
+   "height": 4.937,
+   "radius": 1.359,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.06,
+    "slope_max": 20,
+    "min_spacing": 20,
+    "cluster": 0.1,
+    "zone": "any"
+   },
+   "tris": 496,
+   "family": "boulder",
+   "size_class": "tall"
+  },
+  {
+   "id": "glass_rock_menhir_a",
+   "file": "glass_rock_menhir_a.glb",
+   "category": "rock",
+   "worlds": [
+    "glass"
+   ],
+   "height": 4.023,
+   "radius": 1.434,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.06,
+    "slope_max": 20,
+    "min_spacing": 20,
+    "cluster": 0.1,
+    "zone": "any"
+   },
+   "tris": 526,
+   "family": "boulder",
+   "size_class": "tall"
+  },
+  {
+   "id": "hub_rock_menhir_a",
+   "file": "hub_rock_menhir_a.glb",
+   "category": "rock",
+   "worlds": [
+    "hub"
+   ],
+   "height": 3.74,
+   "radius": 1.137,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.05,
+    "slope_max": 20,
+    "min_spacing": 20,
+    "cluster": 0.1,
+    "zone": "any"
+   },
+   "tris": 640,
+   "family": "boulder",
+   "size_class": "tall"
+  },
+  {
+   "id": "verdant_rock_cairn_a",
+   "file": "verdant_rock_cairn_a.glb",
+   "category": "rock",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.967,
+   "radius": 0.49,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.3,
+    "slope_max": 20,
+    "min_spacing": 12,
+    "cluster": 0.1,
+    "zone": "meadow"
+   },
+   "tris": 880,
+   "family": "boulder",
+   "size_class": "small"
+  },
+  {
+   "id": "amber_rock_cairn_a",
+   "file": "amber_rock_cairn_a.glb",
+   "category": "rock",
+   "worlds": [
+    "amber"
+   ],
+   "height": 1.587,
+   "radius": 0.681,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.25,
+    "slope_max": 20,
+    "min_spacing": 14,
+    "cluster": 0.1,
+    "zone": "any"
+   },
+   "tris": 960,
+   "family": "boulder",
+   "size_class": "medium"
+  },
+  {
+   "id": "glass_rock_cairn_a",
+   "file": "glass_rock_cairn_a.glb",
+   "category": "rock",
+   "worlds": [
+    "glass"
+   ],
+   "height": 1.065,
+   "radius": 0.601,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.25,
+    "slope_max": 20,
+    "min_spacing": 14,
+    "cluster": 0.1,
+    "zone": "any"
+   },
+   "tris": 800,
+   "family": "boulder",
+   "size_class": "small"
+  },
+  {
+   "id": "hub_rock_cairn_a",
+   "file": "hub_rock_cairn_a.glb",
+   "category": "rock",
+   "worlds": [
+    "hub"
+   ],
+   "height": 1.159,
+   "radius": 0.6,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.25,
+    "slope_max": 20,
+    "min_spacing": 14,
+    "cluster": 0.1,
+    "zone": "any"
+   },
+   "tris": 880,
+   "family": "boulder",
+   "size_class": "small"
+  },
+  {
+   "id": "verdant_rock_slab_a",
+   "file": "verdant_rock_slab_a.glb",
+   "category": "rock",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.705,
+   "radius": 2.126,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.5,
+    "slope_max": 20,
+    "min_spacing": 5,
+    "cluster": 0.5,
+    "zone": "meadow"
+   },
+   "tris": 480,
+   "family": "boulder",
+   "size_class": "medium"
+  },
+  {
+   "id": "amber_rock_slab_a",
+   "file": "amber_rock_slab_a.glb",
+   "category": "rock",
+   "worlds": [
+    "amber"
+   ],
+   "height": 0.85,
+   "radius": 2.996,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.4,
+    "slope_max": 20,
+    "min_spacing": 6,
+    "cluster": 0.5,
+    "zone": "any"
+   },
+   "tris": 480,
+   "family": "boulder",
+   "size_class": "large"
+  },
+  {
+   "id": "ember_rock_slab_a",
+   "file": "ember_rock_slab_a.glb",
+   "category": "rock",
+   "worlds": [
+    "ember"
+   ],
+   "height": 0.801,
+   "radius": 2.429,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.5,
+    "slope_max": 20,
+    "min_spacing": 5,
+    "cluster": 0.5,
+    "zone": "any"
+   },
+   "tris": 480,
+   "family": "boulder",
+   "size_class": "medium"
+  },
+  {
+   "id": "glass_rock_slab_a",
+   "file": "glass_rock_slab_a.glb",
+   "category": "rock",
+   "worlds": [
+    "glass"
+   ],
+   "height": 0.748,
+   "radius": 2.381,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.4,
+    "slope_max": 20,
+    "min_spacing": 5,
+    "cluster": 0.5,
+    "zone": "any"
+   },
+   "tris": 480,
+   "family": "boulder",
+   "size_class": "medium"
+  },
+  {
+   "id": "hub_rock_slab_a",
+   "file": "hub_rock_slab_a.glb",
+   "category": "rock",
+   "worlds": [
+    "hub"
+   ],
+   "height": 0.696,
+   "radius": 2.198,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.4,
+    "slope_max": 20,
+    "min_spacing": 5,
+    "cluster": 0.5,
+    "zone": "plaza"
+   },
+   "tris": 480,
+   "family": "boulder",
+   "size_class": "medium"
+  },
+  {
+   "id": "verdant_cliff_wall_a",
+   "file": "verdant_cliff_wall_a.glb",
+   "category": "cliff",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 12.613,
+   "radius": 7.0,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 4804,
+   "family": "cliff",
+   "modular": {
+    "axis": "x",
+    "width": 14,
+    "depth": 6,
+    "front": "-Y",
+    "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+   }
+  },
+  {
+   "id": "verdant_cliff_wall_b",
+   "file": "verdant_cliff_wall_b.glb",
+   "category": "cliff",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 21.762,
+   "radius": 8.035,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 7204,
+   "family": "cliff",
+   "modular": {
+    "axis": "x",
+    "width": 16,
+    "depth": 7,
+    "front": "-Y",
+    "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+   }
+  },
+  {
+   "id": "verdant_cliff_wall_c",
+   "file": "verdant_cliff_wall_c.glb",
+   "category": "cliff",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 8.0,
+   "radius": 6.0,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 3912,
+   "family": "cliff",
+   "modular": {
+    "axis": "x",
+    "width": 12,
+    "depth": 6,
+    "front": "-Y",
+    "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+   }
+  },
+  {
+   "id": "amber_cliff_strata_a",
+   "file": "amber_cliff_strata_a.glb",
+   "category": "cliff",
+   "worlds": [
+    "amber"
+   ],
+   "height": 11.168,
+   "radius": 7.0,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 4624,
+   "family": "cliff",
+   "modular": {
+    "axis": "x",
+    "width": 14,
+    "depth": 6,
+    "front": "-Y",
+    "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+   }
+  },
+  {
+   "id": "amber_cliff_strata_b",
+   "file": "amber_cliff_strata_b.glb",
+   "category": "cliff",
+   "worlds": [
+    "amber"
+   ],
+   "height": 19.578,
+   "radius": 8.0,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 7216,
+   "family": "cliff",
+   "modular": {
+    "axis": "x",
+    "width": 16,
+    "depth": 7,
+    "front": "-Y",
+    "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+   }
+  },
+  {
+   "id": "amber_cliff_strata_c",
+   "file": "amber_cliff_strata_c.glb",
+   "category": "cliff",
+   "worlds": [
+    "amber"
+   ],
+   "height": 7.623,
+   "radius": 6.0,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 3608,
+   "family": "cliff",
+   "modular": {
+    "axis": "x",
+    "width": 12,
+    "depth": 6,
+    "front": "-Y",
+    "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+   }
+  },
+  {
+   "id": "ember_cliff_basalt_a",
+   "file": "ember_cliff_basalt_a.glb",
+   "category": "cliff",
+   "worlds": [
+    "ember"
+   ],
+   "height": 10.148,
+   "radius": 6.573,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 2904,
+   "family": "cliff",
+   "modular": {
+    "axis": "x",
+    "width": 13,
+    "depth": 6,
+    "front": "-Y",
+    "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+   }
+  },
+  {
+   "id": "ember_cliff_basalt_b",
+   "file": "ember_cliff_basalt_b.glb",
+   "category": "cliff",
+   "worlds": [
+    "ember"
+   ],
+   "height": 17.614,
+   "radius": 7.611,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 2360,
+   "family": "cliff",
+   "modular": {
+    "axis": "x",
+    "width": 15,
+    "depth": 6.5,
+    "front": "-Y",
+    "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+   }
+  },
+  {
+   "id": "ember_cliff_basalt_c",
+   "file": "ember_cliff_basalt_c.glb",
+   "category": "cliff",
+   "worlds": [
+    "ember"
+   ],
+   "height": 12.117,
+   "radius": 5.894,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 2360,
+   "family": "cliff",
+   "modular": {
+    "axis": "x",
+    "width": 12,
+    "depth": 5,
+    "front": "-Y",
+    "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+   }
+  },
+  {
+   "id": "glass_cliff_ice_a",
+   "file": "glass_cliff_ice_a.glb",
+   "category": "cliff",
+   "worlds": [
+    "glass"
+   ],
+   "height": 11.749,
+   "radius": 7.0,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 4672,
+   "family": "cliff",
+   "modular": {
+    "axis": "x",
+    "width": 14,
+    "depth": 6,
+    "front": "-Y",
+    "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+   }
+  },
+  {
+   "id": "glass_cliff_ice_b",
+   "file": "glass_cliff_ice_b.glb",
+   "category": "cliff",
+   "worlds": [
+    "glass"
+   ],
+   "height": 20.706,
+   "radius": 8.0,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 6970,
+   "family": "cliff",
+   "modular": {
+    "axis": "x",
+    "width": 16,
+    "depth": 7,
+    "front": "-Y",
+    "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+   }
+  },
+  {
+   "id": "glass_cliff_ice_c",
+   "file": "glass_cliff_ice_c.glb",
+   "category": "cliff",
+   "worlds": [
+    "glass"
+   ],
+   "height": 8.515,
+   "radius": 6.0,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 3837,
+   "family": "cliff",
+   "modular": {
+    "axis": "x",
+    "width": 12,
+    "depth": 6,
+    "front": "-Y",
+    "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+   }
+  },
+  {
+   "id": "verdant_arch_natural_a",
+   "file": "verdant_arch_natural_a.glb",
+   "category": "arch",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 9.229,
+   "radius": 8.124,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 2440,
+   "family": "arch",
+   "clear_span": 6.0,
+   "walk_under": true
+  },
+  {
+   "id": "verdant_arch_natural_b",
+   "file": "verdant_arch_natural_b.glb",
+   "category": "arch",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 13.968,
+   "radius": 10.44,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 2440,
+   "family": "arch",
+   "clear_span": 9.0,
+   "walk_under": true
+  },
+  {
+   "id": "amber_arch_sandstone_a",
+   "file": "amber_arch_sandstone_a.glb",
+   "category": "arch",
+   "worlds": [
+    "amber"
+   ],
+   "height": 10.831,
+   "radius": 7.656,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 2440,
+   "family": "arch",
+   "clear_span": 7.0,
+   "walk_under": true
+  },
+  {
+   "id": "amber_arch_sandstone_b",
+   "file": "amber_arch_sandstone_b.glb",
+   "category": "arch",
+   "worlds": [
+    "amber"
+   ],
+   "height": 15.551,
+   "radius": 10.361,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 2440,
+   "family": "arch",
+   "clear_span": 11.0,
+   "walk_under": true
+  },
+  {
+   "id": "glass_arch_ice_a",
+   "file": "glass_arch_ice_a.glb",
+   "category": "arch",
+   "worlds": [
+    "glass"
+   ],
+   "height": 8.758,
+   "radius": 7.99,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 2440,
+   "family": "arch",
+   "clear_span": 6.5,
+   "walk_under": true
+  },
+  {
+   "id": "amber_pillar_hoodoo_a",
+   "file": "amber_pillar_hoodoo_a.glb",
+   "category": "pillar",
+   "worlds": [
+    "amber"
+   ],
+   "height": 8.52,
+   "radius": 3.263,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 764,
+   "family": "pillar"
+  },
+  {
+   "id": "amber_pillar_hoodoo_b",
+   "file": "amber_pillar_hoodoo_b.glb",
+   "category": "pillar",
+   "worlds": [
+    "amber"
+   ],
+   "height": 12.583,
+   "radius": 2.629,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 932,
+   "family": "pillar"
+  },
+  {
+   "id": "amber_pillar_hoodoo_c",
+   "file": "amber_pillar_hoodoo_c.glb",
+   "category": "pillar",
+   "worlds": [
+    "amber"
+   ],
+   "height": 6.453,
+   "radius": 2.164,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 596,
+   "family": "pillar"
+  },
+  {
+   "id": "verdant_pillar_balanced_a",
+   "file": "verdant_pillar_balanced_a.glb",
+   "category": "pillar",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 7.095,
+   "radius": 3.232,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 1776,
+   "family": "pillar"
+  },
+  {
+   "id": "amber_pillar_balanced_a",
+   "file": "amber_pillar_balanced_a.glb",
+   "category": "pillar",
+   "worlds": [
+    "amber"
+   ],
+   "height": 9.657,
+   "radius": 4.472,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 1776,
+   "family": "pillar"
+  },
+  {
+   "id": "ember_pillar_organ_a",
+   "file": "ember_pillar_organ_a.glb",
+   "category": "pillar",
+   "worlds": [
+    "ember"
+   ],
+   "height": 13.135,
+   "radius": 9.187,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 3200,
+   "family": "pillar"
+  },
+  {
+   "id": "ember_pillar_organ_b",
+   "file": "ember_pillar_organ_b.glb",
+   "category": "pillar",
+   "worlds": [
+    "ember"
+   ],
+   "height": 14.66,
+   "radius": 7.823,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 2320,
+   "family": "pillar"
+  },
+  {
+   "id": "amber_crystal_cluster_a",
+   "file": "amber_crystal_cluster_a.glb",
+   "category": "crystal",
+   "worlds": [
+    "amber"
+   ],
+   "height": 2.033,
+   "radius": 1.161,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.5,
+    "slope_max": 35,
+    "min_spacing": 6,
+    "cluster": 0.5,
+    "zone": "cave"
+   },
+   "tris": 1092,
+   "family": "crystal",
+   "size_class": "small",
+   "emit_color": "#7DF9E0"
+  },
+  {
+   "id": "amber_crystal_cluster_b",
+   "file": "amber_crystal_cluster_b.glb",
+   "category": "crystal",
+   "worlds": [
+    "amber"
+   ],
+   "height": 1.426,
+   "radius": 1.066,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.5,
+    "slope_max": 35,
+    "min_spacing": 6,
+    "cluster": 0.5,
+    "zone": "any"
+   },
+   "tris": 1284,
+   "family": "crystal",
+   "size_class": "small",
+   "emit_color": "#FFE0A8"
+  },
+  {
+   "id": "amber_crystal_landmark",
+   "file": "amber_crystal_landmark.glb",
+   "category": "crystal",
+   "worlds": [
+    "amber"
+   ],
+   "height": 11.882,
+   "radius": 7.281,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": null,
+   "tris": 1852,
+   "family": "crystal",
+   "size_class": "landmark",
+   "emit_color": "#7DF9E0"
+  },
+  {
+   "id": "glass_crystal_cluster_a",
+   "file": "glass_crystal_cluster_a.glb",
+   "category": "crystal",
+   "worlds": [
+    "glass"
+   ],
+   "height": 2.618,
+   "radius": 1.498,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.4,
+    "slope_max": 35,
+    "min_spacing": 7,
+    "cluster": 0.4,
+    "zone": "any"
+   },
+   "tris": 1148,
+   "family": "crystal",
+   "size_class": "medium",
+   "emit_color": "#C9B6FF"
+  },
+  {
+   "id": "glass_crystal_cluster_b",
+   "file": "glass_crystal_cluster_b.glb",
+   "category": "crystal",
+   "worlds": [
+    "glass"
+   ],
+   "height": 4.157,
+   "radius": 1.479,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.3,
+    "slope_max": 35,
+    "min_spacing": 8,
+    "cluster": 0.4,
+    "zone": "any"
+   },
+   "tris": 1024,
+   "family": "crystal",
+   "size_class": "medium",
+   "emit_color": "#BDEBFF"
+  },
+  {
+   "id": "glass_crystal_landmark",
+   "file": "glass_crystal_landmark.glb",
+   "category": "crystal",
+   "worlds": [
+    "glass"
+   ],
+   "height": 11.654,
+   "radius": 6.903,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": null,
+   "tris": 1796,
+   "family": "crystal",
+   "size_class": "landmark",
+   "emit_color": "#C9B6FF"
+  },
+  {
+   "id": "hollow_crystal_cluster_a",
+   "file": "hollow_crystal_cluster_a.glb",
+   "category": "crystal",
+   "worlds": [
+    "hollow"
+   ],
+   "height": 1.687,
+   "radius": 1.068,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.8,
+    "slope_max": 35,
+    "min_spacing": 5,
+    "cluster": 0.6,
+    "zone": "cave"
+   },
+   "tris": 1124,
+   "family": "crystal",
+   "size_class": "small",
+   "emit_color": "#3DFFD8"
+  },
+  {
+   "id": "hollow_crystal_cluster_b",
+   "file": "hollow_crystal_cluster_b.glb",
+   "category": "crystal",
+   "worlds": [
+    "hollow"
+   ],
+   "height": 1.455,
+   "radius": 1.088,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.6,
+    "slope_max": 35,
+    "min_spacing": 5,
+    "cluster": 0.6,
+    "zone": "cave"
+   },
+   "tris": 1024,
+   "family": "crystal",
+   "size_class": "small",
+   "emit_color": "#FF8AD8"
+  },
+  {
+   "id": "hollow_crystal_cluster_c",
+   "file": "hollow_crystal_cluster_c.glb",
+   "category": "crystal",
+   "worlds": [
+    "hollow"
+   ],
+   "height": 5.1,
+   "radius": 3.303,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": null,
+   "tris": 1488,
+   "family": "crystal",
+   "size_class": "large",
+   "emit_color": "#3DFFD8"
+  },
+  {
+   "id": "hub_crystal_cluster_a",
+   "file": "hub_crystal_cluster_a.glb",
+   "category": "crystal",
+   "worlds": [
+    "hub"
+   ],
+   "height": 2.37,
+   "radius": 1.363,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.3,
+    "slope_max": 35,
+    "min_spacing": 8,
+    "cluster": 0.4,
+    "zone": "any"
+   },
+   "tris": 1092,
+   "family": "crystal",
+   "size_class": "medium",
+   "emit_color": "#9D6BFF"
+  },
+  {
+   "id": "hub_crystal_cluster_b",
+   "file": "hub_crystal_cluster_b.glb",
+   "category": "crystal",
+   "worlds": [
+    "hub"
+   ],
+   "height": 6.62,
+   "radius": 3.729,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": null,
+   "tris": 1420,
+   "family": "crystal",
+   "size_class": "large",
+   "emit_color": "#9D6BFF"
+  },
+  {
+   "id": "ember_crystal_cluster_a",
+   "file": "ember_crystal_cluster_a.glb",
+   "category": "crystal",
+   "worlds": [
+    "ember"
+   ],
+   "height": 2.278,
+   "radius": 1.268,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.4,
+    "slope_max": 35,
+    "min_spacing": 7,
+    "cluster": 0.4,
+    "zone": "any"
+   },
+   "tris": 1148,
+   "family": "crystal",
+   "size_class": "medium",
+   "emit_color": "#FFC23D"
+  },
+  {
+   "id": "verdant_crystal_cluster_a",
+   "file": "verdant_crystal_cluster_a.glb",
+   "category": "crystal",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 1.479,
+   "radius": 1.048,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.3,
+    "slope_max": 35,
+    "min_spacing": 8,
+    "cluster": 0.4,
+    "zone": "cave"
+   },
+   "tris": 1104,
+   "family": "crystal",
+   "size_class": "small",
+   "emit_color": "#7AE7FF"
+  }
+ ]
+}
