@@ -59,6 +59,19 @@ func _ready() -> void:
 		add_child(content)
 		if content.has_method("setup"):
 			content.setup(self)
+	# UI plug-ins
+	if ResourceLoader.exists("res://scripts/ui/hud.gd"):
+		var hud = (load("res://scripts/ui/hud.gd") as GDScript).new()
+		hud.name = "HUD"
+		add_child(hud)
+		if hud.has_method("setup"):
+			hud.setup(self)
+	if ResourceLoader.exists("res://scripts/ui/touch_controls.gd") and (Settings.is_mobile() or DevTools.args.has("touch")):
+		var tc = (load("res://scripts/ui/touch_controls.gd") as GDScript).new()
+		tc.name = "Touch"
+		add_child(tc)
+		if tc.has_method("setup"):
+			tc.setup(player)
 	_show_loading()
 	Audio.music(def.get("music", ""))
 	Audio.ambience(def.get("ambience", ""))

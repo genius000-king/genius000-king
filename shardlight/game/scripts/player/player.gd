@@ -86,8 +86,22 @@ func _ready() -> void:
 	fov_target = Settings.fov
 	yaw = rotation.y
 	Game.player = self
+	if not Game.state.has("health"):
+		Game.state["health"] = 100.0
+	_attach_plugin("res://scripts/weapons/weapon_system.gd", "Weapons")
+	_attach_plugin("res://scripts/weapons/ability_system.gd", "Abilities")
 	if not Settings.is_mobile():
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+func _attach_plugin(path: String, node_name: String) -> void:
+	if not ResourceLoader.exists(path):
+		return
+	var n = (load(path) as GDScript).new()
+	n.name = node_name
+	add_child(n)
+	if n.has_method("setup"):
+		n.setup(self)
 
 
 func set_world_gravity(g: float) -> void:
