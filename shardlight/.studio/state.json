@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "revision": 0,
+  "updated_at": "2026-10-11T13:12:26.022980+00:00",
+  "project": {
+    "name": "shardlight",
+    "kind": "game",
+    "idea_file": ".studio/IDEA.md",
+    "execution_mode": "unselected",
+    "status": "planning"
+  },
+  "requirements": [],
+  "tasks": [],
+  "decisions": [],
+  "capabilities": {},
+  "budget": {
+    "currency": null,
+    "authorized_cap": null,
+    "actual_spent": null,
+    "outstanding_reserved": null,
+    "enforcement": "not_implemented_by_helper"
+  }
+}

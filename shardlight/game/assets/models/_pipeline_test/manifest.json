@@ -1,0 +1,49 @@
+{
+ "pack": "_pipeline_test",
+ "assets": [
+  {
+   "id": "verdant_tree_test",
+   "file": "verdant_tree_test.glb",
+   "category": "tree",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 7.971,
+   "radius": 2.76,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.45,
+    "height": 4.5
+   },
+   "scatter": {
+    "density": 1,
+    "slope_max": 25,
+    "min_spacing": 6,
+    "cluster": 0.4,
+    "zone": "meadow"
+   },
+   "tris": 1456
+  },
+  {
+   "id": "verdant_rock_test",
+   "file": "verdant_rock_test.glb",
+   "category": "rock",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 1.289,
+   "radius": 1.297,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 1,
+    "slope_max": 40,
+    "min_spacing": 3,
+    "cluster": 0.6,
+    "zone": "any"
+   },
+   "tris": 80
+  }
+ ]
+}

@@ -1,0 +1,63 @@
+; Engine configuration file.
+; Shardlight — Godot 4.7.2
+
+config_version=5
+
+[application]
+
+config/name="Shardlight"
+config/description="Open-world first-person mystery adventure across a shattered world."
+config/version="0.1.0"
+run/main_scene="res://scenes/boot.tscn"
+config/features=PackedStringArray("4.7", "Forward Plus")
+config/icon="res://icon.svg"
+boot_splash/bg_color=Color(0.06, 0.05, 0.1, 1)
+boot_splash/show_image=false
+
+[autoload]
+
+Game="*res://scripts/core/game.gd"
+Audio="*res://scripts/core/audio.gd"
+Story="*res://scripts/story/story.gd"
+Settings="*res://scripts/core/settings.gd"
+
+[display]
+
+window/size/viewport_width=1600
+window/size/viewport_height=900
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=4
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=false
+
+[internationalization]
+
+locale/translations=PackedStringArray()
+
+[layer_names]
+
+3d_physics/layer_1="world"
+3d_physics/layer_2="player"
+3d_physics/layer_3="enemy"
+3d_physics/layer_4="projectile"
+3d_physics/layer_5="interact"
+3d_physics/layer_6="water"
+
+[physics]
+
+common/physics_ticks_per_second=60
+3d/physics_engine="Jolt Physics"
+
+[rendering]
+
+renderer/rendering_method="forward_plus"
+renderer/rendering_method.mobile="mobile"
+textures/vram_compression/import_etc2_astc=true
+anti_aliasing/quality/msaa_3d=0
+anti_aliasing/quality/screen_space_aa=1
+lights_and_shadows/directional_shadow/size=4096
+lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3
+environment/defaults/default_clear_color=Color(0.45, 0.6, 0.9, 1)
