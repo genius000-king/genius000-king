@@ -2,6 +2,997 @@
  "pack": "architecture",
  "assets": [
   {
+   "id": "common_town_bakery",
+   "file": "common_town_bakery.glb",
+   "category": "building",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 8.273,
+   "radius": 3.734,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 3760,
+   "bbox_blender": {
+    "min": [
+     -3.453,
+     -3.677,
+     -0.023
+    ],
+    "max": [
+     4.015,
+     3.007,
+     8.25
+    ]
+   },
+   "note": "bakery with huge chimney (smoke puffs are part of the mesh), closed door",
+   "roof": "rose"
+  },
+  {
+   "id": "common_town_bench",
+   "file": "common_town_bench.glb",
+   "category": "town_prop",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 1.08,
+   "radius": 0.848,
+   "collision": {
+    "type": "box",
+    "size": [
+     1.696,
+     1.08,
+     0.718
+    ]
+   },
+   "scatter": null,
+   "tris": 1108,
+   "bbox_blender": {
+    "min": [
+     -0.851,
+     -0.32,
+     -0.0
+    ],
+    "max": [
+     0.845,
+     0.397,
+     1.08
+    ]
+   },
+   "note": "seat faces Blender -Y (Godot +Z)"
+  },
+  {
+   "id": "common_town_bridge",
+   "file": "common_town_bridge.glb",
+   "category": "town_prop",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 3.086,
+   "radius": 5.807,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 4800,
+   "bbox_blender": {
+    "min": [
+     -5.807,
+     -1.755,
+     -0.166
+    ],
+    "max": [
+     5.807,
+     1.756,
+     2.92
+    ]
+   },
+   "note": "humpback wooden bridge along X: ends at z~0.3, crest z~1.8; width 3 m, length ~10 m (+1 m abutments each side)",
+   "walkable": true
+  },
+  {
+   "id": "common_town_bunting",
+   "file": "common_town_bunting.glb",
+   "category": "town_prop",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 2.8,
+   "radius": 2.069,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": null,
+   "tris": 290,
+   "bbox_blender": {
+    "min": [
+     -2.069,
+     -0.08,
+     0.0
+    ],
+    "max": [
+     2.069,
+     0.08,
+     2.8
+    ]
+   },
+   "note": "two thin poles with a flag string between (4 m along X); poles have no collision"
+  },
+  {
+   "id": "common_town_cart",
+   "file": "common_town_cart.glb",
+   "category": "town_prop",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 1.566,
+   "radius": 1.519,
+   "collision": {
+    "type": "box",
+    "size": [
+     3.038,
+     1.566,
+     1.463
+    ]
+   },
+   "scatter": null,
+   "tris": 2538,
+   "bbox_blender": {
+    "min": [
+     -0.903,
+     -0.735,
+     -0.013
+    ],
+    "max": [
+     2.136,
+     0.729,
+     1.553
+    ]
+   },
+   "note": "hand cart, handles toward +X, tipped on a prop stick"
+  },
+  {
+   "id": "common_town_cottage_a",
+   "file": "common_town_cottage_a.glb",
+   "category": "building",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 6.064,
+   "radius": 3.362,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 3348,
+   "bbox_blender": {
+    "min": [
+     -3.325,
+     -3.007,
+     0.0
+    ],
+    "max": [
+     3.398,
+     2.753,
+     6.064
+    ]
+   },
+   "note": "one-story cottage, door faces Blender -Y (Godot +Z), closed door, no interior",
+   "roof": "teal"
+  },
+  {
+   "id": "common_town_cottage_b",
+   "file": "common_town_cottage_b.glb",
+   "category": "building",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 8.218,
+   "radius": 3.163,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 4280,
+   "bbox_blender": {
+    "min": [
+     -3.193,
+     -3.277,
+     0.0
+    ],
+    "max": [
+     3.133,
+     2.886,
+     8.218
+    ]
+   },
+   "note": "two-story cottage with jettied upper floor and balcony, closed door",
+   "roof": "coral"
+  },
+  {
+   "id": "common_town_cottage_tower",
+   "file": "common_town_cottage_tower.glb",
+   "category": "building",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 11.401,
+   "radius": 3.658,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 3804,
+   "bbox_blender": {
+    "min": [
+     -3.066,
+     -4.269,
+     0.0
+    ],
+    "max": [
+     3.151,
+     3.047,
+     11.401
+    ]
+   },
+   "note": "round tower house, door faces Blender -Y, closed door",
+   "roof": "lavender"
+  },
+  {
+   "id": "common_town_dock",
+   "file": "common_town_dock.glb",
+   "category": "town_prop",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 2.63,
+   "radius": 2.103,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 3364,
+   "bbox_blender": {
+    "min": [
+     -2.105,
+     -1.235,
+     0.0
+    ],
+    "max": [
+     2.101,
+     1.302,
+     2.63
+    ]
+   },
+   "note": "pier segment 4 m long along X (open end at +X), deck at z=1.0, piles reach z=0 (place with water surface ~z=0.3)",
+   "segment_length": 4.0
+  },
+  {
+   "id": "common_town_fence_a",
+   "file": "common_town_fence_a.glb",
+   "category": "town_prop",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 1.4,
+   "radius": 1.621,
+   "collision": {
+    "type": "box",
+    "size": [
+     3.242,
+     1.4,
+     0.27
+    ]
+   },
+   "scatter": null,
+   "tris": 864,
+   "bbox_blender": {
+    "min": [
+     -1.631,
+     -0.125,
+     0.0
+    ],
+    "max": [
+     1.611,
+     0.145,
+     1.4
+    ]
+   },
+   "note": "3 m picket segment along X, posts at both ends (share posts when chaining)",
+   "segment_length": 3.0
+  },
+  {
+   "id": "common_town_fence_b",
+   "file": "common_town_fence_b.glb",
+   "category": "town_prop",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 1.304,
+   "radius": 1.726,
+   "collision": {
+    "type": "box",
+    "size": [
+     3.451,
+     1.304,
+     0.436
+    ]
+   },
+   "scatter": null,
+   "tris": 460,
+   "bbox_blender": {
+    "min": [
+     -1.726,
+     -0.214,
+     0.0
+    ],
+    "max": [
+     1.725,
+     0.222,
+     1.304
+    ]
+   },
+   "note": "3 m rustic post-and-rail segment along X on stone footings",
+   "segment_length": 3.0
+  },
+  {
+   "id": "common_town_garden_wall",
+   "file": "common_town_garden_wall.glb",
+   "category": "town_prop",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 1.084,
+   "radius": 1.482,
+   "collision": {
+    "type": "box",
+    "size": [
+     2.964,
+     1.084,
+     0.426
+    ]
+   },
+   "scatter": null,
+   "tris": 1228,
+   "bbox_blender": {
+    "min": [
+     -1.484,
+     -0.217,
+     0.0
+    ],
+    "max": [
+     1.48,
+     0.21,
+     1.084
+    ]
+   },
+   "note": "3 m low stone wall segment along X with moss tufts",
+   "segment_length": 3.0
+  },
+  {
+   "id": "common_town_gate",
+   "file": "common_town_gate.glb",
+   "category": "town_prop",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 1.72,
+   "radius": 1.15,
+   "collision": {
+    "type": "box",
+    "size": [
+     2.3,
+     1.72,
+     0.286
+    ]
+   },
+   "scatter": null,
+   "tris": 872,
+   "bbox_blender": {
+    "min": [
+     -1.159,
+     -0.152,
+     0.0
+    ],
+    "max": [
+     1.141,
+     0.135,
+     1.72
+    ]
+   },
+   "note": "garden gate between two posts (2.2 m wide), matches fence_a"
+  },
+  {
+   "id": "common_town_greenhouse",
+   "file": "common_town_greenhouse.glb",
+   "category": "building",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 4.47,
+   "radius": 3.4,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 7096,
+   "bbox_blender": {
+    "min": [
+     -3.4,
+     -2.889,
+     0.0
+    ],
+    "max": [
+     3.4,
+     2.339,
+     4.47
+    ]
+   },
+   "note": "greenhouse: GLASS panes, front double door standing OPEN, simple interior (benches, pots, potted tree)",
+   "interior": true
+  },
+  {
+   "id": "common_town_hay_bale",
+   "file": "common_town_hay_bale.glb",
+   "category": "town_prop",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 1.14,
+   "radius": 0.57,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.57,
+    "height": 1.14
+   },
+   "scatter": {
+    "density": 0.3,
+    "slope_max": 12,
+    "min_spacing": 3.0,
+    "cluster": 0.6,
+    "zone": "plaza"
+   },
+   "tris": 244,
+   "bbox_blender": {
+    "min": [
+     -0.45,
+     -0.57,
+     -0.02
+    ],
+    "max": [
+     0.45,
+     0.57,
+     1.12
+    ]
+   }
+  },
+  {
+   "id": "common_town_lamppost",
+   "file": "common_town_lamppost.glb",
+   "category": "town_prop",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 4.04,
+   "radius": 0.741,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.741,
+    "height": 4.04
+   },
+   "scatter": null,
+   "tris": 876,
+   "bbox_blender": {
+    "min": [
+     -0.45,
+     -0.285,
+     0.0
+    ],
+    "max": [
+     1.032,
+     0.285,
+     4.04
+    ]
+   },
+   "note": "EMIT bulb; arm points +X",
+   "light_offset_godot": [
+    0.75,
+    3.5,
+    0.0
+   ]
+  },
+  {
+   "id": "common_town_lighthouse",
+   "file": "common_town_lighthouse.glb",
+   "category": "landmark",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 25.2,
+   "radius": 5.752,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 5464,
+   "bbox_blender": {
+    "min": [
+     -5.265,
+     -5.197,
+     0.0
+    ],
+    "max": [
+     6.239,
+     5.405,
+     25.2
+    ]
+   },
+   "note": "~25 m lighthouse on a rock plinth with an attached keeper's cottage; lantern room is EMIT (rotate/light source node suggested at z~22)",
+   "lantern_y": 20.7
+  },
+  {
+   "id": "common_town_mailbox",
+   "file": "common_town_mailbox.glb",
+   "category": "town_prop",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 1.6,
+   "radius": 0.3,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.3,
+    "height": 1.6
+   },
+   "scatter": null,
+   "tris": 320,
+   "bbox_blender": {
+    "min": [
+     -0.25,
+     -0.35,
+     0.0
+    ],
+    "max": [
+     0.299,
+     0.25,
+     1.6
+    ]
+   },
+   "note": "opening faces Blender -Y"
+  },
+  {
+   "id": "common_town_market_stall_a",
+   "file": "common_town_market_stall_a.glb",
+   "category": "town_prop",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 3.252,
+   "radius": 2.141,
+   "collision": {
+    "type": "box",
+    "size": [
+     4.281,
+     3.252,
+     2.358
+    ]
+   },
+   "scatter": null,
+   "tris": 2888,
+   "bbox_blender": {
+    "min": [
+     -2.531,
+     -1.174,
+     0.0
+    ],
+    "max": [
+     1.75,
+     1.185,
+     3.252
+    ]
+   },
+   "note": "front (counter side) faces Blender -Y"
+  },
+  {
+   "id": "common_town_market_stall_b",
+   "file": "common_town_market_stall_b.glb",
+   "category": "town_prop",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 3.86,
+   "radius": 2.407,
+   "collision": {
+    "type": "cylinder",
+    "radius": 2.407,
+    "height": 3.86
+   },
+   "scatter": null,
+   "tris": 3272,
+   "bbox_blender": {
+    "min": [
+     -2.398,
+     -2.411,
+     0.0
+    ],
+    "max": [
+     2.412,
+     2.403,
+     3.86
+    ]
+   },
+   "note": "round parasol-style stall with scalloped canopy (lavender/teal) and flower wares"
+  },
+  {
+   "id": "common_town_planter",
+   "file": "common_town_planter.glb",
+   "category": "town_prop",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 0.917,
+   "radius": 0.669,
+   "collision": {
+    "type": "box",
+    "size": [
+     1.337,
+     0.917,
+     0.48
+    ]
+   },
+   "scatter": {
+    "density": 0.4,
+    "slope_max": 10,
+    "min_spacing": 3.0,
+    "cluster": 0.5,
+    "zone": "plaza"
+   },
+   "tris": 1292,
+   "bbox_blender": {
+    "min": [
+     -0.671,
+     -0.24,
+     0.0
+    ],
+    "max": [
+     0.667,
+     0.24,
+     0.917
+    ]
+   },
+   "note": "flowers/leaves use VC_FOLIAGE (wind sway)"
+  },
+  {
+   "id": "common_town_rowboat",
+   "file": "common_town_rowboat.glb",
+   "category": "town_prop",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 1.006,
+   "radius": 1.689,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": null,
+   "tris": 2220,
+   "bbox_blender": {
+    "min": [
+     -1.689,
+     -1.372,
+     0.0
+    ],
+    "max": [
+     1.689,
+     1.372,
+     1.006
+    ]
+   },
+   "note": "small rowboat ~3.4 m long along X, bow at +X; origin = bbox bottom center (keel at z=0); stern lantern is EMIT"
+  },
+  {
+   "id": "common_town_shop",
+   "file": "common_town_shop.glb",
+   "category": "building",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 4.947,
+   "radius": 3.658,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 3576,
+   "bbox_blender": {
+    "min": [
+     -3.474,
+     -4.001,
+     0.0
+    ],
+    "max": [
+     3.842,
+     2.645,
+     4.947
+    ]
+   },
+   "note": "shop with striped awning, display window is EMIT; closed door; hanging sign on +X side",
+   "roof": "butter"
+  },
+  {
+   "id": "common_town_signpost",
+   "file": "common_town_signpost.glb",
+   "category": "town_prop",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 3.09,
+   "radius": 0.928,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.928,
+    "height": 3.09
+   },
+   "scatter": null,
+   "tris": 356,
+   "bbox_blender": {
+    "min": [
+     -0.905,
+     -0.3,
+     0.0
+    ],
+    "max": [
+     0.952,
+     0.3,
+     3.09
+    ]
+   },
+   "note": "two arrow planks; small EMIT lantern"
+  },
+  {
+   "id": "common_town_well",
+   "file": "common_town_well.glb",
+   "category": "town_prop",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 3.863,
+   "radius": 1.398,
+   "collision": {
+    "type": "cylinder",
+    "radius": 1.398,
+    "height": 3.863
+   },
+   "scatter": null,
+   "tris": 844,
+   "bbox_blender": {
+    "min": [
+     -1.385,
+     -1.106,
+     0.0
+    ],
+    "max": [
+     1.411,
+     1.113,
+     3.863
+    ]
+   },
+   "note": "WATER slot used for the surface; origin ground center"
+  },
+  {
+   "id": "common_town_windmill",
+   "file": "common_town_windmill.glb",
+   "category": "landmark",
+   "worlds": [
+    "verdant",
+    "amber",
+    "tide",
+    "ember",
+    "glass",
+    "hollow",
+    "seam"
+   ],
+   "height": 14.881,
+   "radius": 5.877,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 5992,
+   "bbox_blender": {
+    "min": [
+     -5.877,
+     -3.35,
+     -0.004
+    ],
+    "max": [
+     5.877,
+     2.9,
+     14.877
+    ]
+   },
+   "separate_nodes": [
+    "windmill_blades"
+   ],
+   "blades": {
+    "node": "windmill_blades",
+    "pivot_blender": [
+     0,
+     -2.65,
+     9.0
+    ],
+    "pivot_godot": [
+     0.0,
+     9.0,
+     2.65
+    ],
+    "spin_axis_godot": [
+     0,
+     0,
+     1
+    ],
+    "spin_axis_blender": [
+     0,
+     -1,
+     0
+    ],
+    "note": "node origin = axle center; rotate about its local Z (Godot) to spin; radius ~6.1 m"
+   },
+   "note": "windmill tower+cap; blades are a separate node so they can spin"
+  },
+  {
    "id": "hub_loom_core",
    "file": "hub_loom_core.glb",
    "category": "landmark",
@@ -357,13 +1348,13 @@
    "worlds": [
     "hub"
    ],
-   "height": 0.64,
+   "height": 0.43,
    "radius": 1.83,
    "collision": {
     "type": "box",
     "size": [
      3.661,
-     0.64,
+     0.43,
      1.291
     ]
    },
@@ -374,17 +1365,17 @@
     "cluster": 0.3,
     "zone": "plaza"
    },
-   "tris": 2284,
+   "tris": 2252,
    "bbox_blender": {
     "min": [
      -2.0,
      -0.487,
-     -0.17
+     0.0
     ],
     "max": [
      1.661,
      0.804,
-     0.47
+     0.43
     ]
    }
   },
@@ -748,23 +1739,23 @@
    "worlds": [
     "hub"
    ],
-   "height": 3.328,
-   "radius": 2.2,
+   "height": 3.876,
+   "radius": 2.246,
    "collision": {
     "type": "convex"
    },
    "scatter": null,
-   "tris": 576,
+   "tris": 776,
    "bbox_blender": {
     "min": [
-     -2.2,
-     -0.729,
+     -2.246,
+     -0.693,
      0.0
     ],
     "max": [
-     2.2,
-     0.729,
-     3.328
+     2.246,
+     0.693,
+     3.876
     ]
    },
    "floating": true,
@@ -777,23 +1768,23 @@
    "worlds": [
     "hub"
    ],
-   "height": 4.01,
-   "radius": 1.738,
+   "height": 3.856,
+   "radius": 2.021,
    "collision": {
     "type": "convex"
    },
    "scatter": null,
-   "tris": 1188,
+   "tris": 1096,
    "bbox_blender": {
     "min": [
-     -1.738,
-     -0.536,
+     -2.021,
+     -0.594,
      0.0
     ],
     "max": [
-     1.738,
-     0.536,
-     4.01
+     2.021,
+     0.594,
+     3.856
     ]
    },
    "floating": true,
@@ -806,23 +1797,23 @@
    "worlds": [
     "hub"
    ],
-   "height": 2.861,
-   "radius": 1.775,
+   "height": 2.853,
+   "radius": 2.392,
    "collision": {
     "type": "convex"
    },
    "scatter": null,
-   "tris": 596,
+   "tris": 872,
    "bbox_blender": {
     "min": [
-     -1.775,
-     -0.932,
+     -2.392,
+     -1.193,
      0.0
     ],
     "max": [
-     1.775,
-     0.932,
-     2.861
+     2.392,
+     1.193,
+     2.853
     ]
    },
    "floating": true,
@@ -835,23 +1826,23 @@
    "worlds": [
     "hub"
    ],
-   "height": 3.752,
-   "radius": 1.627,
+   "height": 3.729,
+   "radius": 1.595,
    "collision": {
     "type": "convex"
    },
    "scatter": null,
-   "tris": 632,
+   "tris": 932,
    "bbox_blender": {
     "min": [
-     -1.627,
-     -0.926,
+     -1.595,
+     -0.94,
      0.0
     ],
     "max": [
-     1.627,
-     0.926,
-     3.752
+     1.595,
+     0.94,
+     3.729
     ]
    },
    "floating": true,
@@ -864,7 +1855,7 @@
    "worlds": [
     "hub"
    ],
-   "height": 4.377,
+   "height": 4.227,
    "radius": 4.797,
    "collision": {
     "type": "trimesh"
@@ -875,7 +1866,7 @@
     "min": [
      -4.709,
      -5.134,
-     -0.232
+     -0.082
     ],
     "max": [
      4.4,
@@ -971,6 +1962,46 @@
      4.0
     ],
     "pivot": "bottom-center; opening 2.4 m wide x 3.0 m high (door anchor 2.2 m); sliding door panel half open on the +X side (front)",
+    "floor_top_z": 0.3,
+    "wall_height_m": 4.0,
+    "facing": "front = Blender -Y (Godot +Z)",
+    "note": ""
+   }
+  },
+  {
+   "id": "hub_ruin_floor_broken",
+   "file": "hub_ruin_floor_broken.glb",
+   "category": "ruin_piece",
+   "worlds": [
+    "hub"
+   ],
+   "height": 0.771,
+   "radius": 2.475,
+   "collision": {
+    "type": "trimesh"
+   },
+   "scatter": null,
+   "tris": 822,
+   "bbox_blender": {
+    "min": [
+     -2.0,
+     -2.0,
+     -0.04
+    ],
+    "max": [
+     2.0,
+     2.95,
+     0.731
+    ]
+   },
+   "kit": {
+    "grid_m": 4.0,
+    "footprint_m": [
+     4.0,
+     4.0,
+     0.9
+    ],
+    "pivot": "bottom-center of the 4x4 cell; one corner crumbled, pipes protrude past the cell edge (+Y)",
     "floor_top_z": 0.3,
     "wall_height_m": 4.0,
     "facing": "front = Blender -Y (Godot +Z)",
@@ -1138,6 +2169,35 @@
     "facing": "front = Blender -Y (Godot +Z)",
     "note": ""
    }
+  },
+  {
+   "id": "hub_ruin_slab_floating",
+   "file": "hub_ruin_slab_floating.glb",
+   "category": "debris",
+   "worlds": [
+    "hub"
+   ],
+   "height": 3.752,
+   "radius": 1.935,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": null,
+   "tris": 732,
+   "bbox_blender": {
+    "min": [
+     -1.935,
+     -1.823,
+     0.0
+    ],
+    "max": [
+     1.935,
+     1.823,
+     3.752
+    ]
+   },
+   "floating": true,
+   "note": "floor slab with lumpy rock underside (VC_ROUGH); origin bbox bottom-center"
   },
   {
    "id": "hub_ruin_stairs",

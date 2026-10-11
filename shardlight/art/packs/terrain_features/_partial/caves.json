@@ -1,0 +1,1078 @@
+[
+ {
+  "id": "verdant_cave_tunnel",
+  "file": "verdant_cave_tunnel.glb",
+  "category": "cave",
+  "worlds": [
+   "verdant"
+  ],
+  "height": 8.369,
+  "radius": 6.016,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 6664,
+  "family": "cave",
+  "kit": true,
+  "sockets": [
+   {
+    "name": "S_back",
+    "pos": [
+     0,
+     0,
+     6.0
+    ],
+    "dir": [
+     0,
+     0,
+     1
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   },
+   {
+    "name": "S_front",
+    "pos": [
+     0,
+     0,
+     -6.0
+    ],
+    "dir": [
+     0,
+     0,
+     -1
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   }
+  ],
+  "sockets_frame": "godot_y_up (x, z, -y of Blender)",
+  "origin": "floor level (z=0 walkable floor); shell extends 0.6 m below for burying",
+  "lights": [
+   [
+    -1.73,
+    2.1,
+    1.94
+   ],
+   [
+    0.63,
+    3.68,
+    0.79
+   ],
+   [
+    1.63,
+    2.33,
+    1.06
+   ]
+  ],
+  "normals_inward_ratio": 1.0,
+  "length": 12.0
+ },
+ {
+  "id": "verdant_cave_curve",
+  "file": "verdant_cave_curve.glb",
+  "category": "cave",
+  "worlds": [
+   "verdant"
+  ],
+  "height": 8.012,
+  "radius": 7.5,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 4612,
+  "family": "cave",
+  "kit": true,
+  "sockets": [
+   {
+    "name": "S_a",
+    "pos": [
+     0,
+     0,
+     7.5
+    ],
+    "dir": [
+     0,
+     0,
+     1
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   },
+   {
+    "name": "S_b",
+    "pos": [
+     -7.5,
+     0,
+     0
+    ],
+    "dir": [
+     -1,
+     0,
+     0
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   }
+  ],
+  "sockets_frame": "godot_y_up (x, z, -y of Blender)",
+  "origin": "floor level (z=0 walkable floor); shell extends 0.6 m below for burying",
+  "lights": [],
+  "normals_inward_ratio": 1.0,
+  "turn": "left 90 deg (mirror with scale.x=-1 in Blender / scale.x=-1 in Godot for a right turn)"
+ },
+ {
+  "id": "verdant_cave_mouth",
+  "file": "verdant_cave_mouth.glb",
+  "category": "cave",
+  "worlds": [
+   "verdant"
+  ],
+  "height": 8.515,
+  "radius": 9.208,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 5990,
+  "family": "cave",
+  "kit": true,
+  "sockets": [
+   {
+    "name": "S_in",
+    "pos": [
+     0,
+     0,
+     -6.0
+    ],
+    "dir": [
+     0,
+     0,
+     -1
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   }
+  ],
+  "sockets_frame": "godot_y_up (x, z, -y of Blender)",
+  "origin": "floor level (z=0 walkable floor); shell extends 0.6 m below for burying",
+  "lights": [],
+  "normals_inward_ratio": 1.0,
+  "entrance_clear_width": 5.6,
+  "front": "-Y"
+ },
+ {
+  "id": "verdant_cave_dead_end",
+  "file": "verdant_cave_dead_end.glb",
+  "category": "cave",
+  "worlds": [
+   "verdant"
+  ],
+  "height": 8.451,
+  "radius": 7.38,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 6310,
+  "family": "cave",
+  "kit": true,
+  "sockets": [
+   {
+    "name": "S_open",
+    "pos": [
+     0,
+     0,
+     6.0
+    ],
+    "dir": [
+     0,
+     0,
+     1
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   }
+  ],
+  "sockets_frame": "godot_y_up (x, z, -y of Blender)",
+  "origin": "floor level (z=0 walkable floor); shell extends 0.6 m below for burying",
+  "lights": [
+   [
+    0.0,
+    1.9,
+    -3.3
+   ],
+   [
+    -1.58,
+    2.76,
+    0.52
+   ],
+   [
+    -0.17,
+    3.56,
+    1.35
+   ]
+  ],
+  "normals_inward_ratio": 1.0,
+  "pedestal": [
+   0.0,
+   3.2,
+   0.0
+  ],
+  "niche": [
+   0.0,
+   5.6,
+   1.2
+  ]
+ },
+ {
+  "id": "verdant_cave_chamber",
+  "file": "verdant_cave_chamber.glb",
+  "category": "cave",
+  "worlds": [
+   "verdant"
+  ],
+  "height": 11.175,
+  "radius": 13.185,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 11752,
+  "family": "cave",
+  "kit": true,
+  "sockets": [
+   {
+    "name": "S_E",
+    "pos": [
+     13,
+     0,
+     0
+    ],
+    "dir": [
+     1,
+     0,
+     0
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   },
+   {
+    "name": "S_N",
+    "pos": [
+     0,
+     0,
+     -13
+    ],
+    "dir": [
+     0,
+     0,
+     -1
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   },
+   {
+    "name": "S_W",
+    "pos": [
+     -13,
+     0,
+     0
+    ],
+    "dir": [
+     -1,
+     0,
+     0
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   },
+   {
+    "name": "S_S",
+    "pos": [
+     0,
+     0,
+     13
+    ],
+    "dir": [
+     0,
+     0,
+     1
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   }
+  ],
+  "sockets_frame": "godot_y_up (x, z, -y of Blender)",
+  "origin": "floor level (z=0 walkable floor); shell extends 0.6 m below for burying",
+  "lights": [
+   [
+    -4.79,
+    2.58,
+    7.24
+   ],
+   [
+    4.56,
+    5.93,
+    2.79
+   ],
+   [
+    2.15,
+    3.83,
+    -7.66
+   ],
+   [
+    5.1,
+    3.42,
+    -6.46
+   ],
+   [
+    -0.31,
+    5.28,
+    -6.5
+   ]
+  ],
+  "normals_inward_ratio": 1.0,
+  "inner_diameter": 20.0
+ },
+ {
+  "id": "verdant_cave_stalactite_a",
+  "file": "verdant_cave_stalactite_a.glb",
+  "category": "cave_prop",
+  "worlds": [
+   "verdant"
+  ],
+  "height": 2.54,
+  "radius": 0.908,
+  "collision": {
+   "type": "none"
+  },
+  "scatter": {
+   "density": 0.8,
+   "slope_max": 90,
+   "min_spacing": 4.0,
+   "cluster": 0.6,
+   "zone": "cave"
+  },
+  "tris": 500,
+  "family": "cave",
+  "prop": "stalactite",
+  "origin": "ceiling attach point (hangs down)"
+ },
+ {
+  "id": "verdant_cave_stalactite_b",
+  "file": "verdant_cave_stalactite_b.glb",
+  "category": "cave_prop",
+  "worlds": [
+   "verdant"
+  ],
+  "height": 3.437,
+  "radius": 0.911,
+  "collision": {
+   "type": "none"
+  },
+  "scatter": {
+   "density": 0.8,
+   "slope_max": 90,
+   "min_spacing": 4.0,
+   "cluster": 0.6,
+   "zone": "cave"
+  },
+  "tris": 620,
+  "family": "cave",
+  "prop": "stalactite",
+  "origin": "ceiling attach point (hangs down)"
+ },
+ {
+  "id": "verdant_cave_stalagmite_a",
+  "file": "verdant_cave_stalagmite_a.glb",
+  "category": "cave_prop",
+  "worlds": [
+   "verdant"
+  ],
+  "height": 2.15,
+  "radius": 0.807,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.8,
+   "slope_max": 90,
+   "min_spacing": 4.0,
+   "cluster": 0.6,
+   "zone": "cave"
+  },
+  "tris": 500,
+  "family": "cave",
+  "prop": "stalagmite",
+  "origin": "base-center"
+ },
+ {
+  "id": "verdant_cave_stalagmite_b",
+  "file": "verdant_cave_stalagmite_b.glb",
+  "category": "cave_prop",
+  "worlds": [
+   "verdant"
+  ],
+  "height": 1.55,
+  "radius": 0.997,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.8,
+   "slope_max": 90,
+   "min_spacing": 4.0,
+   "cluster": 0.6,
+   "zone": "cave"
+  },
+  "tris": 680,
+  "family": "cave",
+  "prop": "stalagmite",
+  "origin": "base-center"
+ },
+ {
+  "id": "verdant_cave_crystal_wall_a",
+  "file": "verdant_cave_crystal_wall_a.glb",
+  "category": "cave_prop",
+  "worlds": [
+   "verdant"
+  ],
+  "height": 1.683,
+  "radius": 1.033,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.4,
+   "slope_max": 90,
+   "min_spacing": 6.0,
+   "cluster": 0.5,
+   "zone": "cave"
+  },
+  "tris": 784,
+  "family": "cave",
+  "prop": "crystalwall",
+  "origin": "wall surface contact; crystals grow along local +Y"
+ },
+ {
+  "id": "hollow_cave_tunnel",
+  "file": "hollow_cave_tunnel.glb",
+  "category": "cave",
+  "worlds": [
+   "hollow"
+  ],
+  "height": 8.432,
+  "radius": 6.782,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 6754,
+  "family": "cave",
+  "kit": true,
+  "sockets": [
+   {
+    "name": "S_back",
+    "pos": [
+     0,
+     0,
+     6.0
+    ],
+    "dir": [
+     0,
+     0,
+     1
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   },
+   {
+    "name": "S_front",
+    "pos": [
+     0,
+     0,
+     -6.0
+    ],
+    "dir": [
+     0,
+     0,
+     -1
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   }
+  ],
+  "sockets_frame": "godot_y_up (x, z, -y of Blender)",
+  "origin": "floor level (z=0 walkable floor); shell extends 0.6 m below for burying",
+  "lights": [
+   [
+    0.23,
+    3.38,
+    -2.93
+   ],
+   [
+    0.78,
+    3.47,
+    0.73
+   ],
+   [
+    -1.61,
+    2.52,
+    1.84
+   ]
+  ],
+  "normals_inward_ratio": 1.0,
+  "length": 12.0
+ },
+ {
+  "id": "hollow_cave_curve",
+  "file": "hollow_cave_curve.glb",
+  "category": "cave",
+  "worlds": [
+   "hollow"
+  ],
+  "height": 8.323,
+  "radius": 7.5,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 4932,
+  "family": "cave",
+  "kit": true,
+  "sockets": [
+   {
+    "name": "S_a",
+    "pos": [
+     0,
+     0,
+     7.5
+    ],
+    "dir": [
+     0,
+     0,
+     1
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   },
+   {
+    "name": "S_b",
+    "pos": [
+     -7.5,
+     0,
+     0
+    ],
+    "dir": [
+     -1,
+     0,
+     0
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   }
+  ],
+  "sockets_frame": "godot_y_up (x, z, -y of Blender)",
+  "origin": "floor level (z=0 walkable floor); shell extends 0.6 m below for burying",
+  "lights": [],
+  "normals_inward_ratio": 1.0,
+  "turn": "left 90 deg (mirror with scale.x=-1 in Blender / scale.x=-1 in Godot for a right turn)"
+ },
+ {
+  "id": "hollow_cave_mouth",
+  "file": "hollow_cave_mouth.glb",
+  "category": "cave",
+  "worlds": [
+   "hollow"
+  ],
+  "height": 8.234,
+  "radius": 9.166,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 5930,
+  "family": "cave",
+  "kit": true,
+  "sockets": [
+   {
+    "name": "S_in",
+    "pos": [
+     0,
+     0,
+     -6.0
+    ],
+    "dir": [
+     0,
+     0,
+     -1
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   }
+  ],
+  "sockets_frame": "godot_y_up (x, z, -y of Blender)",
+  "origin": "floor level (z=0 walkable floor); shell extends 0.6 m below for burying",
+  "lights": [],
+  "normals_inward_ratio": 1.0,
+  "entrance_clear_width": 5.6,
+  "front": "-Y"
+ },
+ {
+  "id": "hollow_cave_dead_end",
+  "file": "hollow_cave_dead_end.glb",
+  "category": "cave",
+  "worlds": [
+   "hollow"
+  ],
+  "height": 8.431,
+  "radius": 7.38,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 6717,
+  "family": "cave",
+  "kit": true,
+  "sockets": [
+   {
+    "name": "S_open",
+    "pos": [
+     0,
+     0,
+     6.0
+    ],
+    "dir": [
+     0,
+     0,
+     1
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   }
+  ],
+  "sockets_frame": "godot_y_up (x, z, -y of Blender)",
+  "origin": "floor level (z=0 walkable floor); shell extends 0.6 m below for burying",
+  "lights": [
+   [
+    0.0,
+    1.9,
+    -3.3
+   ],
+   [
+    -1.7,
+    2.26,
+    2.84
+   ],
+   [
+    1.82,
+    2.55,
+    2.51
+   ]
+  ],
+  "normals_inward_ratio": 1.0,
+  "pedestal": [
+   0.0,
+   3.2,
+   0.0
+  ],
+  "niche": [
+   0.0,
+   5.6,
+   1.2
+  ]
+ },
+ {
+  "id": "hollow_cave_chamber",
+  "file": "hollow_cave_chamber.glb",
+  "category": "cave",
+  "worlds": [
+   "hollow"
+  ],
+  "height": 11.175,
+  "radius": 13.123,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 11704,
+  "family": "cave",
+  "kit": true,
+  "sockets": [
+   {
+    "name": "S_E",
+    "pos": [
+     13,
+     0,
+     0
+    ],
+    "dir": [
+     1,
+     0,
+     0
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   },
+   {
+    "name": "S_N",
+    "pos": [
+     0,
+     0,
+     -13
+    ],
+    "dir": [
+     0,
+     0,
+     -1
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   },
+   {
+    "name": "S_W",
+    "pos": [
+     -13,
+     0,
+     0
+    ],
+    "dir": [
+     -1,
+     0,
+     0
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   },
+   {
+    "name": "S_S",
+    "pos": [
+     0,
+     0,
+     13
+    ],
+    "dir": [
+     0,
+     0,
+     1
+    ],
+    "up": [
+     0,
+     1,
+     0
+    ],
+    "opening": {
+     "width": 5.6,
+     "height": 4.4
+    },
+    "type": "tunnel_a"
+   }
+  ],
+  "sockets_frame": "godot_y_up (x, z, -y of Blender)",
+  "origin": "floor level (z=0 walkable floor); shell extends 0.6 m below for burying",
+  "lights": [
+   [
+    -6.65,
+    5.27,
+    -0.73
+   ],
+   [
+    -2.84,
+    6.07,
+    3.97
+   ],
+   [
+    4.73,
+    5.79,
+    3.17
+   ],
+   [
+    -4.58,
+    3.69,
+    6.82
+   ],
+   [
+    5.77,
+    2.8,
+    -6.24
+   ]
+  ],
+  "normals_inward_ratio": 0.9974093264248705,
+  "inner_diameter": 20.0
+ },
+ {
+  "id": "hollow_cave_stalactite_a",
+  "file": "hollow_cave_stalactite_a.glb",
+  "category": "cave_prop",
+  "worlds": [
+   "hollow"
+  ],
+  "height": 2.536,
+  "radius": 0.888,
+  "collision": {
+   "type": "none"
+  },
+  "scatter": {
+   "density": 0.8,
+   "slope_max": 90,
+   "min_spacing": 4.0,
+   "cluster": 0.6,
+   "zone": "cave"
+  },
+  "tris": 500,
+  "family": "cave",
+  "prop": "stalactite",
+  "origin": "ceiling attach point (hangs down)"
+ },
+ {
+  "id": "hollow_cave_stalactite_b",
+  "file": "hollow_cave_stalactite_b.glb",
+  "category": "cave_prop",
+  "worlds": [
+   "hollow"
+  ],
+  "height": 3.395,
+  "radius": 0.956,
+  "collision": {
+   "type": "none"
+  },
+  "scatter": {
+   "density": 0.8,
+   "slope_max": 90,
+   "min_spacing": 4.0,
+   "cluster": 0.6,
+   "zone": "cave"
+  },
+  "tris": 620,
+  "family": "cave",
+  "prop": "stalactite",
+  "origin": "ceiling attach point (hangs down)"
+ },
+ {
+  "id": "hollow_cave_stalagmite_a",
+  "file": "hollow_cave_stalagmite_a.glb",
+  "category": "cave_prop",
+  "worlds": [
+   "hollow"
+  ],
+  "height": 2.15,
+  "radius": 0.804,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.8,
+   "slope_max": 90,
+   "min_spacing": 4.0,
+   "cluster": 0.6,
+   "zone": "cave"
+  },
+  "tris": 500,
+  "family": "cave",
+  "prop": "stalagmite",
+  "origin": "base-center"
+ },
+ {
+  "id": "hollow_cave_stalagmite_b",
+  "file": "hollow_cave_stalagmite_b.glb",
+  "category": "cave_prop",
+  "worlds": [
+   "hollow"
+  ],
+  "height": 1.55,
+  "radius": 0.997,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.8,
+   "slope_max": 90,
+   "min_spacing": 4.0,
+   "cluster": 0.6,
+   "zone": "cave"
+  },
+  "tris": 680,
+  "family": "cave",
+  "prop": "stalagmite",
+  "origin": "base-center"
+ },
+ {
+  "id": "hollow_cave_crystal_wall_a",
+  "file": "hollow_cave_crystal_wall_a.glb",
+  "category": "cave_prop",
+  "worlds": [
+   "hollow"
+  ],
+  "height": 1.81,
+  "radius": 1.049,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.4,
+   "slope_max": 90,
+   "min_spacing": 6.0,
+   "cluster": 0.5,
+   "zone": "cave"
+  },
+  "tris": 784,
+  "family": "cave",
+  "prop": "crystalwall",
+  "origin": "wall surface contact; crystals grow along local +Y"
+ }
+]

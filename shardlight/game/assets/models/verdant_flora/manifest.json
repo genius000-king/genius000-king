@@ -1,0 +1,2276 @@
+{
+ "pack": "verdant_flora",
+ "assets": [
+  {
+   "id": "verdant_tree_puffcap_a",
+   "file": "verdant_tree_puffcap_a.glb",
+   "category": "tree",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 9.929,
+   "radius": 2.71,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.275,
+    "height": 4.0
+   },
+   "scatter": {
+    "density": 1.0,
+    "slope_max": 25,
+    "min_spacing": 6.5,
+    "cluster": 0.35,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "forest": 0.5,
+     "shore": 0.2
+    },
+    "scale_range": [
+     0.8,
+     1.25
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_tree_puffcap"
+   },
+   "tris": 5612
+  },
+  {
+   "id": "verdant_tree_puffcap_b",
+   "file": "verdant_tree_puffcap_b.glb",
+   "category": "tree",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 10.297,
+   "radius": 3.91,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.31,
+    "height": 4.0
+   },
+   "scatter": {
+    "density": 1.0,
+    "slope_max": 25,
+    "min_spacing": 6.5,
+    "cluster": 0.35,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "forest": 0.5,
+     "shore": 0.2
+    },
+    "scale_range": [
+     0.8,
+     1.25
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_tree_puffcap"
+   },
+   "tris": 6508
+  },
+  {
+   "id": "verdant_tree_puffcap_c",
+   "file": "verdant_tree_puffcap_c.glb",
+   "category": "tree",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 8.595,
+   "radius": 4.0,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.39,
+    "height": 4.0
+   },
+   "scatter": {
+    "density": 1.0,
+    "slope_max": 25,
+    "min_spacing": 6.5,
+    "cluster": 0.35,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "forest": 0.5,
+     "shore": 0.2
+    },
+    "scale_range": [
+     0.8,
+     1.25
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_tree_puffcap"
+   },
+   "tris": 4660
+  },
+  {
+   "id": "verdant_tree_spiralwillow_a",
+   "file": "verdant_tree_spiralwillow_a.glb",
+   "category": "tree",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 9.277,
+   "radius": 3.499,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.341,
+    "height": 4.0
+   },
+   "scatter": {
+    "density": 0.7,
+    "slope_max": 22,
+    "min_spacing": 7.5,
+    "cluster": 0.3,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 0.6,
+     "forest": 0.8,
+     "shore": 0.9
+    },
+    "scale_range": [
+     0.8,
+     1.2
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_tree_spiralwillow"
+   },
+   "tris": 4304
+  },
+  {
+   "id": "verdant_tree_spiralwillow_b",
+   "file": "verdant_tree_spiralwillow_b.glb",
+   "category": "tree",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 11.643,
+   "radius": 2.894,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.275,
+    "height": 4.0
+   },
+   "scatter": {
+    "density": 0.7,
+    "slope_max": 22,
+    "min_spacing": 7.5,
+    "cluster": 0.3,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 0.6,
+     "forest": 0.8,
+     "shore": 0.9
+    },
+    "scale_range": [
+     0.8,
+     1.2
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_tree_spiralwillow"
+   },
+   "tris": 3284
+  },
+  {
+   "id": "verdant_tree_spiralwillow_c",
+   "file": "verdant_tree_spiralwillow_c.glb",
+   "category": "tree",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 6.653,
+   "radius": 3.938,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.429,
+    "height": 4.0
+   },
+   "scatter": {
+    "density": 0.7,
+    "slope_max": 22,
+    "min_spacing": 7.5,
+    "cluster": 0.3,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 0.6,
+     "forest": 0.8,
+     "shore": 0.9
+    },
+    "scale_range": [
+     0.8,
+     1.2
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_tree_spiralwillow"
+   },
+   "tris": 5080
+  },
+  {
+   "id": "verdant_tree_balloon_a",
+   "file": "verdant_tree_balloon_a.glb",
+   "category": "tree",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 10.669,
+   "radius": 1.936,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.204,
+    "height": 4.0
+   },
+   "scatter": {
+    "density": 0.8,
+    "slope_max": 24,
+    "min_spacing": 6.0,
+    "cluster": 0.3,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "forest": 0.3,
+     "cliff": 0.4
+    },
+    "scale_range": [
+     0.8,
+     1.25
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_tree_balloon"
+   },
+   "tris": 2782
+  },
+  {
+   "id": "verdant_tree_balloon_b",
+   "file": "verdant_tree_balloon_b.glb",
+   "category": "tree",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 9.604,
+   "radius": 2.619,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.24,
+    "height": 4.0
+   },
+   "scatter": {
+    "density": 0.8,
+    "slope_max": 24,
+    "min_spacing": 6.0,
+    "cluster": 0.3,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "forest": 0.3,
+     "cliff": 0.4
+    },
+    "scale_range": [
+     0.8,
+     1.25
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_tree_balloon"
+   },
+   "tris": 4672
+  },
+  {
+   "id": "verdant_tree_balloon_c",
+   "file": "verdant_tree_balloon_c.glb",
+   "category": "tree",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 14.613,
+   "radius": 2.052,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.18,
+    "height": 4.0
+   },
+   "scatter": {
+    "density": 0.8,
+    "slope_max": 24,
+    "min_spacing": 6.0,
+    "cluster": 0.3,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "forest": 0.3,
+     "cliff": 0.4
+    },
+    "scale_range": [
+     0.8,
+     1.25
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_tree_balloon"
+   },
+   "tris": 2764
+  },
+  {
+   "id": "verdant_tree_glassbirch_a",
+   "file": "verdant_tree_glassbirch_a.glb",
+   "category": "tree",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 10.748,
+   "radius": 2.725,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.156,
+    "height": 4.0
+   },
+   "scatter": {
+    "density": 0.8,
+    "slope_max": 25,
+    "min_spacing": 5.0,
+    "cluster": 0.5,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "meadow": 0.4,
+     "cliff": 0.5
+    },
+    "scale_range": [
+     0.8,
+     1.25
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_tree_glassbirch"
+   },
+   "tris": 4880
+  },
+  {
+   "id": "verdant_tree_glassbirch_b",
+   "file": "verdant_tree_glassbirch_b.glb",
+   "category": "tree",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 9.119,
+   "radius": 4.039,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.204,
+    "height": 4.0
+   },
+   "scatter": {
+    "density": 0.8,
+    "slope_max": 25,
+    "min_spacing": 5.0,
+    "cluster": 0.5,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "meadow": 0.4,
+     "cliff": 0.5
+    },
+    "scale_range": [
+     0.8,
+     1.25
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_tree_glassbirch"
+   },
+   "tris": 2972
+  },
+  {
+   "id": "verdant_tree_glassbirch_c",
+   "file": "verdant_tree_glassbirch_c.glb",
+   "category": "tree",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 11.079,
+   "radius": 3.035,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.162,
+    "height": 4.0
+   },
+   "scatter": {
+    "density": 0.8,
+    "slope_max": 25,
+    "min_spacing": 5.0,
+    "cluster": 0.5,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "meadow": 0.4,
+     "cliff": 0.5
+    },
+    "scale_range": [
+     0.8,
+     1.25
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_tree_glassbirch"
+   },
+   "tris": 4240
+  },
+  {
+   "id": "verdant_tree_dandelion_a",
+   "file": "verdant_tree_dandelion_a.glb",
+   "category": "tree",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 6.611,
+   "radius": 1.905,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.14,
+    "height": 1.5
+   },
+   "scatter": {
+    "density": 0.55,
+    "slope_max": 18,
+    "min_spacing": 8.0,
+    "cluster": 0.25,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "shore": 0.4
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_tree_dandelion"
+   },
+   "tris": 2594,
+   "note": "giant dandelion - thin stem, collision is a slim cylinder"
+  },
+  {
+   "id": "verdant_tree_dandelion_b",
+   "file": "verdant_tree_dandelion_b.glb",
+   "category": "tree",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 9.553,
+   "radius": 2.864,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.14,
+    "height": 1.5
+   },
+   "scatter": {
+    "density": 0.55,
+    "slope_max": 18,
+    "min_spacing": 8.0,
+    "cluster": 0.25,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "shore": 0.4
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_tree_dandelion"
+   },
+   "tris": 2704,
+   "note": "giant dandelion - thin stem, collision is a slim cylinder"
+  },
+  {
+   "id": "verdant_tree_dandelion_c",
+   "file": "verdant_tree_dandelion_c.glb",
+   "category": "tree",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 6.966,
+   "radius": 2.131,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.14,
+    "height": 1.5
+   },
+   "scatter": {
+    "density": 0.55,
+    "slope_max": 18,
+    "min_spacing": 8.0,
+    "cluster": 0.25,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "shore": 0.4
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_tree_dandelion"
+   },
+   "tris": 2214,
+   "note": "giant dandelion - thin stem, collision is a slim cylinder"
+  },
+  {
+   "id": "verdant_tree_umbrellashroom_a",
+   "file": "verdant_tree_umbrellashroom_a.glb",
+   "category": "tree",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 8.296,
+   "radius": 4.434,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.429,
+    "height": 3.5
+   },
+   "scatter": {
+    "density": 0.7,
+    "slope_max": 20,
+    "min_spacing": 9.0,
+    "cluster": 0.35,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "meadow": 0.25,
+     "cliff": 0.3
+    },
+    "scale_range": [
+     0.8,
+     1.2
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_tree_umbrellashroom"
+   },
+   "tris": 6384
+  },
+  {
+   "id": "verdant_tree_umbrellashroom_b",
+   "file": "verdant_tree_umbrellashroom_b.glb",
+   "category": "tree",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 6.817,
+   "radius": 5.18,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.385,
+    "height": 3.5
+   },
+   "scatter": {
+    "density": 0.7,
+    "slope_max": 20,
+    "min_spacing": 9.0,
+    "cluster": 0.35,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "meadow": 0.25,
+     "cliff": 0.3
+    },
+    "scale_range": [
+     0.8,
+     1.2
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_tree_umbrellashroom"
+   },
+   "tris": 4644
+  },
+  {
+   "id": "verdant_tree_umbrellashroom_c",
+   "file": "verdant_tree_umbrellashroom_c.glb",
+   "category": "tree",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 10.762,
+   "radius": 3.57,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.253,
+    "height": 3.5
+   },
+   "scatter": {
+    "density": 0.7,
+    "slope_max": 20,
+    "min_spacing": 9.0,
+    "cluster": 0.35,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "meadow": 0.25,
+     "cliff": 0.3
+    },
+    "scale_range": [
+     0.8,
+     1.2
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_tree_umbrellashroom"
+   },
+   "tris": 5328
+  },
+  {
+   "id": "verdant_flower_tulip_pink",
+   "file": "verdant_flower_tulip_pink.glb",
+   "category": "flower",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.688,
+   "radius": 0.368,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 1.2,
+    "slope_max": 32,
+    "min_spacing": 0.5,
+    "cluster": 0.8,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "shore": 0.3
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_flower_tulip"
+   },
+   "tris": 1192
+  },
+  {
+   "id": "verdant_flower_tulip_gold",
+   "file": "verdant_flower_tulip_gold.glb",
+   "category": "flower",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.972,
+   "radius": 0.654,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 1.2,
+    "slope_max": 32,
+    "min_spacing": 0.5,
+    "cluster": 0.8,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "shore": 0.3
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_flower_tulip"
+   },
+   "tris": 1192
+  },
+  {
+   "id": "verdant_flower_bellflower",
+   "file": "verdant_flower_bellflower.glb",
+   "category": "flower",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.962,
+   "radius": 0.324,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 0.9,
+    "slope_max": 32,
+    "min_spacing": 0.7,
+    "cluster": 0.6,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 0.8,
+     "forest": 0.7
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_flower_bell"
+   },
+   "tris": 1160
+  },
+  {
+   "id": "verdant_flower_daisy_cream",
+   "file": "verdant_flower_daisy_cream.glb",
+   "category": "flower",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.59,
+   "radius": 0.347,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 1.4,
+    "slope_max": 32,
+    "min_spacing": 0.45,
+    "cluster": 0.9,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "shore": 0.4
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_flower_daisy"
+   },
+   "tris": 930
+  },
+  {
+   "id": "verdant_flower_daisy_pink",
+   "file": "verdant_flower_daisy_pink.glb",
+   "category": "flower",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.502,
+   "radius": 0.2,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 1.1,
+    "slope_max": 32,
+    "min_spacing": 0.45,
+    "cluster": 0.9,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "forest": 0.3
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_flower_daisy"
+   },
+   "tris": 930
+  },
+  {
+   "id": "verdant_flower_lupine",
+   "file": "verdant_flower_lupine.glb",
+   "category": "flower",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 1.241,
+   "radius": 0.285,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 0.8,
+    "slope_max": 32,
+    "min_spacing": 0.9,
+    "cluster": 0.7,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "forest": 0.3,
+     "cliff": 0.3
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_flower_lupine"
+   },
+   "tris": 1012
+  },
+  {
+   "id": "verdant_flower_nightbloom",
+   "file": "verdant_flower_nightbloom.glb",
+   "category": "flower",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.841,
+   "radius": 0.267,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 0.7,
+    "slope_max": 32,
+    "min_spacing": 0.9,
+    "cluster": 0.7,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "meadow": 0.35,
+     "cliff": 0.4
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_flower_nightbloom"
+   },
+   "tris": 1404
+  },
+  {
+   "id": "verdant_flower_star",
+   "file": "verdant_flower_star.glb",
+   "category": "flower",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.514,
+   "radius": 0.246,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 1.0,
+    "slope_max": 32,
+    "min_spacing": 0.5,
+    "cluster": 0.8,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "cliff": 0.3
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_flower_star"
+   },
+   "tris": 1026
+  },
+  {
+   "id": "verdant_flower_lotus",
+   "file": "verdant_flower_lotus.glb",
+   "category": "flower",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.672,
+   "radius": 0.679,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 0.6,
+    "slope_max": 8,
+    "min_spacing": 1.4,
+    "cluster": 0.5,
+    "zone": "shore",
+    "zone_weights": {
+     "shore": 1.0
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_flower_lotus"
+   },
+   "tris": 996
+  },
+  {
+   "id": "verdant_flower_poppy",
+   "file": "verdant_flower_poppy.glb",
+   "category": "flower",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.837,
+   "radius": 0.401,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 1.0,
+    "slope_max": 32,
+    "min_spacing": 0.55,
+    "cluster": 0.85,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_flower_poppy"
+   },
+   "tris": 1330
+  },
+  {
+   "id": "verdant_flower_pompom",
+   "file": "verdant_flower_pompom.glb",
+   "category": "flower",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 1.223,
+   "radius": 0.416,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 0.8,
+    "slope_max": 32,
+    "min_spacing": 0.8,
+    "cluster": 0.6,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "forest": 0.4
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_flower_pompom"
+   },
+   "tris": 924
+  },
+  {
+   "id": "verdant_flower_cosmos",
+   "file": "verdant_flower_cosmos.glb",
+   "category": "flower",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 1.082,
+   "radius": 0.305,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 1.0,
+    "slope_max": 32,
+    "min_spacing": 0.7,
+    "cluster": 0.7,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "shore": 0.5
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_flower_cosmos"
+   },
+   "tris": 1064
+  },
+  {
+   "id": "verdant_flower_trumpet",
+   "file": "verdant_flower_trumpet.glb",
+   "category": "flower",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 1.038,
+   "radius": 0.318,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 0.7,
+    "slope_max": 32,
+    "min_spacing": 1.0,
+    "cluster": 0.6,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 0.8,
+     "shore": 0.6,
+     "forest": 0.4
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_flower_trumpet"
+   },
+   "tris": 712
+  },
+  {
+   "id": "verdant_flower_fountain",
+   "file": "verdant_flower_fountain.glb",
+   "category": "flower",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 1.031,
+   "radius": 1.183,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 0.7,
+    "slope_max": 32,
+    "min_spacing": 0.9,
+    "cluster": 0.5,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "cliff": 0.3
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_flower_fountain"
+   },
+   "tris": 1500
+  },
+  {
+   "id": "verdant_flower_wildpatch",
+   "file": "verdant_flower_wildpatch.glb",
+   "category": "flower",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.497,
+   "radius": 0.55,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 1.6,
+    "slope_max": 30,
+    "min_spacing": 1.2,
+    "cluster": 0.8,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "shore": 0.5,
+     "forest": 0.3
+    },
+    "scale_range": [
+     0.8,
+     1.5
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_flower_wildpatch"
+   },
+   "tris": 1322
+  },
+  {
+   "id": "verdant_flower_hero_sunbloom",
+   "file": "verdant_flower_hero_sunbloom.glb",
+   "category": "flower",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 4.733,
+   "radius": 2.186,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.2,
+    "height": 3.1
+   },
+   "scatter": null,
+   "tris": 4284,
+   "landmark": true,
+   "note": "hand-placed hero landmark; collision cylinder at stalk"
+  },
+  {
+   "id": "verdant_flower_hero_heartbloom",
+   "file": "verdant_flower_hero_heartbloom.glb",
+   "category": "flower",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 6.493,
+   "radius": 2.157,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.22,
+    "height": 3.6
+   },
+   "scatter": null,
+   "tris": 2582,
+   "landmark": true,
+   "note": "hand-placed hero landmark; collision cylinder at stalk"
+  },
+  {
+   "id": "verdant_bush_berry_a",
+   "file": "verdant_bush_berry_a.glb",
+   "category": "bush",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 1.743,
+   "radius": 1.623,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.7,
+    "height": 1.0
+   },
+   "scatter": {
+    "density": 1.0,
+    "slope_max": 30,
+    "min_spacing": 2.2,
+    "cluster": 0.5,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "forest": 0.6,
+     "shore": 0.3
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_bush_berry"
+   },
+   "tris": 2960
+  },
+  {
+   "id": "verdant_bush_berry_b",
+   "file": "verdant_bush_berry_b.glb",
+   "category": "bush",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 1.277,
+   "radius": 1.456,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.5,
+    "height": 1.0
+   },
+   "scatter": {
+    "density": 0.8,
+    "slope_max": 30,
+    "min_spacing": 2.4,
+    "cluster": 0.5,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "meadow": 0.5,
+     "cliff": 0.3
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_bush_berry"
+   },
+   "tris": 3340
+  },
+  {
+   "id": "verdant_bush_topiary",
+   "file": "verdant_bush_topiary.glb",
+   "category": "bush",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 2.557,
+   "radius": 0.643,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.6,
+    "height": 2.4
+   },
+   "scatter": {
+    "density": 0.4,
+    "slope_max": 15,
+    "min_spacing": 4.0,
+    "cluster": 0.2,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0
+    },
+    "scale_range": [
+     0.8,
+     1.2
+    ],
+    "yaw_random": true,
+    "align_to_normal": false
+   },
+   "tris": 1986
+  },
+  {
+   "id": "verdant_bush_fern",
+   "file": "verdant_bush_fern.glb",
+   "category": "bush",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.463,
+   "radius": 1.192,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 1.3,
+    "slope_max": 35,
+    "min_spacing": 1.4,
+    "cluster": 0.8,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "shore": 0.6,
+     "meadow": 0.3
+    },
+    "scale_range": [
+     0.8,
+     1.4
+    ],
+    "yaw_random": true,
+    "align_to_normal": false
+   },
+   "tris": 1228
+  },
+  {
+   "id": "verdant_bush_flower_hedge",
+   "file": "verdant_bush_flower_hedge.glb",
+   "category": "bush",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 1.329,
+   "radius": 2.164,
+   "collision": {
+    "type": "box",
+    "size": [
+     3.1,
+     1.3,
+     1.1
+    ]
+   },
+   "scatter": {
+    "density": 0.5,
+    "slope_max": 18,
+    "min_spacing": 4.0,
+    "cluster": 0.3,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 0.7,
+     "shore": 0.4,
+     "forest": 0.3
+    },
+    "scale_range": [
+     0.8,
+     1.2
+    ],
+    "yaw_random": true,
+    "align_to_normal": false
+   },
+   "tris": 2936
+  },
+  {
+   "id": "verdant_bush_succulent",
+   "file": "verdant_bush_succulent.glb",
+   "category": "bush",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.605,
+   "radius": 1.135,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.6,
+    "height": 0.9
+   },
+   "scatter": {
+    "density": 1.0,
+    "slope_max": 45,
+    "min_spacing": 1.6,
+    "cluster": 0.6,
+    "zone": "cliff",
+    "zone_weights": {
+     "cliff": 1.0,
+     "meadow": 0.4,
+     "shore": 0.5
+    },
+    "scale_range": [
+     0.7,
+     1.4
+    ],
+    "yaw_random": true,
+    "align_to_normal": false
+   },
+   "tris": 2632
+  },
+  {
+   "id": "verdant_bush_puffball",
+   "file": "verdant_bush_puffball.glb",
+   "category": "bush",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 1.521,
+   "radius": 0.707,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.55,
+    "height": 1.0
+   },
+   "scatter": {
+    "density": 0.8,
+    "slope_max": 28,
+    "min_spacing": 2.2,
+    "cluster": 0.5,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "forest": 0.4,
+     "cliff": 0.4
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false
+   },
+   "tris": 2104
+  },
+  {
+   "id": "verdant_bush_broadleaf",
+   "file": "verdant_bush_broadleaf.glb",
+   "category": "bush",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 1.147,
+   "radius": 1.292,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 1.0,
+    "slope_max": 30,
+    "min_spacing": 1.6,
+    "cluster": 0.7,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "shore": 0.8,
+     "meadow": 0.2
+    },
+    "scale_range": [
+     0.8,
+     1.4
+    ],
+    "yaw_random": true,
+    "align_to_normal": false
+   },
+   "tris": 1026
+  },
+  {
+   "id": "verdant_ground_grass_tuft_a",
+   "file": "verdant_ground_grass_tuft_a.glb",
+   "category": "ground",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.774,
+   "radius": 0.733,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 1.6,
+    "slope_max": 45,
+    "min_spacing": 0.7,
+    "cluster": 0.8,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "forest": 0.4,
+     "shore": 0.4,
+     "cliff": 0.2
+    },
+    "scale_range": [
+     0.8,
+     1.5
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_ground_grass_tuft"
+   },
+   "tris": 420
+  },
+  {
+   "id": "verdant_ground_grass_tuft_b",
+   "file": "verdant_ground_grass_tuft_b.glb",
+   "category": "ground",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.33,
+   "radius": 0.539,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 2.0,
+    "slope_max": 50,
+    "min_spacing": 0.5,
+    "cluster": 0.9,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "shore": 0.6,
+     "forest": 0.5,
+     "cliff": 0.4
+    },
+    "scale_range": [
+     0.8,
+     1.5
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_ground_grass_tuft"
+   },
+   "tris": 532
+  },
+  {
+   "id": "verdant_ground_grass_tuft_c",
+   "file": "verdant_ground_grass_tuft_c.glb",
+   "category": "ground",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 1.673,
+   "radius": 0.744,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 0.9,
+    "slope_max": 35,
+    "min_spacing": 1.0,
+    "cluster": 0.7,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "shore": 0.5
+    },
+    "scale_range": [
+     0.8,
+     1.4
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_ground_grass_tuft"
+   },
+   "tris": 568
+  },
+  {
+   "id": "verdant_ground_clover_patch",
+   "file": "verdant_ground_clover_patch.glb",
+   "category": "ground",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.31,
+   "radius": 0.638,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 1.3,
+    "slope_max": 35,
+    "min_spacing": 0.8,
+    "cluster": 0.9,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "shore": 0.5,
+     "forest": 0.4
+    },
+    "scale_range": [
+     0.8,
+     1.6
+    ],
+    "yaw_random": true,
+    "align_to_normal": false
+   },
+   "tris": 904
+  },
+  {
+   "id": "verdant_ground_reeds",
+   "file": "verdant_ground_reeds.glb",
+   "category": "ground",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 2.667,
+   "radius": 0.789,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 1.4,
+    "slope_max": 25,
+    "min_spacing": 0.9,
+    "cluster": 0.9,
+    "zone": "shore",
+    "zone_weights": {
+     "shore": 1.0,
+     "meadow": 0.15
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_ground_reed"
+   },
+   "tris": 564
+  },
+  {
+   "id": "verdant_ground_cattails",
+   "file": "verdant_ground_cattails.glb",
+   "category": "ground",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 2.345,
+   "radius": 0.943,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 1.0,
+    "slope_max": 25,
+    "min_spacing": 1.0,
+    "cluster": 0.9,
+    "zone": "shore",
+    "zone_weights": {
+     "shore": 1.0
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_ground_reed"
+   },
+   "tris": 1220
+  },
+  {
+   "id": "verdant_ground_moss_pad",
+   "file": "verdant_ground_moss_pad.glb",
+   "category": "ground",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.331,
+   "radius": 1.028,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 1.2,
+    "slope_max": 40,
+    "min_spacing": 1.4,
+    "cluster": 0.8,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "shore": 0.6,
+     "cliff": 0.5
+    },
+    "scale_range": [
+     0.7,
+     1.6
+    ],
+    "yaw_random": true,
+    "align_to_normal": false
+   },
+   "tris": 1372
+  },
+  {
+   "id": "verdant_ground_lilypads",
+   "file": "verdant_ground_lilypads.glb",
+   "category": "ground",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.127,
+   "radius": 0.984,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 1.0,
+    "slope_max": 6,
+    "min_spacing": 1.6,
+    "cluster": 0.9,
+    "zone": "shore",
+    "zone_weights": {
+     "shore": 1.0
+    },
+    "scale_range": [
+     0.8,
+     1.5
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_ground_lily"
+   },
+   "tris": 940,
+   "on_water": true
+  },
+  {
+   "id": "verdant_ground_lily_flower",
+   "file": "verdant_ground_lily_flower.glb",
+   "category": "ground",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.173,
+   "radius": 1.16,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 0.5,
+    "slope_max": 6,
+    "min_spacing": 2.0,
+    "cluster": 0.6,
+    "zone": "shore",
+    "zone_weights": {
+     "shore": 1.0
+    },
+    "scale_range": [
+     0.9,
+     1.5
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_ground_lily"
+   },
+   "tris": 1176,
+   "on_water": true
+  },
+  {
+   "id": "verdant_ground_tiny_mushrooms",
+   "file": "verdant_ground_tiny_mushrooms.glb",
+   "category": "ground",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 0.373,
+   "radius": 0.381,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 1.2,
+    "slope_max": 40,
+    "min_spacing": 0.9,
+    "cluster": 0.9,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "meadow": 0.35,
+     "shore": 0.4
+    },
+    "scale_range": [
+     0.8,
+     1.5
+    ],
+    "yaw_random": true,
+    "align_to_normal": false
+   },
+   "tris": 1372
+  },
+  {
+   "id": "verdant_hang_vines_a",
+   "file": "verdant_hang_vines_a.glb",
+   "category": "hanging",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 2.842,
+   "radius": 1.187,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 0.6,
+    "slope_max": 90,
+    "min_spacing": 5.0,
+    "cluster": 0.4,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "cliff": 0.8,
+     "meadow": 0.2
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_hang_vines",
+    "altitude_range": [
+     2.5,
+     14
+    ]
+   },
+   "tris": 2864,
+   "hangs": true,
+   "origin_note": "origin at lowest point; geometry rises to attachment point at `height`"
+  },
+  {
+   "id": "verdant_hang_vines_glowbell",
+   "file": "verdant_hang_vines_glowbell.glb",
+   "category": "hanging",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 4.523,
+   "radius": 0.429,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 0.4,
+    "slope_max": 90,
+    "min_spacing": 7.0,
+    "cluster": 0.3,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "cliff": 0.7
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_hang_vines",
+    "altitude_range": [
+     3.0,
+     14
+    ]
+   },
+   "tris": 1520,
+   "hangs": true,
+   "origin_note": "origin at lowest point; geometry rises to attachment point at `height`"
+  },
+  {
+   "id": "verdant_hang_vines_wisteria",
+   "file": "verdant_hang_vines_wisteria.glb",
+   "category": "hanging",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 2.461,
+   "radius": 1.036,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 0.5,
+    "slope_max": 90,
+    "min_spacing": 6.0,
+    "cluster": 0.4,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 0.8,
+     "meadow": 0.5,
+     "cliff": 0.6
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_hang_vines",
+    "altitude_range": [
+     2.0,
+     12
+    ]
+   },
+   "tris": 2788,
+   "hangs": true,
+   "origin_note": "origin at lowest point; geometry rises to attachment point at `height`"
+  },
+  {
+   "id": "verdant_float_seedpods",
+   "file": "verdant_float_seedpods.glb",
+   "category": "hanging",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 3.34,
+   "radius": 0.929,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 0.5,
+    "slope_max": 90,
+    "min_spacing": 7.0,
+    "cluster": 0.5,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "forest": 0.5,
+     "cliff": 0.6
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "variant_group": "verdant_float_pods",
+    "vertical_bob": true,
+    "altitude_range": [
+     1.5,
+     10
+    ]
+   },
+   "tris": 2014,
+   "floating": true
+  },
+  {
+   "id": "verdant_float_petals",
+   "file": "verdant_float_petals.glb",
+   "category": "hanging",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 2.124,
+   "radius": 1.48,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 0.8,
+    "slope_max": 90,
+    "min_spacing": 5.0,
+    "cluster": 0.5,
+    "zone": "meadow",
+    "zone_weights": {
+     "meadow": 1.0,
+     "forest": 0.5,
+     "shore": 0.5
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "altitude_range": [
+     0.5,
+     5.0
+    ]
+   },
+   "tris": 320,
+   "floating": true,
+   "note": "loose petals; each is a separate drifting shape in one mesh"
+  },
+  {
+   "id": "verdant_hang_roots_chunk",
+   "file": "verdant_hang_roots_chunk.glb",
+   "category": "hanging",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 3.116,
+   "radius": 1.125,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 0.5,
+    "slope_max": 90,
+    "min_spacing": 5.0,
+    "cluster": 0.4,
+    "zone": "cliff",
+    "zone_weights": {
+     "cliff": 1.0,
+     "meadow": 0.3
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "altitude_range": [
+     3.0,
+     20
+    ]
+   },
+   "tris": 2740,
+   "hangs": true,
+   "origin_note": "origin at lowest point; geometry rises to attachment point at `height`"
+  },
+  {
+   "id": "verdant_float_lily_island",
+   "file": "verdant_float_lily_island.glb",
+   "category": "hanging",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 3.05,
+   "radius": 1.321,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 0.35,
+    "slope_max": 90,
+    "min_spacing": 12.0,
+    "cluster": 0.2,
+    "zone": "any",
+    "zone_weights": {
+     "meadow": 1.0,
+     "shore": 0.6,
+     "forest": 0.5,
+     "cliff": 0.6
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "altitude_range": [
+     3.0,
+     25
+    ]
+   },
+   "tris": 1636,
+   "floating": true,
+   "landmark_small": true
+  },
+  {
+   "id": "verdant_float_spore_puff",
+   "file": "verdant_float_spore_puff.glb",
+   "category": "hanging",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 1.744,
+   "radius": 0.85,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": {
+    "density": 0.6,
+    "slope_max": 90,
+    "min_spacing": 4.0,
+    "cluster": 0.6,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "cliff": 0.6,
+     "meadow": 0.3
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": false,
+    "altitude_range": [
+     0.4,
+     3.0
+    ]
+   },
+   "tris": 1308,
+   "floating": true,
+   "emissive": true,
+   "light_hint": {
+    "color": "#7AE7FF",
+    "energy": 0.8,
+    "range": 4.0
+   }
+  },
+  {
+   "id": "verdant_log_hollow",
+   "file": "verdant_log_hollow.glb",
+   "category": "log",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 3.716,
+   "radius": 3.202,
+   "collision": {
+    "type": "box",
+    "size": [
+     5.6,
+     3.0,
+     3.0
+    ],
+    "parts": [
+     {
+      "type": "box",
+      "size": [
+       5.6,
+       0.55,
+       1.4
+      ],
+      "offset": [
+       0,
+       -1.3299999999999998,
+       0.7
+      ]
+     },
+     {
+      "type": "box",
+      "size": [
+       5.6,
+       0.55,
+       1.4
+      ],
+      "offset": [
+       0,
+       1.3299999999999998,
+       0.7
+      ]
+     },
+     {
+      "type": "box",
+      "size": [
+       5.6,
+       2.4,
+       0.55
+      ],
+      "offset": [
+       0,
+       0,
+       2.73
+      ]
+     }
+    ],
+    "note": "walk-through hollow: use the compound `parts` (two flanks + roof); the outer box is only the bounding envelope"
+   },
+   "scatter": {
+    "density": 0.15,
+    "slope_max": 14,
+    "min_spacing": 14.0,
+    "cluster": 0.0,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "meadow": 0.3,
+     "shore": 0.2
+    },
+    "scale_range": [
+     0.9,
+     1.2
+    ],
+    "yaw_random": true,
+    "align_to_normal": true
+   },
+   "tris": 2838
+  },
+  {
+   "id": "verdant_log_mossy",
+   "file": "verdant_log_mossy.glb",
+   "category": "log",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 2.125,
+   "radius": 2.255,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.6,
+    "slope_max": 22,
+    "min_spacing": 5.0,
+    "cluster": 0.3,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "meadow": 0.5,
+     "shore": 0.4
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": true,
+    "variant_group": "verdant_log"
+   },
+   "tris": 2314
+  },
+  {
+   "id": "verdant_log_stump_shrooms",
+   "file": "verdant_log_stump_shrooms.glb",
+   "category": "log",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 1.236,
+   "radius": 1.124,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.665,
+    "height": 0.9
+   },
+   "scatter": {
+    "density": 0.5,
+    "slope_max": 20,
+    "min_spacing": 5.0,
+    "cluster": 0.3,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "meadow": 0.3,
+     "shore": 0.3
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": true,
+    "variant_group": "verdant_stump"
+   },
+   "tris": 2498
+  },
+  {
+   "id": "verdant_log_stump_cut",
+   "file": "verdant_log_stump_cut.glb",
+   "category": "log",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 1.226,
+   "radius": 1.359,
+   "collision": {
+    "type": "cylinder",
+    "radius": 0.807,
+    "height": 0.65
+   },
+   "scatter": {
+    "density": 0.5,
+    "slope_max": 20,
+    "min_spacing": 4.5,
+    "cluster": 0.3,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "meadow": 0.6,
+     "shore": 0.3
+    },
+    "scale_range": [
+     0.8,
+     1.4
+    ],
+    "yaw_random": true,
+    "align_to_normal": true,
+    "variant_group": "verdant_stump"
+   },
+   "tris": 1602
+  },
+  {
+   "id": "verdant_log_branch_pile",
+   "file": "verdant_log_branch_pile.glb",
+   "category": "log",
+   "worlds": [
+    "verdant"
+   ],
+   "height": 1.32,
+   "radius": 1.356,
+   "collision": {
+    "type": "convex"
+   },
+   "scatter": {
+    "density": 0.8,
+    "slope_max": 25,
+    "min_spacing": 3.5,
+    "cluster": 0.4,
+    "zone": "forest",
+    "zone_weights": {
+     "forest": 1.0,
+     "meadow": 0.5,
+     "shore": 0.3
+    },
+    "scale_range": [
+     0.8,
+     1.3
+    ],
+    "yaw_random": true,
+    "align_to_normal": true,
+    "variant_group": "verdant_branchpile"
+   },
+   "tris": 1920
+  }
+ ]
+}

@@ -1,0 +1,1046 @@
+{
+ "ability_unlock": {
+  "files": [
+   "abilities/ability_unlock.ogg"
+  ],
+  "category": "abilities",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "amb_amber": {
+  "files": [
+   "ambience/amb_amber.ogg"
+  ],
+  "category": "ambience",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "Ambience"
+ },
+ "amb_cave": {
+  "files": [
+   "ambience/amb_cave.ogg"
+  ],
+  "category": "ambience",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "Ambience"
+ },
+ "amb_ember": {
+  "files": [
+   "ambience/amb_ember.ogg"
+  ],
+  "category": "ambience",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "Ambience"
+ },
+ "amb_glass": {
+  "files": [
+   "ambience/amb_glass.ogg"
+  ],
+  "category": "ambience",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "Ambience"
+ },
+ "amb_hollow": {
+  "files": [
+   "ambience/amb_hollow.ogg"
+  ],
+  "category": "ambience",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "Ambience"
+ },
+ "amb_hub": {
+  "files": [
+   "ambience/amb_hub.ogg"
+  ],
+  "category": "ambience",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "Ambience"
+ },
+ "amb_tide": {
+  "files": [
+   "ambience/amb_tide.ogg"
+  ],
+  "category": "ambience",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "Ambience"
+ },
+ "amb_verdant": {
+  "files": [
+   "ambience/amb_verdant.ogg"
+  ],
+  "category": "ambience",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "Ambience"
+ },
+ "back": {
+  "files": [
+   "ui/back.ogg"
+  ],
+  "category": "ui",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "UI"
+ },
+ "bird": {
+  "files": [
+   "ambience/bird_01.ogg",
+   "ambience/bird_02.ogg",
+   "ambience/bird_03.ogg",
+   "ambience/bird_04.ogg",
+   "ambience/bird_05.ogg",
+   "ambience/bird_06.ogg",
+   "ambience/bird_07.ogg",
+   "ambience/bird_08.ogg"
+  ],
+  "category": "ambience",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.1,
+  "bus": "Ambience"
+ },
+ "click": {
+  "files": [
+   "ui/click.ogg"
+  ],
+  "category": "ui",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "UI"
+ },
+ "close": {
+  "files": [
+   "ui/close.ogg"
+  ],
+  "category": "ui",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "UI"
+ },
+ "cloth_move": {
+  "files": [
+   "foley/cloth_move_01.ogg",
+   "foley/cloth_move_02.ogg",
+   "foley/cloth_move_03.ogg",
+   "foley/cloth_move_04.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.05,
+  "bus": "SFX"
+ },
+ "confirm": {
+  "files": [
+   "ui/confirm.ogg"
+  ],
+  "category": "ui",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "UI"
+ },
+ "crystal_hum_loop": {
+  "files": [
+   "env/crystal_hum_loop.ogg"
+  ],
+  "category": "env",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "dash": {
+  "files": [
+   "foley/dash_01.ogg",
+   "foley/dash_02.ogg",
+   "foley/dash_03.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.04,
+  "bus": "SFX"
+ },
+ "dry_click": {
+  "files": [
+   "weapons/dry_click.ogg"
+  ],
+  "category": "weapons",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "echo_pickup": {
+  "files": [
+   "pickup/echo_pickup.ogg"
+  ],
+  "category": "pickup",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "hover": {
+  "files": [
+   "ui/hover.ogg"
+  ],
+  "category": "ui",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "UI"
+ },
+ "item_pickup": {
+  "files": [
+   "pickup/item_pickup.ogg"
+  ],
+  "category": "pickup",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "journal_page": {
+  "files": [
+   "ui/journal_page.ogg"
+  ],
+  "category": "ui",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "UI"
+ },
+ "jump": {
+  "files": [
+   "foley/jump_01.ogg",
+   "foley/jump_02.ogg",
+   "foley/jump_03.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.05,
+  "bus": "SFX"
+ },
+ "keystone_pickup": {
+  "files": [
+   "pickup/keystone_pickup.ogg"
+  ],
+  "category": "pickup",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "land_hard": {
+  "files": [
+   "foley/land_hard_01.ogg",
+   "foley/land_hard_02.ogg",
+   "foley/land_hard_03.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.05,
+  "bus": "SFX"
+ },
+ "land_soft": {
+  "files": [
+   "foley/land_soft_01.ogg",
+   "foley/land_soft_02.ogg",
+   "foley/land_soft_03.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.05,
+  "bus": "SFX"
+ },
+ "lift_activate": {
+  "files": [
+   "abilities/lift_activate.ogg"
+  ],
+  "category": "abilities",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "lift_end": {
+  "files": [
+   "abilities/lift_end.ogg"
+  ],
+  "category": "abilities",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "lift_loop": {
+  "files": [
+   "abilities/lift_loop.ogg"
+  ],
+  "category": "abilities",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "loom_hum_loop": {
+  "files": [
+   "env/loom_hum_loop.ogg"
+  ],
+  "category": "env",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "mus_hub": {
+  "files": [
+   "music/mus_hub.ogg"
+  ],
+  "category": "music",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "Music"
+ },
+ "mus_keystone": {
+  "files": [
+   "music/mus_keystone.ogg"
+  ],
+  "category": "music",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "Music"
+ },
+ "mus_menu": {
+  "files": [
+   "music/mus_menu.ogg"
+  ],
+  "category": "music",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "Music"
+ },
+ "mus_reveal": {
+  "files": [
+   "music/mus_reveal.ogg"
+  ],
+  "category": "music",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "Music"
+ },
+ "mus_tension": {
+  "files": [
+   "music/mus_tension.ogg"
+  ],
+  "category": "music",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "Music"
+ },
+ "mus_verdant": {
+  "files": [
+   "music/mus_verdant.ogg"
+  ],
+  "category": "music",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "Music"
+ },
+ "notify": {
+  "files": [
+   "ui/notify.ogg"
+  ],
+  "category": "ui",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "UI"
+ },
+ "open": {
+  "files": [
+   "ui/open.ogg"
+  ],
+  "category": "ui",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "UI"
+ },
+ "plasma_charge_full": {
+  "files": [
+   "weapons/plasma_charge_full.ogg"
+  ],
+  "category": "weapons",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "plasma_charge_loop": {
+  "files": [
+   "weapons/plasma_charge_loop.ogg"
+  ],
+  "category": "weapons",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "plasma_charge_start": {
+  "files": [
+   "weapons/plasma_charge_start.ogg"
+  ],
+  "category": "weapons",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "plasma_fire": {
+  "files": [
+   "weapons/plasma_fire_01.ogg",
+   "weapons/plasma_fire_02.ogg",
+   "weapons/plasma_fire_03.ogg"
+  ],
+  "category": "weapons",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.04,
+  "bus": "SFX"
+ },
+ "plasma_impact": {
+  "files": [
+   "weapons/plasma_impact_01.ogg",
+   "weapons/plasma_impact_02.ogg",
+   "weapons/plasma_impact_03.ogg"
+  ],
+  "category": "weapons",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.05,
+  "bus": "SFX"
+ },
+ "plasma_projectile_loop": {
+  "files": [
+   "weapons/plasma_projectile_loop.ogg"
+  ],
+  "category": "weapons",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "plasma_vent": {
+  "files": [
+   "weapons/plasma_vent_01.ogg",
+   "weapons/plasma_vent_02.ogg"
+  ],
+  "category": "weapons",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.03,
+  "bus": "SFX"
+ },
+ "portal_enter": {
+  "files": [
+   "env/portal_enter.ogg"
+  ],
+  "category": "env",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "portal_loop": {
+  "files": [
+   "env/portal_loop.ogg"
+  ],
+  "category": "env",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "puff_bounce": {
+  "files": [
+   "creatures/puff_bounce_01.ogg",
+   "creatures/puff_bounce_02.ogg",
+   "creatures/puff_bounce_03.ogg"
+  ],
+  "category": "creatures",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.08,
+  "bus": "SFX"
+ },
+ "puff_chirp": {
+  "files": [
+   "creatures/puff_chirp_01.ogg",
+   "creatures/puff_chirp_02.ogg",
+   "creatures/puff_chirp_03.ogg",
+   "creatures/puff_chirp_04.ogg",
+   "creatures/puff_chirp_05.ogg",
+   "creatures/puff_chirp_06.ogg"
+  ],
+  "category": "creatures",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.08,
+  "bus": "SFX"
+ },
+ "pulse_fire": {
+  "files": [
+   "weapons/pulse_fire.ogg"
+  ],
+  "category": "weapons",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "quest_complete": {
+  "files": [
+   "ui/quest_complete.ogg"
+  ],
+  "category": "ui",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "UI"
+ },
+ "scan_ping": {
+  "files": [
+   "abilities/scan_ping.ogg"
+  ],
+  "category": "abilities",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "shard_fire": {
+  "files": [
+   "weapons/shard_fire_01.ogg",
+   "weapons/shard_fire_02.ogg",
+   "weapons/shard_fire_03.ogg",
+   "weapons/shard_fire_04.ogg",
+   "weapons/shard_fire_05.ogg"
+  ],
+  "category": "weapons",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "shard_impact": {
+  "files": [
+   "weapons/shard_impact_01.ogg",
+   "weapons/shard_impact_02.ogg",
+   "weapons/shard_impact_03.ogg",
+   "weapons/shard_impact_04.ogg"
+  ],
+  "category": "weapons",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "slide": {
+  "files": [
+   "foley/slide.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "stasis_cast": {
+  "files": [
+   "abilities/stasis_cast.ogg"
+  ],
+  "category": "abilities",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "stasis_end": {
+  "files": [
+   "abilities/stasis_end.ogg"
+  ],
+  "category": "abilities",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "stasis_loop": {
+  "files": [
+   "abilities/stasis_loop.ogg"
+  ],
+  "category": "abilities",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "step_crystal_run": {
+  "files": [
+   "foley/step_crystal_run_01.ogg",
+   "foley/step_crystal_run_02.ogg",
+   "foley/step_crystal_run_03.ogg",
+   "foley/step_crystal_run_04.ogg",
+   "foley/step_crystal_run_05.ogg",
+   "foley/step_crystal_run_06.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "step_crystal_walk": {
+  "files": [
+   "foley/step_crystal_walk_01.ogg",
+   "foley/step_crystal_walk_02.ogg",
+   "foley/step_crystal_walk_03.ogg",
+   "foley/step_crystal_walk_04.ogg",
+   "foley/step_crystal_walk_05.ogg",
+   "foley/step_crystal_walk_06.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "step_grass_run": {
+  "files": [
+   "foley/step_grass_run_01.ogg",
+   "foley/step_grass_run_02.ogg",
+   "foley/step_grass_run_03.ogg",
+   "foley/step_grass_run_04.ogg",
+   "foley/step_grass_run_05.ogg",
+   "foley/step_grass_run_06.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "step_grass_walk": {
+  "files": [
+   "foley/step_grass_walk_01.ogg",
+   "foley/step_grass_walk_02.ogg",
+   "foley/step_grass_walk_03.ogg",
+   "foley/step_grass_walk_04.ogg",
+   "foley/step_grass_walk_05.ogg",
+   "foley/step_grass_walk_06.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "step_metal_run": {
+  "files": [
+   "foley/step_metal_run_01.ogg",
+   "foley/step_metal_run_02.ogg",
+   "foley/step_metal_run_03.ogg",
+   "foley/step_metal_run_04.ogg",
+   "foley/step_metal_run_05.ogg",
+   "foley/step_metal_run_06.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "step_metal_walk": {
+  "files": [
+   "foley/step_metal_walk_01.ogg",
+   "foley/step_metal_walk_02.ogg",
+   "foley/step_metal_walk_03.ogg",
+   "foley/step_metal_walk_04.ogg",
+   "foley/step_metal_walk_05.ogg",
+   "foley/step_metal_walk_06.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "step_sand_run": {
+  "files": [
+   "foley/step_sand_run_01.ogg",
+   "foley/step_sand_run_02.ogg",
+   "foley/step_sand_run_03.ogg",
+   "foley/step_sand_run_04.ogg",
+   "foley/step_sand_run_05.ogg",
+   "foley/step_sand_run_06.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "step_sand_walk": {
+  "files": [
+   "foley/step_sand_walk_01.ogg",
+   "foley/step_sand_walk_02.ogg",
+   "foley/step_sand_walk_03.ogg",
+   "foley/step_sand_walk_04.ogg",
+   "foley/step_sand_walk_05.ogg",
+   "foley/step_sand_walk_06.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "step_snow_run": {
+  "files": [
+   "foley/step_snow_run_01.ogg",
+   "foley/step_snow_run_02.ogg",
+   "foley/step_snow_run_03.ogg",
+   "foley/step_snow_run_04.ogg",
+   "foley/step_snow_run_05.ogg",
+   "foley/step_snow_run_06.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "step_snow_walk": {
+  "files": [
+   "foley/step_snow_walk_01.ogg",
+   "foley/step_snow_walk_02.ogg",
+   "foley/step_snow_walk_03.ogg",
+   "foley/step_snow_walk_04.ogg",
+   "foley/step_snow_walk_05.ogg",
+   "foley/step_snow_walk_06.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "step_stone_run": {
+  "files": [
+   "foley/step_stone_run_01.ogg",
+   "foley/step_stone_run_02.ogg",
+   "foley/step_stone_run_03.ogg",
+   "foley/step_stone_run_04.ogg",
+   "foley/step_stone_run_05.ogg",
+   "foley/step_stone_run_06.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "step_stone_walk": {
+  "files": [
+   "foley/step_stone_walk_01.ogg",
+   "foley/step_stone_walk_02.ogg",
+   "foley/step_stone_walk_03.ogg",
+   "foley/step_stone_walk_04.ogg",
+   "foley/step_stone_walk_05.ogg",
+   "foley/step_stone_walk_06.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "step_water_run": {
+  "files": [
+   "foley/step_water_run_01.ogg",
+   "foley/step_water_run_02.ogg",
+   "foley/step_water_run_03.ogg",
+   "foley/step_water_run_04.ogg",
+   "foley/step_water_run_05.ogg",
+   "foley/step_water_run_06.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "step_water_walk": {
+  "files": [
+   "foley/step_water_walk_01.ogg",
+   "foley/step_water_walk_02.ogg",
+   "foley/step_water_walk_03.ogg",
+   "foley/step_water_walk_04.ogg",
+   "foley/step_water_walk_05.ogg",
+   "foley/step_water_walk_06.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "step_wood_run": {
+  "files": [
+   "foley/step_wood_run_01.ogg",
+   "foley/step_wood_run_02.ogg",
+   "foley/step_wood_run_03.ogg",
+   "foley/step_wood_run_04.ogg",
+   "foley/step_wood_run_05.ogg",
+   "foley/step_wood_run_06.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "step_wood_walk": {
+  "files": [
+   "foley/step_wood_walk_01.ogg",
+   "foley/step_wood_walk_02.ogg",
+   "foley/step_wood_walk_03.ogg",
+   "foley/step_wood_walk_04.ogg",
+   "foley/step_wood_walk_05.ogg",
+   "foley/step_wood_walk_06.ogg"
+  ],
+  "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "talk_blip_high": {
+  "files": [
+   "npc/talk_blip_high_01.ogg",
+   "npc/talk_blip_high_02.ogg",
+   "npc/talk_blip_high_03.ogg",
+   "npc/talk_blip_high_04.ogg",
+   "npc/talk_blip_high_05.ogg",
+   "npc/talk_blip_high_06.ogg",
+   "npc/talk_blip_high_07.ogg",
+   "npc/talk_blip_high_08.ogg"
+  ],
+  "category": "npc",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.05,
+  "bus": "Voice"
+ },
+ "talk_blip_low": {
+  "files": [
+   "npc/talk_blip_low_01.ogg",
+   "npc/talk_blip_low_02.ogg",
+   "npc/talk_blip_low_03.ogg",
+   "npc/talk_blip_low_04.ogg",
+   "npc/talk_blip_low_05.ogg",
+   "npc/talk_blip_low_06.ogg",
+   "npc/talk_blip_low_07.ogg",
+   "npc/talk_blip_low_08.ogg"
+  ],
+  "category": "npc",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.05,
+  "bus": "Voice"
+ },
+ "talk_blip_mid": {
+  "files": [
+   "npc/talk_blip_mid_01.ogg",
+   "npc/talk_blip_mid_02.ogg",
+   "npc/talk_blip_mid_03.ogg",
+   "npc/talk_blip_mid_04.ogg",
+   "npc/talk_blip_mid_05.ogg",
+   "npc/talk_blip_mid_06.ogg",
+   "npc/talk_blip_mid_07.ogg",
+   "npc/talk_blip_mid_08.ogg"
+  ],
+  "category": "npc",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.05,
+  "bus": "Voice"
+ },
+ "talk_blip_robot": {
+  "files": [
+   "npc/talk_blip_robot_01.ogg",
+   "npc/talk_blip_robot_02.ogg",
+   "npc/talk_blip_robot_03.ogg",
+   "npc/talk_blip_robot_04.ogg",
+   "npc/talk_blip_robot_05.ogg",
+   "npc/talk_blip_robot_06.ogg",
+   "npc/talk_blip_robot_07.ogg",
+   "npc/talk_blip_robot_08.ogg"
+  ],
+  "category": "npc",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.05,
+  "bus": "Voice"
+ },
+ "typewriter": {
+  "files": [
+   "ui/typewriter_01.ogg",
+   "ui/typewriter_02.ogg",
+   "ui/typewriter_03.ogg",
+   "ui/typewriter_04.ogg",
+   "ui/typewriter_05.ogg",
+   "ui/typewriter_06.ogg"
+  ],
+  "category": "ui",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.03,
+  "bus": "UI"
+ },
+ "water_loop": {
+  "files": [
+   "env/water_loop.ogg"
+  ],
+  "category": "env",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "waterfall_loop": {
+  "files": [
+   "env/waterfall_loop.ogg"
+  ],
+  "category": "env",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "weapon_raise": {
+  "files": [
+   "weapons/weapon_raise.ogg"
+  ],
+  "category": "weapons",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "weapon_switch": {
+  "files": [
+   "weapons/weapon_switch.ogg"
+  ],
+  "category": "weapons",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "wind_gust": {
+  "files": [
+   "ambience/wind_gust_01.ogg",
+   "ambience/wind_gust_02.ogg",
+   "ambience/wind_gust_03.ogg"
+  ],
+  "category": "ambience",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.05,
+  "bus": "Ambience"
+ },
+ "windmill_creak": {
+  "files": [
+   "env/windmill_creak.ogg"
+  ],
+  "category": "env",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "wisp_attack": {
+  "files": [
+   "creatures/wisp_attack.ogg"
+  ],
+  "category": "creatures",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "wisp_death": {
+  "files": [
+   "creatures/wisp_death.ogg"
+  ],
+  "category": "creatures",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "wisp_hit": {
+  "files": [
+   "creatures/wisp_hit_01.ogg",
+   "creatures/wisp_hit_02.ogg",
+   "creatures/wisp_hit_03.ogg"
+  ],
+  "category": "creatures",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.08,
+  "bus": "SFX"
+ },
+ "wisp_idle_loop": {
+  "files": [
+   "creatures/wisp_idle_loop.ogg"
+  ],
+  "category": "creatures",
+  "loop": true,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ }
+}

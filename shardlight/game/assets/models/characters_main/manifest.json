@@ -1,0 +1,30 @@
+{
+ "pack": "characters_main",
+ "assets": [
+  {
+   "id": "rae",
+   "file": "rae.glb",
+   "category": "character",
+   "worlds": [
+    "all"
+   ],
+   "height": 1.735,
+   "radius": 0.302,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": null,
+   "tris": 12452,
+   "animations": [
+    "idle",
+    "walk",
+    "run",
+    "wave",
+    "talk",
+    "look_around",
+    "menu_pose"
+   ],
+   "rig": "rae_rig"
+  }
+ ]
+}

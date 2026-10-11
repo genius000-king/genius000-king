@@ -1,0 +1,278 @@
+[
+ {
+  "id": "verdant_cliff_wall_a",
+  "file": "verdant_cliff_wall_a.glb",
+  "category": "cliff",
+  "worlds": [
+   "verdant"
+  ],
+  "height": 12.613,
+  "radius": 7.0,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 4804,
+  "family": "cliff",
+  "modular": {
+   "axis": "x",
+   "width": 14,
+   "depth": 6,
+   "front": "-Y",
+   "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+  }
+ },
+ {
+  "id": "verdant_cliff_wall_b",
+  "file": "verdant_cliff_wall_b.glb",
+  "category": "cliff",
+  "worlds": [
+   "verdant"
+  ],
+  "height": 21.762,
+  "radius": 8.035,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 7204,
+  "family": "cliff",
+  "modular": {
+   "axis": "x",
+   "width": 16,
+   "depth": 7,
+   "front": "-Y",
+   "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+  }
+ },
+ {
+  "id": "verdant_cliff_wall_c",
+  "file": "verdant_cliff_wall_c.glb",
+  "category": "cliff",
+  "worlds": [
+   "verdant"
+  ],
+  "height": 8.0,
+  "radius": 6.0,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 3912,
+  "family": "cliff",
+  "modular": {
+   "axis": "x",
+   "width": 12,
+   "depth": 6,
+   "front": "-Y",
+   "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+  }
+ },
+ {
+  "id": "amber_cliff_strata_a",
+  "file": "amber_cliff_strata_a.glb",
+  "category": "cliff",
+  "worlds": [
+   "amber"
+  ],
+  "height": 11.168,
+  "radius": 7.0,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 4624,
+  "family": "cliff",
+  "modular": {
+   "axis": "x",
+   "width": 14,
+   "depth": 6,
+   "front": "-Y",
+   "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+  }
+ },
+ {
+  "id": "amber_cliff_strata_b",
+  "file": "amber_cliff_strata_b.glb",
+  "category": "cliff",
+  "worlds": [
+   "amber"
+  ],
+  "height": 19.578,
+  "radius": 8.0,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 7216,
+  "family": "cliff",
+  "modular": {
+   "axis": "x",
+   "width": 16,
+   "depth": 7,
+   "front": "-Y",
+   "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+  }
+ },
+ {
+  "id": "amber_cliff_strata_c",
+  "file": "amber_cliff_strata_c.glb",
+  "category": "cliff",
+  "worlds": [
+   "amber"
+  ],
+  "height": 7.623,
+  "radius": 6.0,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 3608,
+  "family": "cliff",
+  "modular": {
+   "axis": "x",
+   "width": 12,
+   "depth": 6,
+   "front": "-Y",
+   "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+  }
+ },
+ {
+  "id": "ember_cliff_basalt_a",
+  "file": "ember_cliff_basalt_a.glb",
+  "category": "cliff",
+  "worlds": [
+   "ember"
+  ],
+  "height": 10.148,
+  "radius": 6.573,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 2904,
+  "family": "cliff",
+  "modular": {
+   "axis": "x",
+   "width": 13,
+   "depth": 6,
+   "front": "-Y",
+   "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+  }
+ },
+ {
+  "id": "ember_cliff_basalt_b",
+  "file": "ember_cliff_basalt_b.glb",
+  "category": "cliff",
+  "worlds": [
+   "ember"
+  ],
+  "height": 17.614,
+  "radius": 7.611,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 2360,
+  "family": "cliff",
+  "modular": {
+   "axis": "x",
+   "width": 15,
+   "depth": 6.5,
+   "front": "-Y",
+   "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+  }
+ },
+ {
+  "id": "ember_cliff_basalt_c",
+  "file": "ember_cliff_basalt_c.glb",
+  "category": "cliff",
+  "worlds": [
+   "ember"
+  ],
+  "height": 12.117,
+  "radius": 5.894,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 2360,
+  "family": "cliff",
+  "modular": {
+   "axis": "x",
+   "width": 12,
+   "depth": 5,
+   "front": "-Y",
+   "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+  }
+ },
+ {
+  "id": "glass_cliff_ice_a",
+  "file": "glass_cliff_ice_a.glb",
+  "category": "cliff",
+  "worlds": [
+   "glass"
+  ],
+  "height": 11.749,
+  "radius": 7.0,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 4672,
+  "family": "cliff",
+  "modular": {
+   "axis": "x",
+   "width": 14,
+   "depth": 6,
+   "front": "-Y",
+   "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+  }
+ },
+ {
+  "id": "glass_cliff_ice_b",
+  "file": "glass_cliff_ice_b.glb",
+  "category": "cliff",
+  "worlds": [
+   "glass"
+  ],
+  "height": 20.706,
+  "radius": 8.0,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 6970,
+  "family": "cliff",
+  "modular": {
+   "axis": "x",
+   "width": 16,
+   "depth": 7,
+   "front": "-Y",
+   "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+  }
+ },
+ {
+  "id": "glass_cliff_ice_c",
+  "file": "glass_cliff_ice_c.glb",
+  "category": "cliff",
+  "worlds": [
+   "glass"
+  ],
+  "height": 8.515,
+  "radius": 6.0,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 3837,
+  "family": "cliff",
+  "modular": {
+   "axis": "x",
+   "width": 12,
+   "depth": 6,
+   "front": "-Y",
+   "note": "ends are flush/flat (displacement faded to 0), place side by side with 1-2 m overlap; pieces of equal height mate seamlessly; back face (+Y) is buried in terrain"
+  }
+ }
+]

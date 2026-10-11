@@ -1,0 +1,318 @@
+[
+ {
+  "id": "verdant_misc_stepping_stones_a",
+  "file": "verdant_misc_stepping_stones_a.glb",
+  "category": "misc",
+  "worlds": [
+   "verdant"
+  ],
+  "height": 0.425,
+  "radius": 5.589,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": {
+   "density": 0.1,
+   "slope_max": 12,
+   "min_spacing": 18,
+   "cluster": 0.0,
+   "zone": "shore"
+  },
+  "tris": 2240,
+  "family": "misc",
+  "note": "each stone top is walkable; set of discrete stones, trimesh not convex"
+ },
+ {
+  "id": "amber_misc_stepping_stones_a",
+  "file": "amber_misc_stepping_stones_a.glb",
+  "category": "misc",
+  "worlds": [
+   "amber"
+  ],
+  "height": 0.499,
+  "radius": 5.945,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": {
+   "density": 0.1,
+   "slope_max": 12,
+   "min_spacing": 18,
+   "cluster": 0.0,
+   "zone": "shore"
+  },
+  "tris": 1920,
+  "family": "misc"
+ },
+ {
+  "id": "glass_misc_stepping_stones_a",
+  "file": "glass_misc_stepping_stones_a.glb",
+  "category": "misc",
+  "worlds": [
+   "glass"
+  ],
+  "height": 0.441,
+  "radius": 4.982,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": {
+   "density": 0.1,
+   "slope_max": 12,
+   "min_spacing": 18,
+   "cluster": 0.0,
+   "zone": "shore"
+  },
+  "tris": 1920,
+  "family": "misc"
+ },
+ {
+  "id": "amber_misc_dune_rocks_a",
+  "file": "amber_misc_dune_rocks_a.glb",
+  "category": "misc",
+  "worlds": [
+   "amber"
+  ],
+  "height": 1.166,
+  "radius": 3.5,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.5,
+   "slope_max": 18,
+   "min_spacing": 8,
+   "cluster": 0.6,
+   "zone": "any"
+  },
+  "tris": 2504,
+  "family": "misc"
+ },
+ {
+  "id": "amber_misc_dune_rocks_b",
+  "file": "amber_misc_dune_rocks_b.glb",
+  "category": "misc",
+  "worlds": [
+   "amber"
+  ],
+  "height": 1.665,
+  "radius": 5.0,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.3,
+   "slope_max": 18,
+   "min_spacing": 10,
+   "cluster": 0.5,
+   "zone": "any"
+  },
+  "tris": 3020,
+  "family": "misc"
+ },
+ {
+  "id": "ember_misc_steam_vent_a",
+  "file": "ember_misc_steam_vent_a.glb",
+  "category": "misc",
+  "worlds": [
+   "ember"
+  ],
+  "height": 2.203,
+  "radius": 4.672,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.2,
+   "slope_max": 25,
+   "min_spacing": 14,
+   "cluster": 0.3,
+   "zone": "any"
+  },
+  "tris": 1118,
+  "family": "misc",
+  "vfx_socket": {
+   "name": "steam",
+   "pos": [
+    0,
+    1.9,
+    0
+   ],
+   "dir": [
+    0,
+    1,
+    0
+   ]
+  }
+ },
+ {
+  "id": "ember_misc_steam_vent_b",
+  "file": "ember_misc_steam_vent_b.glb",
+  "category": "misc",
+  "worlds": [
+   "ember"
+  ],
+  "height": 1.193,
+  "radius": 2.321,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.4,
+   "slope_max": 25,
+   "min_spacing": 8,
+   "cluster": 0.4,
+   "zone": "any"
+  },
+  "tris": 798,
+  "family": "misc",
+  "vfx_socket": {
+   "name": "steam",
+   "pos": [
+    0,
+    1.05,
+    0
+   ],
+   "dir": [
+    0,
+    1,
+    0
+   ]
+  }
+ },
+ {
+  "id": "amber_misc_geode_a",
+  "file": "amber_misc_geode_a.glb",
+  "category": "misc",
+  "worlds": [
+   "amber"
+  ],
+  "height": 3.133,
+  "radius": 1.809,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": {
+   "density": 0.1,
+   "slope_max": 30,
+   "min_spacing": 14,
+   "cluster": 0.2,
+   "zone": "any"
+  },
+  "tris": 3030,
+  "family": "misc",
+  "cut_open": true
+ },
+ {
+  "id": "glass_misc_geode_a",
+  "file": "glass_misc_geode_a.glb",
+  "category": "misc",
+  "worlds": [
+   "glass"
+  ],
+  "height": 2.583,
+  "radius": 1.773,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": {
+   "density": 0.1,
+   "slope_max": 30,
+   "min_spacing": 14,
+   "cluster": 0.2,
+   "zone": "any"
+  },
+  "tris": 3030,
+  "family": "misc",
+  "cut_open": true
+ },
+ {
+  "id": "hollow_misc_geode_a",
+  "file": "hollow_misc_geode_a.glb",
+  "category": "misc",
+  "worlds": [
+   "hollow"
+  ],
+  "height": 2.977,
+  "radius": 1.843,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": {
+   "density": 0.1,
+   "slope_max": 30,
+   "min_spacing": 14,
+   "cluster": 0.2,
+   "zone": "cave"
+  },
+  "tris": 3030,
+  "family": "misc",
+  "cut_open": true
+ },
+ {
+  "id": "glass_misc_ice_spikes_a",
+  "file": "glass_misc_ice_spikes_a.glb",
+  "category": "misc",
+  "worlds": [
+   "glass"
+  ],
+  "height": 5.099,
+  "radius": 1.885,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.4,
+   "slope_max": 30,
+   "min_spacing": 8,
+   "cluster": 0.7,
+   "zone": "any"
+  },
+  "tris": 702,
+  "family": "misc"
+ },
+ {
+  "id": "glass_misc_ice_spikes_b",
+  "file": "glass_misc_ice_spikes_b.glb",
+  "category": "misc",
+  "worlds": [
+   "glass"
+  ],
+  "height": 8.837,
+  "radius": 4.014,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.15,
+   "slope_max": 30,
+   "min_spacing": 14,
+   "cluster": 0.6,
+   "zone": "any"
+  },
+  "tris": 908,
+  "family": "misc"
+ },
+ {
+  "id": "glass_misc_ice_spikes_c",
+  "file": "glass_misc_ice_spikes_c.glb",
+  "category": "misc",
+  "worlds": [
+   "glass"
+  ],
+  "height": 1.897,
+  "radius": 0.703,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 1.0,
+   "slope_max": 30,
+   "min_spacing": 3,
+   "cluster": 0.8,
+   "zone": "any"
+  },
+  "tris": 572,
+  "family": "misc"
+ }
+]

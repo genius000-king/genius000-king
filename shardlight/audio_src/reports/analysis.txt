@@ -1,0 +1,94 @@
+event                      cat        n   ch  dur_s   peak    rms   LUFS  centHz      dc seamJump seamdB
+--------------------------------------------------------------------------------------------------------
+ability_unlock             abilities  1   st   4.61   -2.6  -21.0  -15.7    2240  0.0000                
+amb_amber                  ambience   1   st  48.00  -10.7  -26.8  -24.2    2173  0.0000     0.51    0.3
+amb_cave                   ambience   1   st  48.00   -3.9  -20.1  -24.1      37  0.0001     0.30    2.7
+amb_ember                  ambience   1   st  48.00   -4.2  -20.7  -24.0      53  0.0000     0.41    0.5
+amb_glass                  ambience   1   st  48.00  -12.1  -29.0  -24.0    2542  0.0000     0.40    0.6
+amb_hollow                 ambience   1   st  48.00  -10.5  -24.0  -24.0      98  0.0000     0.59    1.7
+amb_hub                    ambience   1   st  48.00   -9.6  -22.7  -24.0      66  0.0000     1.15    0.6
+amb_tide                   ambience   1   st  48.00   -9.0  -25.0  -24.1    1341  0.0000     0.24    0.9
+amb_verdant                ambience   1   st  48.00   -9.6  -28.1  -24.2    1741  0.0000     0.68    1.1
+back                       ui         1   st   0.70  -15.0  -28.7  -26.5     637  0.0000                
+bird                       ambience   8 mono   2.07  -13.0  -26.6  -21.1    3824  0.0000                
+click                      ui         1   st   0.14  -13.7  -28.7    nan    1307  0.0001                
+close                      ui         1   st   0.70  -15.1  -29.0  -26.8     923  0.0000                
+cloth_move                 foley      4 mono   0.28  -29.9  -48.6    nan    2116  0.0000                
+confirm                    ui         1   st   1.10  -11.3  -26.8  -23.4    1255  0.0000                
+crystal_hum_loop           env        1 mono   4.00  -17.3  -28.0  -29.0     312  0.0000     1.01    0.5
+dash                       foley      3 mono   0.45  -10.0  -25.3  -22.8    2846  0.0000                
+dry_click                  weapons    1   st   0.18  -11.8  -29.6    nan     295  0.0001                
+echo_pickup                pickup     1   st   4.30   -7.3  -22.9  -17.5    1822  0.0000                
+hover                      ui         1   st   0.14  -20.5  -32.3    nan    1978  0.0000                
+item_pickup                pickup     1   st   1.20   -9.2  -25.0  -20.8    1309  0.0000                
+journal_page               ui         1   st   0.80  -16.6  -40.8  -35.2    4278  0.0000                
+jump                       foley      3 mono   0.42  -14.1  -28.9  -29.5    1480  0.0001                
+keystone_pickup            pickup     1   st   7.29   -2.4  -22.7  -17.5    1933  0.0000                
+land_hard                  foley      3 mono   0.55   -9.0  -23.5  -27.9     217  0.0002                
+land_soft                  foley      3 mono   0.32  -14.9  -29.1    nan     981  0.0002                
+lift_activate              abilities  1   st   1.90   -5.0  -21.0  -14.9    1676  0.0000                
+lift_end                   abilities  1   st   1.50   -6.4  -22.6  -17.6     898  0.0000                
+lift_loop                  abilities  1   st   3.00  -17.0  -29.1  -26.1     719  0.0000     0.87    1.7
+loom_hum_loop              env        1 mono   5.00  -10.1  -21.4  -25.1     131  0.0000     1.07    0.9
+mus_hub                    music      1   st  96.00   -2.7  -22.0  -18.0    1434  0.0000     0.63    1.3
+mus_keystone               music      1   st  14.50   -2.4  -20.5  -17.1    1591  0.0000                
+mus_menu                   music      1   st 101.05   -5.2  -20.3  -18.0     490  0.0000     0.42    0.5
+mus_reveal                 music      1   st  14.00   -3.4  -21.7  -17.0    2098  0.0000                
+mus_tension                music      1   st 106.67   -2.6  -20.4  -18.1     742  0.0000     0.33    1.5
+mus_verdant                music      1   st 104.35   -5.3  -20.4  -18.0     673  0.0000     0.25    3.1
+notify                     ui         1   st   1.60  -11.8  -25.8  -19.8    2334  0.0000                
+open                       ui         1   st   0.80  -14.1  -27.5  -24.9    1051  0.0000                
+plasma_charge_full         weapons    1   st   2.00   -5.8  -27.1  -20.8    3314  0.0000                
+plasma_charge_loop         weapons    1   st   2.50  -12.5  -23.7  -21.0     723  0.0001     0.83    1.8
+plasma_charge_start        weapons    1   st   1.00   -5.1  -16.1  -12.7    2321  0.0001                
+plasma_fire                weapons    3   st   2.43   -1.4  -23.9  -21.0     457  0.0001                
+plasma_impact              weapons    3 mono   3.46   -2.0  -17.2  -19.8     202  0.0000                
+plasma_projectile_loop     weapons    1 mono   1.60  -10.7  -24.1  -24.1    1195  0.0000     0.91    0.4
+plasma_vent                weapons    2   st   1.90  -10.7  -31.9  -25.4   12247  0.0000                
+portal_enter               env        1 mono   2.65   -3.0  -22.8  -21.0    1504  0.0000                
+portal_loop                env        1 mono   4.00  -12.8  -24.6  -25.0     800  0.0000     0.88    0.2
+puff_bounce                creatures  3 mono   0.35  -12.0  -25.4    nan     185  0.0002                
+puff_chirp                 creatures  6 mono   0.26  -11.6  -18.9    nan    1522  0.0000                
+pulse_fire                 weapons    1   st   2.26   -2.0  -15.6  -15.3      68  0.0001                
+quest_complete             ui         1   st   3.25   -8.0  -25.8  -20.3    1615  0.0000                
+scan_ping                  abilities  1   st   2.20   -6.0  -23.6  -17.9    1158  0.0000                
+shard_fire                 weapons    5   st   0.80   -3.7  -24.2  -18.8    3807  0.0001                
+shard_impact               weapons    4 mono   0.90   -5.9  -25.2  -21.1    6827  0.0001                
+slide                      foley      1 mono   0.90  -14.5  -31.4  -29.2    2008  0.0000                
+stasis_cast                abilities  1   st   3.00   -3.6  -23.1  -17.7    1234  0.0000                
+stasis_end                 abilities  1   st   2.40   -6.1  -25.3  -17.6    4798  0.0000                
+stasis_loop                abilities  1   st   4.00  -17.5  -32.2  -27.0    3225  0.0000     0.42    0.5
+step_crystal_run           foley      6 mono   0.34  -13.2  -28.3    nan    5046  0.0000                
+step_crystal_walk          foley      6 mono   0.30  -17.3  -32.6    nan    3755  0.0000                
+step_grass_run             foley      6 mono   0.34  -13.8  -38.6    nan    6063  0.0000                
+step_grass_walk            foley      6 mono   0.30  -18.4  -42.2    nan    5074  0.0000                
+step_metal_run             foley      6 mono   0.34  -13.8  -29.9    nan    1735  0.0000                
+step_metal_walk            foley      6 mono   0.30  -17.2  -32.2    nan    1198  0.0000                
+step_sand_run              foley      6 mono   0.34  -13.5  -30.9    nan    3933  0.0000                
+step_sand_walk             foley      6 mono   0.30  -17.5  -34.4    nan    2961  0.0000                
+step_snow_run              foley      6 mono   0.34  -12.9  -30.7    nan    3339  0.0000                
+step_snow_walk             foley      6 mono   0.30  -17.4  -32.7    nan    2410  0.0000                
+step_stone_run             foley      6 mono   0.34  -14.3  -37.3    nan     938  0.0000                
+step_stone_walk            foley      6 mono   0.30  -17.6  -39.1    nan    1105  0.0000                
+step_water_run             foley      6 mono   0.34  -12.9  -29.7    nan    2435  0.0000                
+step_water_walk            foley      6 mono   0.30  -17.1  -33.5    nan    1807  0.0000                
+step_wood_run              foley      6 mono   0.34  -13.4  -29.9    nan     240  0.0000                
+step_wood_walk             foley      6 mono   0.30  -17.1  -32.8    nan     239  0.0000                
+talk_blip_high             npc        8 mono   0.13  -17.1  -28.6    nan     660  0.0000                
+talk_blip_low              npc        8 mono   0.15  -17.5  -31.3    nan     433  0.0000                
+talk_blip_mid              npc        8 mono   0.14  -17.3  -29.3    nan     544  0.0000                
+talk_blip_robot            npc        8 mono   0.14  -17.2  -31.7    nan     547  0.0000                
+typewriter                 ui         6   st   0.09  -23.8  -37.3    nan     747  0.0000                
+water_loop                 env        1 mono   5.00  -13.8  -27.6  -27.6    2483  0.0000     1.09    0.3
+waterfall_loop             env        1 mono   6.00  -10.8  -24.2  -25.5    1686  0.0000     0.89    2.1
+weapon_raise               weapons    1   st   0.70  -10.0  -28.6  -24.0     620  0.0001                
+weapon_switch              weapons    1   st   0.45  -10.0  -29.0  -24.5    2732  0.0001                
+wind_gust                  ambience   3   st   5.30  -11.9  -31.4  -25.8    1470  0.0000                
+windmill_creak             env        1 mono   3.20  -14.0  -29.8  -31.9     213  0.0000                
+wisp_attack                creatures  1 mono   0.85   -6.2  -14.9  -12.1    6357  0.0000                
+wisp_death                 creatures  1 mono   1.50   -6.8  -20.0  -19.8    1817  0.0000                
+wisp_hit                   creatures  3 mono   0.40   -7.7  -27.6    nan    3295  0.0000                
+wisp_idle_loop             creatures  1 mono   2.00  -12.9  -28.7  -26.4    3377  0.0000     0.99    2.6
+
+events: 89 total size: 19.9 MB
+

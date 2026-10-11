@@ -1,0 +1,290 @@
+[
+ {
+  "id": "amber_crystal_cluster_a",
+  "file": "amber_crystal_cluster_a.glb",
+  "category": "crystal",
+  "worlds": [
+   "amber"
+  ],
+  "height": 2.033,
+  "radius": 1.161,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.5,
+   "slope_max": 35,
+   "min_spacing": 6,
+   "cluster": 0.5,
+   "zone": "cave"
+  },
+  "tris": 1092,
+  "family": "crystal",
+  "size_class": "small",
+  "emit_color": "#7DF9E0"
+ },
+ {
+  "id": "amber_crystal_cluster_b",
+  "file": "amber_crystal_cluster_b.glb",
+  "category": "crystal",
+  "worlds": [
+   "amber"
+  ],
+  "height": 1.426,
+  "radius": 1.066,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.5,
+   "slope_max": 35,
+   "min_spacing": 6,
+   "cluster": 0.5,
+   "zone": "any"
+  },
+  "tris": 1284,
+  "family": "crystal",
+  "size_class": "small",
+  "emit_color": "#FFE0A8"
+ },
+ {
+  "id": "amber_crystal_landmark",
+  "file": "amber_crystal_landmark.glb",
+  "category": "crystal",
+  "worlds": [
+   "amber"
+  ],
+  "height": 11.882,
+  "radius": 7.281,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": null,
+  "tris": 1852,
+  "family": "crystal",
+  "size_class": "landmark",
+  "emit_color": "#7DF9E0"
+ },
+ {
+  "id": "glass_crystal_cluster_a",
+  "file": "glass_crystal_cluster_a.glb",
+  "category": "crystal",
+  "worlds": [
+   "glass"
+  ],
+  "height": 2.618,
+  "radius": 1.498,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.4,
+   "slope_max": 35,
+   "min_spacing": 7,
+   "cluster": 0.4,
+   "zone": "any"
+  },
+  "tris": 1148,
+  "family": "crystal",
+  "size_class": "medium",
+  "emit_color": "#C9B6FF"
+ },
+ {
+  "id": "glass_crystal_cluster_b",
+  "file": "glass_crystal_cluster_b.glb",
+  "category": "crystal",
+  "worlds": [
+   "glass"
+  ],
+  "height": 4.157,
+  "radius": 1.479,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.3,
+   "slope_max": 35,
+   "min_spacing": 8,
+   "cluster": 0.4,
+   "zone": "any"
+  },
+  "tris": 1024,
+  "family": "crystal",
+  "size_class": "medium",
+  "emit_color": "#BDEBFF"
+ },
+ {
+  "id": "glass_crystal_landmark",
+  "file": "glass_crystal_landmark.glb",
+  "category": "crystal",
+  "worlds": [
+   "glass"
+  ],
+  "height": 11.654,
+  "radius": 6.903,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": null,
+  "tris": 1796,
+  "family": "crystal",
+  "size_class": "landmark",
+  "emit_color": "#C9B6FF"
+ },
+ {
+  "id": "hollow_crystal_cluster_a",
+  "file": "hollow_crystal_cluster_a.glb",
+  "category": "crystal",
+  "worlds": [
+   "hollow"
+  ],
+  "height": 1.687,
+  "radius": 1.068,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.8,
+   "slope_max": 35,
+   "min_spacing": 5,
+   "cluster": 0.6,
+   "zone": "cave"
+  },
+  "tris": 1124,
+  "family": "crystal",
+  "size_class": "small",
+  "emit_color": "#3DFFD8"
+ },
+ {
+  "id": "hollow_crystal_cluster_b",
+  "file": "hollow_crystal_cluster_b.glb",
+  "category": "crystal",
+  "worlds": [
+   "hollow"
+  ],
+  "height": 1.455,
+  "radius": 1.088,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.6,
+   "slope_max": 35,
+   "min_spacing": 5,
+   "cluster": 0.6,
+   "zone": "cave"
+  },
+  "tris": 1024,
+  "family": "crystal",
+  "size_class": "small",
+  "emit_color": "#FF8AD8"
+ },
+ {
+  "id": "hollow_crystal_cluster_c",
+  "file": "hollow_crystal_cluster_c.glb",
+  "category": "crystal",
+  "worlds": [
+   "hollow"
+  ],
+  "height": 5.1,
+  "radius": 3.303,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": null,
+  "tris": 1488,
+  "family": "crystal",
+  "size_class": "large",
+  "emit_color": "#3DFFD8"
+ },
+ {
+  "id": "hub_crystal_cluster_a",
+  "file": "hub_crystal_cluster_a.glb",
+  "category": "crystal",
+  "worlds": [
+   "hub"
+  ],
+  "height": 2.37,
+  "radius": 1.363,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.3,
+   "slope_max": 35,
+   "min_spacing": 8,
+   "cluster": 0.4,
+   "zone": "any"
+  },
+  "tris": 1092,
+  "family": "crystal",
+  "size_class": "medium",
+  "emit_color": "#9D6BFF"
+ },
+ {
+  "id": "hub_crystal_cluster_b",
+  "file": "hub_crystal_cluster_b.glb",
+  "category": "crystal",
+  "worlds": [
+   "hub"
+  ],
+  "height": 6.62,
+  "radius": 3.729,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": null,
+  "tris": 1420,
+  "family": "crystal",
+  "size_class": "large",
+  "emit_color": "#9D6BFF"
+ },
+ {
+  "id": "ember_crystal_cluster_a",
+  "file": "ember_crystal_cluster_a.glb",
+  "category": "crystal",
+  "worlds": [
+   "ember"
+  ],
+  "height": 2.278,
+  "radius": 1.268,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.4,
+   "slope_max": 35,
+   "min_spacing": 7,
+   "cluster": 0.4,
+   "zone": "any"
+  },
+  "tris": 1148,
+  "family": "crystal",
+  "size_class": "medium",
+  "emit_color": "#FFC23D"
+ },
+ {
+  "id": "verdant_crystal_cluster_a",
+  "file": "verdant_crystal_cluster_a.glb",
+  "category": "crystal",
+  "worlds": [
+   "verdant"
+  ],
+  "height": 1.479,
+  "radius": 1.048,
+  "collision": {
+   "type": "convex"
+  },
+  "scatter": {
+   "density": 0.3,
+   "slope_max": 35,
+   "min_spacing": 8,
+   "cluster": 0.4,
+   "zone": "cave"
+  },
+  "tris": 1104,
+  "family": "crystal",
+  "size_class": "small",
+  "emit_color": "#7AE7FF"
+ }
+]

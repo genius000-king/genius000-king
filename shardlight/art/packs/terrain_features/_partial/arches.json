@@ -1,0 +1,204 @@
+[
+ {
+  "id": "verdant_arch_natural_a",
+  "file": "verdant_arch_natural_a.glb",
+  "category": "arch",
+  "worlds": [
+   "verdant"
+  ],
+  "height": 10.008,
+  "radius": 9.371,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 2128,
+  "family": "arch",
+  "clear_span": 6.0,
+  "walk_under": true
+ },
+ {
+  "id": "verdant_arch_natural_b",
+  "file": "verdant_arch_natural_b.glb",
+  "category": "arch",
+  "worlds": [
+   "verdant"
+  ],
+  "height": 14.772,
+  "radius": 11.783,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 2128,
+  "family": "arch",
+  "clear_span": 9.0,
+  "walk_under": true
+ },
+ {
+  "id": "amber_arch_sandstone_a",
+  "file": "amber_arch_sandstone_a.glb",
+  "category": "arch",
+  "worlds": [
+   "amber"
+  ],
+  "height": 10.939,
+  "radius": 8.748,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 2128,
+  "family": "arch",
+  "clear_span": 7.0,
+  "walk_under": true
+ },
+ {
+  "id": "amber_arch_sandstone_b",
+  "file": "amber_arch_sandstone_b.glb",
+  "category": "arch",
+  "worlds": [
+   "amber"
+  ],
+  "height": 15.801,
+  "radius": 12.35,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 2128,
+  "family": "arch",
+  "clear_span": 11.0,
+  "walk_under": true
+ },
+ {
+  "id": "glass_arch_ice_a",
+  "file": "glass_arch_ice_a.glb",
+  "category": "arch",
+  "worlds": [
+   "glass"
+  ],
+  "height": 8.855,
+  "radius": 8.328,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 2128,
+  "family": "arch",
+  "clear_span": 6.5,
+  "walk_under": true
+ },
+ {
+  "id": "amber_pillar_hoodoo_a",
+  "file": "amber_pillar_hoodoo_a.glb",
+  "category": "pillar",
+  "worlds": [
+   "amber"
+  ],
+  "height": 8.52,
+  "radius": 3.263,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 764,
+  "family": "pillar"
+ },
+ {
+  "id": "amber_pillar_hoodoo_b",
+  "file": "amber_pillar_hoodoo_b.glb",
+  "category": "pillar",
+  "worlds": [
+   "amber"
+  ],
+  "height": 12.583,
+  "radius": 2.629,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 932,
+  "family": "pillar"
+ },
+ {
+  "id": "amber_pillar_hoodoo_c",
+  "file": "amber_pillar_hoodoo_c.glb",
+  "category": "pillar",
+  "worlds": [
+   "amber"
+  ],
+  "height": 6.453,
+  "radius": 2.164,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 596,
+  "family": "pillar"
+ },
+ {
+  "id": "verdant_pillar_balanced_a",
+  "file": "verdant_pillar_balanced_a.glb",
+  "category": "pillar",
+  "worlds": [
+   "verdant"
+  ],
+  "height": 7.095,
+  "radius": 3.232,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 1776,
+  "family": "pillar"
+ },
+ {
+  "id": "amber_pillar_balanced_a",
+  "file": "amber_pillar_balanced_a.glb",
+  "category": "pillar",
+  "worlds": [
+   "amber"
+  ],
+  "height": 9.657,
+  "radius": 4.472,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 1776,
+  "family": "pillar"
+ },
+ {
+  "id": "ember_pillar_organ_a",
+  "file": "ember_pillar_organ_a.glb",
+  "category": "pillar",
+  "worlds": [
+   "ember"
+  ],
+  "height": 13.086,
+  "radius": 8.775,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 3200,
+  "family": "pillar"
+ },
+ {
+  "id": "ember_pillar_organ_b",
+  "file": "ember_pillar_organ_b.glb",
+  "category": "pillar",
+  "worlds": [
+   "ember"
+  ],
+  "height": 14.61,
+  "radius": 7.823,
+  "collision": {
+   "type": "trimesh"
+  },
+  "scatter": null,
+  "tris": 2320,
+  "family": "pillar"
+ }
+]
