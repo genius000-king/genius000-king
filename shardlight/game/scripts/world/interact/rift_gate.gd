@@ -5,6 +5,9 @@ extends Node3D
 @export var label_ar := "البوابة"
 @export var label_en := "Rift Gate"
 @export var locked := false
+@export var dialogue_id := ""          # if set, interacting opens this dialogue (which may request travel)
+@export var wake_flag := ""            # if set, the gate sleeps (dim, sealed) until this flag is true
+@export var wake_event := ""           # fired when plasma hits a sleeping gate (or interact after "gulped")
 var _disc: MeshInstance3D
 var _t := 0.0
 
@@ -56,6 +59,36 @@ func _ready() -> void:
 	body.add_child(cs)
 	add_child(body)
 	Audio.attach_loop("portal_loop", self, -4.0, 25.0)
+	if wake_flag != "":
+		add_to_group("damageable")
+	_refresh_sleep()
+
+
+func _sleeping() -> bool:
+	return wake_flag != "" and not Game.flag(wake_flag)
+
+
+func _refresh_sleep() -> void:
+	var m := _disc.material_override as ShaderMaterial
+	m.set_shader_parameter("energy", 0.35 if _sleeping() else 1.6)
+	m.set_shader_parameter("speed", 0.15 if _sleeping() else 1.0)
+
+
+func take_damage(_amount: float, _pos: Vector3, _dir: Vector3, kind: String) -> void:
+	if _sleeping() and kind == "plasma":
+		_wake()
+
+
+func _wake() -> void:
+	if wake_event != "" and Story.has_method("event"):
+		Story.event(wake_event)
+	else:
+		Game.set_flag(wake_flag, true)
+	Audio.play("portal_enter", global_position)
+	var tw := create_tween()
+	tw.tween_property(_disc, "scale", Vector3.ONE * 1.4, 0.2).set_trans(Tween.TRANS_BACK)
+	tw.tween_property(_disc, "scale", Vector3.ONE, 0.3)
+	_refresh_sleep()
 
 func _process(delta: float) -> void:
 	_t += delta
@@ -66,6 +99,15 @@ func interact_prompt() -> String:
 	return (("ادخل: " if Settings.language == "ar" else "Enter: ") + name) if not locked else ("مقفلة" if Settings.language == "ar" else "Sealed")
 
 func interact(_player) -> void:
+	if _sleeping():
+		if Game.flag("gulped"):
+			_wake()
+		else:
+			Game.message("البوابة نائمة… تحتاج طاقة." if Settings.language == "ar" else "The gate sleeps… it needs energy.", "warn")
+		return
+	if dialogue_id != "" and Story.has_method("start_dialogue"):
+		Story.start_dialogue(dialogue_id)
+		return
 	if locked:
 		Game.message(interact_prompt(), "warn")
 		return

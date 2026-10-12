@@ -126,6 +126,8 @@ func _ready() -> void:
 	if not Game.state.has("health"):
 		Game.state["health"] = 100.0
 	set_first_person(Settings.first_person)
+	if Story.has_signal("blu_emote"):
+		Story.blu_emote.connect(func(e): slime.emote(e))
 	_attach_plugin("res://scripts/weapons/weapon_system.gd", "Weapons")
 	_attach_plugin("res://scripts/weapons/ability_system.gd", "Abilities")
 	if not Settings.is_mobile():

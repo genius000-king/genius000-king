@@ -57,14 +57,28 @@ func setup(w: ShardWorld) -> void:
 		g.label_ar = info[1]
 		g.label_en = info[2]
 		g.locked = info[0] != "verdant" and not ("verdant" in Game.state.keystones and info[0] == "amber")
+		if info[0] == "verdant":
+			g.dialogue_id = "gate_verdant"
+			g.wake_flag = "gate_verdant_awake"
+			g.wake_event = "gate_verdant_awake"
 		add_child(g)
 		g.position = Vector3(p.x, field.height_at(p.x, p.y), p.y)
 		g.look_at(Vector3(0, g.position.y, 0), Vector3.UP)
 		g.rotate_y(PI)
 	var lumen := LumenCompanion.new()
 	add_child(lumen)
-	if Story.has_method("event"):
-		Story.event("hub_enter")
+	# prologue beats near the spawn (spawn is at 0,70 facing the Loom)
+	var vent := PlasmaVent.new()
+	add_child(vent)
+	vent.position = Vector3(7, field.height_at(7, 50), 50)
+	_sign("sign_hub_crater", Vector2(-5, 63), 200)
+	_sign("sign_hub_case", Vector2(11, 54), 160)
+	Props.place(self, field, "hub_prop_lab_table", 12.5, 51.5, 30)
+	_zone("tut_jump", Vector2(0, 60), 4.0)
+	_zone("hub_vent_near", Vector2(7, 50), 9.0)
+	_zone("loom_near", Vector2(0, 0), 30.0)
+	if Story.has_method("event") and not Game.flag("prologue_done"):
+		Story.call_deferred("event", "hub_wake")
 	var echo_spots := [Vector2(40, 30), Vector2(-70, -20)]
 	for i in echo_spots.size():
 		var e := EchoPickup.new()
@@ -72,6 +86,20 @@ func setup(w: ShardWorld) -> void:
 		add_child(e)
 		var ep: Vector2 = echo_spots[i]
 		e.position = Vector3(ep.x, field.height_at(ep.x, ep.y), ep.y)
+
+func _sign(id: String, at: Vector2, yaw: float) -> void:
+	var sgn := StorySign.new()
+	sgn.dialogue_id = id
+	add_child(sgn)
+	sgn.position = Vector3(at.x, field.height_at(at.x, at.y), at.y)
+	sgn.rotation_degrees.y = yaw
+
+func _zone(event_id: String, at: Vector2, radius: float) -> void:
+	var z := TriggerZone.new()
+	z.event_id = event_id
+	add_child(z)
+	z.position = Vector3(at.x, field.height_at(at.x, at.y) - 1.0, at.y)
+	z.setup(radius)
 
 func _poi(id: String) -> Vector2:
 	for p in world.def.pois:

@@ -32,6 +32,8 @@ func _ready() -> void:
 	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_transition.add_child(rect)
 	add_child(_transition)
+	if Story.has_signal("travel_requested"):
+		Story.travel_requested.connect(func(w): change_world(w))
 
 
 func _process(delta: float) -> void:

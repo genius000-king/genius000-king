@@ -18,6 +18,10 @@ func _ready() -> void:
 		call_deferred("_goto_world")
 	if args.has("shot"):
 		_run_shots()
+	if args.has("itest"):
+		var t = (load("res://scripts/dev/integration_test.gd") as GDScript).new()
+		add_child(t)
+		t.call_deferred("run")
 	if args.has("debug"):
 		_debug_loop()
 

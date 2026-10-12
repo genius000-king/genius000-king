@@ -50,6 +50,13 @@ func _npc(id: String, at: Vector2, yaw := 0.0) -> Node3D:
 	npcs[id] = n
 	return n
 
+func _sign(id: String, at: Vector2, yaw := 0.0) -> void:
+	var sgn := StorySign.new()
+	sgn.dialogue_id = id
+	add_child(sgn)
+	sgn.position = Vector3(at.x, _y(at), at.y)
+	sgn.rotation_degrees.y = yaw
+
 func _zone(event_id: String, at: Vector2, radius: float) -> void:
 	var z := TriggerZone.new()
 	z.event_id = event_id
@@ -60,7 +67,8 @@ func _zone(event_id: String, at: Vector2, radius: float) -> void:
 # ------------------------------------------------------------------------------------------------
 func _arrival() -> void:
 	var a := _poi("arrival_gate")
-	_gate(a + Vector2(0, 8), "hub", "العودة إلى الفوهة", "Back to the Crater")
+	var back := _gate(a + Vector2(0, 8), "hub", "العودة إلى الفوهة", "Back to the Crater")
+	back.dialogue_id = "gate_verdant"
 	Props.place(self, field, "hub_ruin_pillar_broken", a.x - 6, a.y + 6, 20)
 	Props.place(self, field, "hub_ruin_pillar", a.x + 6, a.y + 7, -10)
 	Props.place(self, field, "common_town_signpost", a.x + 4, a.y - 4, 200)
@@ -83,6 +91,7 @@ func _village() -> void:
 	_npc("pip", c + Vector2(6, -8), 30)
 	_npc("tansy", c + Vector2(9, -6), -20)
 	_zone("enter_village", c, 30.0)
+	_sign("sign_verdant_village", c + Vector2(0, 58), 180)
 
 func _windmill_hill() -> void:
 	var c := _poi("windmill_hill")
@@ -91,6 +100,7 @@ func _windmill_hill() -> void:
 	for i in 4:
 		Props.place(self, field, "common_town_market_stall_a" if i == 0 else "common_town_fence_a", c.x - 10 + i * 4, c.y + 12, 0)
 	_npc("wren", c + Vector2(8, 10), 200)
+	_sign("sign_verdant_hives", c + Vector2(16, 18), 220)
 
 func _trial_float() -> void:
 	# a rising staircase of floating islands in low gravity, ending at the Drift shrine
@@ -138,6 +148,7 @@ func _trial_echo() -> void:
 		var pp := c + Vector2(cos(a2), sin(a2)) * 18.0
 		e.position = Vector3(pp.x, _y(pp), pp.y)
 	_zone("trial_echo_start", c, 22.0)
+	_sign("sign_verdant_grove", c + Vector2(0, 26), 180)
 
 func _sanctum() -> void:
 	var c := _poi("sanctum")
@@ -154,6 +165,7 @@ func _sanctum() -> void:
 		add_child(w)
 		w.position = Vector3(c.x, _y(c) + 1.0, c.y - 10.0)
 	_zone("enter_sanctum", c, 26.0)
+	_sign("sign_verdant_sanctum", c + Vector2(6, 30), 180)
 
 func _echoes() -> void:
 	var spots := [Vector2(-120, 200), Vector2(180, 40), Vector2(-260, -180), Vector2(420, 260), Vector2(-20, -300), Vector2(260, -330), Vector2(-420, 60)]

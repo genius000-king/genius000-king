@@ -70,7 +70,8 @@ func interact(player) -> void:
 	if _taken:
 		return
 	_taken = true
-	Audio.stinger("keystone_pickup")
+	if not Story.has_method("event"):
+		Audio.stinger("keystone_pickup")
 	Game.collect_keystone(world_id)
 	Game.unlock_ability(ability)
 	if player and player.has_method("hitstop"):
