@@ -1,0 +1,29 @@
+# Replace the illustrative requirement; do not dispatch this as a real spec.
+schema_version: 1
+scope_version: 1
+requirements:
+  - requirement_id: R-001
+    origin: example # explicit_user | necessary_detail | assumption | example
+    statement: Replace with a required user outcome
+    priority: mandatory
+    owner_role: subsystem_builder
+    status: planned # planned | in_progress | unverified | accepted | blocked
+    task_ids: [T-001]
+    acceptance_ids: [AC-001]
+    evidence_refs: []
+    accepted_integration_revision: null
+    invalidated_by: []
+    exclusions_with_reason: []
+
+# Cover relevant dimensions; avoid an exhaustive unbounded cross-product.
+coverage_dimensions:
+  interaction_states: []
+  input_methods: []
+  data_and_error_cases: []
+  visual_and_motion_cases: []
+  audio_cases: []
+  accessibility_cases: []
+  localization_cases: []
+  hardware_and_performance_cases: []
+  persistence_and_recovery_cases: []
+  explicitly_unverified: []

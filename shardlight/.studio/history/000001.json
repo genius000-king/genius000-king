@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "revision": 1,
+  "updated_at": "2026-10-12T02:31:50.200064+00:00",
+  "project": {
+    "name": "shardlight",
+    "kind": "game",
+    "idea_file": ".studio/IDEA.md",
+    "execution_mode": "native_team_session_bound",
+    "status": "building"
+  },
+  "requirements": [
+    {
+      "id": "R-001",
+      "description": "Open-world 3D, very large, multiple distinct environments (hub + 7 shard worlds)",
+      "priority": "mandatory"
+    },
+    {
+      "id": "R-002",
+      "description": "Single-player adventure / exploration / story-mystery",
+      "priority": "mandatory"
+    },
+    {
+      "id": "R-003",
+      "description": "Comic-book 3D cel-shaded style à la Hi-Fi Rush (ink outlines, flat saturated color, painted materials)",
+      "priority": "mandatory"
+    },
+    {
+      "id": "R-004",
+      "description": "Protagonist: blue LIQUID slime with abilities; reads as fluid",
+      "priority": "mandatory"
+    },
+    {
+      "id": "R-005",
+      "description": "Exceptional VFX for attacks, abilities, activation, walking, everything (comic VFX: speed lines, bursts, auras)",
+      "priority": "mandatory"
+    },
+    {
+      "id": "R-006",
+      "description": "Plasma weapon that gathers plasma then fires; smoke, impacts",
+      "priority": "mandatory"
+    },
+    {
+      "id": "R-007",
+      "description": "Lab phenomenon splits world into shards with different physics laws",
+      "priority": "mandatory"
+    },
+    {
+      "id": "R-008",
+      "description": "Collect missing piece per world via stages/events; combine pieces to uncover cause and attempt restoring the past",
+      "priority": "mandatory"
+    },
+    {
+      "id": "R-009",
+      "description": "Stories, dialogue, side characters; deep mystery with shocking reveals and progressive discoveries",
+      "priority": "mandatory"
+    },
+    {
+      "id": "R-010",
+      "description": "New abilities discovered through progression",
+      "priority": "mandatory"
+    },
+    {
+      "id": "R-011",
+      "description": "Detailed foliage/grass, many unique models (hundreds), buildings, caves, characters",
+      "priority": "mandatory"
+    },
+    {
+      "id": "R-012",
+      "description": "Footstep/run/fire/plasma/smoke audio",
+      "priority": "mandatory"
+    },
+    {
+      "id": "R-013",
+      "description": "Animation focus (hero, NPCs, abilities)",
+      "priority": "mandatory"
+    },
+    {
+      "id": "R-014",
+      "description": "Builds for Android and Windows",
+      "priority": "mandatory"
+    },
+    {
+      "id": "R-015",
+      "description": "Editable sources, runnable files, usage docs, verification evidence in an organized package",
+      "priority": "mandatory"
+    },
+    {
+      "id": "R-016",
+      "description": "First-person perspective available (user's original spec; third-person default per D-004)",
+      "priority": "mandatory"
+    }
+  ],
+  "tasks": [],
+  "decisions": [],
+  "capabilities": {},
+  "budget": {
+    "currency": null,
+    "authorized_cap": null,
+    "actual_spent": null,
+    "outstanding_reserved": null,
+    "enforcement": "not_implemented_by_helper"
+  }
+}

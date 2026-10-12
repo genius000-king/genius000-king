@@ -1,0 +1,68 @@
+# Illustrative contract. Replace the example before dispatch.
+schema_version: 1
+task_id: T-001
+title: Replace with one coherent user outcome
+state: planned
+scope_version: 1
+requirement_ids: [R-001]
+owner_role: subsystem_builder
+reviewer_role: independent_reviewer
+dependencies: [] # Objects containing task_id and required artifact/version.
+priority_reason: null
+objective: null
+in_scope: []
+out_of_scope: []
+
+context:
+  brief_path: .studio/project.yaml
+  requirement_path: .studio/coverage.yaml
+  base_revision: null
+  read_paths: []
+  writable_paths: []
+  interface_contracts: []
+  input_examples: []
+  output_examples: []
+  references: []
+  known_risks: []
+  previous_attempts: []
+
+acceptance:
+  - criterion_id: AC-001
+    requirement_id: R-001
+    behavior: Replace with an observable outcome
+    setup: null
+    action: null
+    expected_result: null
+    verification_method: null
+    required_environment: null
+    severity_if_unmet: blocking
+    evidence_status: missing
+    evidence_refs: []
+
+execution:
+  hypothesis_or_plan: null
+  independent_work_justification: null
+  required_tools: []
+  required_resources: {}
+  budget_reservation: null
+  max_wall_time_minutes: null
+  max_billed_tokens: null
+  max_tool_calls: null
+  max_attempts: null
+  checkpoint_trigger: meaningful_increment_or_host_limit
+  stop_conditions: []
+  escalate_when: []
+
+submission:
+  attempt_id: null
+  lease_token: null
+  worker_id: null
+  artifact_revision: null
+  artifact_paths: []
+  checks_run: []
+  observed_results: []
+  known_limitations: []
+  integration_instructions: null
+  handoff_path: null
+  reported_cost: null
+  cost_is_estimated: null

@@ -1,0 +1,6 @@
+{
+  "status": "partial",
+  "summary": "Replace with what was actually produced",
+  "limitations": ["Replace with actual remaining gaps, or use an empty list when justified"],
+  "files": ["delivery/DELIVERY.md", "source/replace-with-real-source-file", "exports/replace-with-real-export"]
+}

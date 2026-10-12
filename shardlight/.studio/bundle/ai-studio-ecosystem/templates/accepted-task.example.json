@@ -1,0 +1,27 @@
+{
+  "_note": "Structural example only. These artifact versions, paths and hash are not real evidence.",
+  "id": "T-001",
+  "title": "Example verified outcome",
+  "outcome": "Replace with the actual outcome",
+  "status": "accepted",
+  "owner": "actual-worker-id",
+  "depends_on": [],
+  "requirement_ids": ["R-001"],
+  "writable_paths": ["source/example/"],
+  "requires_independent_review": true,
+  "acceptance": [{"id": "AC-001", "description": "Replace with a real criterion"}],
+  "submission": {"revision": "actual-worker-artifact-version"},
+  "review": {
+    "reviewer": "actual-independent-reviewer-id",
+    "independent": true,
+    "decision": "pass",
+    "target_revision": "actual-worker-artifact-version",
+    "checks": {"AC-001": "pass"}
+  },
+  "integration": {"status": "pass", "revision": "actual-integrated-artifact-version"},
+  "evidence": [{
+    "path": ".studio/evidence/replace-with-actual-evidence.log",
+    "revision": "actual-integrated-artifact-version",
+    "sha256": "REPLACE_WITH_ACTUAL_SHA256_FROM_EVIDENCE_COMMAND"
+  }]
+}

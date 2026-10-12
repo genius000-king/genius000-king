@@ -1,0 +1,21 @@
+{
+  "id": "T-001",
+  "title": "Replace with a coherent work package",
+  "outcome": "Replace with the observable result",
+  "status": "planned",
+  "owner": null,
+  "depends_on": [],
+  "requirement_ids": ["R-001"],
+  "writable_paths": [],
+  "input_versions": {},
+  "references": [],
+  "required_tools": [],
+  "limits": {"max_cost": null, "wall_time_minutes": null, "max_attempts": null},
+  "requires_independent_review": true,
+  "acceptance": [{"id": "AC-001", "description": "Replace with a precise acceptance criterion"}],
+  "failed_approaches": [],
+  "submission": {},
+  "review": {},
+  "integration": {},
+  "evidence": []
+}

@@ -1,0 +1,76 @@
+# Copy into the target project's .studio/project.yaml and fill actual values.
+# This is an unconfigured planning template, not spending authorization.
+schema_version: 1
+project_id: null
+mode: planning # planning | milestone_build | release
+brief:
+  idea: null
+  target_users: []
+  primary_user_outcomes: []
+  differentiator: null
+  full_vision: null
+  current_milestone: null
+  excluded_from_milestone: []
+  required_platforms: []
+  explicit_technology_constraints: []
+  assumptions: []
+  proposed_extensions: []
+
+scope:
+  version: 1
+  requirements_path: .studio/coverage.yaml
+  architecture_decisions_path: .studio/decisions/
+  tasks_path: .studio/tasks/
+  evidence_path: .studio/evidence/
+  handoffs_path: .studio/handoffs/
+  risk_register: []
+  interface_contracts: []
+
+quality:
+  references: []
+  target_hardware: []
+  representative_workloads: []
+  required_gates: [] # Define measurable criteria and verification procedures.
+  aesthetic_rubric: []
+  required_sensory_capabilities: []
+  meaningful_improvement_thresholds: []
+  missing_capabilities: []
+
+budget:
+  currency: USD
+  authorization_source: null
+  hard_cap: null # null means unknown, never unlimited.
+  wall_time_hours: null
+  deadline_utc: null
+  actual_spent: 0
+  outstanding_reserved: 0
+  verification_reserve: null
+  billing_exposure_margin: null
+  pricing_verified_at: null
+  pricing_sources: []
+  usage_visibility: unknown # measured | estimated | unknown
+  enforcement: unconfigured # host_enforced | advisory | unconfigured
+
+execution:
+  requested_max_total_agents: null
+  host_max_total_agents: null
+  effective_max_total_agents: null
+  suggested_initial_total_agents: 4 # Heuristic; includes root and reviewers.
+  max_nested_depth: 2 # Heuristic; all descendants share global limits.
+  max_retries_per_attempt: 2 # Transient failures only; keep within budget.
+  stagnant_iterations_before_replan: 2
+  heartbeat_seconds: null # Choose for the actual runner and task duration.
+  lease_seconds: null
+  checkpoint_policy: meaningful_increment_and_before_context_turnover
+  adapter_capabilities: {}
+  configured_models: [] # Real model IDs and tested role suitability.
+  resource_limits: {}
+  rate_limits: {}
+  workspace_isolation: unconfigured
+
+state:
+  lifecycle: planning
+  integration_revision: null
+  last_verified_revision: null
+  last_checkpoint: null
+  next_action: clarify_outcomes_and_resolve_highest_risks

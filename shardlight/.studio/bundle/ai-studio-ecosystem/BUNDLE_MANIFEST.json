@@ -1,0 +1,176 @@
+{
+  "name": "AI Studio Ecosystem",
+  "version": "2.0.0",
+  "created_at": "2026-10-09T08:27:38.695722+00:00",
+  "entrypoint": "START_HERE.md",
+  "prompt": "PROMPT.ar.txt",
+  "local_helper": "bin/studio.py",
+  "requires": "Agent with file/tool access; Python 3.10+ for optional local helper",
+  "files": [
+    {
+      "path": "GUIDE.ar.md",
+      "sha256": "f4d4927a8f7594270341fb7a1e1fe0f75de6ce7b88303db1c9edc54f6119692f",
+      "bytes": 8920
+    },
+    {
+      "path": "PROMPT.ar.txt",
+      "sha256": "2a81e114b79d863e9543339281a5ffbf191d04d4d8d678e3ad8beb82a7da7c94",
+      "bytes": 2342
+    },
+    {
+      "path": "README.ar.md",
+      "sha256": "47278b2ae27cd25478a3798d6ebce0464c2faae10929c7934577d696841726fb",
+      "bytes": 3059
+    },
+    {
+      "path": "SKILL.md",
+      "sha256": "df8e01158699c8ef32d84c04455af018c6a81a0456f4167b820f30d118ac9c48",
+      "bytes": 14142
+    },
+    {
+      "path": "START_HERE.md",
+      "sha256": "c06ced1384c1a099e7485776191f5bc3f68f9f819350a82795c483a44db0b1ee",
+      "bytes": 5830
+    },
+    {
+      "path": "VERIFICATION.md",
+      "sha256": "04f2834caeae3bf6db711ea2cce5c3353718bfc546a018492652ba6534406460",
+      "bytes": 1290
+    },
+    {
+      "path": "bin/README.md",
+      "sha256": "40d740c3d33177c0732acf9ba20454c105045fdf383c49a8ec24771209fe890a",
+      "bytes": 3558
+    },
+    {
+      "path": "bin/studio.py",
+      "sha256": "8e10cc379e714f8261b0020471cd7b2df6d7141a780220666a753e7583b894af",
+      "bytes": 20293
+    },
+    {
+      "path": "examples/game-production.md",
+      "sha256": "5162f97920382ac266288cacea505f47ad643b78e60603dd90b657efa94e4799",
+      "bytes": 5368
+    },
+    {
+      "path": "examples/graphics-editor.md",
+      "sha256": "d7660a00a88e414d7ef85897acbdb79fd63097c16508c6efac6bbef558b58d68",
+      "bytes": 5317
+    },
+    {
+      "path": "playbooks/CONTEXT.md",
+      "sha256": "b91e4be1d052dab6b5f2261d4cc0212500a76d09232f315732939547a23edfc7",
+      "bytes": 3367
+    },
+    {
+      "path": "playbooks/DELIVERY.md",
+      "sha256": "6ee92a455e1143bfdddaba1b82db495fb9e1f2e077367cea39a13a6cc1899784",
+      "bytes": 2138
+    },
+    {
+      "path": "playbooks/EXECUTION.md",
+      "sha256": "663437bc42e2db536158fd7052e8c055fcd0c290360524123df93f66fa6d86d5",
+      "bytes": 4088
+    },
+    {
+      "path": "profiles/animation.md",
+      "sha256": "203b8c98c18cf93f2e36015c05d78a968e897bfa80da8f087a37dff694a72307",
+      "bytes": 2997
+    },
+    {
+      "path": "profiles/game.md",
+      "sha256": "75b326bd1f5e541d90a2fe02f1c548cb63591cd8b4925e6b895d4ef074d6da3a",
+      "bytes": 1078
+    },
+    {
+      "path": "profiles/general.md",
+      "sha256": "d1cdf40e8ba8a0b7dc09c5c7a6ecf72bf79c6e5b6eea945f1ce64510ffbdfabc",
+      "bytes": 965
+    },
+    {
+      "path": "profiles/software.md",
+      "sha256": "dca6a8b5872d1356cad763fd51d98970494d2be3c321a1fe7c9e5776365f91f8",
+      "bytes": 1330
+    },
+    {
+      "path": "references/quality-protocol.md",
+      "sha256": "acf7ceb8a46ece4d4fe6ede1fd165e35dfbde4598d56b0c55d98f64f5a39a95f",
+      "bytes": 11126
+    },
+    {
+      "path": "references/research.md",
+      "sha256": "8afb199a981da967b743bf1923f08e1c8f60f8bcefef4fe0b610cbd23ffc2237",
+      "bytes": 4168
+    },
+    {
+      "path": "references/runtime-contract.md",
+      "sha256": "859eb44db5f938985d4c3e57771b7c8d9fdbc3d057d0df0acc49e8f26ea15980",
+      "bytes": 10442
+    },
+    {
+      "path": "roles/coordinator.md",
+      "sha256": "0846e4ad48c4dcb1dc341929b387cdaa89d75f60cc78ab51292aa3207fbad019",
+      "bytes": 2227
+    },
+    {
+      "path": "roles/integrator.md",
+      "sha256": "d0077303f163bce77d7af82bf6cbd02671f660e9cab3bb58942c6b0a39514102",
+      "bytes": 928
+    },
+    {
+      "path": "roles/reviewer.md",
+      "sha256": "a27f7f1200a09ab7e10de345e5b5ff5e873640fbbc4f39ce85c565e16bb02753",
+      "bytes": 1380
+    },
+    {
+      "path": "roles/worker.md",
+      "sha256": "1516b0793c9b02ca515b6fbc8376ee34bc53e24db42d2734a2af9f58fe5b0b97",
+      "bytes": 1556
+    },
+    {
+      "path": "templates/accepted-task.example.json",
+      "sha256": "6ebfe55eddac7c1247bc224d664e6c53aeca568b1aecb1d11da55cb71ae78625",
+      "bytes": 1046
+    },
+    {
+      "path": "templates/coverage.yaml",
+      "sha256": "99ae560f60704540976875990d0fdadb80e77c1013cce302fb2fffceac4afe38",
+      "bytes": 954
+    },
+    {
+      "path": "templates/delivery-manifest.json",
+      "sha256": "2f9923d07c78b4c3db1e2ec1b1c31b85344dcdcacee3dee6b2c17504282468ff",
+      "bytes": 289
+    },
+    {
+      "path": "templates/handoff.md",
+      "sha256": "92f9a8352df7b505b9b8ff59259923b593d1cfb35980a7e9f28c3568efeabe17",
+      "bytes": 925
+    },
+    {
+      "path": "templates/project.yaml",
+      "sha256": "4d066d00c119ad9d0d5d78a83a25adb9d2255f377e1530dab3bb2a02fcef0a72",
+      "bytes": 2388
+    },
+    {
+      "path": "templates/review.yaml",
+      "sha256": "6dbb978889aa9b465a69b23dab891545cd6c4b1d3ce6a924ab736b766ec5604f",
+      "bytes": 968
+    },
+    {
+      "path": "templates/task-contract.json",
+      "sha256": "ee2da013eb06c2f4f33f13b1913d736a0385e006a7ecaf76645f60ad103d9657",
+      "bytes": 626
+    },
+    {
+      "path": "templates/task.yaml",
+      "sha256": "4d8e2ead63b0c038c53ef982f74bab88216fd9fcbc4d12f33fa9402e3056156b",
+      "bytes": 1633
+    },
+    {
+      "path": "tests/test_studio.py",
+      "sha256": "84704f34021badad0e4fdb15b9d95b6f4e8003bced055583a42220ddd09b0125",
+      "bytes": 8905
+    }
+  ]
+}
