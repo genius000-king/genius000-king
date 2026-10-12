@@ -76,7 +76,7 @@
 
   /* ---------- الواجهة ---------- */
   const CSS = `
-  .lab-fab { position: fixed; z-index: 120; inset-inline-end: 16px; bottom: 16px; display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 16px 0 12px; border-radius: 999px; background: var(--ink); color: var(--bg); font: 600 14px var(--font-ui); border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--brand); cursor: pointer; transition: transform .15s; }
+  .lab-fab { position: fixed; z-index: 85; inset-inline-end: 16px; bottom: 16px; display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 16px 0 12px; border-radius: 999px; background: var(--ink); color: var(--bg); font: 600 14px var(--font-ui); border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--brand); cursor: pointer; transition: transform .15s; }
   .lab-fab:hover { transform: translate(-1px,-1px) rotate(-2deg); }
   .lab-fab svg { width: 22px; height: 22px; }
   @media (max-width: 960px) { body:has(.tabbar) .lab-fab, body:has(.m-tabs) .lab-fab { bottom: calc(84px + env(safe-area-inset-bottom)); } .lab-fab span { display: none; } .lab-fab { width: 48px; padding: 0; justify-content: center; } }

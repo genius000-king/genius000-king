@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>الصفحة غير موجودة — بسّطها</title>
+  <meta name="theme-color" content="#FBF5EC">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/core.css">
+  <style>
+    body { min-height: 100dvh; display: grid; place-items: center; overflow: hidden; }
+    .nf { position: relative; z-index: 1; display: grid; justify-items: center; gap: var(--s3); text-align: center; padding: var(--s6) 16px; }
+    .code { position: relative; font-family: var(--font-display); font-size: clamp(6rem, 4rem + 12vw, 12rem); line-height: 1; color: var(--surface); -webkit-text-stroke: 4px var(--ink); text-shadow: 6px 6px 0 var(--ink); }
+    .code .mascot-wrap { position: absolute; width: 38%; left: 50%; top: 50%; translate: -50% -50%; }
+    .nf h1 { font-size: var(--fs-2xl); margin-top: var(--s4); }
+    .nf p { color: var(--ink-2); max-width: 40ch; }
+    .nf .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: var(--s4); }
+    .blob { position: fixed; z-index: 0; border-radius: 50%; }
+  </style>
+</head>
+<body>
+  <span class="blob" style="width:360px;height:360px;background:var(--blob-yellow);top:-140px;inset-inline-end:-100px"></span>
+  <span class="blob" style="width:300px;height:300px;background:var(--blob-blue);bottom:-120px;inset-inline-start:-80px"></span>
+  <span class="blob" style="width:160px;height:160px;background:var(--blob-pink);bottom:12%;inset-inline-end:8%"></span>
+  <main class="nf">
+    <div class="code" aria-hidden="true">4<span style="opacity:0">0</span>4<div class="mascot-wrap"><div class="wiggle" data-mascot="flame"></div></div></div>
+    <h1 class="display">الصفحة هذي ضاعت! 🔥</h1>
+    <p>يمكن الرابط قديم، أو العرض انحذف. لا تشيل هم — نرجعك لمكان مضمون.</p>
+    <div class="row">
+      <a class="btn btn-primary btn-lg" href="index.html"><i data-i="home"></i>الرئيسية</a>
+      <a class="btn btn-lg" href="dashboard.html"><i data-i="folder"></i>عروضي</a>
+    </div>
+  </main>
+  <script src="assets/js/core.js"></script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>الاشتراك والفوترة — بسّطها</title>
+  <meta name="theme-color" content="#FBF5EC">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/core.css">
+  <script src="assets/js/lab.js"></script>
+  <link rel="stylesheet" href="assets/css/app.css">
+  <style>
+    .bill-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: var(--s4); margin-bottom: var(--s4); }
+    .plan-now { position: relative; padding: var(--s6) var(--s5) var(--s5); background: var(--surface); border: 2px solid var(--ink); border-radius: var(--r-xl); box-shadow: var(--shadow-pop-lg); overflow: hidden; }
+    .plan-now .sticker { position: absolute; width: 96px; inset-inline-end: 20px; top: 18px; }
+    .plan-now .label { color: var(--ink-3); font-size: var(--fs-sm); }
+    .plan-now h2 { font-family: var(--font-display); font-size: 2rem; margin: 2px 0 6px; }
+    .plan-now .meta { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: var(--fs-sm); color: var(--ink-2); margin-bottom: var(--s5); }
+    .plan-now .meta span { display: inline-flex; align-items: center; gap: 6px; }
+    .plan-now .meta .i { width: 16px; height: 16px; color: var(--ink-3); }
+    .plan-now .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .credit-card { padding: var(--s5); }
+    .big-num { display: flex; align-items: baseline; gap: 8px; }
+    .big-num b { font-size: 2.6rem; line-height: 1; font-variant-numeric: tabular-nums; }
+    .big-num span { color: var(--ink-3); }
+    .credit-card .meter { height: 12px; margin: var(--s4) 0 8px; }
+    .usage { display: grid; gap: 10px; margin-top: var(--s4); padding-top: var(--s4); border-top: 1px dashed var(--line-strong); }
+    .usage div { display: flex; align-items: center; gap: 10px; font-size: var(--fs-sm); }
+    .usage .tile { width: 32px; height: 32px; }
+    .usage .tile .i { width: 16px; height: 16px; }
+    .usage b { margin-inline-start: auto; font-variant-numeric: tabular-nums; }
+    .pm { display: flex; align-items: center; gap: 14px; padding: var(--s4); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg); }
+    .pm-logo { display: grid; place-items: center; width: 56px; height: 38px; border-radius: 8px; background: #22B07D; color: #fff; font-weight: 800; font-size: 13px; }
+    .pm b { display: block; }
+    .pm div span { font-size: var(--fs-xs); color: var(--ink-3); }
+    .pm .btn { margin-inline-start: auto; }
+    .tabs-line { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: var(--s4); }
+    .tabs-line button { height: 42px; padding: 0 14px; font-weight: 600; font-size: var(--fs-sm); color: var(--ink-3); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+    .tabs-line button[aria-selected="true"] { color: var(--ink); border-color: var(--ink); }
+    .plus { color: #0E7A53; font-weight: 600; } .minus { color: var(--ink); font-weight: 600; }
+    .reasons { display: grid; gap: 8px; margin: 16px 0; }
+    .reasons label { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1.5px solid var(--line-strong); border-radius: var(--r-md); cursor: pointer; font-size: var(--fs-sm); }
+    .reasons label:has(input:checked) { border-color: var(--ink); background: var(--sun-soft); }
+    .reasons input { accent-color: var(--brand); }
+    .offer { display: flex; gap: 12px; align-items: center; padding: 14px; border-radius: var(--r-md); background: var(--mint-soft); font-size: var(--fs-sm); margin-bottom: 14px; }
+    .offer .tile { width: 40px; height: 40px; }
+    @media (max-width: 1000px) { .bill-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) { .plan-now .sticker { width: 70px; } .plan-now h2 { font-size: 1.6rem; } .pm { flex-wrap: wrap; } .pm .btn { margin: 0; width: 100%; } }
+  </style>
+</head>
+<body data-shell="billing">
+
+<main class="main">
+  <div class="page-head"><div><h1 class="display">الاشتراك والفوترة</h1><p>خطتك، رصيدك، وفواتيرك في مكان واحد.</p></div></div>
+
+  <div class="bill-grid">
+    <section class="plan-now" aria-label="خطتك الحالية">
+      <div class="sticker" aria-hidden="true"><div class="wiggle" data-mascot="flame"></div></div>
+      <span class="label">خطتك الحالية</span>
+      <h2>احترافي</h2>
+      <div class="meta">
+        <span><i data-i="coin"></i>39 ر.س شهرياً</span>
+        <span><i data-i="clock"></i>يتجدد في 24 أكتوبر 2026</span>
+        <span><i data-i="refresh"></i>تجديد تلقائي</span>
+      </div>
+      <div class="actions">
+        <a class="btn btn-primary" href="pricing.html"><i data-i="zap" class="i-sm"></i>ترقية الخطة</a>
+        <a class="btn" href="pricing.html">التحويل للسنوي ووفّر 20%</a>
+        <button class="btn btn-ghost" data-open-modal="cancelModal">إلغاء الاشتراك</button>
+      </div>
+    </section>
+
+    <section class="card credit-card" aria-label="رصيد الكريدت">
+      <div class="card-head" style="margin-bottom:var(--s3)"><h2>رصيد الكريدت</h2><a class="btn btn-soft btn-sm" href="pricing.html#packs"><i data-i="plus" class="i-sm"></i>شحن</a></div>
+      <div class="big-num"><b>340</b><span>من 500 هذا الشهر</span></div>
+      <div class="meter"><span style="width:68%"></span></div>
+      <span class="subtle" style="font-size:var(--fs-xs)">يتجدد الرصيد خلال 12 يوماً · الرصيد المشحون لا تنتهي صلاحيته</span>
+      <div class="usage">
+        <div><span class="tile sun"><i data-i="sparkles"></i></span>إنشاء العروض<b>132</b></div>
+        <div><span class="tile sky"><i data-i="chat"></i></span>التعديل بالمحادثة<b>21</b></div>
+        <div><span class="tile pink"><i data-i="file"></i></span>تحليل الملفات<b>7</b></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="card card-pad" style="margin-bottom:var(--s4)">
+    <div class="card-head"><h2>طريقة الدفع</h2></div>
+    <div class="pm">
+      <span class="pm-logo">mada</span>
+      <div><b class="ltr">•••• 4242</b><span>تنتهي 08/28 · الافتراضية</span></div>
+      <button class="btn btn-sm" onclick="UI.toast('سيفتح نموذج مزوّد الدفع الآمن','lock')">تغيير</button>
+    </div>
+  </section>
+
+  <section class="card card-pad">
+    <div class="tabs-line" role="tablist">
+      <button role="tab" aria-selected="true" data-tab="inv">الفواتير</button>
+      <button role="tab" aria-selected="false" data-tab="hist">سجل الكريدت</button>
+    </div>
+    <div id="tab-inv" class="table-wrap" style="border:0"><table class="table"><thead><tr><th>الفاتورة</th><th>البند</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th><th></th></tr></thead><tbody id="invBody"></tbody></table></div>
+    <div id="tab-hist" class="table-wrap" style="border:0" hidden><table class="table"><thead><tr><th>العملية</th><th>العرض</th><th>الكريدت</th><th>التاريخ</th></tr></thead><tbody id="histBody"></tbody></table></div>
+  </section>
+</main>
+
+<!-- الإلغاء: محاولة استبقاء لطيفة بدون إزعاج -->
+<div class="modal-backdrop" id="cancelModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="cancelTitle">
+  <div class="modal">
+    <div class="modal-head"><h3 id="cancelTitle">بتلغي؟ 🥺</h3><button class="btn btn-ghost btn-icon btn-sm" data-close-modal aria-label="إغلاق"><i data-i="x"></i></button></div>
+    <p class="muted" style="font-size:var(--fs-sm)">ساعدنا نتحسن — وش السبب؟</p>
+    <div class="reasons" role="radiogroup">
+      <label><input type="radio" name="r" value="price">السعر مرتفع</label>
+      <label><input type="radio" name="r" value="usage">ما أستخدمه كثير</label>
+      <label><input type="radio" name="r" value="quality">النتائج ما عجبتني</label>
+      <label><input type="radio" name="r" value="other">سبب آخر</label>
+    </div>
+    <div class="offer" id="offer" hidden><span class="tile mint"><i data-i="gift"></i></span><div><b>عرض خاص لك:</b> خصم 50% لشهرين، أو أوقف الاشتراك مؤقتاً بدون خسارة رصيدك.</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="btn btn-lg" id="pauseBtn">إيقاف مؤقت</button>
+      <button class="btn btn-lg btn-danger" id="cancelBtn">تأكيد الإلغاء</button>
+    </div>
+    <p class="hint" style="text-align:center;margin-top:12px">تبقى مميزاتك حتى 24 أكتوبر، وعروضك محفوظة دائماً.</p>
+  </div>
+</div>
+
+<script src="assets/js/core.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+(() => {
+  const { $, $$, icon, toast, closeModal } = UI;
+  const INV = [["INV-20931", "احترافي — شهري", "44.85", "مدفوعة", "24 سبتمبر 2026"], ["INV-20412", "300 كريدت", "56.35", "مدفوعة", "11 سبتمبر 2026"], ["INV-19870", "احترافي — شهري", "44.85", "مدفوعة", "24 أغسطس 2026"], ["INV-19302", "احترافي — شهري", "44.85", "مستردة", "24 يوليو 2026"]];
+  $("#invBody").innerHTML = INV.map((r) => `<tr><td class="ltr" style="text-align:right">${r[0]}</td><td>${r[1]}</td><td class="num">${r[2]} ر.س</td>
+    <td><span class="badge ${r[3] === "مدفوعة" ? "badge-mint" : "badge-sun"}">${r[3]}</span></td><td class="subtle">${r[4]}</td>
+    <td><button class="btn btn-ghost btn-sm" onclick="UI.toast('يُنزَّل PDF…','download')">${icon("download", "i-sm")}PDF</button></td></tr>`).join("");
+  const HIST = [["إنشاء عرض", "الخلية البشرية", -64, "اليوم"], ["تعديل بالمحادثة", "الخلية البشرية", -2, "اليوم"], ["تحليل ملف", "تقرير المبيعات", -2, "أمس"], ["شحن باقة", "—", 300, "11 سبتمبر"], ["تجديد الخطة", "—", 500, "24 سبتمبر"], ["استرجاع (فشل إنشاء)", "تقرير المبيعات", 54, "قبل 3 أيام"]];
+  $("#histBody").innerHTML = HIST.map((h) => `<tr><td>${h[0]}</td><td class="subtle">${h[1]}</td><td class="num ${h[2] > 0 ? "plus" : "minus"}">${h[2] > 0 ? "+" : "−"}${Math.abs(h[2])}</td><td class="subtle">${h[3]}</td></tr>`).join("");
+  $$("[data-tab]").forEach((b) => b.addEventListener("click", () => {
+    $$("[data-tab]").forEach((x) => x.setAttribute("aria-selected", x === b));
+    $("#tab-inv").hidden = b.dataset.tab !== "inv"; $("#tab-hist").hidden = b.dataset.tab !== "hist";
+  }));
+  $$("[name=r]").forEach((r) => r.addEventListener("change", () => ($("#offer").hidden = !["price", "usage"].includes(r.value))));
+  $("#pauseBtn").addEventListener("click", () => { closeModal("cancelModal"); toast("أُوقف الاشتراك لمدة شهر — رصيدك محفوظ", "clock"); });
+  $("#cancelBtn").addEventListener("click", () => { closeModal("cancelModal"); toast("أُلغي التجديد التلقائي", "check"); });
+})();
+</script>
+</body>
+</html>

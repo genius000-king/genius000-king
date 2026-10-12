@@ -54,6 +54,7 @@
   <section class="auth-form">
     <div class="auth-box">
       <a href="index.html" data-logo></a>
+      <div id="mainView">
       <h1 class="display" id="title">أهلاً من جديد 👋</h1>
       <p class="lead" id="lead">سجّل دخولك لتكمل عروضك.</p>
 
@@ -91,6 +92,26 @@
       </form>
 
       <p class="switch-mode"><span id="switchTxt">ليس لديك حساب؟</span> <button type="button" id="switchBtn">أنشئ حساباً مجاناً</button></p>
+      </div>
+
+      <!-- استعادة كلمة المرور -->
+      <div id="resetView" hidden>
+        <div id="resetAsk">
+          <h1 class="display">نسيت كلمة المرور؟ 🔑</h1>
+          <p class="lead">اكتب بريدك ونرسل لك رابطاً لتعيين كلمة جديدة.</p>
+          <form id="resetForm" novalidate style="display:grid;gap:var(--s4)">
+            <div class="field"><label class="label" for="resetEmail">البريد الإلكتروني</label><input class="input ltr" id="resetEmail" type="email" autocomplete="email" placeholder="name@example.com" style="text-align:right"><span class="err" id="resetErr"></span></div>
+            <button class="btn btn-primary btn-lg btn-block" type="submit">أرسل رابط الاستعادة</button>
+          </form>
+        </div>
+        <div id="resetSent" hidden style="text-align:center">
+          <div style="width:110px;margin:0 auto 12px"><div class="wiggle" data-mascot="cloud"></div></div>
+          <h1 class="display">تفقّد بريدك ✉️</h1>
+          <p class="lead">أرسلنا رابطاً إلى <b id="sentTo" class="ltr"></b>. صالح لمدة 30 دقيقة.</p>
+          <button class="btn btn-block" type="button" id="resend">ما وصلني؟ أعد الإرسال</button>
+        </div>
+        <p class="switch-mode"><button type="button" id="backToLogin">← الرجوع لتسجيل الدخول</button></p>
+      </div>
     </div>
   </section>
 
@@ -143,7 +164,24 @@
     [...$("#strength").children].forEach((s, i) => s.style.background = i < score ? colors[score - 1] : "");
   });
 
-  $("#forgot").addEventListener("click", (e) => { e.preventDefault(); toast("أرسلنا رابط الاستعادة إلى بريدك", "mail"); });
+  // استعادة كلمة المرور — الربط: POST /auth/reset { email }
+  const showReset = (on) => {
+    $("#mainView").hidden = on; $("#resetView").hidden = !on;
+    $("#resetAsk").hidden = false; $("#resetSent").hidden = true;
+    if (on) { $("#resetEmail").value = $("#email").value; setTimeout(() => $("#resetEmail").focus(), 50); }
+  };
+  $("#forgot").addEventListener("click", (e) => { e.preventDefault(); showReset(true); });
+  $("#backToLogin").addEventListener("click", () => showReset(false));
+  $("#resetForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const v = $("#resetEmail").value.trim();
+    if (!/^\S+@\S+\.\S+$/.test(v)) { $("#resetErr").textContent = "اكتب بريداً صحيحاً"; return; }
+    $("#resetErr").textContent = "";
+    await UI.sleep(600);
+    $("#sentTo").textContent = v; $("#resetAsk").hidden = true; $("#resetSent").hidden = false;
+  });
+  $("#resend").addEventListener("click", () => toast("أُعيد الإرسال", "mail"));
+  if (params.get("mode") === "reset") showReset(true);
   document.querySelectorAll("[data-oauth]").forEach((b) => b.addEventListener("click", () => {
     // الربط: location.href = API_CONFIG.BASE_URL + "/auth/oauth/" + b.dataset.oauth
     toast("جارٍ التحويل…", "lock"); setTimeout(() => location.href = "dashboard.html", 700);
@@ -163,7 +201,7 @@
     try {
       const body = { name: $("#name").value, email: email.value, password: pw.value };
       await (mode === "signup" ? API.signup(body) : API.login(body));
-      location.href = params.get("next") || (sessionStorage.getItem("bssatha:draft") ? "create.html" : "dashboard.html");
+      location.href = params.get("next") || (sessionStorage.getItem("bssatha:draft") ? "create.html" : mode === "signup" ? "dashboard.html?welcome=1" : "dashboard.html");
     } catch (err) {
       toast(err.message, "alert"); btn.disabled = false; render();
     }

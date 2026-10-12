@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>المعرض والأساليب — بسّطها</title>
+  <meta name="theme-color" content="#FBF5EC">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/core.css">
+  <script src="assets/js/lab.js"></script>
+  <link rel="stylesheet" href="assets/css/app.css">
+  <style>
+    .g-tabs { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: var(--s5); }
+    .filters { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; margin-bottom: var(--s5); }
+    .filters::-webkit-scrollbar { display: none; }
+    .filters .chip { flex: none; height: 36px; font-size: var(--fs-xs); }
+    .g-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: var(--s5); }
+    .ex { border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); overflow: hidden; transition: transform var(--t-med) var(--ease), box-shadow var(--t-med); animation: rise .45s var(--ease) both; animation-delay: var(--d, 0ms); }
+    .ex:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .ex-cover { position: relative; aspect-ratio: 16 / 10; overflow: hidden; display: block; }
+    .ex-cover > svg { width: 100%; height: 100%; transition: transform .6s var(--ease); }
+    .ex:hover .ex-cover > svg { transform: scale(1.05); }
+    .ex-play { position: absolute; inset-inline-start: 12px; bottom: 12px; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; background: var(--sun); border: 2px solid var(--ink); box-shadow: var(--shadow-pop); }
+    .ex-play .i { width: 16px; height: 16px; fill: var(--ink); }
+    .ex-body { padding: 14px 16px 16px; }
+    .ex-body h3 { font-size: var(--fs-md); }
+    .ex-meta { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: var(--fs-xs); color: var(--ink-3); }
+    .ex-meta .avatar { width: 22px; height: 22px; font-size: 10px; border-width: 1.5px; }
+    .ex-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .ex-actions .btn { flex: 1; }
+    .st { padding: 8px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); animation: rise .45s var(--ease) both; animation-delay: var(--d, 0ms); transition: transform var(--t-med) var(--ease), box-shadow var(--t-med); }
+    .st:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .st .pv { aspect-ratio: 16 / 10; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); }
+    .st .pv svg { width: 100%; height: 100%; }
+    .st-body { display: flex; align-items: center; gap: 8px; padding: 12px 6px 6px; }
+    .st-body b { display: block; font-size: var(--fs-sm); }
+    .st-body span { font-size: var(--fs-xs); color: var(--ink-3); }
+    .st-body .btn { margin-inline-start: auto; }
+    .own-style { display: flex; align-items: center; gap: var(--s5); padding: var(--s5); margin-bottom: var(--s5); border-radius: var(--r-xl); background: var(--sun-soft); border: 2px dashed var(--ink); }
+    .own-style .mascot-wrap { width: 76px; flex: none; }
+    .own-style h2 { font-size: var(--fs-lg); }
+    .own-style p { font-size: var(--fs-sm); color: var(--ink-2); }
+    .own-style .btn { margin-inline-start: auto; }
+    @media (max-width: 640px) { .g-grid { grid-template-columns: 1fr 1fr; gap: 12px; } .ex-actions { flex-direction: column; } .ex-body { padding: 10px 12px 12px; } .own-style { flex-wrap: wrap; } .own-style .btn { width: 100%; } }
+  </style>
+</head>
+<body data-shell="styles">
+
+<main class="main">
+  <div class="page-head"><div><h1 class="display">المعرض والأساليب</h1><p>استلهم من عروض جاهزة، أو ابدأ من أسلوب يعجبك.</p></div></div>
+
+  <div class="g-tabs">
+    <div class="seg" role="group" aria-label="القسم">
+      <button aria-pressed="true" data-view="decks">عروض مختارة</button>
+      <button aria-pressed="false" data-view="styles">الأساليب</button>
+    </div>
+    <span style="flex:1"></span>
+    <div class="input-wrap" style="max-width:300px;flex:1;min-width:180px"><i data-i="search"></i><input class="input" id="q" type="search" placeholder="ابحث…" aria-label="بحث" style="min-height:44px;border-radius:999px"></div>
+  </div>
+
+  <!-- العروض -->
+  <section id="view-decks">
+    <div class="filters" id="deckFilters"></div>
+    <div class="g-grid" id="deckGrid"></div>
+  </section>
+
+  <!-- الأساليب -->
+  <section id="view-styles" hidden>
+    <div class="own-style">
+      <div class="mascot-wrap" data-mascot="cloud" aria-hidden="true"></div>
+      <div><h2>عندك أسلوب في بالك؟</h2><p>صِفه بكلماتك — «ألوان البحر، خط عريض، حركات هادئة» — والذكاء يبنيه لك.</p></div>
+      <a class="btn btn-dark" href="create.html#styles"><i data-i="edit" class="i-sm"></i>صِف أسلوبك</a>
+    </div>
+    <div class="filters" id="styleFilters"></div>
+    <div class="g-grid" id="styleGrid"></div>
+  </section>
+</main>
+
+<script src="assets/js/core.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/covers.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+(() => {
+  const { $, $$, icon, esc } = UI;
+  const DECKS = [
+    ["space", "رحلة في النظام الشمسي", "علوم", "نورة", 1240, "عرض ثلاثي الأبعاد للكواكب ومداراتها"],
+    ["cell", "الخلية البشرية: رحلة إلى الداخل", "علوم", "عبدالله", 980, "خلية تفاعلية تضغط على أجزائها"],
+    ["history", "حضارات الجزيرة العربية", "تاريخ", "خالد", 760, "رحلة سينمائية عبر الزمن"],
+    ["data", "تقرير المبيعات الربعي", "أعمال", "سارة", 640, "رسوم بيانية من ملف Excel"],
+    ["physics", "قوانين نيوتن بالمحاكاة", "علوم", "أحمد", 590, "محاكاة تتحكم بقوتها وزاويتها"],
+    ["math", "الدوال من الصفر", "رياضيات", "ريم", 470, "رسوم تتغير مع المعادلة"],
+    ["game", "مغامرة الكسور", "ألعاب تعليمية", "ليان", 1430, "لعبة بمراحل ونقاط"],
+    ["data", "خطة إطلاق منتج", "أعمال", "فهد", 310, "عرض للمستثمرين مع أرقام حيّة"],
+  ];
+  const deckCats = ["الكل", ...new Set(DECKS.map((d) => d[2]))];
+  const styleCats = ["الكل", ...new Set(Covers.STYLES.map((s) => s.cat))];
+  let view = "decks", dc = "الكل", sc = "الكل";
+
+  const chips = (el, cats, cur, key) => (el.innerHTML = cats.map((c) => `<button class="chip" aria-pressed="${c === cur}" data-${key}="${c}">${c}</button>`).join(""));
+  function renderDecks() {
+    const q = $("#q").value.trim();
+    chips($("#deckFilters"), deckCats, dc, "dc");
+    const list = DECKS.filter((d) => (dc === "الكل" || d[2] === dc) && (d[1] + d[5]).includes(q));
+    $("#deckGrid").innerHTML = list.length ? list.map((d, i) => `<article class="ex" style="--d:${i * 50}ms">
+      <a class="ex-cover" href="present.html?demo=${d[0]}" aria-label="تشغيل ${esc(d[1])}">${Covers.cover(d[0])}<span class="ex-play">${icon("play")}</span></a>
+      <div class="ex-body"><h3>${esc(d[1])}</h3>
+        <div class="ex-meta"><span class="avatar">${d[3][0]}</span>${d[3]} · ${d[4].toLocaleString("ar-SA-u-nu-latn")} مشاهدة</div>
+        <div class="ex-actions"><a class="btn btn-sm" href="present.html?demo=${d[0]}">${icon("play", "i-sm")}شغّل</a><a class="btn btn-sm btn-primary" href="create.html?idea=${encodeURIComponent(d[5] + " — " + d[1])}">${icon("copy", "i-sm")}استخدمه كقالب</a></div>
+      </div></article>`).join("") : `<p class="muted" style="grid-column:1/-1;text-align:center;padding:40px">لا نتائج</p>`;
+  }
+  function renderStyles() {
+    const q = $("#q").value.trim();
+    chips($("#styleFilters"), styleCats, sc, "sc");
+    const list = Covers.STYLES.filter((s) => (sc === "الكل" || s.cat === sc) && s.name.includes(q));
+    $("#styleGrid").innerHTML = list.map((s, i) => `<article class="st" style="--d:${i * 40}ms">
+      <div class="pv">${Covers.stylePreview(s)}</div>
+      <div class="st-body"><div><b>${s.name}</b><span>${s.cat}</span></div><a class="btn btn-sm" href="create.html?style=${s.id}">جرّبه</a></div></article>`).join("");
+  }
+  const render = () => (view === "decks" ? renderDecks() : renderStyles());
+  $$("[data-view]").forEach((b) => b.addEventListener("click", () => {
+    view = b.dataset.view;
+    $$("[data-view]").forEach((x) => x.setAttribute("aria-pressed", x === b));
+    $("#view-decks").hidden = view !== "decks"; $("#view-styles").hidden = view !== "styles";
+    history.replaceState(null, "", view === "styles" ? "#styles" : "#");
+    render();
+  }));
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest("[data-dc]"), b = e.target.closest("[data-sc]");
+    if (a) { dc = a.dataset.dc; renderDecks(); }
+    if (b) { sc = b.dataset.sc; renderStyles(); }
+  });
+  $("#q").addEventListener("input", render);
+  if (location.hash === "#styles") $('[data-view="styles"]').click(); else render();
+})();
+</script>
+</body>
+</html>

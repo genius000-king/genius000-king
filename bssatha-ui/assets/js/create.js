@@ -218,5 +218,12 @@
     }
   }
 
+  // قادم من المعرض: ?style=id أو ?idea=...
+  const qp = new URLSearchParams(location.search);
+  if (qp.get("style") && Covers.STYLES.some((x) => x.id === qp.get("style"))) {
+    state.style = qp.get("style"); renderStyles(); summary();
+    setTimeout(() => $("#styles").scrollIntoView({ behavior: "smooth", block: "start" }), 250);
+  }
+  if (qp.get("idea") && !idea.value) { idea.value = qp.get("idea"); updCount(); }
   if (location.hash === "#styles") setTimeout(() => $("#styles").scrollIntoView({ behavior: "smooth" }), 200);
 })();

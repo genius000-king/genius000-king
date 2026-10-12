@@ -11,8 +11,8 @@
   const nav = [
     ["decks", "dashboard.html", "folder", "عروضي", "6"],
     ["create", "create.html", "sparkles", "إنشاء عرض"],
-    ["styles", "create.html#styles", "palette", "الأساليب"],
-    ["billing", "pricing.html", "card", "الاشتراك والفوترة"],
+    ["styles", "gallery.html", "palette", "المعرض والأساليب"],
+    ["billing", "billing.html", "card", "الاشتراك والفوترة"],
     ["settings", "dashboard.html#settings", "settings", "الإعدادات"],
   ];
   const link = ([k, href, ic, label, count]) =>
@@ -39,7 +39,7 @@
   </aside>
   <div class="menu" id="userMenu" role="menu">
     <a class="menu-item" href="dashboard.html#settings">${icon("user")}الحساب</a>
-    <a class="menu-item" href="pricing.html">${icon("card")}الاشتراك</a>
+    <a class="menu-item" href="billing.html">${icon("card")}الاشتراك</a>
     <div class="menu-sep"></div>
     <a class="menu-item danger" href="index.html">${icon("logout")}تسجيل الخروج</a>
   </div>`;
@@ -48,7 +48,7 @@
   <header class="topbar">
     <a href="dashboard.html" data-logo></a>
     <div style="display:flex;gap:8px;align-items:center">
-      <a class="credit-pill" href="pricing.html">${icon("coin")}${user.credits}</a>
+      <a class="credit-pill" href="billing.html">${icon("coin")}${user.credits}</a>
       <button class="avatar" data-menu="userMenu" aria-label="الحساب" style="width:34px;height:34px">${user.name[0]}</button>
     </div>
   </header>`;
@@ -57,9 +57,9 @@
   const tabbar = `
   <nav class="tabbar" aria-label="التنقل">
     ${tab("decks", "dashboard.html", "folder", "عروضي")}
-    ${tab("styles", "create.html#styles", "palette", "الأساليب")}
+    ${tab("styles", "gallery.html", "palette", "المعرض")}
     <a href="create.html" aria-label="عرض جديد"><span class="fab">${icon("plus")}</span></a>
-    ${tab("billing", "pricing.html", "card", "الاشتراك")}
+    ${tab("billing", "billing.html", "card", "الاشتراك")}
     ${tab("settings", "dashboard.html#settings", "settings", "الإعدادات")}
   </nav>`;
 

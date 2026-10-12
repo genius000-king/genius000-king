@@ -23,6 +23,17 @@
     .set-row b { display: block; font-size: var(--fs-sm); }
     .set-row span { font-size: var(--fs-xs); color: var(--ink-3); }
     @media (max-width: 640px) { .quick .btn span { display: none; } .quick .btn { width: 44px; padding: 0; } }
+    .w-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 14px; }
+    .w-dots i { width: 8px; height: 8px; border-radius: 99px; background: var(--line-strong); transition: width .3s, background .3s; }
+    .w-dots i.on { width: 22px; background: var(--ink); }
+    .w-roles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .w-roles button { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--r-lg); border: 1.5px solid var(--line-strong); font-weight: 600; font-size: var(--fs-sm); text-align: start; transition: transform var(--t-fast), border-color var(--t-fast); }
+    .w-roles button:hover { transform: translateY(-2px); border-color: var(--ink); }
+    .w-roles .tile { width: 42px; height: 42px; }
+    .w-ideas { display: grid; gap: 8px; text-align: start; }
+    .w-ideas a { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: var(--r-md); background: var(--bg); border: 1px solid var(--line); font-size: var(--fs-sm); transition: border-color var(--t-fast); }
+    .w-ideas a:hover { border-color: var(--ink); }
+    .w-ideas a .i { margin-inline-start: auto; color: var(--ink-3); }
   </style>
 </head>
 <body data-shell="decks">
@@ -108,6 +119,34 @@
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <button class="btn btn-lg" data-close-modal>إلغاء</button>
       <button class="btn btn-lg" style="--btn-bg:var(--danger);--btn-fg:#fff;--btn-bd:var(--danger)" id="delConfirm">حذف</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- الترحيب بالمستخدم الجديد -->
+<div class="modal-backdrop" id="welcome" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="wTitle">
+  <div class="modal" style="width:min(100%,560px);text-align:center">
+    <div style="display:flex;justify-content:center;gap:8px;margin:-4px 0 10px">
+      <div style="width:84px" data-mascot="cloud"></div><div style="width:70px" data-mascot="flame"></div>
+    </div>
+    <div class="w-dots" aria-hidden="true"><i class="on"></i><i></i></div>
+    <div id="wStep1">
+      <h3 class="display" id="wTitle" style="font-size:var(--fs-2xl)">أهلاً فيك! 🎉</h3>
+      <p class="muted" style="margin:6px 0 18px">عندك <b>50 كريدت</b> هدية. أول شي: وش يوصفك؟</p>
+      <div class="w-roles" role="radiogroup" aria-label="من أنت">
+        <button role="radio" aria-checked="false" data-role="student"><span class="tile sun"><i data-i="star"></i></span>طالب</button>
+        <button role="radio" aria-checked="false" data-role="teacher"><span class="tile pink"><i data-i="users"></i></span>معلم</button>
+        <button role="radio" aria-checked="false" data-role="work"><span class="tile sky"><i data-i="chart"></i></span>موظف / شركة</button>
+        <button role="radio" aria-checked="false" data-role="creator"><span class="tile mint"><i data-i="video"></i></span>صانع محتوى</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" data-close-modal style="margin-top:14px">تخطَّ</button>
+    </div>
+    <div id="wStep2" hidden>
+      <h3 class="display" style="font-size:var(--fs-2xl)">جرّب أول عرض الحين</h3>
+      <p class="muted" style="margin:6px 0 18px">اختر فكرة جاهزة، أو اكتب فكرتك.</p>
+      <div class="w-ideas" id="wIdeas"></div>
+      <a class="btn btn-primary btn-lg btn-block" href="create.html" style="margin-top:14px"><i data-i="edit"></i>عندي فكرتي الخاصة</a>
     </div>
   </div>
 </div>
@@ -211,6 +250,24 @@
     decks = decks.filter((x) => x.id !== current); render();
     toast("حُذف العرض", "trash");
   });
+
+  // ---------- الترحيب ----------
+  const IDEAS = {
+    student: ["عرض عن الجهاز الهضمي بنموذج ثلاثي الأبعاد", "ملخص درس الكسور مع اختبار تفاعلي", "مشروع تخرج: نظام ري ذكي"],
+    teacher: ["درس تفاعلي عن دورة الماء مع لعبة في النهاية", "مراجعة نهائية للفصل مع 10 أسئلة", "شرح الكسور بلعبة مراحل"],
+    work: ["تقرير أداء الربع من ملف Excel", "عرض منتج جديد للعملاء", "خطة تسويق 2027"],
+    creator: ["قصة سينمائية عن تاريخ مكة", "شرح فكرة معقدة ببساطة لمتابعيني", "عرض تعريفي بقناتي"],
+  };
+  if (new URLSearchParams(location.search).get("welcome")) {
+    setTimeout(() => openModal("welcome"), 400);
+    history.replaceState(null, "", "dashboard.html");
+  }
+  document.querySelectorAll("[data-role]").forEach((b) => b.addEventListener("click", () => {
+    // الربط: PATCH /me { role } — يخصص الاقتراحات والأساليب
+    $("#wIdeas").innerHTML = IDEAS[b.dataset.role].map((t) => `<a href="create.html?idea=${encodeURIComponent(t)}">${icon("sparkles", "i-sm")}${t}${icon("arrow-left", "i-sm")}</a>`).join("");
+    $("#wStep1").hidden = true; $("#wStep2").hidden = false;
+    const d = document.querySelectorAll(".w-dots i"); d[0].classList.remove("on"); d[1].classList.add("on");
+  }));
 })();
 </script>
 </body>
