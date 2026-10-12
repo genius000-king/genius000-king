@@ -273,6 +273,9 @@ def tapered_tube(name, path_pts, radii, sides=8, material="VC", cap=True):
         bm.faces.new(list(reversed(rings[0])))
         if radii[-1] > 1e-4:
             bm.faces.new(rings[-1])
+    # side quads above are wound clockwise seen from outside → flip so normals point outward
+    # (inward normals make the inverted-hull ink outline cover the whole mesh in the game)
+    bmesh.ops.reverse_faces(bm, faces=list(bm.faces))
     return bm_to_object(bm, name, material)
 
 

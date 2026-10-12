@@ -25,6 +25,48 @@
     "menu_pose"
    ],
    "rig": "rae_rig"
+  },
+  {
+   "id": "blu",
+   "file": "blu.glb",
+   "category": "character",
+   "worlds": [
+    "all"
+   ],
+   "height": 0.748,
+   "radius": 0.468,
+   "collision": {
+    "type": "none"
+   },
+   "scatter": null,
+   "tris": 10368,
+   "parts": [
+    "body",
+    "core",
+    "tag",
+    "cap",
+    "bubble_0",
+    "bubble_1",
+    "bubble_2",
+    "bubble_3",
+    "bubble_4",
+    "eye_L",
+    "pupil_L",
+    "glint_L",
+    "brow_L",
+    "cheek_L",
+    "eye_R",
+    "pupil_R",
+    "glint_R",
+    "brow_R",
+    "cheek_R",
+    "mouth_smile",
+    "mouth_frown",
+    "mouth_open",
+    "mouth_o",
+    "mouth_grin"
+   ],
+   "note": "procedurally animated by scripts/player/slime_body.gd"
   }
  ]
 }

@@ -55,7 +55,8 @@ void sl_light(vec3 normal, vec3 light, vec3 view, vec3 light_color, float attenu
 	vec3 lc = light_color / PI;
 	if (directional) {
 		// colored shadow: shadow side gets tinted fill instead of going grey
-		vec3 shade_col = mix(vec3(1.0), shadow_tint, shadow_strength) * (1.0 - shadow_strength * 0.45);
+		// comic shadow ≈ 60–65 % of the lit value, hue-shifted toward the cool tint (never muddy/black)
+		vec3 shade_col = mix(vec3(0.66), shadow_tint * 1.3, shadow_strength * 0.55);
 		// halftone dots deepen the shadow near the terminator → classic comic print
 		float tone = 1.0 - clamp(ndl * 0.5 + 0.5, 0.0, 1.0);
 		float dots = sl_halftone(frag, tone * 0.9) * halftone_strength * (1.0 - lit);

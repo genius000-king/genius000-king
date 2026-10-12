@@ -38,6 +38,14 @@ func _ready() -> void:
 			var n := AssetDB.instantiate(ids[i])
 			n.position = Vector3(cos(i * 1.1) * (3.0 + i), 0, sin(i * 1.1) * (3.0 + i) - 2.0)
 			add_child(n)
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--row="):
+			var ids: PackedStringArray = a.substr(6).split(",")
+			for i in ids.size():
+				var n := AssetDB.instantiate(ids[i])
+				if n:
+					n.position = Vector3((i - ids.size() * 0.5) * 9.0 + 8.0, 0, 26)
+					add_child(n)
 	player = Player.new()
 	add_child(player)
 	player.teleport(Vector3(0, 0.05, 0), deg_to_rad(180))

@@ -24,6 +24,8 @@ func _ready() -> void:
 		t.call_deferred("run")
 	if args.has("debug"):
 		_debug_loop()
+	if args.has("nearby"):
+		_nearby()
 
 
 func _goto_world() -> void:
@@ -96,3 +98,19 @@ func _debug_loop() -> void:
 				if g._tiles[k]:
 					n += g._tiles[k].multimesh.instance_count
 			print("DBG t=", i, " grass tiles=", g._tiles.size(), " inst=", n, " pending=", g._pending.size(), " chunks=", w.terrain._chunks.size())
+
+
+func _nearby() -> void:
+	await get_tree().create_timer(8.0).timeout
+	var q: PackedStringArray = args.nearby.split(",")
+	var c := Vector3(float(q[0]), 0, float(q[1]))
+	var r := float(q[2])
+	for mmi in get_tree().root.find_children("*", "MultiMeshInstance3D", true, false):
+		var mm: MultiMesh = mmi.multimesh
+		if mm == null or mm.mesh == null:
+			continue
+		for i in mm.instance_count:
+			var p: Vector3 = mmi.global_transform * mm.get_instance_transform(i).origin
+			if Vector2(p.x - c.x, p.z - c.z).length() < r and mm.mesh.get_surface_count() > 0 and not mm.use_custom_data:
+				print("NEAR ", mm.mesh.resource_name, " ", p.snapped(Vector3.ONE * 0.1))
+	get_tree().quit()
