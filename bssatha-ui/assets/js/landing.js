@@ -38,6 +38,7 @@
     setTimeout(type, del ? 18 : 42);
   })();
 
+  // (أُزيلت اقتراحات الأفكار الجاهزة من تحت الصندوق)
   $$("[data-idea]").forEach((b) => b.addEventListener("click", () => {
     idea.value = b.dataset.idea; autosize(); idea.focus();
     idea.setSelectionRange(idea.value.length, idea.value.length);

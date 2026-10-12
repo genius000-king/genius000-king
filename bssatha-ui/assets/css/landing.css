@@ -260,5 +260,6 @@
 @media (max-width: 640px) { .perks { gap: 8px; } .perks li { padding: 10px; gap: 10px; } .perks .tile { width: 42px; height: 42px; } .perks .tile .i { width: 20px; height: 20px; } }
 
 /* شريط الأشكال من الهوية */
-.motif { height: 36px; background: url("../img/motif.jpg") repeat-x center / auto 100%; animation: slideMotif 40s linear infinite; opacity: 1; }
-@keyframes slideMotif { to { background-position: -1080px center; } }
+.motif { height: 40px; margin-block: 8px; background: url("../img/motif.svg") repeat-x 0 center / 400px 40px; animation: slideMotif 30s linear infinite; }
+@keyframes slideMotif { to { background-position: -400px center; } }
+@media (prefers-reduced-motion: reduce) { .motif { animation: none; } }
