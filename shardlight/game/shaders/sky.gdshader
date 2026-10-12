@@ -58,20 +58,26 @@ void sky() {
 		float s = hash(floor(d * 420.0));
 		col += vec3(step(0.996, s)) * star_intensity * up;
 	}
-	// painterly clouds on a virtual plane
+	// comic clouds: big cauliflower masses, hard edge, ink outline, lit tops / cool shaded bellies
 	if (y > 0.015) {
 		vec2 uv = d.xz / (y + 0.12) * 0.35;
 		uv += vec2(TIME * cloud_speed, TIME * cloud_speed * 0.4);
-		float n = texture(cloud_noise, uv * 0.6).r * 0.65 + texture(cloud_detail, uv * 2.1 + 3.1).r * 0.35;
+		vec2 cu = uv * 0.28;
+		float n = texture(cloud_noise, cu).r * 0.82 + texture(cloud_detail, uv * 1.4 + 3.1).r * 0.18;
 		float cov = 1.0 - cloud_coverage;
-		float mask = smoothstep(cov, cov + 0.12, n);
-		// brush-stroke edge: stepped shading
-		float shade = smoothstep(cov + 0.05, cov + 0.35, texture(cloud_noise, uv * 0.6 + vec2(0.02, 0.03)).r);
-		shade = floor(shade * 4.0) / 4.0;
-		vec3 ccol = mix(cloud_shadow, cloud_light, shade);
-		ccol += LIGHT0_COLOR * 0.15 * pow(max(dot(d, LIGHT0_DIRECTION), 0.0), 6.0);
-		float fade = smoothstep(0.015, 0.2, y);
-		col = mix(col, ccol, mask * fade * 0.95);
+		float aa = 0.012;
+		float mask = smoothstep(cov - aa, cov + aa, n);
+		float ink = mask * (1.0 - smoothstep(cov + 0.012, cov + 0.03, n));
+		// shaded belly: sample the field a little "below" (toward the horizon) — if it's still cloud there, we're on top
+		vec2 down = normalize(d.xz + vec2(1e-4)) * 0.035;
+		float nb = texture(cloud_noise, cu + down).r * 0.82 + texture(cloud_detail, (uv + down / 0.28) * 1.4 + 3.1).r * 0.18;
+		float lit = smoothstep(cov + 0.04, cov + 0.06, nb);
+		vec3 ccol = mix(cloud_shadow, cloud_light, lit);
+		// sun-side warm rim
+		ccol += LIGHT0_COLOR * 0.12 * step(0.9, dot(d, LIGHT0_DIRECTION));
+		ccol = mix(ccol, vec3(0.09, 0.06, 0.18), ink * 0.85);
+		float fade = smoothstep(0.015, 0.16, y);
+		col = mix(col, ccol, mask * fade);
 	}
 	COLOR = col;
 }
