@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>المحرر — بسّطها</title>
+  <meta name="theme-color" content="#FFFFFF">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/core.css">
+  <link rel="stylesheet" href="assets/css/editor.css">
+</head>
+<body>
+<div class="ed">
+  <!-- الشريط العلوي -->
+  <header class="ed-top">
+    <a class="btn btn-ghost btn-icon btn-sm" href="dashboard.html" aria-label="رجوع إلى عروضي"><i data-i="arrow-right"></i></a>
+    <div class="ed-title">
+      <label class="sr-only" for="deckName">اسم العرض</label>
+      <input id="deckName" value="الخلية البشرية: رحلة إلى الداخل">
+      <span class="save-state hide-m" id="saveState"><span class="dot"></span><span>محفوظ</span></span>
+    </div>
+    <span class="spacer"></span>
+    <button class="btn btn-ghost btn-icon btn-sm" id="undo" aria-label="تراجع (Ctrl+Z)" title="تراجع"><i data-i="undo"></i></button>
+    <button class="btn btn-ghost btn-icon btn-sm" id="redo" aria-label="إعادة (Ctrl+Y)" title="إعادة"><i data-i="redo"></i></button>
+    <span class="vsep hide-m"></span>
+    <button class="btn btn-sm hide-m" data-open-modal="shareModal"><i data-i="share" class="i-sm"></i>مشاركة</button>
+    <a class="btn btn-primary btn-sm" id="playBtn" href="present.html"><i data-i="play" class="i-sm"></i><span class="hide-m">تشغيل</span></a>
+  </header>
+
+  <!-- الشرائح -->
+  <nav class="rail" id="rail" aria-label="الشرائح"></nav>
+
+  <!-- المسرح -->
+  <section class="stage" aria-label="مساحة التحرير">
+    <div class="stage-bar">
+      <div class="seg" role="group" aria-label="الوضع">
+        <button aria-pressed="true" data-mode="edit"><i data-i="move" class="i-sm"></i> تحرير</button>
+        <button aria-pressed="false" data-mode="try"><i data-i="play" class="i-sm"></i> تجربة</button>
+      </div>
+    </div>
+    <div class="canvas-wrap" id="wrap">
+      <div class="canvas is-editing" id="canvas"></div>
+      <div class="sel" id="sel"><span class="tag" id="selTag">عنصر</span><i class="h nw" data-h="nw"></i><i class="h ne" data-h="ne"></i><i class="h sw" data-h="sw"></i><i class="h se" data-h="se"></i></div>
+      <div class="ftb" id="ftb" role="toolbar" aria-label="أدوات العنصر">
+        <button data-act="fs-" aria-label="تصغير الخط">A-</button>
+        <span class="fs" id="ftbFs">—</span>
+        <button data-act="fs+" aria-label="تكبير الخط">A+</button>
+        <span class="div"></span>
+        <button class="sw" data-color="#2A1B12" style="background:#2A1B12" aria-label="داكن"></button>
+        <button class="sw" data-color="#F0643A" style="background:#F0643A" aria-label="برتقالي"></button>
+        <button class="sw hide-xs" data-color="#7C3AED" style="background:#7C3AED" aria-label="بنفسجي"></button>
+        <span class="div"></span>
+        <button data-act="dup" aria-label="تكرار" class="hide-xs"><i data-i="copy" class="i-sm"></i></button>
+        <button data-act="del" aria-label="حذف"><i data-i="trash" class="i-sm"></i></button>
+        <button class="ai" data-act="ai"><i data-i="sparkles" class="i-sm"></i>اسأل الذكاء</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- اللوحة -->
+  <aside class="panel" id="panel">
+    <div class="panel-tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-tab="chat"><i data-i="sparkles" class="i-sm"></i>المساعد</button>
+      <button role="tab" aria-selected="false" data-tab="props"><i data-i="settings" class="i-sm"></i>الخصائص</button>
+      <button class="close-sheet btn-ghost" id="closeSheet" aria-label="إغلاق"><i data-i="x"></i></button>
+    </div>
+
+    <div class="tabpane" id="pane-chat" role="tabpanel">
+      <div class="chat">
+        <div class="msgs" id="msgs" aria-live="polite">
+          <div class="chat-empty" id="chatEmpty">
+            <div class="mascot-wrap" data-mascot="bust" aria-hidden="true"></div>
+            <b>وش تبغى نعدّل؟</b>
+            <p>اكتب طلبك بكلامك، وأعدّل العرض مباشرة.</p>
+            <div class="sugs">
+              <button>كبّر نموذج الخلية وخلّ الانتقال للنواة أنعم</button>
+              <button>غيّر ألوان العرض لألوان هادئة</button>
+              <button>أضف اختباراً من 5 أسئلة في النهاية</button>
+              <button>حوّل هذه الشريحة لمحاكاة ثلاثية الأبعاد</button>
+            </div>
+          </div>
+        </div>
+        <form class="composer" id="composer">
+          <div class="ctx" id="ctx"><span>السياق:</span><span class="badge" id="ctxSlide">الشريحة 1</span><span class="badge badge-sky" id="ctxEl" hidden></span></div>
+          <div class="comp-box">
+            <label class="sr-only" for="prompt">طلب التعديل</label>
+            <textarea id="prompt" rows="1" placeholder="مثال: خلّ العنوان أكبر وأضف حركة دخول…"></textarea>
+            <button class="btn btn-primary" type="submit" aria-label="إرسال"><i data-i="send" class="i-sm"></i></button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="tabpane" id="pane-props" role="tabpanel" hidden>
+      <div class="props-empty" id="propsEmpty"><i data-i="move"></i>اضغط على أي عنصر في الشريحة لتعديل خصائصه.<br>اضغط مرتين على النص لتحريره.</div>
+      <div class="props" id="props" hidden>
+        <div><h4>الموضع والحجم</h4>
+          <div class="grid4">
+            <label class="num-in"><span>س</span><input type="number" data-prop="left" aria-label="الموضع الأفقي"></label>
+            <label class="num-in"><span>ص</span><input type="number" data-prop="top" aria-label="الموضع الرأسي"></label>
+            <label class="num-in"><span>ع</span><input type="number" data-prop="width" aria-label="العرض"></label>
+            <label class="num-in"><span>ط</span><input type="number" data-prop="height" aria-label="الارتفاع"></label>
+          </div>
+        </div>
+        <div><h4>النص</h4>
+          <div class="grid4">
+            <label class="num-in"><span><i data-i="type" class="i-sm"></i></span><input type="number" data-prop="fontSize" aria-label="حجم الخط"></label>
+            <select class="select" id="fontFam" aria-label="الخط"><option value='"Readex Pro"'>ريدكس</option><option value='"Marhey"'>مرحي</option></select>
+          </div>
+        </div>
+        <div><h4>اللون</h4>
+          <div class="swatches" id="swatches">
+            <button style="background:#2A1B12" data-c="#2A1B12" aria-label="داكن"></button>
+            <button style="background:#FFFFFF" data-c="#FFFFFF" aria-label="أبيض"></button>
+            <button style="background:#F0643A" data-c="#F0643A" aria-label="برتقالي"></button>
+            <button style="background:#FFC83D" data-c="#FFC83D" aria-label="أصفر"></button>
+            <button style="background:#3B82F6" data-c="#3B82F6" aria-label="أزرق"></button>
+            <button style="background:#22B07D" data-c="#22B07D" aria-label="أخضر"></button>
+            <button style="background:#7C3AED" data-c="#7C3AED" aria-label="بنفسجي"></button>
+            <input type="color" id="customColor" aria-label="لون مخصص">
+          </div>
+        </div>
+        <div><h4>الشفافية</h4><input type="range" id="opacity" min="0.1" max="1" step="0.05" value="1" style="width:100%;accent-color:var(--brand)" aria-label="الشفافية"></div>
+        <div><h4>حركة الدخول</h4>
+          <select class="select" id="anim" aria-label="حركة الدخول"><option value="">بدون</option><option value="anim">ظهور للأعلى</option><option value="float">طفو مستمر</option></select>
+        </div>
+        <div><h4>الترتيب</h4>
+          <div class="row"><button class="btn btn-sm" data-z="up"><i data-i="layers" class="i-sm"></i>للأمام</button><button class="btn btn-sm" data-z="down">للخلف</button></div>
+        </div>
+        <button class="btn btn-danger btn-sm" data-act-panel="del"><i data-i="trash" class="i-sm"></i>حذف العنصر</button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="m-tabs">
+    <button class="ai" data-open="chat"><i data-i="sparkles" class="i-sm"></i>المساعد</button>
+    <button data-open="props"><i data-i="settings" class="i-sm"></i>الخصائص</button>
+    <button data-open-modal="shareModal"><i data-i="share" class="i-sm"></i>مشاركة</button>
+  </div>
+</div>
+<div class="sheet-backdrop" id="sheetBg"></div>
+
+<!-- المشاركة -->
+<div class="modal-backdrop" id="shareModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+  <div class="modal">
+    <div class="modal-head"><h3 id="shareTitle">مشاركة العرض</h3><button class="btn btn-ghost btn-icon btn-sm" data-close-modal aria-label="إغلاق"><i data-i="x"></i></button></div>
+    <div class="field">
+      <span class="label">رابط العرض</span>
+      <div style="display:flex;gap:8px"><input class="input ltr" readonly value="https://bssatha.app/p/cell-x7k2" id="shareUrl"><button class="btn btn-dark" id="copyUrl"><i data-i="copy" class="i-sm"></i>نسخ</button></div>
+    </div>
+    <div style="display:grid;gap:4px;margin-top:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0"><div><b style="font-size:var(--fs-sm)">أي شخص لديه الرابط يشاهد</b><div class="hint">بدون حاجة لتسجيل الدخول</div></div><label class="switch"><input type="checkbox" checked><span></span></label></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0"><div><b style="font-size:var(--fs-sm)">السماح بإنشاء نسخة</b><div class="hint">يستطيع الآخرون نسخه لحسابهم</div></div><label class="switch"><input type="checkbox"><span></span></label></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px">
+      <button class="btn"><i data-i="download" class="i-sm"></i>ملف ويب (ZIP)</button>
+      <button class="btn"><i data-i="file" class="i-sm"></i>PDF</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/core.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/deck-demo.js"></script>
+<script src="assets/js/editor.js"></script>
+</body>
+</html>

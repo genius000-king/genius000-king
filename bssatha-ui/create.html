@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>عرض جديد — بسّطها</title>
+  <meta name="theme-color" content="#FBF5EC">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/core.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link rel="stylesheet" href="assets/css/create.css">
+</head>
+<body data-shell="create">
+
+<main class="main">
+  <div class="create">
+    <div class="create-main">
+      <div class="page-head"><div><h1 class="display">عرض جديد</h1><p>أربع خطوات بسيطة — والخطوة الأولى فقط إلزامية.</p></div></div>
+
+      <!-- ١. الفكرة -->
+      <section class="block" id="s-idea" aria-labelledby="h-idea">
+        <header class="block-head">
+          <span class="n">1</span>
+          <h2 id="h-idea">ما فكرة العرض؟</h2>
+          <div class="seg" role="group" aria-label="نوع الإدخال" style="margin-inline-start:auto">
+            <button type="button" aria-pressed="true" data-mode="idea">فكرة</button>
+            <button type="button" aria-pressed="false" data-mode="script">سكربت كامل</button>
+          </div>
+        </header>
+        <div class="idea-box">
+          <label class="sr-only" for="idea">الفكرة</label>
+          <textarea id="idea" class="textarea" rows="5" maxlength="20000" placeholder="مثال: أريد عرضاً يشرح الخلية البشرية بطريقة تفاعلية، مع نموذج ثلاثي الأبعاد يمكن تدويره، وعند الضغط على النواة ندخل إليها ونرى مكوناتها."></textarea>
+          <div class="idea-foot">
+            <button type="button" class="btn btn-ghost btn-sm" id="enhance"><i data-i="wand" class="i-sm"></i>حسّن فكرتي</button>
+            <button type="button" class="btn btn-ghost btn-sm btn-icon" id="mic" aria-label="إملاء صوتي"><i data-i="mic" class="i-sm"></i></button>
+            <span class="subtle" style="margin-inline-start:auto;font-size:var(--fs-xs)" id="count">0 / 20,000</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ٢. الملفات -->
+      <section class="block" id="s-files" aria-labelledby="h-files">
+        <header class="block-head"><span class="n">2</span><h2 id="h-files">ملفات ومراجع</h2><span class="badge">اختياري</span></header>
+        <label class="drop" id="drop" for="files" tabindex="0">
+          <input type="file" id="files" multiple hidden>
+          <span class="drop-ico"><i data-i="upload" class="i-lg"></i></span>
+          <b>اسحب ملفاتك هنا أو <u>اختر من جهازك</u></b>
+          <span class="subtle">الذكاء يقرأها ويستخدمها: البيانات تصير رسوماً، والصور والنماذج تدخل العرض مباشرة.</span>
+          <span class="types"><span>PDF</span><span>Word</span><span>Excel</span><span>صور</span><span>فيديو</span><span>صوت</span><span>3D</span><span>كود</span></span>
+        </label>
+        <ul class="files" id="fileList" aria-live="polite"></ul>
+      </section>
+
+      <!-- ٣. الأسلوب -->
+      <section class="block" id="styles" aria-labelledby="h-style">
+        <header class="block-head"><span class="n">3</span><h2 id="h-style">الأسلوب البصري</h2><span class="badge">اختياري</span></header>
+        <div class="style-filters" id="styleFilters" role="group" aria-label="تصنيف الأساليب"></div>
+        <div class="styles" id="styleGrid" role="radiogroup" aria-label="الأساليب"></div>
+        <details class="custom-style">
+          <summary><i data-i="edit" class="i-sm"></i>أو صِف أسلوبك بكلماتك</summary>
+          <textarea class="textarea" id="customStyle" rows="3" placeholder="مثال: ألوان البحر الهادئة، خط عريض للعناوين، صور حقيقية، حركات ناعمة وبطيئة."></textarea>
+        </details>
+      </section>
+
+      <!-- ٤. الإعدادات -->
+      <section class="block" id="s-opts" aria-labelledby="h-opts">
+        <header class="block-head"><span class="n">4</span><h2 id="h-opts">الإعدادات</h2></header>
+        <div class="opts">
+          <div class="field">
+            <span class="label" id="lblSlides">عدد الشرائح</span>
+            <div class="range-row">
+              <input type="range" id="slides" min="3" max="40" value="10" aria-labelledby="lblSlides">
+              <output id="slidesOut" class="range-out">10</output>
+            </div>
+          </div>
+          <div class="field">
+            <span class="label">مستوى التفاعل</span>
+            <div class="levels" role="radiogroup" aria-label="مستوى التفاعل">
+              <button type="button" role="radio" aria-checked="false" data-level="1"><i data-i="file"></i><b>بسيط</b><span>نصوص وصور وحركات</span></button>
+              <button type="button" role="radio" aria-checked="true" data-level="2"><i data-i="sparkles"></i><b>تفاعلي</b><span>رسوم واختبارات وأدوات</span></button>
+              <button type="button" role="radio" aria-checked="false" data-level="3"><i data-i="cube"></i><b>غامر</b><span>3D ومحاكاة وألعاب</span></button>
+            </div>
+          </div>
+          <div class="opts-row">
+            <div class="field"><label class="label" for="lang">لغة العرض</label><select class="select" id="lang"><option>العربية</option><option>English</option><option>ثنائي اللغة</option></select></div>
+            <div class="field"><label class="label" for="aud">الجمهور</label><select class="select" id="aud"><option>عام</option><option>طلاب مدرسة</option><option>طلاب جامعة</option><option>موظفون / عمل</option><option>مستثمرون</option></select></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- الملخص -->
+    <aside class="summary" aria-label="ملخص العرض">
+      <div class="summary-card">
+        <div class="summary-mascot" data-mascot="bust" aria-hidden="true"></div>
+        <h3>ملخص العرض</h3>
+        <dl>
+          <div><dt>الشرائح</dt><dd id="sumSlides">10</dd></div>
+          <div><dt>التفاعل</dt><dd id="sumLevel">تفاعلي</dd></div>
+          <div><dt>الأسلوب</dt><dd id="sumStyle">تلقائي</dd></div>
+          <div><dt>الملفات</dt><dd id="sumFiles">لا يوجد</dd></div>
+        </dl>
+        <div class="cost">
+          <span>التكلفة التقديرية</span>
+          <b><i data-i="coin"></i><span id="cost">60</span> كريدت</b>
+        </div>
+        <p class="subtle balance">رصيدك: 340 كريدت · المتبقي بعد الإنشاء: <span id="after">280</span></p>
+        <button class="btn btn-primary btn-lg btn-block" id="generate"><i data-i="sparkles"></i>أنشئ العرض</button>
+        <p class="subtle" style="font-size:var(--fs-xs);text-align:center;margin-top:10px">يستغرق عادةً 3–8 دقائق. تقدر تغلق الصفحة وسنبلغك.</p>
+      </div>
+    </aside>
+  </div>
+
+  <!-- شريط الجوال -->
+  <div class="m-generate">
+    <div><span class="subtle" style="font-size:var(--fs-xs)">التكلفة</span><b><span id="costM">60</span> كريدت</b></div>
+    <button class="btn btn-primary btn-lg" id="generateM"><i data-i="sparkles"></i>أنشئ العرض</button>
+  </div>
+</main>
+
+<!-- ======== شاشة الإنشاء ======== -->
+<div class="gen" id="gen" hidden role="dialog" aria-modal="true" aria-labelledby="genTitle">
+  <div class="gen-inner">
+    <div class="gen-mascot bob" data-mascot aria-hidden="true"></div>
+    <h2 class="display" id="genTitle">نبني عرضك الآن…</h2>
+    <p class="muted" id="genSub">«الخلية البشرية» · 10 شرائح</p>
+    <div class="gen-bar"><span id="genBar"></span></div>
+    <ol class="stages" id="stages"></ol>
+    <div class="gen-slides" id="genSlides" aria-hidden="true"></div>
+    <div class="gen-actions" id="genActions">
+      <button class="btn" id="genBg"><i data-i="arrow-left"></i>أكمل في الخلفية</button>
+      <button class="btn btn-ghost" id="genCancel">إلغاء</button>
+    </div>
+    <div class="gen-actions" id="genDone" hidden>
+      <a class="btn btn-primary btn-lg" href="present.html?id=d_new"><i data-i="play"></i>شغّل العرض</a>
+      <a class="btn btn-lg" href="editor.html?id=d_new"><i data-i="edit"></i>افتح المحرر</a>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/core.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/covers.js"></script>
+<script src="assets/js/shell.js"></script>
+<script src="assets/js/create.js"></script>
+</body>
+</html>

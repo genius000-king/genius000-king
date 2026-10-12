@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>تشغيل العرض — بسّطها</title>
+  <meta name="theme-color" content="#14100E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/core.css">
+  <style>
+    html, body { height: 100%; background: #14100E; color: #fff; overflow: hidden; }
+    .player { position: fixed; inset: 0; display: grid; place-items: center; touch-action: pan-y; }
+    .viewport { position: absolute; left: 50%; top: 50%; width: 1280px; height: 720px; transform-origin: center; }
+    .frame { position: absolute; inset: 0; border-radius: 6px; overflow: hidden; box-shadow: 0 30px 80px -20px rgba(0,0,0,.6); }
+    .frame.enter-next { animation: inNext .55s cubic-bezier(.2,.8,.2,1); }
+    .frame.enter-prev { animation: inPrev .55s cubic-bezier(.2,.8,.2,1); }
+    .frame.leave { animation: leave .4s ease forwards; }
+    @keyframes inNext { from { opacity: 0; transform: translateX(-60px) scale(.98); } }
+    @keyframes inPrev { from { opacity: 0; transform: translateX(60px) scale(.98); } }
+    @keyframes leave { to { opacity: 0; transform: scale(.97); } }
+
+    .progress { position: fixed; top: 0; inset-inline: 0; height: 4px; background: rgba(255,255,255,.08); z-index: 5; }
+    .progress span { display: block; height: 100%; background: linear-gradient(90deg, var(--sun), var(--brand)); transition: width .5s var(--ease); margin-inline-start: 0; }
+
+    .hud { position: fixed; inset-inline: 0; bottom: 0; z-index: 5; display: flex; justify-content: center; padding: 16px 16px calc(16px + env(safe-area-inset-bottom)); transition: opacity .35s, transform .35s var(--ease); pointer-events: none; }
+    .hud.is-hidden { opacity: 0; transform: translateY(16px); }
+    .hud-bar { pointer-events: auto; display: flex; align-items: center; gap: 4px; padding: 6px; border-radius: var(--r-full); background: rgba(30,25,22,.82); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,.1); }
+    .hb { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; color: #fff; transition: background var(--t-fast); }
+    .hb:hover { background: rgba(255,255,255,.12); }
+    .hb[disabled] { opacity: .3; pointer-events: none; }
+    .counter { min-width: 72px; text-align: center; font-size: var(--fs-sm); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .sep { width: 1px; height: 22px; background: rgba(255,255,255,.15); margin: 0 4px; }
+    .top-hud { position: fixed; top: 12px; inset-inline: 12px; z-index: 5; display: flex; justify-content: space-between; align-items: center; gap: 12px; transition: opacity .35s; }
+    .top-hud.is-hidden { opacity: 0; pointer-events: none; }
+    .top-hud .title { font-size: var(--fs-sm); color: rgba(255,255,255,.7); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .top-hud .hb { background: rgba(30,25,22,.6); }
+
+    /* النظرة العامة */
+    .overview { position: fixed; inset: 0; z-index: 10; background: rgba(20,16,14,.96); overflow: auto; padding: 72px 24px 40px; opacity: 0; pointer-events: none; transition: opacity .3s; }
+    .overview.is-open { opacity: 1; pointer-events: auto; }
+    .ov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+    .ov-item { text-align: start; color: #fff; cursor: pointer; }
+    .ov-thumb { position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; border: 3px solid transparent; transition: border-color .2s, transform .2s; }
+    .ov-item:hover .ov-thumb { transform: translateY(-3px); }
+    .ov-item.is-current .ov-thumb { border-color: var(--sun); }
+    .ov-thumb .scaler { position: absolute; top: 0; right: 0; width: 1280px; height: 720px; transform-origin: top right; pointer-events: none; }
+    .ov-item span { display: block; margin-top: 8px; font-size: var(--fs-sm); color: rgba(255,255,255,.75); }
+
+    /* البداية */
+    .start { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; align-content: center; gap: 18px; text-align: center; padding: 24px; background: radial-gradient(ellipse at center, #2A1F1A, #14100E 70%); transition: opacity .5s, visibility .5s; }
+    .start.is-gone { opacity: 0; visibility: hidden; }
+    .start .mascot-wrap { width: 120px; }
+    .start h1 { font-size: var(--fs-2xl); max-width: 22ch; }
+    .start p { color: rgba(255,255,255,.6); font-size: var(--fs-sm); }
+    .start .play { width: 88px; height: 88px; border-radius: 50%; display: grid; place-items: center; background: var(--brand); border: 3px solid #fff; box-shadow: 0 0 0 0 rgba(240,100,58,.6); animation: ring 2s infinite; margin: 8px auto; }
+    .start .play .i { width: 34px; height: 34px; fill: #fff; stroke: #fff; margin-inline-start: -4px; }
+    @keyframes ring { 70% { box-shadow: 0 0 0 26px rgba(240,100,58,0); } 100% { box-shadow: 0 0 0 0 rgba(240,100,58,0); } }
+    .keys { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; font-size: var(--fs-xs); color: rgba(255,255,255,.5); }
+    .keys kbd { display: inline-grid; place-items: center; min-width: 26px; height: 24px; padding: 0 6px; border-radius: 6px; background: rgba(255,255,255,.1); font-family: inherit; color: #fff; margin-inline-end: 4px; }
+    .rotate-hint { display: none; }
+    @media (max-width: 640px) and (orientation: portrait) {
+      .rotate-hint { display: flex; align-items: center; gap: 8px; font-size: var(--fs-xs); color: rgba(255,255,255,.6); }
+      .keys { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"><span id="prog"></span></div>
+
+<div class="top-hud" id="topHud">
+  <a class="hb" href="editor.html" aria-label="خروج إلى المحرر"><i data-i="x"></i></a>
+  <span class="title" id="deckTitle">الخلية البشرية: رحلة إلى الداخل</span>
+  <button class="hb" id="ovBtn" aria-label="كل الشرائح (G)"><i data-i="grid"></i></button>
+</div>
+
+<main class="player" id="player" aria-roledescription="عرض تقديمي">
+  <div class="viewport" id="viewport"></div>
+</main>
+
+<div class="hud" id="hud">
+  <div class="hud-bar">
+    <button class="hb" id="prev" aria-label="الشريحة السابقة"><i data-i="chev-right"></i></button>
+    <span class="counter" id="counter" aria-live="polite">1 من 6</span>
+    <button class="hb" id="next" aria-label="الشريحة التالية"><i data-i="chev-left"></i></button>
+    <span class="sep"></span>
+    <button class="hb" id="fsBtn" aria-label="ملء الشاشة (F)"><i data-i="maximize"></i></button>
+  </div>
+</div>
+
+<div class="overview" id="overview" aria-hidden="true"><div class="ov-grid" id="ovGrid"></div></div>
+
+<div class="start" id="start">
+  <div class="mascot-wrap bob" data-mascot aria-hidden="true"></div>
+  <h1 class="display" id="startTitle">الخلية البشرية: رحلة إلى الداخل</h1>
+  <p><span id="startCount">6</span> شرائح · عرض تفاعلي</p>
+  <button class="play" id="startBtn" aria-label="ابدأ العرض بملء الشاشة"><i data-i="play"></i></button>
+  <div class="keys"><span><kbd>←</kbd><kbd>→</kbd>التنقل</span><span><kbd>F</kbd>ملء الشاشة</span><span><kbd>G</kbd>كل الشرائح</span></div>
+  <span class="rotate-hint">📱↻ أدِر جوالك أفقياً لتجربة أفضل</span>
+  <button class="btn btn-ghost btn-sm" id="startWindow" style="color:rgba(255,255,255,.7)">التشغيل بدون ملء الشاشة</button>
+</div>
+
+<script src="assets/js/core.js"></script>
+<script src="assets/js/deck-demo.js"></script>
+<script>
+(() => {
+  const { $, icon } = UI;
+  const { SLIDES, CSS, W, H } = DeckDemo;
+  document.head.insertAdjacentHTML("beforeend", `<style>${CSS}</style>`);
+
+  const titles = { space: "النظام الشمسي", cell: "الخلية البشرية", history: "تاريخ الحضارات", data: "البيانات والإحصاءات", physics: "قوانين الحركة", game: "لعبة الكسور" };
+  const demo = new URLSearchParams(location.search).get("demo");
+  if (demo && titles[demo] && demo !== "cell") {
+    // جميع الأمثلة تستخدم نفس العرض التجريبي حالياً — في الإنتاج يُحمَّل العرض بمعرّفه
+    $("#startTitle").textContent = "مثال تجريبي: " + titles[demo];
+  }
+  $("#startCount").textContent = SLIDES.length;
+
+  const vp = $("#viewport");
+  let i = 0, cleanup = null, frame = null;
+
+  function fit() {
+    const s = Math.min(innerWidth / W, innerHeight / H) * (document.fullscreenElement ? 1 : .94);
+    vp.style.transform = `translate(-50%, -50%) scale(${s})`;
+  }
+  addEventListener("resize", fit); fit();
+
+  function show(n, dir = "next") {
+    if (n < 0 || n >= SLIDES.length) return;
+    cleanup && cleanup(); cleanup = null;
+    const old = frame;
+    if (old) { old.classList.add("leave"); setTimeout(() => old.remove(), 380); }
+    frame = document.createElement("div");
+    frame.className = "frame enter-" + dir;
+    frame.innerHTML = SLIDES[n].html;
+    frame.setAttribute("aria-label", `شريحة ${n + 1}: ${SLIDES[n].title}`);
+    vp.appendChild(frame);
+    const r = SLIDES[n].init && SLIDES[n].init(frame);
+    if (typeof r === "function") cleanup = r;
+    i = n;
+    $("#counter").textContent = `${i + 1} من ${SLIDES.length}`;
+    $("#prog").style.width = ((i + 1) / SLIDES.length) * 100 + "%";
+    $("#prev").disabled = i === 0; $("#next").disabled = i === SLIDES.length - 1;
+    history.replaceState(null, "", "#" + (i + 1));
+  }
+  const next = () => show(i + 1, "next");
+  const prev = () => show(i - 1, "prev");
+  $("#next").addEventListener("click", next);
+  $("#prev").addEventListener("click", prev);
+
+  // ملء الشاشة
+  async function toggleFS() {
+    try {
+      if (!document.fullscreenElement) { await document.documentElement.requestFullscreen(); screen.orientation?.lock?.("landscape").catch(() => {}); }
+      else await document.exitFullscreen();
+    } catch (_) {}
+  }
+  document.addEventListener("fullscreenchange", () => { $("#fsBtn").innerHTML = icon(document.fullscreenElement ? "minimize" : "maximize"); fit(); });
+  $("#fsBtn").addEventListener("click", toggleFS);
+
+  // البداية
+  const begin = (fs) => { $("#start").classList.add("is-gone"); if (fs) toggleFS(); poke(); };
+  $("#startBtn").addEventListener("click", () => begin(true));
+  $("#startWindow").addEventListener("click", () => begin(false));
+
+  // نظرة عامة
+  const ov = $("#overview");
+  function openOv() {
+    $("#ovGrid").innerHTML = SLIDES.map((s, k) => `<div role="button" tabindex="0" class="ov-item ${k === i ? "is-current" : ""}" data-go="${k}"><div class="ov-thumb"><div class="scaler" inert>${s.html}</div></div><span>${k + 1}. ${s.title}</span></div>`).join("");
+    ov.classList.add("is-open"); ov.setAttribute("aria-hidden", "false");
+    requestAnimationFrame(() => document.querySelectorAll(".ov-thumb").forEach((t) => (t.querySelector(".scaler").style.transform = `scale(${t.clientWidth / W})`)));
+  }
+  const closeOv = () => { ov.classList.remove("is-open"); ov.setAttribute("aria-hidden", "true"); };
+  $("#ovBtn").addEventListener("click", () => (ov.classList.contains("is-open") ? closeOv() : openOv()));
+  ov.addEventListener("click", (e) => { const b = e.target.closest("[data-go]"); if (b) { show(+b.dataset.go, +b.dataset.go > i ? "next" : "prev"); } closeOv(); });
+
+  // لوحة المفاتيح (RTL: السهم الأيسر = التالي)
+  addEventListener("keydown", (e) => {
+    if (e.target.matches("input, textarea")) return;
+    const k = e.key;
+    if (k === "ArrowLeft" || k === "PageDown" || k === " ") { e.preventDefault(); next(); }
+    else if (k === "ArrowRight" || k === "PageUp") { e.preventDefault(); prev(); }
+    else if (k === "Home") show(0, "prev");
+    else if (k === "End") show(SLIDES.length - 1);
+    else if (k.toLowerCase() === "f") toggleFS();
+    else if (k.toLowerCase() === "g") ov.classList.contains("is-open") ? closeOv() : openOv();
+    else if (k === "Escape" && ov.classList.contains("is-open")) closeOv();
+    else if (k === "Enter" && !$("#start").classList.contains("is-gone")) begin(true);
+    poke();
+  });
+
+  // السحب على الجوال
+  let sx = null, sy = null;
+  $("#player").addEventListener("touchstart", (e) => { if (e.target.closest("input, button, canvas, .org")) return; sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+  $("#player").addEventListener("touchend", (e) => {
+    if (sx === null) return;
+    const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) dx > 0 ? next() : prev(); // RTL: السحب لليمين = التالي
+    sx = null;
+  });
+
+  // إخفاء أدوات التحكم تلقائياً
+  let idle;
+  function poke() {
+    $("#hud").classList.remove("is-hidden"); $("#topHud").classList.remove("is-hidden"); document.body.style.cursor = "";
+    clearTimeout(idle);
+    idle = setTimeout(() => { if (ov.classList.contains("is-open")) return; $("#hud").classList.add("is-hidden"); $("#topHud").classList.add("is-hidden"); document.body.style.cursor = "none"; }, 2800);
+  }
+  addEventListener("mousemove", poke); addEventListener("touchstart", poke, { passive: true });
+
+  const startAt = parseInt(location.hash.slice(1), 10);
+  show(startAt > 0 && startAt <= SLIDES.length ? startAt - 1 : 0);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>بسّطها — حوّل فكرتك إلى عرض تفاعلي حيّ</title>
+  <meta name="description" content="منصة ذكية تحوّل أي فكرة أو ملف إلى عرض تقديمي تفاعلي يعمل داخل المتصفح: نماذج ثلاثية الأبعاد، محاكاة، ألعاب واختبارات.">
+  <meta name="theme-color" content="#FBF5EC">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/core.css">
+  <link rel="stylesheet" href="assets/css/landing.css">
+</head>
+<body>
+
+<!-- ============ الرأس ============ -->
+<header class="site-header" id="header">
+  <div class="container">
+    <a href="index.html" data-logo></a>
+    <nav class="nav" aria-label="التنقل الرئيسي">
+      <a href="#live">كيف يختلف</a>
+      <a href="#how">طريقة العمل</a>
+      <a href="#gallery">المعرض</a>
+      <a href="pricing.html">الأسعار</a>
+    </nav>
+    <div class="header-actions">
+      <a class="btn btn-ghost hide-m" href="auth.html">تسجيل الدخول</a>
+      <a class="btn btn-primary btn-sm" href="auth.html?mode=signup">ابدأ مجاناً</a>
+      <button class="btn btn-ghost btn-icon only-mobile" id="mNavBtn" aria-label="القائمة" aria-expanded="false" aria-controls="mNav"><i data-i="menu"></i></button>
+    </div>
+  </div>
+</header>
+<nav class="m-nav" id="mNav" aria-label="قائمة الجوال">
+  <a href="#live">كيف يختلف</a>
+  <a href="#how">طريقة العمل</a>
+  <a href="#gallery">المعرض</a>
+  <a href="pricing.html">الأسعار</a>
+  <a class="btn btn-soft btn-lg" href="auth.html">تسجيل الدخول</a>
+</nav>
+
+<main>
+<!-- ============ البطل ============ -->
+<section class="hero">
+  <div class="hero-doodles" aria-hidden="true">
+    <svg class="doodle bob" style="top:90px;inset-inline-start:7%;width:56px" viewBox="0 0 60 60"><path d="M30 6c3 14 10 21 24 24-14 3-21 10-24 24-3-14-10-21-24-24 14-3 21-10 24-24Z" fill="none" stroke="#F0643A" stroke-width="4" stroke-linejoin="round"/></svg>
+    <svg class="doodle" style="top:300px;inset-inline-start:4%;width:70px" viewBox="0 0 80 40"><path d="M4 30c8-20 16-20 24 0s16 20 24 0 16-20 24 0" fill="none" stroke="#3B82F6" stroke-width="5" stroke-linecap="round"/></svg>
+    <svg class="doodle" style="bottom:70px;inset-inline-end:9%;width:60px" viewBox="0 0 60 60"><path d="M30 30m-4 0a4 4 0 1 1 8 0 8 8 0 1 1-16 0 12 12 0 1 1 24 0 16 16 0 1 1-32 0" fill="none" stroke="#FFC83D" stroke-width="4.5" stroke-linecap="round"/></svg>
+  </div>
+  <div class="hero-mascot bob" data-mascot aria-hidden="true"></div>
+
+  <div class="container hero-inner">
+    <span class="eyebrow"><b>جديد</b> عروض تعمل داخل المتصفح — لا PowerPoint</span>
+    <h1 class="display">حوّل فكرتك إلى عرض
+      <span class="hl">تفاعلي حيّ<svg viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path d="M4 14C70 4 160 4 296 12" stroke="#FFC83D" stroke-width="8" fill="none" stroke-linecap="round"/></svg></span>
+    </h1>
+    <p class="hero-sub">اكتب الفكرة، أرفق ملفاتك إن وُجدت، والذكاء الاصطناعي يبني لك عرضاً كاملاً: نماذج ثلاثية الأبعاد، محاكاة، رسوم بيانية واختبارات — يعمل على أي جهاز.</p>
+
+    <!-- صندوق الفكرة -->
+    <form class="prompt" id="prompt" action="create.html" method="get" autocomplete="off">
+      <label class="sr-only" for="idea">اكتب فكرة العرض</label>
+      <textarea id="idea" name="idea" rows="3" placeholder="اكتب فكرتك هنا…"></textarea>
+      <div class="prompt-files" id="promptFiles"></div>
+      <div class="prompt-bar">
+        <button type="button" class="prompt-tool" id="attachBtn"><i data-i="paperclip"></i>إرفاق</button>
+        <input type="file" id="fileInput" multiple hidden>
+        <div class="stepper" role="group" aria-label="عدد الشرائح">
+          <button type="button" data-step="-1" aria-label="إنقاص"><i data-i="minus" class="i-sm"></i></button>
+          <output id="slidesOut" aria-live="polite">10 شرائح</output>
+          <button type="button" data-step="1" aria-label="زيادة"><i data-i="plus" class="i-sm"></i></button>
+        </div>
+        <button type="button" class="prompt-tool" data-menu="styleMenu" aria-haspopup="true" aria-expanded="false"><i data-i="palette"></i>الأسلوب: <b id="styleLabel">تلقائي</b></button>
+        <span class="grow"></span>
+        <button type="submit" class="btn btn-primary btn-lg"><i data-i="sparkles"></i>أنشئ العرض</button>
+      </div>
+      <div class="prompt-hint" aria-hidden="true">أفلت الملفات هنا</div>
+    </form>
+
+    <div class="menu" id="styleMenu" role="menu">
+      <button class="menu-item" data-style="تلقائي" role="menuitem"><i data-i="wand"></i>تلقائي — الذكاء يختار</button>
+      <div class="menu-sep"></div>
+      <button class="menu-item" data-style="مرح كرتوني" role="menuitem">مرح كرتوني</button>
+      <button class="menu-item" data-style="أكاديمي هادئ" role="menuitem">أكاديمي هادئ</button>
+      <button class="menu-item" data-style="سينمائي داكن" role="menuitem">سينمائي داكن</button>
+      <button class="menu-item" data-style="فضائي ثلاثي الأبعاد" role="menuitem">فضائي ثلاثي الأبعاد</button>
+      <div class="menu-sep"></div>
+      <a class="menu-item" href="create.html#styles"><i data-i="grid"></i>كل الأساليب (+100)</a>
+    </div>
+
+    <div class="suggest" aria-label="أفكار جاهزة">
+      <button type="button" class="chip" data-idea="أريد عرضاً يشرح الخلية البشرية بنموذج ثلاثي الأبعاد يمكن تدويره والضغط على أجزائه لاستكشافها">🧬 الخلية البشرية ثلاثية الأبعاد</button>
+      <button type="button" class="chip" data-idea="محاكاة تفاعلية للجاذبية وحركة الكواكب، يغيّر فيها الطالب الكتلة والسرعة ويشاهد النتيجة مباشرة">🪐 محاكاة الجاذبية</button>
+      <button type="button" class="chip" data-idea="حوّل ملف المبيعات المرفق إلى رسوم بيانية تفاعلية مع ملخص للنتائج وتوصيات">📊 تقرير من ملف Excel</button>
+      <button type="button" class="chip" data-idea="لعبة تعليمية عن الكسور للصف الخامس، بمراحل ونقاط واختبار في النهاية">🎮 لعبة تعليمية</button>
+    </div>
+  </div>
+</section>
+
+<div class="motif" aria-hidden="true"></div>
+
+<!-- ============ العرض الحي ============ -->
+<section class="section" id="live">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="kicker">ليست شرائح… تجارب</span>
+      <h2 class="display">هذه شريحة حقيقية. جرّبها.</h2>
+      <p>كل عرض في بسّطها هو مشروع ويب كامل. المحاكاة بالأسفل مثال لما يبنيه الذكاء الاصطناعي من سطر واحد.</p>
+    </div>
+    <div class="live">
+      <div class="live-stage reveal" id="orbitStage">
+        <canvas id="orbit" aria-label="محاكاة لمدار كوكب حول نجم"></canvas>
+        <div class="live-top">
+          <h3 class="display">كيف تحفظ الجاذبية الكوكب في مداره؟</h3>
+          <span class="badge">شريحة 4 / 12</span>
+        </div>
+        <div class="live-ctrl">
+          <label>كتلة النجم <input type="range" id="mass" min="0.4" max="2.2" step="0.05" value="1"> <output id="massOut">1.0</output></label>
+          <label>سرعة الكوكب <input type="range" id="speed" min="0.6" max="1.5" step="0.02" value="1"> <output id="speedOut">1.0</output></label>
+        </div>
+      </div>
+      <ul class="live-points">
+        <li class="reveal" style="--d:80ms"><span class="ico sky"><i data-i="cube"></i></span><div><h3>ثلاثي الأبعاد ومحاكاة</h3><p>نماذج تُدار وتُكبَّر، ومحاكاة يغيّر فيها الجمهور القيم ويرى الأثر مباشرة.</p></div></li>
+        <li class="reveal" style="--d:160ms"><span class="ico sun"><i data-i="star"></i></span><div><h3>ألعاب واختبارات</h3><p>اختبار بنتيجة فورية، أو لعبة كاملة داخل العرض — ليس مجرد سؤال اختيار من متعدد.</p></div></li>
+        <li class="reveal" style="--d:240ms"><span class="ico mint"><i data-i="chart"></i></span><div><h3>بياناتك تتحرك</h3><p>ارفع ملف Excel فيتحول إلى رسوم بيانية تفاعلية بدل صورة جامدة للجدول.</p></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ طريقة العمل ============ -->
+<section class="section" id="how" style="padding-top:0">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="kicker">ثلاث خطوات فقط</span>
+      <h2 class="display">من الفكرة إلى المسرح في دقائق</h2>
+    </div>
+    <div class="steps">
+      <article class="step card reveal">
+        <div class="step-n">١</div>
+        <h3>اكتب واسحب ملفاتك</h3>
+        <p>جملة واحدة تكفي، أو سكربت كامل. اسحب PDF أو Excel أو صور أو نماذج 3D.</p>
+        <div class="step-visual" aria-hidden="true">
+          <svg viewBox="0 0 200 100" width="200"><rect x="30" y="20" width="140" height="60" rx="12" fill="#fff" stroke="#1E1916" stroke-width="2"/><rect x="46" y="38" width="90" height="6" rx="3" fill="#D9CBB6"/><rect x="46" y="52" width="60" height="6" rx="3" fill="#E8DDCD"/><rect x="128" y="8" width="34" height="42" rx="6" fill="#FCE3EE" stroke="#1E1916" stroke-width="2" transform="rotate(12 145 29)"/></svg>
+        </div>
+      </article>
+      <article class="step card reveal" style="--d:100ms">
+        <div class="step-n">٢</div>
+        <h3>اختر الأسلوب أو صِفه</h3>
+        <p>أكثر من 100 أسلوب كنقطة انطلاق، أو اكتب بكلماتك: «هادئ، ألوان البحر، خط عريض».</p>
+        <div class="step-visual" aria-hidden="true">
+          <svg viewBox="0 0 200 100" width="200"><rect x="20" y="22" width="48" height="56" rx="8" fill="#14123A"/><rect x="76" y="16" width="48" height="68" rx="8" fill="#FFF3E2" stroke="#1E1916" stroke-width="2.5"/><circle cx="100" cy="40" r="10" fill="#F0643A"/><rect x="132" y="22" width="48" height="56" rx="8" fill="#EEF5EC"/></svg>
+        </div>
+      </article>
+      <article class="step card reveal" style="--d:200ms">
+        <div class="step-n">٣</div>
+        <h3>قدّم، أو عدّل بالمحادثة</h3>
+        <p>شغّل بملء الشاشة فوراً. وإذا أردت تغييراً: «كبّر النموذج في الشريحة 3» — وخلاص.</p>
+        <div class="step-visual" aria-hidden="true">
+          <svg viewBox="0 0 200 100" width="200"><rect x="16" y="18" width="110" height="64" rx="10" fill="#1E1916"/><path d="M62 38v24l20-12Z" fill="#FFC83D"/><rect x="134" y="26" width="52" height="18" rx="9" fill="#fff" stroke="#1E1916" stroke-width="2"/><rect x="142" y="54" width="44" height="18" rx="9" fill="#F0643A"/></svg>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ المعرض ============ -->
+<section class="section" id="gallery" style="padding-top:0">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="kicker">صُنعت ببسّطها</span>
+      <h2 class="display">أمثلة تقدر تشغّلها الآن</h2>
+    </div>
+    <div class="gallery" id="galleryGrid"></div>
+  </div>
+</section>
+
+<!-- ============ المميزات ============ -->
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="kicker">لماذا بسّطها</span>
+      <h2 class="display">الإبداع هو الحد الوحيد</h2>
+    </div>
+    <div class="features reveal">
+      <div class="feature"><span class="ico brand"><i data-i="code"></i></span><h3>بلا قوالب جامدة</h3><p>الذكاء يكتب HTML وCSS وJavaScript لكل عرض من الصفر، حسب فكرتك.</p></div>
+      <div class="feature"><span class="ico sky"><i data-i="chat"></i></span><h3>عدّل بالمحادثة</h3><p>اطلب التغيير بكلامك، فيعدّل العنصر المطلوب فقط دون إعادة بناء العرض.</p></div>
+      <div class="feature"><span class="ico pink"><i data-i="move"></i></span><h3>تحرير بصري مباشر</h3><p>اضغط على أي نص أو صورة وغيّر الحجم واللون والمكان — بدون كود.</p></div>
+      <div class="feature"><span class="ico sun"><i data-i="upload"></i></span><h3>أي ملف كمرجع</h3><p>PDF، Word، Excel، فيديو، صوت، نماذج 3D وملفات برمجية.</p></div>
+      <div class="feature"><span class="ico mint"><i data-i="bolt"></i></span><h3>في دقائق</h3><p>عرض متكامل في أقل من عشر دقائق، مع مراجعة تلقائية للجودة.</p></div>
+      <div class="feature"><span class="ico brand"><i data-i="globe"></i></span><h3>يعمل في كل مكان</h3><p>رابط واحد يعمل على الجوال والكمبيوتر والتابلت — بلا برامج.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ الأسئلة ============ -->
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="section-head reveal"><h2 class="display">أسئلة شائعة</h2></div>
+    <div class="faq reveal">
+      <details><summary>هل أحتاج أي خبرة في البرمجة أو التصميم؟<i data-i="plus"></i></summary><p>لا. تكتب فكرتك بلغتك العادية، والمنصة تتولى التخطيط والتصميم والبرمجة. وإذا أردت التعديل، تضغط على العنصر وتغيّره أو تطلب ذلك بالمحادثة.</p></details>
+      <details><summary>ما الكريدت وكيف يُحسب؟<i data-i="plus"></i></summary><p>الكريدت هو رصيد الاستخدام. إنشاء العرض يستهلك حسب عدد الشرائح ومستوى التفاعل، والتعديلات بالمحادثة تستهلك أقل. ترى التكلفة التقديرية قبل الضغط على «إنشاء» دائماً.</p></details>
+      <details><summary>هل أستطيع تقديم العرض بدون إنترنت؟<i data-i="plus"></i></summary><p>نعم، يمكنك تنزيل العرض كملف ويب مستقل يعمل في أي متصفح، أو مشاركته برابط.</p></details>
+      <details><summary>هل ملفاتي آمنة؟<i data-i="plus"></i></summary><p>ملفاتك تُستخدم لإنشاء عرضك فقط، ومحفوظة بتشفير، ولا تُستخدم لتدريب أي نموذج. تستطيع حذفها نهائياً في أي وقت.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ الدعوة ============ -->
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="cta reveal">
+      <div>
+        <h2 class="display">فكرتك تستحق أكثر من شريحة بيضاء.</h2>
+        <p>50 كريدت مجاناً عند التسجيل — تكفي لعرضك الأول كاملاً.</p>
+        <a class="btn btn-primary btn-lg" href="auth.html?mode=signup"><i data-i="sparkles"></i>ابدأ مجاناً</a>
+      </div>
+      <div class="cta-mascot bob" data-mascot aria-hidden="true"></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ============ التذييل ============ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" data-logo data-logo-sub></a>
+        <p class="muted" style="margin-top:12px;max-width:34ch;font-size:var(--fs-sm)">منصة عربية لإنشاء عروض وتجارب تفاعلية بالذكاء الاصطناعي.</p>
+      </div>
+      <div><h4>المنتج</h4><ul><li><a href="create.html">إنشاء عرض</a></li><li><a href="#gallery">المعرض</a></li><li><a href="pricing.html">الأسعار</a></li></ul></div>
+      <div><h4>الدعم</h4><ul><li><a href="#">مركز المساعدة</a></li><li><a href="#">تواصل معنا</a></li><li><a href="#">حالة الخدمة</a></li></ul></div>
+      <div><h4>قانوني</h4><ul><li><a href="#">الشروط</a></li><li><a href="#">الخصوصية</a></li><li><a href="#">سياسة الاسترجاع</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 بسّطها. جميع الحقوق محفوظة.</span>
+      <div class="pay-logos" aria-label="طرق الدفع"><span>mada</span><span>VISA</span><span>Mastercard</span><span>Apple Pay</span><span>STC Pay</span></div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/core.js"></script>
+<script src="assets/js/covers.js"></script>
+<script src="assets/js/landing.js"></script>
+</body>
+</html>

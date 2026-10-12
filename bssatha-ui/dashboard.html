@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>عروضي — بسّطها</title>
+  <meta name="theme-color" content="#FBF5EC">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/core.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <style>
+    .quick { display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 8px; padding-inline-start: 18px; margin-bottom: var(--s6); background: var(--surface); border: 2px solid var(--ink); border-radius: var(--r-full); box-shadow: var(--shadow-pop); transition: transform var(--t-fast), box-shadow var(--t-fast); }
+    .quick:focus-within { transform: translate(-1px, -1px); box-shadow: var(--shadow-pop-lg); }
+    .quick > .i { color: var(--brand); }
+    .quick input { flex: 1; min-width: 0; border: 0; background: none; height: 44px; font-size: var(--fs-md); }
+    .quick input:focus { outline: none; }
+    .settings { display: grid; gap: var(--s4); max-width: 720px; }
+    .set-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: var(--s4) 0; border-bottom: 1px solid var(--line); }
+    .set-row:last-child { border-bottom: 0; }
+    .set-row b { display: block; font-size: var(--fs-sm); }
+    .set-row span { font-size: var(--fs-xs); color: var(--ink-3); }
+    @media (max-width: 640px) { .quick .btn span { display: none; } .quick .btn { width: 44px; padding: 0; } }
+  </style>
+</head>
+<body data-shell="decks">
+
+<main class="main">
+  <!-- ========== العروض ========== -->
+  <section id="viewDecks">
+    <div class="page-head">
+      <div>
+        <h1 class="display" id="hello">مساء الخير، عبدالله</h1>
+        <p>وش ودّك تشرح اليوم؟</p>
+      </div>
+    </div>
+
+    <form class="quick" id="quick">
+      <i data-i="sparkles"></i>
+      <label class="sr-only" for="quickIdea">فكرة سريعة</label>
+      <input id="quickIdea" placeholder="اكتب فكرة عرض جديد واضغط Enter…">
+      <button class="btn btn-primary" type="submit"><i data-i="arrow-left"></i><span>إنشاء</span></button>
+    </form>
+
+    <div class="toolbar">
+      <div class="seg" role="group" aria-label="تصفية">
+        <button aria-pressed="true" data-filter="all">الكل</button>
+        <button aria-pressed="false" data-filter="ready">جاهزة</button>
+        <button aria-pressed="false" data-filter="draft">مسودات</button>
+      </div>
+      <span style="flex:1"></span>
+      <div class="input-wrap">
+        <i data-i="search"></i>
+        <input class="input" id="search" type="search" placeholder="ابحث في عروضك" aria-label="بحث">
+      </div>
+    </div>
+
+    <div class="decks" id="decks" aria-live="polite"></div>
+  </section>
+
+  <!-- ========== الإعدادات ========== -->
+  <section id="viewSettings" hidden>
+    <div class="page-head"><div><h1 class="display">الإعدادات</h1><p>حسابك وتفضيلاتك.</p></div></div>
+    <div class="settings">
+      <div class="card card-pad">
+        <div class="card-head"><h2>الملف الشخصي</h2></div>
+        <div style="display:grid;gap:var(--s4);grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+          <div class="field"><label class="label" for="sName">الاسم</label><input class="input" id="sName" value="عبدالله"></div>
+          <div class="field"><label class="label" for="sEmail">البريد</label><input class="input ltr" id="sEmail" value="abdullah@example.com" style="text-align:right"></div>
+        </div>
+      </div>
+      <div class="card card-pad">
+        <div class="card-head"><h2>التفضيلات</h2></div>
+        <div class="set-row"><div><b>لغة العروض الافتراضية</b><span>اللغة التي يكتب بها الذكاء محتوى العرض</span></div><select class="select" style="width:auto;min-height:40px"><option>العربية</option><option>English</option><option>ثنائي اللغة</option></select></div>
+        <div class="set-row"><div><b>تأكيد قبل صرف الكريدت</b><span>اعرض التكلفة قبل كل عملية إنشاء</span></div><label class="switch"><input type="checkbox" checked><span></span></label></div>
+        <div class="set-row"><div><b>وضع الأداء الخفيف</b><span>تقليل المؤثرات الثقيلة على الأجهزة الضعيفة</span></div><label class="switch"><input type="checkbox"><span></span></label></div>
+        <div class="set-row"><div><b>إشعارات البريد</b><span>عند اكتمال إنشاء عرض</span></div><label class="switch"><input type="checkbox" checked><span></span></label></div>
+      </div>
+      <div class="card card-pad">
+        <div class="card-head"><h2>الخصوصية</h2></div>
+        <div class="set-row"><div><b>تنزيل بياناتي</b><span>كل عروضك وملفاتك في ملف واحد</span></div><button class="btn btn-sm"><i data-i="download" class="i-sm"></i>تنزيل</button></div>
+        <div class="set-row"><div><b>حذف الحساب</b><span>نهائي ولا يمكن التراجع عنه</span></div><button class="btn btn-danger btn-sm">حذف الحساب</button></div>
+      </div>
+      <div><button class="btn btn-dark" id="saveSettings">حفظ التغييرات</button></div>
+    </div>
+  </section>
+</main>
+
+<!-- قائمة العرض -->
+<div class="menu" id="deckMenu" role="menu">
+  <button class="menu-item" data-act="play"><i data-i="play"></i>تشغيل</button>
+  <button class="menu-item" data-act="edit"><i data-i="edit"></i>تعديل</button>
+  <button class="menu-item" data-act="share"><i data-i="link"></i>نسخ رابط المشاركة</button>
+  <button class="menu-item" data-act="dup"><i data-i="copy"></i>إنشاء نسخة</button>
+  <button class="menu-item" data-act="download"><i data-i="download"></i>تنزيل كملف ويب</button>
+  <div class="menu-sep"></div>
+  <button class="menu-item danger" data-act="delete"><i data-i="trash"></i>حذف</button>
+</div>
+
+<!-- تأكيد الحذف -->
+<div class="modal-backdrop" id="delModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="delTitle">
+  <div class="modal" style="text-align:center">
+    <div style="width:84px;margin:0 auto 12px" data-mascot="head"></div>
+    <h3 id="delTitle" style="font-size:var(--fs-xl)">حذف العرض؟</h3>
+    <p class="muted" style="margin:8px 0 24px">سيُحذف «<span id="delName"></span>» نهائياً مع ملفاته.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="btn btn-lg" data-close-modal>إلغاء</button>
+      <button class="btn btn-lg" style="--btn-bg:var(--danger);--btn-fg:#fff;--btn-bd:var(--danger)" id="delConfirm">حذف</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/core.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/covers.js"></script>
+<script src="assets/js/shell.js"></script>
+<script>
+(() => {
+  const { $, $$, icon, esc, toast, openModal, closeModal } = UI;
+  const h = new Date().getHours();
+  $("#hello").textContent = (h < 12 ? "صباح الخير" : "مساء الخير") + "، عبدالله";
+
+  // تبديل العرض حسب الرابط (#settings)
+  const route = () => {
+    const s = location.hash === "#settings";
+    $("#viewDecks").hidden = s; $("#viewSettings").hidden = !s;
+    $$(".side-nav a, .tabbar a").forEach((a) => {
+      const href = a.getAttribute("href");
+      const on = href === "dashboard.html#settings" ? s : href === "dashboard.html" ? !s : null;
+      if (on === null) return;
+      on ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current");
+    });
+  };
+  addEventListener("hashchange", route); route();
+  $("#saveSettings").addEventListener("click", () => toast("حُفظت الإعدادات"));
+
+  $("#quick").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const v = $("#quickIdea").value.trim();
+    if (!v) return $("#quickIdea").focus();
+    try { sessionStorage.setItem("bssatha:draft", JSON.stringify({ idea: v })); } catch (_) {}
+    location.href = "create.html";
+  });
+
+  const STATUS = {
+    ready: '<span class="badge badge-mint deck-status"><span class="dot"></span>جاهز</span>',
+    draft: '<span class="badge deck-status">مسودة</span>',
+    generating: '<span class="badge badge-sun deck-status"><span class="dot"></span>قيد الإنشاء</span>',
+  };
+  const coverMap = { cell: "cell", physics: "physics", data: "data", history: "history", math: "math", game: "game" };
+  let decks = [], filter = "all", q = "", current = null;
+
+  function card(d, i) {
+    return `<article class="deck" style="--d:${i * 50}ms" data-id="${d.id}">
+      <a class="deck-cover" href="${d.status === "generating" ? "#" : "editor.html?id=" + d.id}" aria-label="فتح ${esc(d.title)}">
+        ${Covers.cover(coverMap[d.cover])}
+        ${STATUS[d.status]}
+        ${d.status === "generating" ? `<div class="deck-gen">${icon("sparkles")}يُبنى الآن… ${d.progress}%<div class="meter"><span style="width:${d.progress}%"></span></div></div>` : ""}
+      </a>
+      ${d.status !== "generating" ? `<div class="deck-actions"><a class="btn btn-sm" href="present.html?id=${d.id}">${icon("play", "i-sm")}تشغيل</a><a class="btn btn-sm" href="editor.html?id=${d.id}">${icon("edit", "i-sm")}تعديل</a></div>` : ""}
+      <div class="deck-body">
+        <div class="txt"><h3 title="${esc(d.title)}">${esc(d.title)}</h3>
+          <div class="deck-meta"><span>${d.slides} شريحة</span><span>·</span><span>${d.updated}</span></div></div>
+        <button class="btn btn-ghost btn-icon btn-sm" data-menu="deckMenu" data-deck="${d.id}" aria-label="خيارات">${icon("more")}</button>
+      </div>
+    </article>`;
+  }
+
+  function render() {
+    const list = decks.filter((d) => (filter === "all" || d.status === filter) && d.title.includes(q));
+    const grid = $("#decks");
+    if (!decks.length) {
+      grid.style.display = "block";
+      grid.innerHTML = `<div class="empty"><div class="mascot-wrap bob" data-mascot></div><h3 class="display">لا عروض بعد!</h3><p>ابدأ بفكرة واحدة، وخلّ الباقي علينا.</p><a class="btn btn-primary btn-lg" href="create.html">${icon("sparkles")}أنشئ عرضك الأول</a></div>`;
+      UI.hydrateBrand(grid); return;
+    }
+    grid.style.display = "";
+    grid.innerHTML = (filter === "all" && !q ? `<a class="new-deck" href="create.html"><span class="plus">${icon("plus")}</span>عرض جديد</a>` : "") +
+      (list.length ? list.map(card).join("") : `<p class="muted" style="grid-column:1/-1;padding:40px;text-align:center">لا نتائج لـ «${esc(q)}»</p>`);
+  }
+
+  // هيكل تحميل
+  $("#decks").innerHTML = Array.from({ length: 6 }, () => `<div><div class="skeleton" style="aspect-ratio:16/10;border-radius:20px"></div><div class="skeleton" style="height:14px;width:70%;margin-top:14px"></div><div class="skeleton" style="height:10px;width:40%;margin-top:8px"></div></div>`).join("");
+  API.listDecks().then((d) => { decks = d; render(); });
+
+  $$("[data-filter]").forEach((b) => b.addEventListener("click", () => {
+    $$("[data-filter]").forEach((x) => x.setAttribute("aria-pressed", x === b));
+    filter = b.dataset.filter; render();
+  }));
+  $("#search").addEventListener("input", (e) => { q = e.target.value.trim(); render(); });
+
+  document.addEventListener("click", (e) => { const t = e.target.closest("[data-deck]"); if (t) current = t.dataset.deck; }, true);
+  $$("#deckMenu [data-act]").forEach((b) => b.addEventListener("click", async () => {
+    const d = decks.find((x) => x.id === current); if (!d) return;
+    switch (b.dataset.act) {
+      case "play": location.href = "present.html?id=" + d.id; break;
+      case "edit": location.href = "editor.html?id=" + d.id; break;
+      case "share": navigator.clipboard?.writeText(location.origin + "/p/" + d.id).catch(() => {}); toast("نُسخ الرابط", "link"); break;
+      case "dup": { const n = await API.duplicateDeck(d.id); decks.unshift({ ...n, status: "ready", updated: "الآن" }); render(); toast("أُنشئت نسخة", "copy"); break; }
+      case "download": toast("يُجهَّز الملف للتنزيل…", "download"); break;
+      case "delete": $("#delName").textContent = d.title; openModal("delModal"); break;
+    }
+  }));
+  $("#delConfirm").addEventListener("click", async () => {
+    const el = document.querySelector(`.deck[data-id="${current}"]`);
+    closeModal("delModal");
+    el && el.animate([{ opacity: 1, transform: "scale(1)" }, { opacity: 0, transform: "scale(.9)" }], { duration: 250, fill: "forwards" });
+    await API.deleteDeck(current);
+    decks = decks.filter((x) => x.id !== current); render();
+    toast("حُذف العرض", "trash");
+  });
+})();
+</script>
+</body>
+</html>
