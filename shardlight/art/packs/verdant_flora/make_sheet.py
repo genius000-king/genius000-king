@@ -5,8 +5,9 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")
 PV = os.path.join(ROOT, "art", "previews", "verdant_flora")
 
 
-def build(pattern=None, out="_sheet.png", cols=8, cell=256, label=True):
-    files = sorted(f for f in os.listdir(PV) if f.endswith(".png") and not f.startswith("_"))
+def build(pattern=None, out="_sheet.png", cols=8, cell=256, label=True, cel=True):
+    suffix = "_cel.png" if cel else ".png"
+    files = sorted(f for f in os.listdir(PV) if f.endswith(suffix) and not f.startswith("_") and (cel or not f.endswith("_cel.png")))
     if pattern:
         files = [f for f in files if re.search(pattern, f)]
     rows = (len(files) + cols - 1) // cols
@@ -21,7 +22,7 @@ def build(pattern=None, out="_sheet.png", cols=8, cell=256, label=True):
         x, y = (i % cols) * cell, (i // cols) * cell
         sheet.paste(im, (x, y))
         if label:
-            name = f[:-4].replace("verdant_", "")
+            name = f[:-(8 if cel else 4)].replace("verdant_", "")
             d.text((x + 4, y + cell - cell // 20 - 6), name, fill=(240, 235, 255), font=font)
     path = out if os.path.isabs(out) else os.path.join(PV, out)
     sheet.save(path)
@@ -33,4 +34,4 @@ if __name__ == "__main__":
     out = sys.argv[2] if len(sys.argv) > 2 else "_sheet.png"
     cols = int(sys.argv[3]) if len(sys.argv) > 3 else 8
     cell = int(sys.argv[4]) if len(sys.argv) > 4 else 256
-    print(build(pat, out, cols, cell))
+    print(build(pat, out, cols, cell, cel=os.environ.get("WB") != "1"))

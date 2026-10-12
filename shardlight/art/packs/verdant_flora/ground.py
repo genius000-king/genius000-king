@@ -8,6 +8,8 @@ def sc_g(zone="meadow", density=1.0, spacing=0.8, cluster=0.8, zw=None, group=No
 
 def blade_path(base, yaw, h, lean=0.4, w=0.03, seg=4, curl=0.0):
     cy, sy = math.cos(math.radians(yaw)), math.sin(math.radians(yaw))
+    w = max(w * 2.0, 0.06)
+    seg = min(seg, 3)
     pts, ws = [], []
     for i in range(seg + 1):
         t = i / seg
@@ -22,16 +24,18 @@ def blade_path(base, yaw, h, lean=0.4, w=0.03, seg=4, curl=0.0):
 def grass_tuft(aid, rng, n, hrange, wrange, lean, cols, spread, seed=0, tip=None, plumes=0):
     bt = Batch("blades", "VC_FOLIAGE")
     hmax = hrange[1]
+    n = max(8, int(n * 0.4))            # comic: a few chunky blades, not hair
     for i in range(n):
         a = rng.uniform(0, 2 * pi)
         rad = spread * rng.random() ** 0.7
         base = V((math.cos(a) * rad, math.sin(a) * rad, 0))
         h = rng.uniform(*hrange) * (1.0 - 0.35 * rad / max(spread, 1e-3))
         yaw = math.degrees(a) + rng.uniform(-50, 50)
-        pts, ws, sv = blade_path(base, yaw, h, rng.uniform(*lean), rng.uniform(*wrange), 4, rng.uniform(-0.2, 0.35))
+        wv = min(max(rng.uniform(*wrange) * 2.6, 0.06), 0.2 * h)
+        pts, ws, sv = blade_path(base, yaw, h, rng.uniform(*lean), wv, 3, rng.uniform(-0.2, 0.35))
         c0 = vary(cols[0], rng, 0.01, 0.05, 0.05)
         c1 = vary(cols[1], rng, 0.015, 0.05, 0.05)
-        bt.ribbon(pts, ws, lambda co, c0=c0, c1=c1: sl.mix(c0, c1, clamp(co.z / hmax) ** 0.9), 0.4, 3, sv)
+        bt.ribbon(pts, ws, lambda co, c0=c0, c1=c1: sl.mix(c0, c1, math.floor(clamp(co.z / hmax) * 2.99) / 2), 0.4, 3, sv)
     parts = [bt.obj()]
     for k in range(plumes):
         a = rng.uniform(0, 2 * pi)
@@ -184,7 +188,7 @@ def moss(aid, rng):
     paint(pad, lambda co, n: sl.mix(sl.mix("#3FB878", "#9BEA8A", clamp(co.z / 0.25) + nz(co, 2, 4.0) * 0.4), "#D2F77C", clamp(nz(co, 7, 3.5) * 1.5 - 0.5) * 0.7), 0.2, 0.12)
     parts.append(pad)
     # moss lumps
-    for k in range(9):
+    for k in range(5):
         a = rng.uniform(0, 6.28)
         r_ = rng.uniform(0.1, 0.6)
         o = ball("l", rng.uniform(0.1, 0.17), 2, (1, 1, 0.6), 0.2, 0.8, k, "VC_ROUGH")
@@ -193,12 +197,12 @@ def moss(aid, rng):
         paint(o, zg("#3FB88A", "#B8F27C", 0.0, 0.35, 0.08, k), 0.2, 0.12)
         parts.append(o)
     # tiny pink star-flowers
-    for k in range(8):
+    for k in range(4):
         a = rng.uniform(0, 6.28)
         r_ = rng.uniform(0.1, 0.65)
         z = 0.2 * (1 - (r_ / 1.0) ** 2) + 0.07
         fl = []
-        head_ring_ = petal_ring(5, rng.uniform(0, 72), "m", L=0.07, W=0.03, tilt=75, curl=10, cup=0.2, seg=2, r0=0.01, mat="VC_FOLIAGE", base_w=0.8)
+        head_ring_ = petal_ring(5, rng.uniform(0, 72), "m", L=0.11, W=0.04, tilt=75, curl=10, cup=0.2, seg=2, r0=0.01, mat="VC_FOLIAGE", base_w=0.8)
         for p in head_ring_:
             paint(p, dg(PINK, "#FFD0E2", 0, 0.08, 0.02), 0.15, 0.1)
             put(p, V((math.cos(a) * r_, math.sin(a) * r_, z)))
@@ -249,9 +253,9 @@ def lilypads(aid, rng, flower=False):
             parts += bud
     else:
         # water lily: layered cups
-        cols = [(("#FFF6C8", YELLOW), 10, 66, 14, 0.24, 0.1), (("#FFE9A8", "#FFB347"), 8, 42, 16, 0.2, 0.09), (("#FFD36A", "#FF9F45"), 6, 18, 14, 0.15, 0.08)]
+        cols = [(("#FFF6C8", YELLOW), 7, 66, 14, 0.24, 0.12), (("#FFE9A8", "#FFB347"), 5, 42, 16, 0.2, 0.11), (("#FFD36A", "#FF9F45"), 4, 18, 14, 0.15, 0.08)]
         for li, (cc, n, tl, cu, L, W) in enumerate(cols):
-            ps = petal_ring(n, li * 18, f"w{li}", L=L, W=W, tilt=tl, curl=cu, cup=0.5, seg=3, r0=0.02, mat="VC_FOLIAGE", base_w=0.35, across=5)
+            ps = petal_ring(n, li * 18, f"w{li}", L=L, W=W, tilt=tl, curl=cu, cup=0.5, seg=3, r0=0.02, mat="VC_FOLIAGE", base_w=0.35, across=3)
             for p in ps:
                 paint(p, dg(cc[0], cc[1], 0, L + 0.03, 0.02), 0.15, 0.1)
                 put(p, V((0, 0, 0.04)))
@@ -301,7 +305,7 @@ def tinyshrooms(aid, rng):
         parts += objs
     # grass bits
     bt = Batch("g", "VC_FOLIAGE")
-    for k in range(14):
+    for k in range(7):
         a = rng.uniform(0, 6.28)
         rad = rng.uniform(0.05, 0.4)
         pts, ws, sv = blade_path(V((math.cos(a) * rad, math.sin(a) * rad, 0)), math.degrees(a) + rng.uniform(-40, 40), rng.uniform(0.1, 0.22), 0.5, 0.025)

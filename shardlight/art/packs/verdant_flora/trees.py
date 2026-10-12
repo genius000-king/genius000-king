@@ -26,8 +26,7 @@ def trunk_radii(n, r0, r1, flare=0.55, flare_len=0.18):
 
 
 def paint_bark(o, h, seed, c0="#7C5548", c1="#D2A180", **kw):
-    paint(o, bark_fn(c0, c1, 0, h, seed, **kw), 0.10, 0.12)
-    return o
+    return paint_trunk(o, "#A9785A", max(h, 1.0), 3, seed)
 
 
 def roots(base_r, n, rng, length=0.9, h=0.3, seed=0):
@@ -119,92 +118,59 @@ for v in "abc":
 # ============================================================================ SPIRAL WILLOW
 def willow(aid, rng, variant):
     cfg = {
-        "a": dict(H=8.0, strands=3, turns=1.5, twist=0.30, lean=(0.8, 0.3), arms=5, arm_L=3.2, slen=(3.0, 4.6), n=11, r0=0.62,
-                  cols=("#2FC070", "#E2F97A"), blobs=3, ns=150, fount=36),
-        "b": dict(H=10.5, strands=2, turns=3.2, twist=0.24, lean=(-1.2, 0.7), arms=4, arm_L=2.6, slen=(2.2, 3.6), n=9, r0=0.5,
-                  cols=("#2FC8A8", "#D2FBE8"), blobs=3, ns=110, fount=28),
-        "c": dict(H=5.2, strands=4, turns=0.9, twist=0.46, lean=(0.3, -0.5), arms=7, arm_L=3.6, slen=(2.6, 4.0), n=7, r0=0.78,
-                  cols=("#4CD08A", "#FFF08A"), blobs=4, ns=170, fount=42),
+        "a": dict(H=7.6, strands=3, turns=1.5, twist=0.34, lean=(0.8, 0.3), R=2.6, nd=7, dlen=(4.6, 5.8), dr=0.95, r0=0.62,
+                  cols=("#2FC070", "#9BEA6A"), bark="#B98466"),
+        "b": dict(H=9.6, strands=2, turns=3.2, twist=0.28, lean=(-1.2, 0.7), R=2.2, nd=6, dlen=(5.4, 7.0), dr=0.85, r0=0.5,
+                  cols=("#2FC8A8", "#9DF2C8"), bark="#C9A0B8"),
+        "c": dict(H=5.0, strands=4, turns=0.9, twist=0.5, lean=(0.3, -0.5), R=3.2, nd=9, dlen=(3.0, 4.0), dr=1.0, r0=0.8,
+                  cols=("#46C874", "#E6F57A"), bark="#B07C5A"),
     }[variant]
     H = cfg["H"]
     parts = []
-    axis = trunk_path(H, cfg["lean"], 0.15, rng.uniform(0, 6), 12, 1.5)
+    axis = trunk_path(H, cfg["lean"], 0.15, rng.uniform(0, 6), 10, 1.5)
     S = cfg["strands"]
-    top_pts = []
-    for s in range(S):
-        ph = 2 * pi * s / S
+    top = axis[-1]
+    for s_ in range(S):
+        ph = 2 * pi * s_ / S
         pts = []
-        for i, a in enumerate(axis):
+        for i, a_ in enumerate(axis):
             t = i / (len(axis) - 1)
             ang = ph + cfg["turns"] * 2 * pi * t
             rr = cfg["twist"] * (1.0 - 0.5 * t) * (1.0 + 0.9 * max(0, 0.15 - t) / 0.15)
-            pts.append(a + V((math.cos(ang) * rr, math.sin(ang) * rr, 0)))
-        rad = [lerp(cfg["r0"] / (S ** 0.5) * 1.15, cfg["r0"] / (S ** 0.5) * 0.45, (i / 12) ** 0.8) * (1 + 0.5 * max(0, 1 - i / 2.5) ** 2) for i in range(len(pts))]
+            pts.append(a_ + V((math.cos(ang) * rr, math.sin(ang) * rr, 0)))
+        rad = [lerp(cfg["r0"] / (S ** 0.5) * 1.15, cfg["r0"] / (S ** 0.5) * 0.55, (i / 10) ** 0.8) * (1 + 0.5 * max(0, 1 - i / 2.5) ** 2) for i in range(len(pts))]
         tb = tube("strand", pts, 0, 0, 8, "VC_ROUGH", radii=rad)
-        paint(tb, bark_fn("#7C5548", "#D2A180", 0, H, s * 3, 1.0), 0.1, 0.12)
+        paint_trunk(tb, cfg["bark"], H, 3, s_)
         parts.append(tb)
-        top_pts.append(pts)
-    # crown arms
-    arm_tips = []
-    arm_data = []
-    for k in range(cfg["arms"]):
-        yaw = 360.0 * k / cfg["arms"] + rng.uniform(-20, 20)
-        base = top_pts[k % S][-1]
-        b, tip = None, None
-        pts = grow(base, dir_from(yaw, 52), cfg["arm_L"] * rng.uniform(0.85, 1.1), (0, 0, 0), 6, grav=2.3)
-        b = tube("arm", pts, 0.17, 0.04, 6, "VC_ROUGH", power=0.7)
-        paint(b, bark_fn("#7C5548", "#D2A180", 0, H, k, 1.0), 0.1, 0.12)
-        parts.append(b)
-        arm_data.append((yaw, pts))
-    # foliage strands (ribbons) - one batch, vertical color gradient
-    zb, zt = 0.4, H + 1.2
-    cbot, ctop = cfg["cols"]
-
-    def fcol(co):
-        t = clamp((co.z - zb) / (zt - zb))
-        c = sl.mix(ctop, cbot, clamp(t * 1.4))
-        return c
-    bt = Batch("strands", "VC_FOLIAGE")
-    for si in range(cfg["ns"]):
-        yaw, pts = arm_data[si % len(arm_data)]
-        j = 1 + int(len(pts) * 0.99 * rng.random() ** 0.7)
-        j = min(j, len(pts) - 1)
-        p = pts[j]
-        outv = V((math.cos(math.radians(yaw)), math.sin(math.radians(yaw)), 0))
-        sidev = V((-outv.y, outv.x, 0))
-        p = p + sidev * rng.uniform(-0.5, 0.5)
-        L = rng.uniform(*cfg["slen"]) * (0.7 + 0.3 * j / len(pts))
-        L = min(L, p.z - 0.1 + rng.uniform(0.0, 0.4))
-        ph = rng.uniform(0, 6.28)
-        path, ws = [], []
-        seg = 4
-        for i in range(seg + 1):
-            t_ = i / seg
-            ox = 0.25 * L * math.sin(t_ * pi * 0.75) + 0.16 * L * t_ ** 4
-            sway = 0.1 * math.sin(t_ * 5 + ph)
-            path.append(p + outv * ox + sidev * sway + V((0, 0, -L * t_)))
-            ws.append(0.34 * (1 - t_ ** 1.5) ** 0.8 * (0.85 + 0.15 * math.sin(t_ * 9 + ph)))
-        bt.ribbon(path, ws, fcol, cup=0.5, across=3, side_vec=(-outv.y, outv.x, 0))
-    # crown fountain: arching leaf ribbons from the trunk top
-    topc = top_pts[0][-1]
-    for k in range(cfg["fount"]):
-        yaw = rng.uniform(0, 360)
-        pitch = rng.uniform(50, 85)
-        L = rng.uniform(2.2, 3.6)
-        pts = grow(topc + V((rng.uniform(-.3, .3), rng.uniform(-.3, .3), 0)), dir_from(yaw, pitch), L, (0, 0, 0), 6, grav=2.6)
-        ws = [0.38 * math.sin(min(1, (i + 0.6) / 6 * 1.2) * pi * 0.9) ** 0.8 * (1 - (i / 6) ** 3) for i in range(7)]
-        ws[0] = 0.08
-        ws[-1] = 0.0
-        sv = (-math.sin(math.radians(yaw)), math.cos(math.radians(yaw)), 0)
-        bt.ribbon(pts, ws, fcol, cup=0.5, across=3, side_vec=sv)
-    st = bt.obj()
-    parts.append(st)
+    cc = top + V((0, 0, 0.9))
+    R = cfg["R"]
+    # crown cap: wide flat lobe + two chunky top lobes
+    cap = lobe("cap", R, rng, (1, 1, 0.5), 4, 0.12, 0.5, 0.3, 2, "VC_FOLIAGE")
+    put(cap, cc + V((0, 0, 0.3)))
+    paint_lobe(cap, sl.mix(cfg["cols"][0], cfg["cols"][1], 0.5), sl.mix(cfg["cols"][0], SHADOW, 0.3), band=-0.1, edge=0.3)
+    parts.append(cap)
+    for k in range(2):
+        a_ = rng.uniform(0, 6.28)
+        tl = lobe("toplobe", R * 0.55, rng, (1, 1, 0.8), 3, 0.12, 0.5, 0.35, 2, "VC_FOLIAGE")
+        put(tl, cc + V((math.cos(a_) * R * 0.35, math.sin(a_) * R * 0.35, R * 0.4 + 0.4 * k)))
+        paint_lobe(tl, cfg["cols"][1])
+        parts.append(tl)
+    # drooping curtains: chunky teardrop lobes around the rim, two layers (inner lighter / outer darker)
+    for k in range(cfg["nd"]):
+        ang = 2 * pi * k / cfg["nd"] + rng.uniform(-0.15, 0.15)
+        L = rng.uniform(*cfg["dlen"]) * (1.0 if k % 2 == 0 else 0.75)
+        L = min(L, cc.z - 0.2)
+        d = drop_lobe("curtain", cfg["dr"] * rng.uniform(0.85, 1.15), rng, L, 3, 0.1)
+        put(d, cc + V((math.cos(ang) * R * 0.92, math.sin(ang) * R * 0.92, -0.2)), spin=math.degrees(ang))
+        base = cfg["cols"][0] if k % 2 == 0 else sl.mix(cfg["cols"][0], cfg["cols"][1], 0.55)
+        paint_lobe(d, vary(base, rng, 0.01, 0.03, 0.03), sl.mix(base, SHADOW, 0.4), band=-0.35, edge=0.5, hi_th=0.8)
+        parts.append(d)
     for rt in roots(cfg["r0"] * 1.2, 5, rng, 0.9, 0.35):
-        paint(rt, bark_fn("#7C5548", BARK_LT, 0, 0.5, 3), 0.1, 0.1)
+        paint_trunk(rt, cfg["bark"], 0.5, 2, 3)
         parts.append(rt)
     return finish(parts, aid, "tree", cyl(cfg["r0"] * 0.55, 4.0),
                   sc("meadow", 0.7, 7.5, 22, 0.3, {"meadow": 0.6, "forest": 0.8, "shore": 0.9}, (0.8, 1.2), "verdant_tree_spiralwillow"),
-                  ao=0.25, frame=1.0)
+                  ao=0.1, frame=1.0)
 
 
 for v in "abc":
@@ -256,8 +222,8 @@ def tether(p0, p1, rng, sway=0.4):
     for i in range(8):
         t = i / 7
         pts.append(p0 + d * t + side * sway * math.sin(t * pi * 1.4) * (1 - 0.4 * t))
-    o = tube("tether", pts, 0.04, 0.025, 4, "VC_FOLIAGE")
-    paint(o, zg("#2FA58C", "#A8F29A", p0.z, p1.z, 0.04), 0.1, 0.1)
+    o = tube("tether", pts, 0.075, 0.055, 5, "VC_FOLIAGE")
+    paint(o, solid("#4FC98F"), 0, 0)
     return o
 
 
@@ -265,7 +231,7 @@ def leaf_tuft(p, rng, n=4, L=0.7, col=(LEAF, GRASS_HI)):
     out = []
     for k in range(n):
         yaw = rng.uniform(0, 360)
-        b = blade("lf", p, yaw, L * rng.uniform(0.7, 1.2), 0.9, 0.09, 4, "VC_FOLIAGE", 0.5)
+        b = blade("lf", p, yaw, L * rng.uniform(0.7, 1.2), 0.9, 0.2, 3, "VC_FOLIAGE", 0.5)
         paint(b, zg(col[0], col[1], p.z, p.z + L, 0.04), 0.1, 0.1)
         out.append(b)
     return out
@@ -285,7 +251,7 @@ def balloon(aid, rng, variant):
         pod_specs = []
         for i, (zz, yaw, L) in enumerate(brs):
             idx = min(len(pts) - 1, int(zz / H * (len(pts) - 1)))
-            b, tip = branch(pts[idx], dir_from(yaw, 40), L, 0.11, 0.04, (0, 0, 0.3), 0, 5, 4)
+            b, tip = branch(pts[idx], dir_from(yaw, 40), L, 0.17, 0.08, (0, 0, 0.3), 0, 5, 4)
             paint_bark(b, H, i)
             parts.append(b)
             tips.append(tip)
@@ -299,14 +265,14 @@ def balloon(aid, rng, variant):
         pod_specs = []
         for side in (-1, 1):
             p2 = grow(pts[4], dir_from(90 + side * 70, 55), 3.4, (0, 0, 0.5), 5)
-            b = tube("fork", p2, 0.22, 0.07, 6, "VC_ROUGH", power=0.8)
+            b = tube("fork", p2, 0.3, 0.12, 6, "VC_ROUGH", power=0.8)
             paint_bark(b, H, 5)
             parts.append(b)
             pod_specs_base = p2
             for j, pp in enumerate((p2[3], p2[5])):
                 for q in range(3 if j else 2):
                     pod_specs.append((pp + V((rng.uniform(-.4, .4), rng.uniform(-.4, .4), 0)), rng.uniform(1.2, 2.0), rng.uniform(0.42, 0.62)))
-        b, tip = branch(pts[-1], (0, 0, 1), 1.6, 0.1, 0.04, (0.2, 0.1, 0), 0, 5, 3)
+        b, tip = branch(pts[-1], (0, 0, 1), 1.6, 0.15, 0.07, (0.2, 0.1, 0), 0, 5, 3)
         paint_bark(b, H, 6)
         parts.append(b)
         for q in range(3):
@@ -319,7 +285,7 @@ def balloon(aid, rng, variant):
         for k in range(5):
             yaw = 72 * k + 20
             idx = 6 + (k % 3)
-            b, tip = branch(pts[idx], dir_from(yaw, 35), 1.7, 0.09, 0.035, (0, 0, 0.2), 0, 5, 3)
+            b, tip = branch(pts[idx], dir_from(yaw, 35), 1.7, 0.14, 0.07, (0, 0, 0.2), 0, 5, 3)
             paint_bark(b, H, k)
             parts.append(b)
             pod_specs.append((tip, rng.uniform(1.2, 2.0), rng.uniform(0.36, 0.55)))
@@ -340,7 +306,7 @@ def balloon(aid, rng, variant):
         for o in pp:
             put(o, top + V((0, 0, -r * 0.1)), spin=rng.uniform(0, 360))
         parts += pp
-        parts += leaf_tuft(anchor + V((0, 0, 0.05)), rng, 3, 0.55)
+        parts += leaf_tuft(anchor + V((0, 0, 0.05)), rng, 2, 0.6)
     return finish(parts, aid, "tree", cyl(r0 * 0.6, 4.0),
                   sc("meadow", 0.8, 6.0, 24, 0.3, {"meadow": 1.0, "forest": 0.3, "cliff": 0.4}, (0.8, 1.25), "verdant_tree_balloon"),
                   ao=0.4, frame=1.0)
@@ -351,86 +317,85 @@ for v in "abc":
 
 
 # ============================================================================ GLASSLEAF BIRCH
-def shard(bt, p, d, L, W, side, col, cup=0.35):
-    d = V(d).normalized()
-    path = [p, p + d * (L * 0.5), p + d * L]
-    bt.ribbon(path, [0.0, W, 0.0], col, cup=cup, across=3, side_vec=side)
+BIRCH_TRUNK = "#EBE4FA"          # pale lavender-white, value ~0.98
+BIRCH_GROOVE = "#8E80D8"         # violet painted grooves (value >= 0.8)
 
 
-def shard_burst(bt, bte, center, rad, n, rng, cols, size=(0.3, 0.55), bias=(0, 0, 0.0), emit_p=0.08, flatten=1.0, sparse=True):
-    c = V(center)
-    for i in range(n):
-        off = V((rng.gauss(0, 1), rng.gauss(0, 1), rng.gauss(0, 1) * flatten))
-        if off.length < 1e-3:
-            continue
-        off = off.normalized() * rad * rng.random() ** 0.6
-        d = (off.normalized() + V(bias) + V((rng.uniform(-.5, .5), rng.uniform(-.5, .5), rng.uniform(-.5, .5)))).normalized()
-        L = rng.uniform(*size)
-        side = d.cross(V((rng.uniform(-1, 1), rng.uniform(-1, 1), rng.uniform(-1, 1)))).normalized()
-        if rng.random() < emit_p and bte is not None:
-            shard(bte, c + off, d, L * 0.9, L * 0.28, side, CYAN)
-        else:
-            col = sl.jitter(rng.choice(cols), 0.01, 0.05, 0.05, rng)
-            shard(bt, c + off, d, L, L * 0.34, side, col)
+def glass_lobe(p, r, rng, base, squash=(1, 1, 0.8), parts=None, gems=1, gem_c=None):
+    o = lobe("gl", r, rng, squash, 4, 0.15, 0.5, 0.35, 2, "VC_FOLIAGE")
+    put(o, p)
+    paint_lobe(o, base, hi=sl.mix(base, "#FFFFFF", 0.55))
+    out = [o]
+    for g in range(gems):
+        ang = rng.uniform(0, 360)
+        d = V((0.0, 0.0, 1.0))
+        gm = gem("gem", r * 0.28, r * 1.0, 5, "EMIT")
+        paint(gm, solid(gem_c or CYAN), 0, 0)
+        put(gm, p + d * r * 0.55, up=d)
+        out.append(gm)
+    return out
 
 
 def birch(aid, rng, variant):
     parts = []
-    bt = Batch("shards", "VC_FOLIAGE", smooth=False)
-    bte = Batch("glow", "EMIT", smooth=False)
-    lc = ["#9DF2C8", "#7FE3C4", "#C9F7A4", "#B8EFF2", "#E4FBB4", "#6ED8B4"]
+    # lobe palette: minty/aqua/lime flat colours (glass leaf), distinct per lobe
+    pal = {"a": ["#6FE3B8", "#8EEAC8", "#B6F28C", "#5AD6D0"],
+           "b": ["#8FE8F0", "#6FE3B8", "#C4F59A", "#7BD8F6"],
+           "c": ["#C4F59A", "#9AF0C0", "#FFE58A", "#7FE6D4"]}[variant]
     if variant == "a":
-        stems = [dict(H=8.6, lean=(0.8, 0.2), base=(0, 0), r=0.26), dict(H=7.2, lean=(-1.2, 0.8), base=(0.5, 0.25), r=0.2),
-                 dict(H=6.0, lean=(0.7, -1.4), base=(-0.3, 0.4), r=0.17)]
-        cols = lc
+        stems = [dict(H=8.4, lean=(0.8, 0.2), base=(0, 0), r=0.30, lr=1.55), dict(H=6.8, lean=(-1.3, 0.8), base=(0.5, 0.25), r=0.24, lr=1.25),
+                 dict(H=5.6, lean=(0.9, -1.5), base=(-0.3, 0.4), r=0.21, lr=1.05)]
     elif variant == "b":
-        stems = [dict(H=7.2, lean=(0.3, -0.4), base=(0, 0), r=0.34)]
-        cols = ["#B8EFF2", "#9DF2C8", "#E8F9C4", "#A8DDFB", "#C9F7A4"]
+        stems = [dict(H=7.0, lean=(0.3, -0.4), base=(0, 0), r=0.42, lr=1.9)]
     else:
-        stems = [dict(H=9.0, lean=(2.3, 0.4), base=(0, 0), r=0.27), dict(H=6.8, lean=(-1.4, -0.6), base=(0.4, 0.2), r=0.22)]
-        cols = ["#E4FBB4", "#C9F7A4", "#9DF2C8", "#FFE9A8", "#B8EFF2"]
+        stems = [dict(H=8.8, lean=(2.2, 0.4), base=(0, 0), r=0.32, lr=1.6), dict(H=6.4, lean=(-1.3, -0.6), base=(0.4, 0.2), r=0.26, lr=1.2)]
+    li = 0
     for si, sd in enumerate(stems):
         H = sd["H"]
-        pts = trunk_path(H, sd["lean"], 0.22, rng.uniform(0, 6), 10, 1.5)
+        pts = trunk_path(H, sd["lean"], 0.2, rng.uniform(0, 6), 8, 1.5)
         pts = [p + V((sd["base"][0], sd["base"][1], 0)) for p in pts]
-        radii = trunk_radii(len(pts), sd["r"], sd["r"] * 0.42, 0.35, 0.14)
-        tb = tube("birch", pts, 0, 0, 9, "VC_ROUGH", radii=radii)
-        paint(tb, bark_fn("#D9D2EE", "#F2EEF8", 0, H, si, 0.5, ("#3E3270", 0.6, 0.17, 0.16)), 0.08, 0.12)
+        radii = trunk_radii(len(pts), sd["r"], sd["r"] * 0.5, 0.35, 0.14)
+        tb = tube("birch", pts, 0, 0, 8, "VC", radii=radii)
+        paint_trunk(tb, BIRCH_TRUNK, H, 3, si, BIRCH_GROOVE, rings=1.1)
         parts.append(tb)
-        # branches + leaf bursts
-        nb = {"a": 5, "b": 7, "c": 5}[variant]
-        for k in range(nb):
-            t0 = 0.38 + 0.6 * k / nb
-            idx = min(len(pts) - 1, int(t0 * (len(pts) - 1)))
-            yaw = k * 137.5 + si * 40
-            pitch = 50 if variant != "b" else 12
-            L = (2.0 - 1.2 * t0) * (1.6 if variant == "b" else 1.0)
-            b, tip = branch(pts[idx], dir_from(yaw, pitch), L, sd["r"] * 0.3, 0.04, (0, 0, 0.22 if variant != "b" else 0.05), 0, 5, 4, mat="VC_ROUGH")
-            paint(b, bark_fn("#D9D2EE", "#F2EEF8", 0, H, si + k, 0.5, ("#3E3270", 0.45, 0.12, 0.1)), 0.08, 0.1)
-            parts.append(b)
-            if variant == "b":
-                shard_burst(bt, bte, tip + V((0, 0, 0.1)), 1.5, 70, rng, cols, (0.5, 0.8), (0, 0, 0.0), 0.07, 0.28)
-            elif variant == "c":
-                shard_burst(bt, bte, tip, 1.1, 40, rng, cols, (0.45, 0.75), (0, 0, 0.2), 0.08)
-                # drooping shard chains
-                for q in range(4):
-                    ph = rng.uniform(0, 6.28)
-                    base = tip + V((math.cos(ph) * 0.4, math.sin(ph) * 0.4, -0.1))
-                    for m in range(7):
-                        pp = base + V((0.04 * math.sin(m), 0.04 * math.cos(m), -0.34 * m))
-                        shard(bt, pp, V((0.1 * math.sin(m), 0.1, -1)), 0.55, 0.17, V((math.cos(ph), math.sin(ph), 0)),
-                              sl.jitter(rng.choice(cols), 0.01, 0.05, 0.05, rng))
-            else:
-                shard_burst(bt, bte, tip, 1.25, 46, rng, cols, (0.45, 0.78), (0, 0, 0.1), 0.08)
-        top = pts[-1]
-        shard_burst(bt, bte, top + V((0, 0, 0.5)), 1.2 if variant != "b" else 1.0, 44, rng, cols, (0.45, 0.78), (0, 0, 0.3), 0.1)
+        tips = []
+        if variant == "b":
+            for k in range(4):
+                t0 = 0.45 + 0.14 * k
+                idx = min(len(pts) - 1, int(t0 * (len(pts) - 1)))
+                yaw = 90 * k + 30
+                L = 2.8 - 0.4 * k
+                b, tip = branch(pts[idx], dir_from(yaw, 10), L, sd["r"] * 0.35, sd["r"] * 0.2, (0, 0, 0.05), 0, 6, 3, mat="VC")
+                paint_trunk(b, BIRCH_TRUNK, 3, 2, k, BIRCH_GROOVE)
+                parts.append(b)
+                tips.append((tip + V((0, 0, 0.35)), sd["lr"] * (0.75 - 0.08 * k), (1.05, 1.05, 0.62)))
+            tips.append((pts[-1] + V((0, 0, 0.9)), sd["lr"] * 0.7, (1, 1, 0.9)))
+        else:
+            nb = 2 if si else 3
+            for k in range(nb):
+                t0 = 0.55 + 0.4 * k / nb
+                idx = min(len(pts) - 1, int(t0 * (len(pts) - 1)))
+                yaw = k * 137.5 + si * 60
+                b, tip = branch(pts[idx], dir_from(yaw, 42), 1.5 - 0.5 * t0, sd["r"] * 0.35, sd["r"] * 0.2, (0, 0, 0.1), 0, 6, 3, mat="VC")
+                paint_trunk(b, BIRCH_TRUNK, 3, 2, k, BIRCH_GROOVE)
+                parts.append(b)
+                tips.append((tip + V((0, 0, 0.5)), sd["lr"] * (0.62 - 0.05 * k), (1, 1, 0.82)))
+            tips.append((pts[-1] + V((0, 0, 0.7)), sd["lr"] * 0.85, (1, 1, 0.85)))
+        for (p, r, sq) in tips:
+            col = pal[li % len(pal)]
+            li += 1
+            parts += glass_lobe(p, r, rng, col, sq, gems=1 if (p is tips[-1][0]) else 0)
+            if variant == "c" and li % 2 == 0:
+                d = drop_lobe("dl", r * 0.36, rng, r * 1.5)
+                put(d, p + V((r * 0.55, 0, -r * 0.35)))
+                paint_lobe(d, pal[(li + 1) % len(pal)], band=0.0, edge=0.5)
+                parts.append(d)
     for rt in roots(stems[0]["r"] * 1.4, 4, rng, 0.6, 0.3):
-        paint(rt, bark_fn("#BDB3DD", "#E8E0F5", 0, 0.5, 3, 0.3), 0.1, 0.1)
+        paint_trunk(rt, BIRCH_TRUNK, 0.5, 2, 3, BIRCH_GROOVE)
         parts.append(rt)
-    parts += [bt.obj(), bte.obj()]
     return finish(parts, aid, "tree", cyl(stems[0]["r"] * 0.6, 4.0),
                   sc("forest", 0.8, 5.0, 25, 0.5, {"forest": 1.0, "meadow": 0.4, "cliff": 0.5}, (0.8, 1.25), "verdant_tree_glassbirch"),
-                  ao=0.35, frame=1.0)
+                  ao=0.1, frame=1.0)
 
 
 for v in "abc":
@@ -448,105 +413,91 @@ def fib_dirs(n, rng):
     return out
 
 
-def dandelion_head(center, R, n, rng, skip=None, bt=None):
-    """Sphere of seed tufts into Batch bt."""
+def puff_head(center, R, n, rng, skip=None, parts=None, core_c="#E9E2FF", spoke_c="#FFF4D8", tip_c="#FFFFFF"):
+    """Comic puffball: chunky core + radiating thick spokes tipped with beads (readable under ink, no hair-thin strands)."""
+    core = lobe("core", R * 0.68, rng, (1, 1, 1), 2, 0.05, 0.6, 1.0, 2, "VC_FOLIAGE", flat_z=-9)
+    put(core, center)
+    paint_lobe(core, core_c, band=-0.2, edge=0.5)
+    parts.append(core)
     for d in fib_dirs(n, rng):
         if skip and skip(d):
             continue
-        L = R * rng.uniform(0.82, 1.0)
-        a = center + d * (R * 0.18)
-        b = center + d * L
-        side = d.cross(V((0.3, 0.8, 0.5))).normalized()
-        bt.ribbon([a, b], [0.014, 0.014], lambda co: "#FFF8E6", 0, 2, side)
-        # pappus tuft: two crossed diamonds around the tip
-        for sv in (side, d.cross(side).normalized()):
-            tipc = lambda co, b=b: sl.mix("#FFF4D8", "#F2E8FF", 0.5)
-            bt.ribbon([b - d * R * 0.13, b, b + d * R * 0.12], [0.0, R * 0.075, 0.0], tipc, 0.3, 3, sv)
+        L = R * rng.uniform(0.26, 0.32)
+        sp = cone("spoke", R * 0.1, L, 5, "VC_FOLIAGE", base=False)
+        paint(sp, solid(spoke_c), 0, 0)
+        put(sp, center + d * R * 0.62, up=d)
+        parts.append(sp)
+        tb = bead("tip", R * 0.19, "VC_FOLIAGE", 3, 6)
+        paint(tb, solid(tip_c), 0, 0)
+        put(tb, center + d * R * (0.62 + L / R + 0.02))
+        parts.append(tb)
 
 
 def dandelion(aid, rng, variant):
     parts = []
-    bt = Batch("seeds", "VC_FOLIAGE")
     if variant == "a":
-        H, lean, R = 5.4, (0.7, 0.3), 1.15
+        H, lean, R = 5.4, (0.7, 0.3), 1.35
     elif variant == "b":
-        H, lean, R = 4.6, (-0.9, 0.6), 1.0
+        H, lean, R = 4.6, (-0.9, 0.6), 1.2
     else:
         H, lean, R = 6.2, (1.6, -0.5), 0.8
-    pts = trunk_path(H, lean, 0.18, rng.uniform(0, 6), 9, 1.6)
-    radii = [lerp(0.09, 0.055, (i / 9)) * (1 + 0.8 * max(0, 1 - i / 1.6) ** 2) for i in range(10)]
+    pts = trunk_path(H, lean, 0.18, rng.uniform(0, 6), 8, 1.6)
+    radii = [lerp(0.17, 0.11, (i / 8)) * (1 + 0.7 * max(0, 1 - i / 1.6) ** 2) for i in range(9)]
     st = tube("stem", pts, 0, 0, 7, "VC_FOLIAGE", radii=radii)
-    paint(st, zg("#3FA98C", "#9BEA8A", 0, H, 0.04), 0.1, 0.15)
+    paint(st, solid("#5BC77E"), 0, 0)
     parts.append(st)
-    # toothed basal leaves
-    nl = 7
+    # broad toothed basal leaves: thick, flat colour with a darker rib
+    nl = 6
     for k in range(nl):
         yaw = 360 * k / nl + rng.uniform(-15, 15)
-        L = rng.uniform(1.6, 2.4)
+        L = rng.uniform(1.8, 2.5)
         path, ws = [], []
-        seg = 9
+        seg = 6
         for i in range(seg + 1):
             t_ = i / seg
             x = L * (t_ * 0.9)
-            z = 0.1 + 0.9 * math.sin(t_ * 2.0) * L * 0.35 - 0.5 * L * 0.3 * t_ ** 2.5
+            z = 0.12 + 0.9 * math.sin(t_ * 2.0) * L * 0.3 - 0.5 * L * 0.3 * t_ ** 2.5
             path.append(V((math.cos(math.radians(yaw)) * x, math.sin(math.radians(yaw)) * x, z)))
             env = math.sin(min(1.0, t_ * 1.1) * pi * 0.85) ** 0.7
-            tooth = 1.0 if i % 2 else 0.55
-            ws.append((0.02 if i == 0 else 0.2 * env * tooth) if i < seg else 0.0)
-        lf = ribbon("leaf", path, ws, "VC_FOLIAGE", 0.45, 3, (-math.sin(math.radians(yaw)), math.cos(math.radians(yaw)), 0))
-        paint(lf, zg("#2FA58C", "#A5EF7C", 0, 1.5, 0.05), 0.12, 0.15)
+            tooth = 1.0 if i % 2 else 0.6
+            ws.append((0.05 if i == 0 else 0.34 * env * tooth) if i < seg else 0.0)
+        lf = ribbon("leaf", path, ws, "VC_FOLIAGE", 0.45, 3, (-math.sin(math.radians(yaw)), math.cos(math.radians(yaw)), 0), thick=0.07)
+        paint(lf, solid("#47BD73" if k % 2 else "#63D07C"), 0.0, 0.0)
         parts.append(lf)
     top = pts[-1]
     if variant in ("a", "b"):
-        core = ball("core", R * 0.2, 3, (1, 1, 1), 0.06, 1.0, 1, "VC_FOLIAGE")
-        put(core, top)
-        paint(core, solid("#BFD07A", 0.05), 0.1, 0.1)
-        parts.append(core)
         if variant == "a":
-            dandelion_head(top, R, 190, rng, None, bt)
+            puff_head(top, R, 26, rng, None, parts)
         else:
             axis = V((0.6, -0.5, 0.35)).normalized()
-            dandelion_head(top, R, 220, rng, lambda d: d.dot(axis) > 0.45, bt)
-            # exposed receptacle dimples
-            for d in fib_dirs(40, rng):
-                if d.dot(axis) > 0.5:
-                    bd = bead("dimple", 0.045, "VC_FOLIAGE", 3, 5)
-                    put(bd, top + d * R * 0.2)
-                    paint(bd, solid("#8A9A52"), 0.1, 0.1)
-                    parts.append(bd)
-            # drifting seeds on an upward trail
-            for k in range(7):
-                p = top + axis * (1.4 + k * 0.75) + V((0.35 * math.sin(k * 1.3), 0.35 * math.cos(k * 1.7), 0.35 * k))
+            puff_head(top, R, 34, rng, lambda d: d.dot(axis) > 0.5, parts, "#F1E6FF")
+            for k in range(5):
+                p = top + axis * (1.9 + k * 0.8) + V((0.35 * math.sin(k * 1.3), 0.35 * math.cos(k * 1.7), 0.35 * k))
                 dd = V((0.25 * math.sin(k), 0.25 * math.cos(k), 1.0)).normalized()
-                bt.ribbon([p - dd * 0.35, p], [0.012, 0.012], lambda co: CREAM, 0, 2, (1, 0, 0))
-                for sv in (V((1, 0, 0)), V((0, 1, 0))):
-                    bt.ribbon([p - dd * 0.02 * 0, p + dd * 0.22, p + dd * 0.44], [0.0, 0.17, 0.0], lambda co: CREAM, 0.3, 3, sv)
-                sb = bead("seed", 0.05, "VC_FOLIAGE", 3, 5)
-                put(sb, p - dd * 0.37)
-                paint(sb, solid("#9A8A52"), 0.1, 0.1)
-                parts.append(sb)
+                sp = cone("sd", 0.05, 0.4, 5, "VC_FOLIAGE", base=False)
+                paint(sp, solid("#FFF4D8"), 0, 0)
+                put(sp, p, up=dd)
+                tb = bead("sdt", 0.15, "VC_FOLIAGE", 3, 6)
+                paint(tb, solid("#FFFFFF"), 0, 0)
+                put(tb, p + dd * 0.42)
+                parts += [sp, tb]
     else:
-        # open golden flower head + small closed puff bud on a side stalk + one drifting seed
-        yc = YELLOW
-        core = ball("core", 0.2, 3, (1, 1, 0.6), 0.04, 1.0, 1, "VC_FOLIAGE")
+        core = lobe("core", 0.32, rng, (1, 1, 0.6), 2, 0.05, 0.6, 1.0, 2, "VC_FOLIAGE", flat_z=-9)
         put(core, top)
-        paint(core, solid("#FFB03D"), 0.1, 0.1)
+        paint_lobe(core, "#E9962D")
         parts.append(core)
-        for layer, (n, tl, Lp, cl) in enumerate([(30, 70, 1.1, (YELLOW, "#FFB347")), (24, 52, 0.9, ("#FFE08A", "#FFC23D"))]):
-            ps = petal_ring(n, spin0=layer * 7, prefix="r", L=Lp, W=0.09, tilt=tl, curl=26, cup=0.35, seg=3, r0=0.12 + layer * 0.02,
+        for layer, (n, tl, Lp, cl) in enumerate([(12, 70, 1.5, YELLOW), (10, 50, 1.2, "#FFE08A")]):
+            ps = petal_ring(n, spin0=layer * 13, prefix="r", L=Lp, W=0.3, tilt=tl, curl=24, cup=0.3, seg=3, r0=0.2 + layer * 0.02,
                             mat="VC_FOLIAGE", base_w=0.8)
             for p in ps:
-                paint(p, dg(cl[0], cl[1], 0.0, Lp + 0.1, 0.03, 1), 0.1, 0.1)
-                put(p, top + V((0, 0, layer * 0.04)), up=V((0.45, -0.1, 1)))
+                paint(p, solid(cl), 0, 0)
+                put(p, top + V((0, 0, layer * 0.05)), up=V((0.1, -0.7, 1)))
             parts += ps
-        # bud stalk
-        bp = trunk_path(3.0, (-1.1, -0.5), 0.1, 1.0, 6, 1.5)
-        bst = tube("bud_stem", bp, 0.05, 0.035, 6, "VC_FOLIAGE")
-        paint(bst, zg("#3FA98C", "#9BEA8A", 0, 3.0, 0.04), 0.1, 0.15)
-        put(bst, V((0.0, 0, 0.0)))
+        bp = trunk_path(3.0, (-1.1, -0.5), 0.1, 1.0, 5, 1.5)
+        bst = tube("bud_stem", bp, 0.1, 0.07, 6, "VC_FOLIAGE")
+        paint(bst, solid("#5BC77E"), 0, 0)
         parts.append(bst)
-        dandelion_head(bp[-1], 0.55, 90, rng, None, bt)
-    parts.append(bt.obj())
+        puff_head(bp[-1], 0.7, 18, rng, None, parts)
     return finish(parts, aid, "tree", cyl(0.14, 1.5),
                   sc("meadow", 0.55, 8.0, 18, 0.25, {"meadow": 1.0, "shore": 0.4}, (0.8, 1.3), "verdant_tree_dandelion"),
                   ao=0.1, frame=1.0, extra={"note": "giant dandelion - thin stem, collision is a slim cylinder"})

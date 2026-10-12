@@ -14,8 +14,10 @@ def knob(name, r, squash=(1, 1, 1), mat="VC_FOLIAGE", sides=8, rings=4):
 
 def stem(h, rng, lean=(0.04, 0.0), r0=0.012, r1=0.009, sides=5, seg=6, hair=False, ease=1.8, c=STEM_C):
     pts = arc_pts(h, lean[0] * h, lean[1] * h, seg, ease)
-    o = tube("stem", pts, r0, r1, sides, "VC_FOLIAGE")
-    paint(o, zg(c[0], c[1], 0, h, 0.04), 0.1, 0.15)
+    r0 = max(r0 * 1.3, 0.028)          # comic: stems must be thick enough to carry an ink line
+    r1 = max(r1 * 1.3, 0.021)
+    o = tube("stem", pts, r0, r1, 6, "VC_FOLIAGE")
+    paint(o, solid(sl.mix(c[0], c[1], 0.4)), 0, 0)
     return o, pts
 
 
@@ -24,8 +26,8 @@ def leaves(n, L, W, rng, c=("#2FA58C", "#9BEA8A"), lean=0.7, curl=0.0, z=0.0, sp
     for k in range(n):
         yaw = 360.0 * k / n + rng.uniform(-20, 20)
         o = blade("lf", V((math.cos(math.radians(yaw)), math.sin(math.radians(yaw)), 0)) * spread + V((0, 0, z)), yaw,
-                  L * rng.uniform(0.75, 1.15), lean, W, 5, "VC_FOLIAGE", cup, curl)
-        paint(o, zg(c[0], c[1], z, z + L * 0.9, 0.04), 0.14, 0.15)
+                  L * rng.uniform(0.75, 1.15), lean, W, 3, "VC_FOLIAGE", cup, curl)
+        paint(o, solid(c[0] if k % 2 else sl.mix(c[0], c[1], 0.45)), 0, 0)
         out.append(o)
     return out
 
@@ -51,9 +53,12 @@ def sc_flower(zone="meadow", density=1.0, spacing=0.7, cluster=0.7, zw=None, gro
 
 
 def head_ring(parts, n, c0, c1, L, W, tilt, curl, cup, r0=0.0, seg=4, spin0=0.0, base_w=0.3, shape=None, notch=0.0, prefix="p", mat="VC_FOLIAGE", lit=0.12):
-    ps = petal_ring(n, spin0, prefix, L=L, W=W, tilt=tilt, curl=curl, cup=cup, seg=seg, r0=r0, mat=mat, base_w=base_w, shape=shape, notch=notch, across=5 if cup >= 0.5 else 3)
+    if n > 10:
+        n = 9
+    W = max(W * 1.5, 0.05)
+    ps = petal_ring(n, spin0, prefix, L=L, W=W, tilt=tilt, curl=curl, cup=cup, seg=seg, r0=r0, mat=mat, base_w=base_w, shape=shape, notch=notch, across=3 if cup >= 0.5 else 2)
     for p in ps:
-        paint(p, dg(c0, c1, r0 * 0.5, L + r0, 0.03), lit, 0.08)
+        paint(p, (lambda co, n, c0=c0, c1=c1, L=L, r0=r0: c0 if co.xy.length < r0 + L * 0.5 else c1), 0.0, 0.0)
     parts += ps
     return ps
 
@@ -161,7 +166,7 @@ reg("verdant_flower_bellflower")(lambda aid, rng: finish(
 def daisy_head(pet_c, center_c, R=0.1, n=16):
     parts = []
     head_ring(parts, n, pet_c[0], pet_c[1], R, 0.022, 78, 10, 0.2, 0.025, 2, 0, 0.9, shape=lambda t: 0.9 - 0.4 * t, notch=0.0)
-    c = knob("c", 0.035, (1, 1, 0.55), "VC_FOLIAGE")
+    c = knob("c", R * 0.4, (1, 1, 0.55), "VC_FOLIAGE")
     paint(c, zg(center_c[0], center_c[1], -0.02, 0.03, 0.04), 0.1, 0.1)
     put(c, V((0, 0, 0.01)))
     parts.append(c)
@@ -173,7 +178,7 @@ def daisy(aid, rng, pet_c, center_c, nh=4):
         h = rng.uniform(0.3, 0.55)
         st, pts = stem(h, rng, (rng.uniform(-0.2, 0.2), rng.uniform(-0.2, 0.2)), 0.008, 0.006)
         parts = [st]
-        hd = daisy_head(pet_c, center_c, rng.uniform(0.07, 0.1))
+        hd = daisy_head(pet_c, center_c, rng.uniform(0.11, 0.15))
         d = (pts[-1] - pts[-2]).normalized()
         for o in hd:
             put(o, pts[-1], up=d + V((0, 0, 0.35)))
@@ -238,17 +243,17 @@ def nightbloom(aid, rng):
     def one(rng, i):
         h = rng.uniform(0.55, 0.85)
         st, pts = stem(h, rng, (rng.uniform(-0.15, 0.15), rng.uniform(-0.1, 0.1)), 0.014, 0.01, 6, 6, c=("#1F7F78", "#6FD6A0"))
-        ps = [st] + leaves(3, 0.35, 0.04, rng, c=("#1F7F78", "#5FCB9A"), lean=0.8)
+        ps = [st] + leaves(2, 0.35, 0.04, rng, c=("#2F9F88", "#5FCB9A"), lean=0.8)
         top = pts[-1]
         hd = []
-        head_ring(hd, 8, "#6E5BD6", "#B7A4FF", 0.2, 0.062, 26, 22, 0.7, 0.01, 3, 0, 0.45, prefix="o")
-        head_ring(hd, 6, "#4A3FA8", "#8F7BFF", 0.14, 0.05, 12, 14, 0.7, 0.01, 3, 30, 0.45, prefix="i")
+        head_ring(hd, 6, "#6E5BD6", "#B7A4FF", 0.22, 0.07, 26, 22, 0.7, 0.01, 3, 0, 0.45, prefix="o")
+        head_ring(hd, 4, "#4A3FA8", "#8F7BFF", 0.15, 0.06, 12, 14, 0.7, 0.01, 3, 30, 0.45, prefix="i")
         glow = knob("glow", 0.06, (1, 1, 1.2), "EMIT")
         paint(glow, zg("#8FF0FF", "#D6FFFF", -0.05, 0.06, 0.0))
         put(glow, V((0, 0, 0.13)))
         hd.append(glow)
-        for k in range(6):
-            a = k * 60
+        for k in range(4):
+            a = k * 90
             sp = [V((0, 0, 0.06)), V((math.cos(math.radians(a)) * 0.035, math.sin(math.radians(a)) * 0.035, 0.15)),
                   V((math.cos(math.radians(a)) * 0.07, math.sin(math.radians(a)) * 0.07, 0.24))]
             tb = tube("fil", sp, 0.004, 0.002, 4, "VC_FOLIAGE")
@@ -284,7 +289,7 @@ def starflower(aid, rng):
         h = rng.uniform(0.3, 0.5)
         st, pts = stem(h, rng, (rng.uniform(-0.2, 0.2), rng.uniform(-0.2, 0.2)), 0.009, 0.007)
         parts = [st] + leaves(4, 0.2, 0.03, rng, lean=0.9)
-        hd = star(0.13 * rng.uniform(0.85, 1.1))
+        hd = star(0.17 * rng.uniform(0.85, 1.1))
         for o in hd:
             put(o, pts[-1], up=V((0.0, 0.0, 1)) + (pts[-1] - pts[-2]))
         parts += hd
@@ -299,7 +304,7 @@ def starflower(aid, rng):
                 put(o, sp[-1], up=V((0.4, 0.2, 1)))
                 parts.append(o)
         return parts
-    return clump(one, 3, 0.22, rng, (0.9, 1.15), 0.1)
+    return clump(one, 2, 0.22, rng, (0.9, 1.15), 0.1)
 
 
 reg("verdant_flower_star")(lambda aid, rng: finish(
@@ -433,7 +438,7 @@ def cosmos(aid, rng):
                 base = sp[-1]
             hd = []
             cc = [("#FFD0E8", "#FF4FA8"), ("#FFE0F0", "#FF7AC0"), ("#FFFFFF" if False else PALE, "#E85CC0")][k]
-            head_ring(hd, 8, cc[0], cc[1], 0.13, 0.05, 76, 8, 0.2, 0.02, 2, 0, 0.45, notch=0.04, prefix="c")
+            head_ring(hd, 6, cc[0], cc[1], 0.14, 0.06, 76, 8, 0.2, 0.02, 2, 0, 0.45, notch=0.04, prefix="c")
             c = knob("c", 0.03, (1, 1, 0.6), "VC_FOLIAGE")
             paint(c, solid("#FFC23D"), 0.1, 0.1)
             put(c, V((0, 0, 0.01)))
@@ -510,7 +515,7 @@ def fountain(aid, rng):
         st, pts = stem(h, rng, (0.08 * (s - 0.5), 0.05 * (1 - s)), 0.014, 0.01)
         parts.append(st)
         top = pts[-1]
-        n = 18
+        n = 8
         for k in range(n):
             yaw = 360 * k / n + rng.uniform(-8, 8) + s * 15
             L = rng.uniform(0.45, 0.62)
@@ -520,11 +525,11 @@ def fountain(aid, rng):
                 x = L * 1.1 * t
                 z = L * (1.1 * t - 0.95 * t * t) * 1.6
                 sp.append(V((math.cos(math.radians(yaw)) * x, math.sin(math.radians(yaw)) * x, z)))
-            fl = ribbon("fil", sp, [0.012, 0.022, 0.018, 0.0], "VC_FOLIAGE", 0.5, 3, (-math.sin(math.radians(yaw)), math.cos(math.radians(yaw)), 0))
+            fl = ribbon("fil", sp, [0.035, 0.07, 0.055, 0.0], "VC_FOLIAGE", 0.5, 3, (-math.sin(math.radians(yaw)), math.cos(math.radians(yaw)), 0))
             c = ["#3FC8F0", "#7AE7FF", "#B58CFF"][k % 3]
-            paint(fl, zg(c, PINK, 0, L, 0.0), 0.1, 0.05)
+            paint(fl, solid(c), 0, 0)
             put(fl, top)
-            tp = bead("tp", 0.048, "VC_FOLIAGE", 3, 6)
+            tp = bead("tp", 0.075, "VC_FOLIAGE", 3, 6)
             paint(tp, solid([YELLOW, PINK, "#FF9ACB"][k % 3]), 0.15, 0.05)
             put(tp, top + sp[-1])
             parts += [fl, tp]
@@ -553,9 +558,9 @@ def wildpatch(aid, rng):
     put(mound, V((0, 0, 0.01)))
     parts.append(mound)
     cols = [(CREAM, PINK), ("#FFF0B0", YELLOW), ("#D8F6FF", CYAN), ("#EBDDFF", VIOLET)]
-    for k in range(15):
+    for k in range(9):
         a = k * 2.399 + rng.uniform(-0.3, 0.3)
-        rad = 0.46 * math.sqrt((k + 0.5) / 15)
+        rad = 0.46 * math.sqrt((k + 0.5) / 9)
         h = rng.uniform(0.12, 0.34)
         base = V((math.cos(a) * rad, math.sin(a) * rad * 0.9, 0.04))
         sp = [base, base + V((rng.uniform(-.03, .03), rng.uniform(-.03, .03), h * 0.5)), base + V((rng.uniform(-.05, .05), rng.uniform(-.05, .05), h))]
@@ -563,10 +568,10 @@ def wildpatch(aid, rng):
         paint(sm, solid("#4FB58A"), 0.1, 0.1)
         parts.append(sm)
         cc = cols[k % len(cols)]
-        for o in mini_flower(cc[0], cc[1], rng.uniform(0.05, 0.075), rng):
+        for o in mini_flower(cc[0], cc[1], rng.uniform(0.08, 0.11), rng):
             put(o, sp[-1], up=V((rng.uniform(-.3, .3), rng.uniform(-.3, .3), 1)))
             parts.append(o)
-    for k in range(16):
+    for k in range(7):
         a = k * 2.399 + 0.4
         rad = rng.uniform(0.18, 0.5)
         o = blade("g", V((math.cos(a) * rad, math.sin(a) * rad * 0.9, 0.03)), math.degrees(a) + rng.uniform(-50, 50), rng.uniform(0.12, 0.3), 0.6, 0.025, 4, "VC_FOLIAGE", 0.4)

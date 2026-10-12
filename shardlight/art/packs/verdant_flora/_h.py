@@ -142,20 +142,22 @@ def solid(c, amt=0.0, seed=0):
 
 
 def bark_fn(c0, c1, z0, z1, seed=0, streak=1.0, bands=None):
-    """Bark: vertical streaks (anisotropic noise) + height gradient. bands=(color, period, width, jit)"""
+    """COMIC bark: 3 flat height steps (c0 -> c1) + a few painted vertical grooves in the shade colour. No noise."""
     span = max(z1 - z0, 1e-5)
+    shade = sl.mix(c0, SHADOW, 0.5)
 
     def f(co, n):
         t = clamp((co.z - z0) / span)
-        c = sl.mix(c0, c1, t)
-        k = nz(co, seed * 2.0, 2.6, (2.2, 2.2, 0.35)) * 0.09 * streak
-        c = (clamp(c[0] + k), clamp(c[1] + k * 0.9), clamp(c[2] + k * 0.8))
+        t = round(t * 2) / 2
+        c = sl.mix(c0, c1, 0.15 + 0.7 * t)
+        a = math.atan2(co.y, co.x) / (2 * pi) + 0.5
+        g = (a * 4 + nz(co, seed * 2.3, 0.9) * 0.18) % 1.0
+        if g < 0.15:
+            c = shade
         if bands:
             bc, period, width, jit = bands
-            ph = (co.z + nz(co, seed + 7.0, 1.5) * jit) % period
-            if ph < width:
-                tt = math.sin(ph / width * pi)
-                c = sl.mix(c, bc, clamp(tt * 1.6) * 0.95)
+            if (co.z % period) < width:
+                c = sl.mix(c, bc, 0.9)
         return c
     return f
 
@@ -196,7 +198,10 @@ def lathe(name, prof, sides=12, mat="VC", radial=None, cap0=True, cap1=True, smo
     return sl.bm_to_object(bm, name, mat, smooth)
 
 
-def ribbon_bm(bm, path, widths, cup=0.0, across=3, side_vec=None, up_hint=(0, 0, 1)):
+THICK_DEFAULT = None   # None -> auto thickness from width; 0 -> single sided (avoid)
+
+
+def ribbon_bm(bm, path, widths, cup=0.0, across=3, side_vec=None, up_hint=(0, 0, 1), thick=None):
     pts = [V(p) for p in path]
     n = len(pts)
     rows = []
@@ -235,13 +240,19 @@ def ribbon_bm(bm, path, widths, cup=0.0, across=3, side_vec=None, up_hint=(0, 0,
                 faces.append(bm.faces.new((A[j], A[j + 1], B[0])))
             else:
                 faces.append(bm.faces.new((A[j], A[j + 1], B[j + 1], B[j])))
+    if thick is None:
+        thick = min(0.06, max(0.014, 0.3 * max(widths)))
+    if thick and faces:
+        # COMIC RULE: no single-sided leaves/petals. Give every ribbon real thickness (closed solid -> clean ink).
+        res = bmesh.ops.solidify(bm, geom=list(faces), thickness=thick)
+        faces = faces + [g for g in res["geom"] if isinstance(g, bmesh.types.BMFace)]
     return faces
 
 
-def ribbon(name, path, widths, mat="VC_FOLIAGE", cup=0.0, across=3, side_vec=None, up_hint=(0, 0, 1)):
-    """Strip along a path with per-point half-width; edges lifted by `cup` (fold/cup). Tip width 0 -> pointed."""
+def ribbon(name, path, widths, mat="VC_FOLIAGE", cup=0.0, across=3, side_vec=None, up_hint=(0, 0, 1), thick=None):
+    """Thick strip along a path with per-point half-width; edges lifted by `cup`. Tip width 0 -> pointed."""
     bm = bmesh.new()
-    ribbon_bm(bm, path, widths, cup, across, side_vec, up_hint)
+    ribbon_bm(bm, path, widths, cup, across, side_vec, up_hint, thick)
     return sl.bm_to_object(bm, name, mat, True)
 
 
@@ -260,8 +271,8 @@ class Batch:
                 c = sl.hex_rgb(c)
                 l[self.lay] = (sl.srgb_to_linear(c[0]), sl.srgb_to_linear(c[1]), sl.srgb_to_linear(c[2]), 1.0)
 
-    def ribbon(self, path, widths, color, cup=0.0, across=3, side_vec=None, up_hint=(0, 0, 1)):
-        faces = ribbon_bm(self.bm, path, widths, cup, across, side_vec, up_hint)
+    def ribbon(self, path, widths, color, cup=0.0, across=3, side_vec=None, up_hint=(0, 0, 1), thick=None):
+        faces = ribbon_bm(self.bm, path, widths, cup, across, side_vec, up_hint, thick)
         self._color(faces, color)
         return faces
 
@@ -283,6 +294,7 @@ def tube(name, pts, r0, r1=None, sides=7, mat="VC_ROUGH", power=1.0, radii=None,
     if radii is None:
         r1 = r0 if r1 is None else r1
         radii = [lerp(r0, r1, (i / (n - 1)) ** power) for i in range(n)]
+    radii = [max(r, 0.022) for r in radii]      # comic: every tube can carry an ink line
     return sl.tapered_tube(name, pts, radii, sides=sides, material=mat, cap=cap)
 
 
@@ -331,6 +343,7 @@ def grow(start, d0, length, bend, steps=5, grav=0.0):
 def blade(name, base, yaw, h, lean=0.4, w=0.03, seg=4, mat="VC_FOLIAGE", cup=0.35, curl=0.0, tipw=0.0):
     """Curved grass blade rising from `base`, bending toward `yaw` (deg)."""
     cy, sy = math.cos(math.radians(yaw)), math.sin(math.radians(yaw))
+    w = max(w * 1.4, 0.06)       # comic: no hair-thin blades
     pts, ws = [], []
     for i in range(seg + 1):
         t = i / seg
@@ -386,29 +399,121 @@ def stack(*lists):
     return out
 
 
-def canopy(center, r, rng, cols=(LEAF, "#D4F77C"), squash=(1, 1, 0.85), lumps=6, sub=None, z0=None, z1=None,
-           curve=1.0, seed=0, noise_amt=0.1, lump_r=0.42, mat="VC_FOLIAGE", amt=0.06, lit=0.16, dark=0.16):
-    """Puffy foliage mass: noisy base blob + surface lumps; vertical color gradient painted in world space."""
+def _bumpdirs(rng, n, up_bias=0.3):
+    out = []
+    for k in range(n):
+        z = rng.uniform(-0.2, 1.0) if k else 1.0
+        a = rng.uniform(0, 2 * pi)
+        rr = math.sqrt(max(0.0, 1 - z * z))
+        out.append(V((rr * math.cos(a), rr * math.sin(a), z)))
+    return out
+
+
+def lobe(name, r, rng, squash=(1, 1, 0.85), bumps=4, amp=0.16, sigma=0.5, flat=0.35, sub=2, mat="VC_FOLIAGE", flat_z=-0.5):
+    """COMIC LOBE: chunky low-poly puff with a few big scallops and a flattened underside (reads cleanly under ink)."""
+    bm = bmesh.new()
+    bmesh.ops.create_icosphere(bm, subdivisions=sub, radius=1.0)
+    dirs = _bumpdirs(rng, bumps)
+    for v in bm.verts:
+        d = v.co.normalized()
+        f = 1.0
+        for b in dirs:
+            ang = math.acos(max(-1.0, min(1.0, d.dot(b))))
+            f += amp * math.exp(-(ang / sigma) ** 2)
+        p = d * f
+        if p.z < flat_z:
+            p.z = flat_z + (p.z - flat_z) * flat
+        v.co = V((p.x * squash[0] * r, p.y * squash[1] * r, p.z * squash[2] * r))
+    return sl.bm_to_object(bm, name, mat, True)
+
+
+def vshade(c, t=0.45):
+    """Comic shadow colour: toward violet, keep value up."""
+    return sl.mix(c, SHADOW, t)
+
+
+def paint_lobe(o, base, shade=None, hi=None, band=-0.12, hi_th=0.78, light=(-0.45, -0.5, 0.75), edge=0.16, stripes=None):
+    """Flat lit colour + painted darker underside band + highlight patch (comic colour blocking)."""
+    base = sl.hex_rgb(base)
+    shade = sl.hex_rgb(shade) if shade is not None else sl.mix(base, SHADOW, 0.42)
+    hi = sl.hex_rgb(hi) if hi is not None else sl.mix(base, WARM, 0.42)
+    L = V(light).normalized()
+    me = o.data
+    attr = sl.ensure_colors(o)
+    for poly in me.polygons:
+        for li in poly.loop_indices:
+            n = me.vertices[me.loops[li].vertex_index].normal
+            c = base
+            k = clamp((band - n.z) / edge + 0.5)          # 1 on underside
+            if k > 0:
+                c = sl.mix(c, shade, k)
+            h = clamp((n.dot(L) - hi_th) / 0.06)
+            if h > 0 and k < 0.2:
+                c = sl.mix(c, hi, h)
+            sl._write_corner(attr, li, c)
+    return o
+
+
+def canopy(center, r, rng, cols=(LEAF, "#D4F77C"), squash=(1, 1, 0.85), lumps=3, sub=2, z0=None, z1=None,
+           curve=1.0, seed=0, noise_amt=0.1, lump_r=0.55, mat="VC_FOLIAGE", amt=0.06, lit=0.16, dark=0.16):
+    """Comic foliage mass: 1 big base lobe + `lumps` chunky lobes (keep total 3-6). Flat colour per lobe (height-stepped),
+    painted dark underside band + highlight patch."""
     c = V(center)
-    objs = []
-    if sub is None:
-        sub = 4 if r >= 1.7 else 3
-    base = ball("puff", r, sub, squash, noise_amt, 0.8, seed, mat)
-    put(base, c)
-    objs.append(base)
-    for i in range(lumps):
-        th = rng.uniform(0.15, 1.35) if i else 0.6
-        ph = rng.uniform(0, 2 * pi)
-        d = V((math.sin(th) * math.cos(ph) * squash[0], math.sin(th) * math.sin(ph) * squash[1], math.cos(th) * squash[2]))
-        lr = r * lump_r * rng.uniform(0.7, 1.15)
-        lb = ball("lump", lr, 2, (1, 1, 0.85), 0.07, 0.8, seed + i + 1, mat)
-        put(lb, c + d * r * 0.88)
-        objs.append(lb)
     zlo = c.z - r * squash[2] if z0 is None else z0
-    zhi = c.z + r * squash[2] * 1.15 if z1 is None else z1
-    for o in objs:
-        paint(o, zg(cols[0], cols[1], zlo, zhi, amt, seed, curve), lit, dark)
+    zhi = c.z + r * squash[2] * 1.2 if z1 is None else z1
+    objs = []
+    specs = [(c, r, squash)]
+    for i in range(lumps):
+        th = rng.uniform(0.3, 1.2) if i else 0.55
+        ph = (i + rng.uniform(-0.2, 0.2)) * 2 * pi / max(lumps, 1) + rng.uniform(0, 1.0)
+        d = V((math.sin(th) * math.cos(ph) * squash[0], math.sin(th) * math.sin(ph) * squash[1], math.cos(th) * squash[2]))
+        lr = r * lump_r * rng.uniform(0.75, 1.1)
+        specs.append((c + d * r * 0.72, lr, (1, 1, 0.85)))
+    for i, (p, lr, sq) in enumerate(specs):
+        o = lobe("lobe", lr, rng, sq, 4, 0.15, 0.5, 0.35, 2, mat)
+        put(o, p)
+        t = clamp((p.z + lr * 0.4 - zlo) / max(zhi - zlo, 1e-3)) ** curve
+        t = round(t * 2) / 2                                   # 3 flat tone steps
+        base = vary(sl.mix(cols[0], cols[1], t), rng, 0.01, 0.03, 0.03)
+        paint_lobe(o, base)
+        objs.append(o)
     return objs
+
+
+def comic_bark(c_lit, c_shade, h, grooves=4, seed=0, rings=0.0, tip=None):
+    """Flat trunk colour + a few painted vertical grooves (+ optional ring bands). No noise, value stays high."""
+    def f(co, n):
+        a = math.atan2(co.y, co.x) / (2 * pi) + 0.5
+        w = nz(co, seed * 2.3, 0.9) * 0.18
+        g = (a * grooves + w) % 1.0
+        c = c_lit
+        if g < 0.16:
+            c = c_shade
+        if rings:
+            if (co.z % rings) < rings * 0.12:
+                c = c_shade
+        if tip is not None and co.z > h * 0.8:
+            c = sl.mix(c, tip, clamp((co.z / h - 0.8) / 0.2) * 0.6)
+        return c
+    return f
+
+
+def paint_trunk(o, c_lit, h, grooves=4, seed=0, shade=None, rings=0.0, tip=None):
+    shade = shade or sl.mix(c_lit, SHADOW, 0.45)
+    paint(o, comic_bark(c_lit, shade, h, grooves, seed, rings, tip), 0.0, 0.0)
+    return o
+
+
+def gem(name, r, h, sides=5, mat="EMIT", waist=0.45):
+    """Chunky crystal bicone (thick, closed)."""
+    return lathe(name, [(0.0, 0.0), (r, h * waist), (0.0, h)], sides, mat, cap0=False, cap1=False, smooth=False)
+
+
+def drop_lobe(name, r, rng, length=1.6, bumps=3, amp=0.12, mat="VC_FOLIAGE"):
+    """Pendant/teardrop lobe hanging down from z=0 (top) to z=-length."""
+    o = lobe(name, r, rng, (0.8, 0.8, length / r * 0.5), bumps, amp, 0.5, 0.0, 2, mat, flat_z=-9)
+    put(o, (0, 0, -length * 0.5))
+    return o
 
 
 def scatter_on_sphere(center, r, n, rng, squash=(1, 1, 1), th_min=0.0, th_max=pi, golden=True):
@@ -450,12 +555,64 @@ def render_preview(obj, name, elev=18, azim=-35, frame=1.12):
     except Exception:
         pass
     sl.preview([obj], name, PACK, elev=elev, azim=azim, frame=frame, bg="#3A3358")
+    if os.environ.get("NO_CEL") != "1":
+        import cel
+        cel.render(obj, name)
     # preview() sets light STUDIO each time; restore exposure for exports (none) - keep as is
+
+
+VMIN = 0.40
+
+
+def floor_value(obj, vmin=VMIN):
+    """No near-black: lift any vertex colour whose HSV value < vmin (keeps hue/sat). Comic rule: trunks etc. >= 0.35."""
+    import numpy as np
+    attr = obj.data.color_attributes["Col"]
+    n = len(attr.data)
+    a = np.zeros(n * 4, np.float32)
+    attr.data.foreach_get("color", a)
+    a = a.reshape(n, 4)
+    lin = a[:, :3]
+    srgb = np.where(lin <= 0.0031308, lin * 12.92, 1.055 * np.power(np.maximum(lin, 1e-6), 1 / 2.4) - 0.055)
+    vmax = srgb.max(1)
+    dark = np.array([0.42, 0.36, 0.70], np.float32)
+    k = np.where(vmax < 0.02, 0.0, vmin / np.maximum(vmax, 1e-4))
+    out = np.where((vmax < vmin)[:, None], np.where((vmax < 0.02)[:, None], dark, srgb * k[:, None]), srgb)
+    out = np.clip(out, 0, 1)
+    lin2 = np.where(out <= 0.04045, out / 12.92, np.power((out + 0.055) / 1.055, 2.4))
+    a[:, :3] = lin2
+    attr.data.foreach_set("color", a.reshape(-1))
+
+
+def decimate_to(obj, limit, min_ratio=0.5):
+    """Collapse-decimate (keeps vertex colours + material slots) when over the triangle budget."""
+    tris = sum(len(p.vertices) - 2 for p in obj.data.polygons)
+    if tris <= limit:
+        return obj
+    ratio = max(min_ratio, limit * 0.97 / tris)
+    md = obj.modifiers.new("dec", "DECIMATE")
+    md.decimate_type = "COLLAPSE"
+    md.ratio = ratio
+    md.use_collapse_triangulate = True
+    dg = bpy.context.evaluated_depsgraph_get()
+    new = bpy.data.meshes.new_from_object(obj.evaluated_get(dg))
+    obj.modifiers.remove(md)
+    old = obj.data
+    obj.data = new
+    bpy.data.meshes.remove(old)
+    print("  decimated %s %d -> ratio %.2f" % (obj.name, tris, ratio))
+    return obj
 
 
 def finish(parts, asset_id, category, collision=None, scatter=None, ao=0.4, extra=None, elev=18, azim=-35,
            frame=1.12, budget=None, center_xy=False, emit_keep=True, worlds=("verdant",)):
     parts = [p for p in parts if p is not None]
+    if os.environ.get("PROFILE"):
+        from collections import Counter
+        cn = Counter()
+        for p in parts:
+            cn[p.name.rstrip("0123456789.")] += sum(len(q.vertices) - 2 for q in p.data.polygons)
+        print("PROFILE", asset_id, dict(cn.most_common(6)))
     obj = sl.join(parts, asset_id)
     me = obj.data
     # origin: z-min -> 0 (keep trunk at x=y=0 unless center_xy)
@@ -475,13 +632,15 @@ def finish(parts, asset_id, category, collision=None, scatter=None, ao=0.4, extr
             if p.material_index in emit_slots:
                 for li in p.loop_indices:
                     keep[li] = tuple(attr.data[li].color)
+    ao = min(ao, 0.12)          # comic shading does the work (art bible: <= 0.15)
     if ao:
-        sl.bake_ao(obj, strength=ao, samples=32)
+        sl.bake_ao(obj, strength=ao, samples=16)
     if keep:
         attr = me.color_attributes["Col"]
         for li, c in keep.items():
             attr.data[li].color = c
     me.update()
+    floor_value(obj, VMIN)
     sl.export_glb([obj], asset_id, PACK)
     render_preview(obj, asset_id, elev, azim, frame)
     entry = MANIFEST.add(asset_id, obj, category, list(worlds), collision, scatter, extra)

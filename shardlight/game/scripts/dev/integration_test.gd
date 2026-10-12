@@ -10,6 +10,10 @@ func check(name: String, ok: bool) -> void:
 		fails += 1
 
 func run() -> void:
+	get_tree().create_timer(200.0).timeout.connect(func():
+		print("FAIL watchdog timeout")
+		print("ITEST DONE fails=%d" % (fails + 1))
+		get_tree().quit(2))
 	await _wait_world()
 	var w = Game.current_world
 	check("hub loaded", w != null and w.world_id == "hub")
@@ -21,7 +25,7 @@ func run() -> void:
 			Story.advance()
 		await get_tree().process_frame
 	# gulp at the vent
-	var vent := _first(w.content, PlasmaVent)
+	var vent = _first(w.content, PlasmaVent)
 	check("plasma vent present", vent != null)
 	if vent:
 		w.player.global_position = vent.global_position + Vector3(0, 0.3, 0)
@@ -57,7 +61,7 @@ func run() -> void:
 	await get_tree().process_frame
 	check("trial echo done", Game.flag("trial_echo"))
 	check("sanctum open", Game.flag("sanctum_open"))
-	var k := _first(w.content, KeystonePickup)
+	var k = _first(w.content, KeystonePickup)
 	check("keystone present", k != null)
 	if k:
 		k.interact(w.player)

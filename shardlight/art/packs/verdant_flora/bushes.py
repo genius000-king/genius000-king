@@ -34,7 +34,7 @@ def leafy_mass(center, R, squash, n, rng, cols, z0, z1, seed=0, lump=(0.34, 0.5)
 def berries(pts_normals, rng, cols, r=(0.05, 0.07), mat="VC_FOLIAGE"):
     out = []
     for i, (p, n) in enumerate(pts_normals):
-        b = bead("berry", rng.uniform(*r), mat, 4, 6)
+        b = bead("berry", rng.uniform(*r), mat, 3, 5)
         c = cols[i % len(cols)]
         paint(b, zg(mix_h(c, PALE, 0.35), c, p.z - 0.07, p.z + 0.07, 0.0), 0.2, 0.15)
         put(b, p + n * 0.02)
@@ -65,7 +65,7 @@ def berry_a(aid, rng):
     cols = ("#35B27C", "#C6F57E")
     parts = []
     pn = []
-    for c, R, sq, n in [((0, 0, 0.1), 1.05, (1.1, 1.0, 0.95), 13), ((0.9, 0.3, 0.05), 0.7, (1, 1, 0.9), 7), ((-0.85, 0.35, 0.05), 0.72, (1, 1, 0.9), 7)]:
+    for c, R, sq, n in [((0, 0, 0.1), 1.05, (1.1, 1.0, 0.95), 9), ((0.9, 0.3, 0.05), 0.7, (1, 1, 0.9), 5), ((-0.85, 0.35, 0.05), 0.72, (1, 1, 0.9), 5)]:
         parts += leafy_mass(c, R, sq, n, rng, cols, 0.0, 1.5, int(R * 10))
         pn += scatter_on_sphere((c[0], c[1], c[2]), R * 0.92, 10, rng, sq, 0.35, 1.5)
     parts += berries(pn, rng, ["#FF4F8E", "#FF7AA8", "#E8366E", "#FFD166"], (0.075, 0.1))
@@ -87,7 +87,7 @@ def berry_b(aid, rng):
             parts += leafy_mass(p, 0.42, (1, 1, 0.8), 3, rng, ("#35B27C", "#C6F57E"), 0.4, 1.9, k * 7 + j, (0.5, 0.7), (0.2, 0.8), 2, False)
             # hanging berry cluster
             for q in range(2):
-                b = bead("b", 0.06, "VC_FOLIAGE", 4, 6)
+                b = bead("b", 0.07, "VC_FOLIAGE", 3, 5)
                 cc = ["#4FD6F5", "#FFD166", "#7AE7FF"][(k + q) % 3]
                 paint(b, solid(cc), 0.2, 0.15)
                 put(b, p + V((rng.uniform(-.1, .1), rng.uniform(-.1, .1), -0.28 - 0.07 * q)))
@@ -151,13 +151,13 @@ reg("verdant_bush_topiary")(topiary)
 # ---------------------------------------------------------------- fern clump
 def fern(aid, rng):
     parts = []
-    n = 20
+    n = 9
     for k in range(n):
         yaw = 360.0 * k / n + rng.uniform(-10, 10)
-        ring = 0 if k < 12 else 1
+        ring = 0 if k < 6 else 1
         L = rng.uniform(0.9, 1.25) * (1.0 if ring == 0 else 0.7)
         lean = 1.1 if ring == 0 else 0.6
-        seg = 13
+        seg = 7
         pts, ws = [], []
         cy, sy = math.cos(math.radians(yaw)), math.sin(math.radians(yaw))
         for i in range(seg + 1):
@@ -166,9 +166,9 @@ def fern(aid, rng):
             z = 0.08 + L * (1.25 * t - 0.95 * t * t) * (0.9 if ring == 0 else 1.3)
             pts.append(V((cy * x, sy * x, z)))
             env = math.sin(clamp(t * 1.05) * pi) ** 0.6
-            ws.append(0.012 if i == 0 else (0.0 if i == seg else 0.17 * env * (1.0 if i % 2 else 0.55)))
+            ws.append(0.012 if i == 0 else (0.0 if i == seg else 0.3 * env * (1.0 if i % 2 else 0.6)))
         fr = ribbon("fr", pts, ws, "VC_FOLIAGE", 0.45, 3, (-sy, cy, 0))
-        paint(fr, zg("#2FA58C", "#BFF27A", 0.0, 1.0, 0.06, k), 0.2, 0.18)
+        paint(fr, solid("#3DBE80" if k % 2 else "#7ADB78"), 0, 0)
         parts.append(fr)
     # fiddleheads (curled croziers)
     for k in range(3):
@@ -189,12 +189,12 @@ reg("verdant_bush_fern")(fern)
 
 # ---------------------------------------------------------------- flowering hedge
 def hedge(aid, rng):
-    centers = [((-1.0, 0, 0.1), 0.85, (1.3, 0.95, 0.95), 7), ((0.0, 0.05, 0.12), 0.9, (1.5, 0.95, 0.95), 8), ((1.0, -0.03, 0.1), 0.85, (1.3, 0.95, 0.95), 7)]
+    centers = [((-1.0, 0, 0.1), 0.85, (1.3, 0.95, 0.95), 5), ((0.0, 0.05, 0.12), 0.9, (1.5, 0.95, 0.95), 6), ((1.0, -0.03, 0.1), 0.85, (1.3, 0.95, 0.95), 5)]
     parts = []
     pn = []
     for c, R, sq, n in centers:
         parts += leafy_mass(c, R, sq, n, rng, ("#35B27C", "#C6F57E"), 0.0, 1.4, int(c[0] * 10 + 20), (0.4, 0.58), (0.4, 0.95))
-        pn += scatter_on_sphere(c, R * 0.95, 14, rng, sq, 0.25, 1.5)
+        pn += scatter_on_sphere(c, R * 0.95, 8, rng, sq, 0.25, 1.5)
     cols = [(PINK, "#FFB0CC"), ("#FFE070", "#FFF3B0"), ("#FF8AB4", "#FFD0E2")]
     for i, (p, n) in enumerate(pn):
         cc = cols[i % 3] if i % 7 else cols[0]
@@ -204,7 +204,7 @@ def hedge(aid, rng):
             side = V((1, 0, 0))
         side.normalize()
         s2 = n.cross(side).normalized()
-        R = rng.uniform(0.1, 0.15)
+        R = rng.uniform(0.16, 0.22)
         bt = Batch("fl", "VC_FOLIAGE")
         for sv in (side, s2):
             bt.ribbon([p - sv * R, p + n * 0.01, p + sv * R], [0.0, R * 0.55, 0.0], lambda co, cc=cc: cc[0], 0.0, 3, n.cross(sv))
@@ -237,8 +237,8 @@ def succulent(aid, rng):
             # curve outward-then-up: add bend away from axis
             outv = V((math.cos(math.radians(yaw)), math.sin(math.radians(yaw)), 0))
             pts = [p + outv * (0.1 * L * (i / 5) ** 2) for i, p in enumerate(pts)]
-            rad = [scale * 0.13 * lerp(1.0, 0.9, i / 5) * (1 - (i / 5) ** 1.6) + 0.002 for i in range(6)]
-            rad[0] = scale * 0.11
+            rad = [scale * 0.2 * lerp(1.0, 0.9, i / 5) * (1 - (i / 5) ** 1.6) + 0.02 for i in range(6)]
+            rad[0] = scale * 0.17
             tb = tube("sp", pts, 0, 0, 5, "VC_FOLIAGE", radii=rad)
             tl = (1 - t)
             paint(tb, zg("#2FB8A0", "#7AE7C8", center.z, center.z + scale * 0.9, 0.04), 0.2, 0.15)
@@ -248,9 +248,9 @@ def succulent(aid, rng):
                                                                        PINK, clamp(((co - c0).length / (scale * 0.95) - 0.78) * 5.0)), 0.18, 0.16)
             out.append(tb)
         return out
-    parts += rosette(V((0, 0, 0.0)), 0.95, 20, rng)
+    parts += rosette(V((0, 0, 0.0)), 0.95, 11, rng)
     for c, s in [(V((0.85, 0.35, 0.0)), 0.42), (V((-0.75, 0.5, 0.0)), 0.36), (V((0.2, -0.85, 0.0)), 0.4)]:
-        parts += rosette(c, s, 9, rng)
+        parts += rosette(c, s, 6, rng)
     return finish(parts, aid, "bush", {"type": "cylinder", "radius": 0.6, "height": 0.9},
                   sc_bush("cliff", 1.0, 1.6, 0.6, {"cliff": 1.0, "meadow": 0.4, "shore": 0.5}, None, 45, (0.7, 1.4)), ao=0.4, elev=30, frame=1.05)
 

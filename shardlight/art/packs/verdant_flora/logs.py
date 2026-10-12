@@ -86,7 +86,7 @@ def hollow_log(aid, rng):
         parts += sh
     bt = Batch("tuft", "VC_FOLIAGE")
     for end in (-1, 1):
-        for k in range(14):
+        for k in range(6):
             a = rng.uniform(0, 6.28)
             r = rng.uniform(0.3, 1.5)
             pts, ws, sv = blade_path(V((end * (L / 2 + rng.uniform(-0.2, 0.4)) , math.cos(a) * r * 0.9, 0.05)), 90 + rng.uniform(-60, 60), rng.uniform(0.3, 0.7), 0.5, 0.045)

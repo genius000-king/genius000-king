@@ -1,0 +1,16 @@
+PASS hub loaded
+PASS Loom present
+PASS story prologue fired
+PASS plasma vent present
+PASS first gulp flag
+PASS verdant gate present
+PASS gate awake
+PASS verdant loaded
+PASS NPCs spawned
+PASS echoes placed
+PASS trial echo done
+PASS sanctum open
+PASS keystone present
+PASS keystone collected
+PASS lift unlocked
+ITEST DONE fails=0
