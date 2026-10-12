@@ -1,5 +1,6 @@
 shader_type spatial;
-render_mode cull_disabled, diffuse_lambert;
+render_mode blend_mix, depth_draw_always, cull_disabled, diffuse_lambert;
+// Drawn in the transparent pass AFTER the comic ink pass: grass reads as flat painted strokes, never inked scribble.
 // Field grass (MultiMesh clumps). Per-instance INSTANCE_CUSTOM: r = hue jitter, g = height scale, b = color mix, a = phase.
 #include "res://shaders/stylized_common.gdshaderinc"
 uniform vec3 base_color : source_color = vec3(0.25, 0.62, 0.35);
@@ -53,6 +54,7 @@ void fragment() {
 	float brush = sl_brush_sample(v_world_pos, vec3(0.0, 1.0, 0.0));
 	v_brush = brush;
 	ALBEDO = sl_painterly_albedo(c, brush);
+	ALPHA = 1.0;
 	ROUGHNESS = 0.85;
 	SPECULAR = 0.1;
 }

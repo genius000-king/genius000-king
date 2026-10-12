@@ -25,6 +25,7 @@ func setup(p_field: TerrainField, p_focus: Node3D, grass_def: Dictionary) -> voi
 	clump_mesh = _make_clump(float(grass_def.get("height", 0.8)))
 	material = ShaderMaterial.new()
 	material.shader = preload("res://shaders/grass.gdshader")
+	material.render_priority = 10
 	material.set_shader_parameter("brush_tex", Stylizer.brush_texture())
 	material.set_shader_parameter("base_color", grass_def.base)
 	material.set_shader_parameter("tip_color", grass_def.tip)
@@ -40,7 +41,7 @@ func _make_clump(height: float) -> ArrayMesh:
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 42
-	var blades := 11
+	var blades := 9
 	for b in blades:
 		var ang := rng.randf() * TAU
 		var off := Vector3(cos(ang), 0, sin(ang)) * rng.randf_range(0.0, 0.32)
@@ -49,7 +50,7 @@ func _make_clump(height: float) -> ArrayMesh:
 		var side := Vector3(-dir.z, 0, dir.x)
 		var h := height * rng.randf_range(0.4, 0.95)
 		var lean := rng.randf_range(0.08, 0.35)
-		var wbase := rng.randf_range(0.022, 0.036)
+		var wbase := rng.randf_range(0.032, 0.05)
 		var segs := 3
 		var prev_l := Vector3.ZERO
 		var prev_r := Vector3.ZERO

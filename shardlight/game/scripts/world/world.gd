@@ -132,6 +132,22 @@ func _on_initial_ready() -> void:
 	Game.on_world_ready(self)
 
 
+func place_player(pos: Vector3, yaw: float = NAN) -> void:
+	## Teleport and hold the player frozen until collision exists under the target (streaming-safe).
+	player.set_physics_process(false)
+	player.teleport(pos, yaw)
+	var space := get_world_3d().direct_space_state
+	for i in 600:
+		await get_tree().physics_frame
+		var q := PhysicsRayQueryParameters3D.create(pos + Vector3.UP * 60.0, pos + Vector3.DOWN * 200.0, 1)
+		var hit := space.intersect_ray(q)
+		if hit:
+			player.global_position = hit.position + Vector3.UP * 0.05
+			player.velocity = Vector3.ZERO
+			break
+	player.set_physics_process(true)
+
+
 func surface_at(pos: Vector3) -> String:
 	# objects can override via metadata "surface" (raycast down)
 	var space := get_world_3d().direct_space_state

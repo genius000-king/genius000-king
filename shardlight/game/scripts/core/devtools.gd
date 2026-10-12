@@ -37,8 +37,13 @@ func _run_shots() -> void:
 		var pos := Vector3(float(p[0]), float(p[1]), float(p[2]))
 		if args.get("ground", "0") == "1" and Game.current_world:
 			pos.y += Game.current_world.height_at(pos.x, pos.z)
-		Game.player.teleport(pos, deg_to_rad(float(args.get("yaw", "0"))))
+		if Game.current_world and Game.current_world.has_method("place_player") and args.get("fly", "0") != "1":
+			await Game.current_world.place_player(pos, deg_to_rad(float(args.get("yaw", "0"))))
+		else:
+			Game.player.teleport(pos, deg_to_rad(float(args.get("yaw", "0"))))
 		Game.player.pitch = deg_to_rad(float(args.get("pitch", "0")))
+		if Game.player.get("_facing") != null and args.has("face_cam"):
+			Game.player._facing = Game.player.yaw
 		if args.get("fly", "0") == "1":
 			Game.player.set_physics_process(false)
 			Game.player.rotation.y = Game.player.yaw
