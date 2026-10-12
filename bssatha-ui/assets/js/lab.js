@@ -213,7 +213,10 @@
       if (e.target.closest("[data-reset-pos]")) { delete S.pos[PAGE]; save(); applyPositions(); unpick(); render(); return; }
       if (e.target.closest("[data-reset-one]") && picked) { delete (S.pos[PAGE] || {})[picked.dataset.lab]; save(); applyPositions(); syncSel(); return; }
       if (e.target.closest("[data-reset]")) {
-        if (!confirm("إرجاع كل إعدادات المختبر للوضع الأصلي؟")) return;
+        // تأكيد بضغطة ثانية (بدون نوافذ المتصفح المنبثقة)
+        const rb = e.target.closest("[data-reset]");
+        if (!rb.dataset.armed) { rb.dataset.armed = "1"; rb.textContent = "متأكد؟ اضغط ثانية"; setTimeout(() => { delete rb.dataset.armed; rb.textContent = "إعادة ضبط"; }, 3000); return; }
+        delete rb.dataset.armed; rb.textContent = "إعادة ضبط";
         S = { vars: {}, fontDisplay: null, fontBody: null, base: 16, radius: 1, shadow: "pop", hide: {}, pos: {} }; save(); apply(); render(); return;
       }
       if (e.target.closest("[data-export]")) return exportAll();
