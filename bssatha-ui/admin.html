@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>لوحة الإدارة — بسّطها</title>
+  <meta name="theme-color" content="#FBF5EC">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/core.css">
+  <script src="assets/js/lab.js"></script>
+  <link rel="stylesheet" href="assets/css/app.css">
+  <style>
+    .admin-tag { display: inline-flex; align-items: center; gap: 6px; margin: -8px 8px 0; font-size: var(--fs-xs); font-weight: 600; color: var(--brand); }
+    .view { display: none; animation: rise .35s var(--ease); }
+    .view.is-on { display: block; }
+    .chart-box { position: relative; height: 240px; }
+    .chart-box svg { width: 100%; height: 100%; overflow: visible; }
+    .chart-box .grid line { stroke: var(--line); }
+    .chart-box .axis text { fill: var(--ink-3); font-size: 11px; font-family: var(--font-ui); direction: ltr; unicode-bidi: isolate; }
+    .tt { position: absolute; pointer-events: none; padding: 8px 12px; border-radius: 10px; background: var(--ink); color: var(--bg); font-size: var(--fs-xs); white-space: nowrap; transform: translate(-50%, -120%); opacity: 0; transition: opacity .15s; }
+    .tt b { display: block; font-size: var(--fs-sm); }
+    .list-meter { display: grid; gap: 14px; }
+    .list-meter .row { display: grid; gap: 6px; font-size: var(--fs-sm); }
+    .list-meter .row div:first-child { display: flex; justify-content: space-between; }
+    .list-meter .meter { margin: 0; }
+    .list-meter .meter > span { background: var(--ink-2); }
+    .feed { display: grid; gap: 2px; }
+    .feed li { display: flex; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: var(--fs-sm); }
+    .feed li:last-child { border: 0; }
+    .feed time { margin-inline-start: auto; color: var(--ink-3); font-size: var(--fs-xs); white-space: nowrap; }
+    .status { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: var(--fs-xs); }
+    .status .dot { width: 8px; height: 8px; }
+    .s-ok { color: #0E7A53; } .s-warn { color: #8A6100; } .s-bad { color: var(--danger); } .s-run { color: #1D58C4; }
+    .provider { display: grid; grid-template-columns: 52px 1fr auto; gap: 14px; align-items: center; padding: var(--s4); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); }
+    .provider + .provider { margin-top: 10px; }
+    .provider .tile { width: 52px; height: 52px; font-weight: 800; font-size: 18px; }
+    .provider b { display: block; }
+    .key { font-family: ui-monospace, monospace; font-size: var(--fs-xs); color: var(--ink-3); direction: ltr; display: inline-block; }
+    .route { display: grid; grid-template-columns: 1fr 190px; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: var(--fs-sm); }
+    .route:last-child { border: 0; }
+    .route span { color: var(--ink-3); font-size: var(--fs-xs); display: block; }
+    .route .select { min-height: 40px; padding: 6px 10px; font-size: var(--fs-sm); }
+    .plan-edit { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s4); }
+    .plan-edit .card { padding: var(--s5); display: grid; gap: 12px; }
+    .plan-edit .input { min-height: 42px; padding: 8px 12px; }
+    .flags .set-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .flags .set-row:last-child { border: 0; }
+    .flags b { display: block; font-size: var(--fs-sm); }
+    .flags span { font-size: var(--fs-xs); color: var(--ink-3); }
+    .style-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--s4); }
+    .style-card { padding: var(--s4); display: grid; gap: 10px; }
+    .swatch-row { display: flex; gap: 4px; }
+    .swatch-row i { flex: 1; height: 34px; border-radius: 8px; border: 1px solid var(--line); }
+    .log { font-family: ui-monospace, monospace; font-size: 12px; direction: ltr; text-align: left; background: #1E1916; color: #E8DCCB; border-radius: var(--r-lg); padding: var(--s4); max-height: 420px; overflow: auto; line-height: 1.8; }
+    .log .e { color: #FF8A80; } .log .w { color: #FFD978; } .log .i { color: #A9D5F5; }
+    .admin-tabs { display: none; }
+    @media (min-width: 1101px) { .grid-eq { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 960px) {
+      .admin-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 12px; margin-bottom: var(--s4); scrollbar-width: none; }
+      .admin-tabs::-webkit-scrollbar { display: none; }
+      .admin-tabs a { flex: none; height: 36px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; border: 1.5px solid var(--line-strong); font-size: var(--fs-xs); font-weight: 600; background: var(--surface); }
+      .admin-tabs a[aria-current="page"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+      .main { padding-bottom: var(--s8) !important; }
+      .plan-edit { grid-template-columns: 1fr; }
+      .route { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) { .kpis { grid-template-columns: 1fr 1fr; gap: 10px; } .kpi { padding: var(--s4); } .kpi-val { font-size: 1.35rem; } .provider { grid-template-columns: 44px 1fr; } .provider > :last-child { grid-column: 1 / -1; } }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" aria-label="قائمة الإدارة">
+    <a href="index.html" data-logo></a>
+    <span class="admin-tag"><i data-i="shield" class="i-sm"></i>لوحة الإدارة</span>
+    <nav class="side-nav" id="adminNav"></nav>
+    <div class="side-foot">
+      <a class="btn btn-soft btn-sm btn-block" href="dashboard.html"><i data-i="arrow-right" class="i-sm"></i>العودة للتطبيق</a>
+    </div>
+  </aside>
+
+  <div style="min-width:0">
+    <header class="topbar"><a href="admin.html" data-logo></a><span class="badge badge-brand">إدارة</span></header>
+    <main class="main">
+      <nav class="admin-tabs" id="adminTabs" aria-label="أقسام الإدارة"></nav>
+
+      <!-- نظرة عامة -->
+      <section class="view" id="v-overview">
+        <div class="page-head"><div><h1 class="display">نظرة عامة</h1><p>آخر 30 يوماً</p></div>
+          <div class="seg" role="group" aria-label="الفترة"><button aria-pressed="false">7 أيام</button><button aria-pressed="true">30 يوماً</button><button aria-pressed="false">سنة</button></div></div>
+        <div class="kpis">
+          <div class="card kpi"><div class="kpi-top">الإيرادات <span class="delta up">▲ 18%</span></div><div class="kpi-val">48,320 ر.س</div></div>
+          <div class="card kpi"><div class="kpi-top">مستخدمون نشطون <span class="delta up">▲ 9%</span></div><div class="kpi-val">3,912</div></div>
+          <div class="card kpi"><div class="kpi-top">عروض أُنشئت <span class="delta up">▲ 24%</span></div><div class="kpi-val">11,406</div></div>
+          <div class="card kpi"><div class="kpi-top">تكلفة الذكاء <span class="delta down">▲ 12%</span></div><div class="kpi-val">9,870 ر.س</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card card-pad"><div class="card-head"><h2>الإيرادات اليومية (ر.س)</h2></div><div class="chart-box" id="revChart"></div></div>
+          <div class="card card-pad"><div class="card-head"><h2>الاستهلاك حسب النموذج</h2></div>
+            <div class="list-meter" id="modelUse"></div></div>
+        </div>
+        <div class="grid-2" style="margin-top:var(--s4)">
+          <div class="card card-pad"><div class="card-head"><h2>عمليات الإنشاء اليومية</h2></div><div class="chart-box" id="genChart"></div></div>
+          <div class="card card-pad"><div class="card-head"><h2>آخر الأحداث</h2></div><ul class="feed" id="feed"></ul></div>
+        </div>
+      </section>
+
+      <!-- المستخدمون -->
+      <section class="view" id="v-users">
+        <div class="page-head"><div><h1 class="display">المستخدمون</h1><p>3,912 مستخدماً نشطاً · 14,280 إجمالاً</p></div><button class="btn btn-dark"><i data-i="download" class="i-sm"></i>تصدير CSV</button></div>
+        <div class="toolbar">
+          <div class="input-wrap"><i data-i="search"></i><input class="input" id="userSearch" type="search" placeholder="ابحث بالاسم أو البريد" aria-label="بحث"></div>
+          <select class="select" id="planFilter" style="width:auto;min-height:44px;border-radius:999px" aria-label="الخطة"><option value="">كل الخطط</option><option>مجاني</option><option>احترافي</option><option>فِرق</option></select>
+        </div>
+        <div class="table-wrap"><table class="table"><thead><tr><th>المستخدم</th><th>الخطة</th><th>الرصيد</th><th>العروض</th><th>الحالة</th><th>آخر نشاط</th><th></th></tr></thead><tbody id="usersBody"></tbody></table></div>
+      </section>
+
+      <!-- المدفوعات -->
+      <section class="view" id="v-billing">
+        <div class="page-head"><div><h1 class="display">الاشتراكات والمدفوعات</h1><p>كل العمليات المالية في مكان واحد</p></div></div>
+        <div class="kpis">
+          <div class="card kpi"><div class="kpi-top">الإيراد الشهري المتكرر</div><div class="kpi-val">41,860 ر.س</div></div>
+          <div class="card kpi"><div class="kpi-top">مشتركون مدفوعون</div><div class="kpi-val">1,074</div></div>
+          <div class="card kpi"><div class="kpi-top">معدل الإلغاء</div><div class="kpi-val">3.1%</div></div>
+          <div class="card kpi"><div class="kpi-top">مدفوعات فاشلة</div><div class="kpi-val">17</div></div>
+        </div>
+        <div class="table-wrap"><table class="table"><thead><tr><th>الفاتورة</th><th>المستخدم</th><th>البند</th><th>الطريقة</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th><th></th></tr></thead><tbody id="payBody"></tbody></table></div>
+      </section>
+
+      <!-- الخطط -->
+      <section class="view" id="v-plans">
+        <div class="page-head"><div><h1 class="display">الخطط والأسعار</h1><p>التعديل هنا ينعكس على صفحة الأسعار فوراً — بدون كود.</p></div><button class="btn btn-primary" data-save><i data-i="check" class="i-sm"></i>حفظ التغييرات</button></div>
+        <div class="plan-edit" id="planEdit"></div>
+        <div class="card card-pad" style="margin-top:var(--s4)">
+          <div class="card-head"><h2>تسعير الكريدت</h2></div>
+          <div class="plan-edit" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
+            <div class="field"><label class="label">شريحة بسيطة</label><input class="input" type="number" value="3"></div>
+            <div class="field"><label class="label">شريحة تفاعلية</label><input class="input" type="number" value="6"></div>
+            <div class="field"><label class="label">شريحة غامرة</label><input class="input" type="number" value="10"></div>
+            <div class="field"><label class="label">تحليل ملف</label><input class="input" type="number" value="2"></div>
+            <div class="field"><label class="label">رصيد التسجيل المجاني</label><input class="input" type="number" value="50"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- عمليات الإنشاء -->
+      <section class="view" id="v-jobs">
+        <div class="page-head"><div><h1 class="display">عمليات الإنشاء</h1><p>المهام الجارية والمكتملة والفاشلة</p></div>
+          <div class="seg" role="group" aria-label="الحالة" id="jobFilter"><button aria-pressed="true" data-f="">الكل</button><button aria-pressed="false" data-f="run">جارية</button><button aria-pressed="false" data-f="bad">فاشلة</button></div></div>
+        <div class="table-wrap"><table class="table"><thead><tr><th>المعرّف</th><th>المستخدم</th><th>العرض</th><th>النموذج</th><th>المدة</th><th>التكلفة</th><th>الحالة</th><th></th></tr></thead><tbody id="jobsBody"></tbody></table></div>
+      </section>
+
+      <!-- الذكاء الاصطناعي -->
+      <section class="view" id="v-ai">
+        <div class="page-head"><div><h1 class="display">مزوّدو الذكاء الاصطناعي</h1><p>المفاتيح مشفّرة على السيرفر ولا تُعرض كاملة أبداً.</p></div><button class="btn btn-dark" data-open-modal="keyModal"><i data-i="plus" class="i-sm"></i>إضافة مزوّد</button></div>
+        <div class="grid-2 grid-eq">
+          <div id="providers"></div>
+          <div class="card card-pad">
+            <div class="card-head"><h2>توجيه النماذج</h2></div>
+            <div id="routes"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- الأساليب -->
+      <section class="view" id="v-styles">
+        <div class="page-head"><div><h1 class="display">الأساليب البصرية</h1><p>مكتبة الأساليب التي يختار منها المستخدمون</p></div><button class="btn btn-dark"><i data-i="plus" class="i-sm"></i>أسلوب جديد</button></div>
+        <div class="style-grid" id="styleGrid"></div>
+      </section>
+
+      <!-- الأخطاء -->
+      <section class="view" id="v-logs">
+        <div class="page-head"><div><h1 class="display">الأخطاء والمراقبة</h1><p>حالة الخدمات وسجل الأحداث</p></div></div>
+        <div class="kpis">
+          <div class="card kpi"><div class="kpi-top">الخادم</div><div class="kpi-val status s-ok"><span class="dot"></span>يعمل</div></div>
+          <div class="card kpi"><div class="kpi-top">قائمة الانتظار</div><div class="kpi-val">12 مهمة</div></div>
+          <div class="card kpi"><div class="kpi-top">زمن الاستجابة</div><div class="kpi-val">184ms</div></div>
+          <div class="card kpi"><div class="kpi-top">التخزين</div><div class="kpi-val">62%</div></div>
+        </div>
+        <div class="log" id="log" role="log"></div>
+      </section>
+
+      <!-- الإعدادات -->
+      <section class="view" id="v-settings">
+        <div class="page-head"><div><h1 class="display">إعدادات المنصة</h1><p>تفعيل وتعطيل الميزات بدون نشر جديد</p></div><button class="btn btn-primary" data-save><i data-i="check" class="i-sm"></i>حفظ</button></div>
+        <div class="grid-2">
+          <div class="card card-pad flags">
+            <div class="card-head"><h2>الميزات</h2></div>
+            <div class="set-row"><div><b>التسجيل مفتوح</b><span>السماح بإنشاء حسابات جديدة</span></div><label class="switch"><input type="checkbox" checked><span></span></label></div>
+            <div class="set-row"><div><b>العروض الغامرة (3D)</b><span>مستوى التفاعل الثالث</span></div><label class="switch"><input type="checkbox" checked><span></span></label></div>
+            <div class="set-row"><div><b>التعديل بالمحادثة</b><span>مساعد المحرر</span></div><label class="switch"><input type="checkbox" checked><span></span></label></div>
+            <div class="set-row"><div><b>رفع الفيديو</b><span>ملفات حتى 200MB</span></div><label class="switch"><input type="checkbox"><span></span></label></div>
+            <div class="set-row"><div><b>وضع الصيانة</b><span>يعرض صفحة صيانة لكل الزوار</span></div><label class="switch"><input type="checkbox"><span></span></label></div>
+          </div>
+          <div class="card card-pad" style="display:grid;gap:14px;align-content:start">
+            <div class="card-head" style="margin:0"><h2>عام</h2></div>
+            <div class="field"><label class="label">اسم المنصة</label><input class="input" value="بسّطها"></div>
+            <div class="field"><label class="label">بريد الدعم</label><input class="input ltr" value="support@bssatha.app" style="text-align:right"></div>
+            <div class="field"><label class="label">الحد الأقصى للشرائح</label><input class="input" type="number" value="40"></div>
+            <div class="field"><label class="label">رسالة إعلان أعلى الموقع</label><input class="input" placeholder="مثال: خصم 20% بمناسبة اليوم الوطني 🇸🇦"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- تعديل رصيد -->
+<div class="modal-backdrop" id="creditModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="creditTitle">
+  <div class="modal">
+    <div class="modal-head"><h3 id="creditTitle">تعديل رصيد <span id="creditUser"></span></h3><button class="btn btn-ghost btn-icon btn-sm" data-close-modal aria-label="إغلاق"><i data-i="x"></i></button></div>
+    <div style="display:grid;gap:14px">
+      <div class="seg" role="group" id="creditOp"><button aria-pressed="true" data-op="add">إضافة</button><button aria-pressed="false" data-op="sub">خصم</button><button aria-pressed="false" data-op="set">تعيين</button></div>
+      <div class="field"><label class="label" for="creditAmt">الكمية</label><input class="input" id="creditAmt" type="number" value="100" min="0"></div>
+      <div class="field"><label class="label" for="creditNote">السبب (يظهر في السجل)</label><input class="input" id="creditNote" placeholder="مثال: تعويض عن عطل"></div>
+      <button class="btn btn-primary btn-lg" id="creditSave">تأكيد</button>
+    </div>
+  </div>
+</div>
+
+<!-- إضافة مزود -->
+<div class="modal-backdrop" id="keyModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="keyTitle">
+  <div class="modal">
+    <div class="modal-head"><h3 id="keyTitle">إضافة مزوّد</h3><button class="btn btn-ghost btn-icon btn-sm" data-close-modal aria-label="إغلاق"><i data-i="x"></i></button></div>
+    <div style="display:grid;gap:14px">
+      <div class="field"><label class="label" for="prov">المزوّد</label><select class="select" id="prov"><option>Anthropic</option><option>OpenAI</option><option>Google</option><option>مخصّص (OpenAI-compatible)</option></select></div>
+      <div class="field"><label class="label" for="apikey">مفتاح API</label><input class="input ltr" id="apikey" type="password" autocomplete="off" placeholder="sk-..."><span class="hint">يُرسل مرة واحدة ويُخزّن مشفّراً على السيرفر — لا يُحفظ في المتصفح.</span></div>
+      <div class="field"><label class="label" for="cap">سقف الإنفاق الشهري (ر.س)</label><input class="input" id="cap" type="number" value="5000"></div>
+      <button class="btn btn-primary btn-lg" id="keySave">حفظ واختبار الاتصال</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/core.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/covers.js"></script>
+<script>
+(() => {
+  const { $, $$, icon, toast, openModal, closeModal, esc } = UI;
+  const SECTIONS = [
+    ["overview", "chart", "نظرة عامة"], ["users", "users", "المستخدمون"], ["billing", "card", "المدفوعات"], ["plans", "coin", "الخطط والأسعار"],
+    ["jobs", "activity", "عمليات الإنشاء"], ["ai", "key", "الذكاء الاصطناعي"], ["styles", "palette", "الأساليب"], ["logs", "alert", "الأخطاء"], ["settings", "settings", "الإعدادات"],
+  ];
+  $("#adminNav").innerHTML = SECTIONS.map(([k, ic, n]) => `<a href="#${k}" data-k="${k}">${icon(ic)}${n}</a>`).join("");
+  $("#adminTabs").innerHTML = SECTIONS.map(([k, ic, n]) => `<a href="#${k}" data-k="${k}">${n}</a>`).join("");
+  function route() {
+    const k = (location.hash.slice(1) || "overview");
+    $$(".view").forEach((v) => v.classList.toggle("is-on", v.id === "v-" + k));
+    $$("[data-k]").forEach((a) => a.dataset.k === k ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+    if (k === "overview") drawCharts();
+    $(`#adminTabs [data-k="${k}"]`)?.scrollIntoView({ inline: "center", block: "nearest" });
+  }
+  addEventListener("hashchange", route);
+
+  /* ---------- الرسوم (سلسلة واحدة لكل رسم + تلميح عند المرور) ---------- */
+  const days = 30;
+  const rev = Array.from({ length: days }, (_, i) => Math.round(1100 + i * 22 + Math.sin(i / 2.3) * 260 + (i % 7 === 5 ? 380 : 0)));
+  const gens = Array.from({ length: 14 }, (_, i) => Math.round(280 + i * 9 + Math.cos(i) * 60));
+  const fmt = (n) => n.toLocaleString("ar-SA-u-nu-latn");
+  function lineChart(el, data, unit) {
+    const W = el.clientWidth, H = el.clientHeight, P = { l: 8, r: 44, t: 10, b: 24 };
+    const max = Math.ceil(Math.max(...data) / 500) * 500;
+    const x = (i) => W - P.r - (i / (data.length - 1)) * (W - P.l - P.r); // RTL: الأحدث يساراً
+    const y = (v) => P.t + (1 - v / max) * (H - P.t - P.b);
+    const pts = data.map((v, i) => `${x(i)},${y(v)}`).join(" ");
+    const ticks = [0, max / 2, max];
+    el.innerHTML = `<svg role="img" aria-label="رسم خطي للإيرادات اليومية">
+      <g class="grid">${ticks.map((t) => `<line x1="${P.l}" x2="${W - P.r}" y1="${y(t)}" y2="${y(t)}"/>`).join("")}</g>
+      <g class="axis">${ticks.map((t) => `<text x="${W - P.r + 8}" y="${y(t) + 4}">${fmt(t)}</text>`).join("")}<text x="${x(0)}" y="${H - 4}" text-anchor="middle">1</text><text x="${x(days - 1)}" y="${H - 4}" text-anchor="middle">${days}</text></g>
+      <polygon points="${x(0)},${y(0)} ${pts} ${x(data.length - 1)},${y(0)}" fill="var(--brand)" opacity=".1"/>
+      <polyline points="${pts}" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <line id="cross" y1="${P.t}" y2="${H - P.b}" stroke="var(--ink-3)" stroke-dasharray="3 3" opacity="0"/>
+      <circle id="dotH" r="5" fill="var(--brand)" stroke="var(--surface)" stroke-width="2" opacity="0"/>
+      <rect x="${P.l}" y="0" width="${W - P.l - P.r}" height="${H}" fill="transparent" id="hit"/></svg><div class="tt" id="tt"></div>`;
+    const svg = el.querySelector("svg"), tt = el.querySelector(".tt");
+    const show = (cx) => {
+      const i = Math.max(0, Math.min(data.length - 1, Math.round(((W - P.r - cx) / (W - P.l - P.r)) * (data.length - 1))));
+      const X = x(i), Y = y(data[i]);
+      svg.querySelector("#cross").setAttribute("x1", X); svg.querySelector("#cross").setAttribute("x2", X); svg.querySelector("#cross").setAttribute("opacity", 1);
+      Object.entries({ cx: X, cy: Y, opacity: 1 }).forEach(([k, v]) => svg.querySelector("#dotH").setAttribute(k, v));
+      tt.innerHTML = `<b>${fmt(data[i])} ${unit}</b>اليوم ${i + 1}`; tt.style.left = X + "px"; tt.style.top = Y + "px"; tt.style.opacity = 1;
+    };
+    svg.addEventListener("pointermove", (e) => show(e.clientX - svg.getBoundingClientRect().left));
+    svg.addEventListener("pointerleave", () => { tt.style.opacity = 0; svg.querySelector("#cross").setAttribute("opacity", 0); svg.querySelector("#dotH").setAttribute("opacity", 0); });
+  }
+  function barChart(el, data) {
+    const W = el.clientWidth, H = el.clientHeight, P = { l: 8, r: 40, t: 10, b: 24 };
+    const max = Math.ceil(Math.max(...data) / 100) * 100, n = data.length;
+    const bw = (W - P.l - P.r) / n;
+    const y = (v) => P.t + (1 - v / max) * (H - P.t - P.b);
+    el.innerHTML = `<svg role="img" aria-label="أعمدة لعمليات الإنشاء اليومية">
+      <g class="grid">${[0, max / 2, max].map((t) => `<line x1="${P.l}" x2="${W - P.r}" y1="${y(t)}" y2="${y(t)}"/>`).join("")}</g>
+      <g class="axis">${[0, max / 2, max].map((t) => `<text x="${W - P.r + 8}" y="${y(t) + 4}">${fmt(t)}</text>`).join("")}</g>
+      ${data.map((v, i) => { const bwid = Math.max(6, bw * 0.62), X = W - P.r - (i + 1) * bw + (bw - bwid) / 2; return `<g class="b" data-idx="${i}"><rect x="${W - P.r - (i + 1) * bw}" y="${P.t}" width="${bw}" height="${H - P.t - P.b}" fill="transparent"/><path d="M${X} ${y(0)}V${y(v) + 4}a4 4 0 0 1 4-4h${bwid - 8}a4 4 0 0 1 4 4V${y(0)}Z" fill="var(--ink-2)"/></g>`; }).join("")}
+    </svg><div class="tt"></div>`;
+    const tt = el.querySelector(".tt");
+    el.querySelectorAll(".b").forEach((g) => {
+      g.addEventListener("pointerenter", () => { const i = +g.dataset.idx; const r = g.querySelector("path").getBBox(); tt.innerHTML = `<b>${fmt(data[i])} عملية</b>قبل ${n - i} يوم`; tt.style.left = r.x + r.width / 2 + "px"; tt.style.top = r.y + "px"; tt.style.opacity = 1; g.querySelector("path").setAttribute("fill", "var(--ink)"); });
+      g.addEventListener("pointerleave", () => { tt.style.opacity = 0; g.querySelector("path").setAttribute("fill", "var(--ink-2)"); });
+    });
+  }
+  function drawCharts() { requestAnimationFrame(() => { lineChart($("#revChart"), rev, "ر.س"); barChart($("#genChart"), gens); }); }
+  addEventListener("resize", () => location.hash.slice(1) in { "": 1, overview: 1 } && drawCharts());
+
+  $("#modelUse").innerHTML = [["claude-opus-5-5 — البناء", 46, "4,540 ر.س"], ["claude-sonnet-5-5 — التخطيط", 28, "2,760 ر.س"], ["claude-haiku-5-5 — التعديلات", 15, "1,480 ر.س"], ["توليد الصور", 11, "1,090 ر.س"]]
+    .map(([n, p, c]) => `<div class="row"><div><span>${n}</span><b>${c}</b></div><div class="meter"><span style="width:${p}%"></span></div></div>`).join("");
+  $("#feed").innerHTML = [["mint", "user", "مستخدم جديد: سارة العتيبي", "دقيقتان"], ["sun", "card", "اشتراك احترافي سنوي — 446 ر.س", "11 د"], ["pink", "alert", "فشل إنشاء job_8812 (مهلة)", "25 د"], ["sky", "sparkles", "تجاوز 400 عرض اليوم", "1 س"], ["mint", "coin", "إضافة 200 كريدت يدوياً لـ أحمد", "2 س"]]
+    .map(([t, ic, txt, tm]) => `<li><span class="tile ${t}" style="width:34px;height:34px">${icon(ic, "i-sm")}</span>${txt}<time>${tm}</time></li>`).join("");
+
+  /* ---------- المستخدمون ---------- */
+  const USERS = [
+    ["عبدالله محمد", "abdullah@example.com", "احترافي", 340, 24, "نشط", "الآن"], ["سارة العتيبي", "sara@mail.com", "مجاني", 50, 0, "نشط", "2 د"],
+    ["أحمد الزهراني", "ahmad@school.edu.sa", "فِرق", 1820, 96, "نشط", "1 س"], ["نورة القحطاني", "noura@mail.com", "احترافي", 12, 31, "نشط", "أمس"],
+    ["خالد الشمري", "khalid@co.sa", "احترافي", 488, 7, "متأخر الدفع", "3 أيام"], ["ريم الحربي", "reem@mail.com", "مجاني", 0, 2, "موقوف", "أسبوع"],
+  ];
+  const st = (s) => s === "نشط" ? "s-ok" : s === "موقوف" ? "s-bad" : "s-warn";
+  function renderUsers() {
+    const q = $("#userSearch").value.trim(), pf = $("#planFilter").value;
+    $("#usersBody").innerHTML = USERS.filter((u) => (u[0] + u[1]).includes(q) && (!pf || u[2].startsWith(pf.slice(0, 3)))).map((u, i) => `<tr>
+      <td><div class="cell-user"><span class="avatar">${u[0][0]}</span><div><b>${u[0]}</b><span class="ltr">${u[1]}</span></div></div></td>
+      <td><span class="badge ${u[2] === "مجاني" ? "" : u[2] === "فِرق" ? "badge-sky" : "badge-sun"}">${u[2]}</span></td>
+      <td class="num">${fmt(u[3])}</td><td class="num">${u[4]}</td>
+      <td><span class="status ${st(u[5])}"><span class="dot"></span>${u[5]}</span></td><td class="subtle">${u[6]}</td>
+      <td><button class="btn btn-ghost btn-icon btn-sm" data-menu="userAct" data-u="${i}" aria-label="إجراءات">${icon("more")}</button></td></tr>`).join("");
+  }
+  $("#userSearch").addEventListener("input", renderUsers); $("#planFilter").addEventListener("change", renderUsers);
+  document.body.insertAdjacentHTML("beforeend", `<div class="menu" id="userAct" role="menu">
+    <button class="menu-item" data-ua="credit">${icon("coin")}تعديل الرصيد</button>
+    <button class="menu-item" data-ua="plan">${icon("card")}تغيير الخطة</button>
+    <button class="menu-item" data-ua="login">${icon("eye")}الدخول كهذا المستخدم</button>
+    <div class="menu-sep"></div><button class="menu-item danger" data-ua="ban">${icon("lock")}إيقاف الحساب</button></div>`);
+  let curU = 0;
+  document.addEventListener("click", (e) => { const b = e.target.closest("[data-u]"); if (b) curU = +b.dataset.u; }, true);
+  $$("[data-ua]").forEach((b) => b.addEventListener("click", () => {
+    const u = USERS[curU];
+    if (b.dataset.ua === "credit") { $("#creditUser").textContent = u[0]; openModal("creditModal"); }
+    else if (b.dataset.ua === "ban") { u[5] = u[5] === "موقوف" ? "نشط" : "موقوف"; renderUsers(); toast(u[5] === "موقوف" ? "أُوقف الحساب" : "أُعيد تفعيل الحساب", "lock"); }
+    else toast("قريباً — يحتاج ربط الباك إند", "info");
+  }));
+  let op = "add";
+  $$("#creditOp button").forEach((b) => b.addEventListener("click", () => { op = b.dataset.op; $$("#creditOp button").forEach((x) => x.setAttribute("aria-pressed", x === b)); }));
+  $("#creditSave").addEventListener("click", () => {
+    const u = USERS[curU], n = +$("#creditAmt").value || 0;
+    u[3] = op === "add" ? u[3] + n : op === "sub" ? Math.max(0, u[3] - n) : n;
+    // الربط: POST /admin/users/:id/credits { op, amount, note }
+    closeModal("creditModal"); renderUsers(); toast(`رصيد ${u[0]} الآن ${u[3]}`, "coin");
+  });
+
+  /* ---------- المدفوعات ---------- */
+  const PAYS = [["INV-20931", "عبدالله محمد", "احترافي — شهري", "مدى", 44.85, "مدفوع", "اليوم"], ["INV-20930", "أحمد الزهراني", "فِرق — سنوي", "Apple Pay", 1311, "مدفوع", "اليوم"], ["INV-20929", "خالد الشمري", "احترافي — شهري", "Visa", 44.85, "فشل", "أمس"], ["INV-20928", "نورة القحطاني", "300 كريدت", "STC Pay", 56.35, "مدفوع", "أمس"], ["INV-20927", "ليان سعد", "احترافي — سنوي", "تقسيط", 427.8, "مسترد", "قبل 3 أيام"]];
+  $("#payBody").innerHTML = PAYS.map((p) => `<tr><td class="ltr" style="text-align:right">${p[0]}</td><td>${p[1]}</td><td>${p[2]}</td><td>${p[3]}</td><td class="num">${p[4].toFixed(2)} ر.س</td>
+    <td><span class="status ${p[5] === "مدفوع" ? "s-ok" : p[5] === "فشل" ? "s-bad" : "s-warn"}"><span class="dot"></span>${p[5]}</span></td><td class="subtle">${p[6]}</td>
+    <td><button class="btn btn-ghost btn-sm" onclick="UI.toast('${p[5] === "مدفوع" ? "بدأ الاسترداد" : "أُرسل تذكير الدفع"}','refresh')">${p[5] === "مدفوع" ? "استرداد" : "إعادة المحاولة"}</button></td></tr>`).join("");
+
+  /* ---------- الخطط ---------- */
+  API.plans().then((plans) => {
+    $("#planEdit").innerHTML = plans.map((p) => `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:var(--fs-lg)">${p.name}</b><label class="switch" title="مفعّلة"><input type="checkbox" checked><span></span></label></div>
+      <div class="field"><label class="label">السعر الشهري (ر.س)</label><input class="input" type="number" value="${p.monthly}"></div>
+      <div class="field"><label class="label">السعر السنوي/شهر (ر.س)</label><input class="input" type="number" value="${p.yearly}"></div>
+      <div class="field"><label class="label">الكريدت الشهري</label><input class="input" type="number" value="${p.credits}"></div>
+      <div class="field"><label class="label">المميزات (سطر لكل ميزة)</label><textarea class="textarea" rows="4" style="min-height:110px">${p.features.join("\n")}</textarea></div></div>`).join("");
+  });
+  $$("[data-save]").forEach((b) => b.addEventListener("click", () => toast("حُفظت التغييرات", "check")));
+
+  /* ---------- المهام ---------- */
+  const JOBS = [["job_8820", "عبدالله", "الخلية البشرية", "opus-5-5", "3:12", "64", "run"], ["job_8819", "سارة", "قوانين نيوتن", "opus-5-5", "5:40", "54", "ok"], ["job_8812", "خالد", "تقرير المبيعات", "opus-5-5", "10:00", "0", "bad"], ["job_8810", "أحمد", "لعبة الكسور", "sonnet-5-5", "2:05", "42", "ok"], ["job_8807", "نورة", "تاريخ الأندلس", "opus-5-5", "6:51", "108", "ok"]];
+  const JS = { run: ["s-run", "جارٍ"], ok: ["s-ok", "مكتمل"], bad: ["s-bad", "فشل — مهلة"] };
+  let jf = "";
+  function renderJobs() {
+    $("#jobsBody").innerHTML = JOBS.filter((j) => !jf || j[6] === jf).map((j) => `<tr><td class="ltr" style="text-align:right">${j[0]}</td><td>${j[1]}</td><td>${j[2]}</td><td class="ltr" style="text-align:right">${j[3]}</td><td class="num">${j[4]}</td><td class="num">${j[5]} كريدت</td>
+      <td><span class="status ${JS[j[6]][0]}"><span class="dot"></span>${JS[j[6]][1]}</span></td>
+      <td>${j[6] === "bad" ? `<button class="btn btn-ghost btn-sm" onclick="UI.toast('أُعيدت المهمة للطابور','refresh')">إعادة</button>` : j[6] === "run" ? `<button class="btn btn-ghost btn-sm" onclick="UI.toast('أُوقفت المهمة','x')">إيقاف</button>` : ""}</td></tr>`).join("");
+  }
+  $$("#jobFilter button").forEach((b) => b.addEventListener("click", () => { jf = b.dataset.f; $$("#jobFilter button").forEach((x) => x.setAttribute("aria-pressed", x === b)); renderJobs(); }));
+  renderJobs();
+
+  /* ---------- الذكاء ---------- */
+  $("#providers").innerHTML = [["Anthropic", "sun", "A", "sk-ant-…7Qf2", "متصل", "s-ok", "4,540 / 8,000 ر.س"], ["OpenAI", "mint", "O", "sk-…x91L", "متصل", "s-ok", "1,090 / 3,000 ر.س"], ["Google", "sky", "G", "AIza…dE4", "غير مفعّل", "s-warn", "—"]]
+    .map(([n, t, l, k, s, sc, spend]) => `<div class="provider"><span class="tile ${t}">${l}</span><div><b>${n}</b><span class="key">${k}</span><div class="status ${sc}" style="margin-top:4px"><span class="dot"></span>${s} · <span class="subtle" style="font-weight:500">الإنفاق: ${spend}</span></div></div>
+      <div style="display:flex;gap:6px"><button class="btn btn-sm" onclick="UI.toast('الاتصال يعمل ✓','check')">اختبار</button><button class="btn btn-ghost btn-sm" onclick="UI.openModal('keyModal')">تغيير المفتاح</button></div></div>`).join("");
+  const MODELS = ["claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5", "claude-fable-5-1"];
+  $("#routes").innerHTML = [["تخطيط العرض", "توزيع المحتوى على الشرائح", 1], ["بناء الكود", "HTML/CSS/JS للشرائح", 0], ["التعديل بالمحادثة", "التعديلات الصغيرة", 2], ["تحليل الملفات", "PDF وExcel والصور", 1], ["مراجعة الجودة", "فحص نهائي قبل التسليم", 2]]
+    .map(([n, d, sel]) => `<div class="route"><div><b>${n}</b><span>${d}</span></div><select class="select ltr" aria-label="نموذج ${n}">${MODELS.map((m, i) => `<option ${i === sel ? "selected" : ""}>${m}</option>`).join("")}</select></div>`).join("");
+  $("#keySave").addEventListener("click", () => { $("#apikey").value = ""; closeModal("keyModal"); toast("حُفظ المفتاح مشفّراً ✓", "key"); });
+
+  /* ---------- الأساليب ---------- */
+  $("#styleGrid").innerHTML = Covers.STYLES.map((s, i) => `<div class="card style-card"><div class="swatch-row">${[s.bg, s.fg, s.ac, s.ac2].map((c) => `<i style="background:${c}"></i>`).join("")}</div>
+    <div style="display:flex;justify-content:space-between;align-items:center"><div><b>${s.name}</b><div class="subtle" style="font-size:var(--fs-xs)">${s.cat} · ${fmt(900 - i * 61)} استخدام</div></div><label class="switch"><input type="checkbox" ${i === 9 ? "" : "checked"} aria-label="تفعيل ${s.name}"><span></span></label></div></div>`).join("");
+
+  /* ---------- السجل ---------- */
+  $("#log").innerHTML = [["i", "12:04:11", "INFO", "job_8820 stage=build slide=6/10"], ["w", "12:03:58", "WARN", "provider=anthropic latency=4.2s (p95 threshold 3s)"], ["e", "11:41:20", "ERROR", "job_8812 timeout after 600s — credits refunded"], ["i", "11:40:02", "INFO", "payment INV-20930 captured (apple_pay)"], ["e", "11:12:45", "ERROR", "payment INV-20929 declined: insufficient_funds"], ["i", "11:02:31", "INFO", "user u_9921 signed up (google)"]]
+    .map(([c, t, l, m]) => `<div class="${c}">[${t}] ${l.padEnd(5)} ${esc(m)}</div>`).join("");
+
+  renderUsers(); route();
+})();
+</script>
+</body>
+</html>

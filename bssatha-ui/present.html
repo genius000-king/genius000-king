@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/core.css">
+  <script src="assets/js/lab.js"></script>
   <style>
     html, body { height: 100%; background: #14100E; color: #fff; overflow: hidden; }
     .player { position: fixed; inset: 0; display: grid; place-items: center; touch-action: pan-y; }
@@ -92,7 +93,7 @@
 <div class="overview" id="overview" aria-hidden="true"><div class="ov-grid" id="ovGrid"></div></div>
 
 <div class="start" id="start">
-  <div class="mascot-wrap bob" data-mascot aria-hidden="true"></div>
+  <div class="mascot-wrap" data-lab="start-mascot" aria-hidden="true"><div class="wiggle" data-mascot="flame"></div></div>
   <h1 class="display" id="startTitle">الخلية البشرية: رحلة إلى الداخل</h1>
   <p><span id="startCount">6</span> شرائح · عرض تفاعلي</p>
   <button class="play" id="startBtn" aria-label="ابدأ العرض بملء الشاشة"><i data-i="play"></i></button>

@@ -89,9 +89,39 @@
 .suggest .chip { height: 36px; font-size: var(--fs-xs); background: transparent; }
 .suggest .chip:hover { background: var(--surface); }
 
-.hero-mascot { position: absolute; z-index: 0; width: 210px; inset-inline-end: max(16px, calc(50% - 640px)); top: 120px; }
-.hero-doodles .doodle { opacity: .9; }
-@media (max-width: 1100px) { .hero-mascot { display: none; } }
+/* خلفية البطل */
+.hero-art { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.hero-art > * { position: absolute; }
+.blob-bg { opacity: .95; }
+.char { width: 230px; z-index: 1; }
+.char-flame { top: 150px; inset-inline-start: max(12px, calc(50% - 690px)); width: 210px; }
+.char-cloud { top: 300px; inset-inline-end: max(12px, calc(50% - 680px)); width: 240px; }
+.sticky-note {
+  top: 120px; inset-inline-end: max(24px, calc(50% - 640px)); z-index: 2;
+  padding: 20px 22px 18px; width: 170px; text-align: center; line-height: 1.5;
+  font-family: var(--font-display); font-size: 1.15rem; color: var(--ink);
+  background: #FFF4C9; border: 2px solid var(--ink); border-radius: 6px;
+  box-shadow: 3px 4px 0 var(--ink); transform: rotate(-7deg);
+}
+.sticky-note .pin { position: absolute; top: -14px; left: 50%; width: 34px; height: 16px; translate: -50% 0; rotate: 8deg; background: #8CC8F2; border: 2px solid var(--ink); border-radius: 3px; opacity: .95; }
+.speech {
+  top: 96px; inset-inline-start: max(24px, calc(50% - 600px)); z-index: 2;
+  display: grid; place-items: center; width: 108px; height: 108px; text-align: center; line-height: 1.35;
+  font-family: var(--font-display); font-size: 1.05rem; background: var(--surface); border: 2px solid var(--ink); border-radius: 50%;
+}
+.speech::after { content: ""; position: absolute; bottom: 4px; inset-inline-end: 6px; width: 22px; height: 22px; background: var(--surface); border: 2px solid var(--ink); border-top: 0; border-inline-start: 0; transform: rotate(35deg) skew(10deg); border-radius: 0 0 6px 0; }
+@media (max-width: 1180px) { .sticky-note, .speech { display: none; } .char { width: 160px !important; } .char-cloud { top: 420px; } }
+@media (max-width: 900px) {
+  .hero.hero { padding-top: 112px; }
+  .blob-bg { width: 170px !important; opacity: .8; }
+  .blob-bg[data-lab="blob-pink"], .blob-bg[data-lab="blob-pink2"] { display: none; }
+  .blob-bg[data-lab="blob-blue"] { top: -30px !important; inset-inline-start: -50px !important; }
+  .blob-bg[data-lab="blob-yellow"] { top: -40px !important; inset-inline-end: -50px !important; }
+  .char { width: 86px !important; top: 8px !important; }
+  .eyebrow .m-hide { display: none; }
+  .char-flame { inset-inline-start: 12px; } .char-cloud { inset-inline-end: 12px; }
+  .hero-art .doodle { display: none; }
+}
 @media (max-width: 640px) {
   .hero { padding: var(--s6) 0 var(--s8); }
   .hero-sub { font-size: var(--fs-md); }
@@ -100,7 +130,6 @@
   .prompt-bar { padding: 10px; }
   .prompt-bar .btn-primary { width: 100%; order: 10; }
   .prompt-bar .grow { display: none; }
-  .hero-doodles { display: none; }
 }
 
 /* ---------- الأقسام ---------- */
@@ -211,10 +240,25 @@
 @media (max-width: 760px) { .footer-grid { grid-template-columns: 1fr 1fr; } .footer-grid > :first-child { grid-column: 1 / -1; } }
 
 /* شريط الأشكال — من روح الهوية في الصورة الأولى */
-.motif { height: 28px; background:
+.motif-old { height: 28px; background:
   radial-gradient(circle at 14px 14px, var(--brand) 7px, transparent 8px) 0 0 / 112px 28px,
   radial-gradient(circle at 42px 14px, var(--sun) 7px, transparent 8px) 0 0 / 112px 28px,
   radial-gradient(circle at 70px 14px, var(--sky) 7px, transparent 8px) 0 0 / 112px 28px,
   radial-gradient(circle at 98px 14px, var(--pink) 7px, transparent 8px) 0 0 / 112px 28px;
   opacity: .9; animation: slideMotif 30s linear infinite; }
 @keyframes slideMotif { to { background-position: -1120px 0, -1120px 0, -1120px 0, -1120px 0; } }
+
+/* شريط المميزات تحت صندوق الفكرة */
+.perks { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; width: min(100%, 1080px); margin-top: var(--s7); text-align: start; }
+.perks li { display: flex; align-items: center; gap: 12px; padding: 14px; background: color-mix(in srgb, var(--surface) 88%, transparent); border: 1px solid var(--line); border-radius: var(--r-lg); transition: transform var(--t-med) var(--ease), box-shadow var(--t-med); }
+.perks li:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.perks li:hover .tile { animation: tileJiggle .5s var(--ease-bounce); }
+@keyframes tileJiggle { 30% { transform: rotate(-10deg) scale(1.08); } 60% { transform: rotate(6deg); } }
+.perks b { display: block; font-size: var(--fs-sm); }
+.perks span:not(.tile) { font-size: var(--fs-xs); color: var(--ink-3); }
+@media (max-width: 1000px) { .perks { grid-template-columns: repeat(2, 1fr); } .perks li:last-child { grid-column: 1 / -1; } }
+@media (max-width: 640px) { .perks { gap: 8px; } .perks li { padding: 10px; gap: 10px; } .perks .tile { width: 42px; height: 42px; } .perks .tile .i { width: 20px; height: 20px; } }
+
+/* شريط الأشكال من الهوية */
+.motif { height: 36px; background: url("../img/motif.jpg") repeat-x center / auto 100%; animation: slideMotif 40s linear infinite; opacity: 1; }
+@keyframes slideMotif { to { background-position: -1080px center; } }

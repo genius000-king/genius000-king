@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/core.css">
+  <script src="assets/js/lab.js"></script>
   <link rel="stylesheet" href="assets/css/app.css">
   <link rel="stylesheet" href="assets/css/create.css">
 </head>
@@ -94,7 +95,7 @@
     <!-- الملخص -->
     <aside class="summary" aria-label="ملخص العرض">
       <div class="summary-card">
-        <div class="summary-mascot" data-mascot="bust" aria-hidden="true"></div>
+        <div class="summary-mascot" data-lab="summary-mascot" data-mascot="cloud" aria-hidden="true"></div>
         <h3>ملخص العرض</h3>
         <dl>
           <div><dt>الشرائح</dt><dd id="sumSlides">10</dd></div>
@@ -123,7 +124,7 @@
 <!-- ======== شاشة الإنشاء ======== -->
 <div class="gen" id="gen" hidden role="dialog" aria-modal="true" aria-labelledby="genTitle">
   <div class="gen-inner">
-    <div class="gen-mascot bob" data-mascot aria-hidden="true"></div>
+    <div class="gen-mascot" data-lab="gen-mascot"><div class="wiggle" data-mascot="flame"></div></div>
     <h2 class="display" id="genTitle">نبني عرضك الآن…</h2>
     <p class="muted" id="genSub">«الخلية البشرية» · 10 شرائح</p>
     <div class="gen-bar"><span id="genBar"></span></div>

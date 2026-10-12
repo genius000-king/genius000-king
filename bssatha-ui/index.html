@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/core.css">
+  <script src="assets/js/lab.js"></script>
   <link rel="stylesheet" href="assets/css/landing.css">
 </head>
 <body>
@@ -42,15 +43,28 @@
 <main>
 <!-- ============ البطل ============ -->
 <section class="hero">
-  <div class="hero-doodles" aria-hidden="true">
-    <svg class="doodle bob" style="top:90px;inset-inline-start:7%;width:56px" viewBox="0 0 60 60"><path d="M30 6c3 14 10 21 24 24-14 3-21 10-24 24-3-14-10-21-24-24 14-3 21-10 24-24Z" fill="none" stroke="#F0643A" stroke-width="4" stroke-linejoin="round"/></svg>
-    <svg class="doodle" style="top:300px;inset-inline-start:4%;width:70px" viewBox="0 0 80 40"><path d="M4 30c8-20 16-20 24 0s16 20 24 0 16-20 24 0" fill="none" stroke="#3B82F6" stroke-width="5" stroke-linecap="round"/></svg>
-    <svg class="doodle" style="bottom:70px;inset-inline-end:9%;width:60px" viewBox="0 0 60 60"><path d="M30 30m-4 0a4 4 0 1 1 8 0 8 8 0 1 1-16 0 12 12 0 1 1 24 0 16 16 0 1 1-32 0" fill="none" stroke="#FFC83D" stroke-width="4.5" stroke-linecap="round"/></svg>
+  <!-- خلفية البطل: بقع ملونة + شخصيات + زخارف (كلها قابلة للتحريك من «المختبر») -->
+  <div class="hero-art" aria-hidden="true">
+    <svg class="blob-bg" data-lab="blob-yellow" style="top:-60px;inset-inline-end:-80px;width:300px" viewBox="0 0 200 200"><path fill="var(--blob-yellow)" d="M152 34c26 22 40 60 30 92s-44 58-80 62-70-18-82-50 2-74 30-96 76-30 102-8Z"/></svg>
+    <svg class="blob-bg" data-lab="blob-pink" style="top:120px;inset-inline-end:3%;width:300px" viewBox="0 0 200 200"><path fill="var(--blob-pink)" d="M40 30c30-26 90-30 124 0s36 92 8 124-86 40-120 16S-4 120 6 82 10 56 40 30Z"/></svg>
+    <svg class="blob-bg" data-lab="blob-blue" style="top:60px;inset-inline-start:2%;width:320px" viewBox="0 0 200 200"><path fill="var(--blob-blue)" d="M110 8c34 4 70 30 80 66s-6 80-40 100-80 26-110 0S2 104 14 68 76 4 110 8Z"/></svg>
+    <svg class="blob-bg" data-lab="blob-pink2" style="bottom:20px;inset-inline-start:-40px;width:220px" viewBox="0 0 200 200"><path fill="var(--blob-pink)" d="M60 20c40-20 110 0 126 44s-10 96-56 116S20 176 8 130 20 40 60 20Z"/></svg>
+
+    <div class="char char-flame" data-lab="mascot-flame"><div class="wiggle" data-mascot="flame"></div></div>
+    <div class="char char-cloud" data-lab="mascot-cloud"><div class="wiggle" style="animation-delay:-2.5s" data-mascot="cloud"></div></div>
+
+    <div class="sticky-note" data-lab="note"><i class="pin"></i>أي فكرة<br>ممكن تصير<br>عرض مبهر!</div>
+    <div class="speech" data-lab="bubble">تخيّل<br>صمّم<br>قدّم</div>
+
+    <svg class="doodle" data-lab="doodle-star" style="top:110px;inset-inline-start:30%;width:46px" viewBox="0 0 60 60"><path d="M30 6c3 14 10 21 24 24-14 3-21 10-24 24-3-14-10-21-24-24 14-3 21-10 24-24Z" fill="none" stroke="var(--brand)" stroke-width="4" stroke-linejoin="round"/></svg>
+    <svg class="doodle" data-lab="doodle-spiral" style="top:70px;inset-inline-start:21%;width:58px" viewBox="0 0 60 60"><path d="M30 30m-4 0a4 4 0 1 1 8 0 8 8 0 1 1-16 0 12 12 0 1 1 24 0 16 16 0 1 1-32 0" fill="none" stroke="var(--sun)" stroke-width="4.5" stroke-linecap="round"/></svg>
+    <svg class="doodle" data-lab="doodle-wave" style="top:520px;inset-inline-end:16%;width:76px" viewBox="0 0 80 40"><path d="M4 30c8-20 16-20 24 0s16 20 24 0 16-20 24 0" fill="none" stroke="var(--sky)" stroke-width="5" stroke-linecap="round"/></svg>
+    <svg class="doodle" data-lab="doodle-star2" style="top:40px;inset-inline-end:26%;width:40px" viewBox="0 0 60 60"><path d="m30 4 7 17 18 2-14 12 4 18-15-9-15 9 4-18L5 23l18-2Z" fill="var(--sky)"/></svg>
+    <svg class="doodle" data-lab="doodle-squiggle" style="top:380px;inset-inline-end:2%;width:60px" viewBox="0 0 60 80"><path d="M30 4c-20 10 20 20 0 30s20 20 0 30" fill="none" stroke="var(--brand)" stroke-width="5" stroke-linecap="round"/></svg>
   </div>
-  <div class="hero-mascot bob" data-mascot aria-hidden="true"></div>
 
   <div class="container hero-inner">
-    <span class="eyebrow"><b>جديد</b> عروض تعمل داخل المتصفح — لا PowerPoint</span>
+    <span class="eyebrow"><b>جديد</b> عروض تعمل داخل المتصفح<span class="m-hide">&nbsp;— لا PowerPoint</span></span>
     <h1 class="display">حوّل فكرتك إلى عرض
       <span class="hl">تفاعلي حيّ<svg viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path d="M4 14C70 4 160 4 296 12" stroke="#FFC83D" stroke-width="8" fill="none" stroke-linecap="round"/></svg></span>
     </h1>
@@ -93,6 +107,14 @@
       <button type="button" class="chip" data-idea="حوّل ملف المبيعات المرفق إلى رسوم بيانية تفاعلية مع ملخص للنتائج وتوصيات">📊 تقرير من ملف Excel</button>
       <button type="button" class="chip" data-idea="لعبة تعليمية عن الكسور للصف الخامس، بمراحل ونقاط واختبار في النهاية">🎮 لعبة تعليمية</button>
     </div>
+
+    <ul class="perks" aria-label="مميزات المنصة">
+      <li><span class="tile pink"><i data-i="bolt"></i></span><div><b>سرعة عالية</b><span>عرض كامل في دقائق</span></div></li>
+      <li><span class="tile sun"><i data-i="cube"></i></span><div><b>تجارب تفاعلية</b><span>3D ومحاكاة وألعاب</span></div></li>
+      <li><span class="tile sky"><i data-i="file"></i></span><div><b>من أي ملف</b><span>PDF، Word، صور، فيديو</span></div></li>
+      <li><span class="tile pink"><i data-i="wand"></i></span><div><b>أساليب متنوعة</b><span>+100 أسلوب وتصميم</span></div></li>
+      <li><span class="tile sun"><svg class="i" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="4"/><path d="M12 8V4"/><circle cx="12" cy="3" r="1"/><circle cx="9" cy="14" r="1.2"/><circle cx="15" cy="14" r="1.2"/><path d="M2 13v2M22 13v2"/></svg></span><div><b>تعديل بالذكاء</b><span>بالمحادثة أو يدوياً</span></div></li>
+    </ul>
   </div>
 </section>
 
@@ -119,9 +141,9 @@
         </div>
       </div>
       <ul class="live-points">
-        <li class="reveal" style="--d:80ms"><span class="ico sky"><i data-i="cube"></i></span><div><h3>ثلاثي الأبعاد ومحاكاة</h3><p>نماذج تُدار وتُكبَّر، ومحاكاة يغيّر فيها الجمهور القيم ويرى الأثر مباشرة.</p></div></li>
-        <li class="reveal" style="--d:160ms"><span class="ico sun"><i data-i="star"></i></span><div><h3>ألعاب واختبارات</h3><p>اختبار بنتيجة فورية، أو لعبة كاملة داخل العرض — ليس مجرد سؤال اختيار من متعدد.</p></div></li>
-        <li class="reveal" style="--d:240ms"><span class="ico mint"><i data-i="chart"></i></span><div><h3>بياناتك تتحرك</h3><p>ارفع ملف Excel فيتحول إلى رسوم بيانية تفاعلية بدل صورة جامدة للجدول.</p></div></li>
+        <li class="reveal" style="--d:80ms"><span class="tile sky"><i data-i="cube"></i></span><div><h3>ثلاثي الأبعاد ومحاكاة</h3><p>نماذج تُدار وتُكبَّر، ومحاكاة يغيّر فيها الجمهور القيم ويرى الأثر مباشرة.</p></div></li>
+        <li class="reveal" style="--d:160ms"><span class="tile sun"><i data-i="star"></i></span><div><h3>ألعاب واختبارات</h3><p>اختبار بنتيجة فورية، أو لعبة كاملة داخل العرض — ليس مجرد سؤال اختيار من متعدد.</p></div></li>
+        <li class="reveal" style="--d:240ms"><span class="tile mint"><i data-i="chart"></i></span><div><h3>بياناتك تتحرك</h3><p>ارفع ملف Excel فيتحول إلى رسوم بيانية تفاعلية بدل صورة جامدة للجدول.</p></div></li>
       </ul>
     </div>
   </div>
@@ -174,24 +196,6 @@
   </div>
 </section>
 
-<!-- ============ المميزات ============ -->
-<section class="section" style="padding-top:0">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="kicker">لماذا بسّطها</span>
-      <h2 class="display">الإبداع هو الحد الوحيد</h2>
-    </div>
-    <div class="features reveal">
-      <div class="feature"><span class="ico brand"><i data-i="code"></i></span><h3>بلا قوالب جامدة</h3><p>الذكاء يكتب HTML وCSS وJavaScript لكل عرض من الصفر، حسب فكرتك.</p></div>
-      <div class="feature"><span class="ico sky"><i data-i="chat"></i></span><h3>عدّل بالمحادثة</h3><p>اطلب التغيير بكلامك، فيعدّل العنصر المطلوب فقط دون إعادة بناء العرض.</p></div>
-      <div class="feature"><span class="ico pink"><i data-i="move"></i></span><h3>تحرير بصري مباشر</h3><p>اضغط على أي نص أو صورة وغيّر الحجم واللون والمكان — بدون كود.</p></div>
-      <div class="feature"><span class="ico sun"><i data-i="upload"></i></span><h3>أي ملف كمرجع</h3><p>PDF، Word، Excel، فيديو، صوت، نماذج 3D وملفات برمجية.</p></div>
-      <div class="feature"><span class="ico mint"><i data-i="bolt"></i></span><h3>في دقائق</h3><p>عرض متكامل في أقل من عشر دقائق، مع مراجعة تلقائية للجودة.</p></div>
-      <div class="feature"><span class="ico brand"><i data-i="globe"></i></span><h3>يعمل في كل مكان</h3><p>رابط واحد يعمل على الجوال والكمبيوتر والتابلت — بلا برامج.</p></div>
-    </div>
-  </div>
-</section>
-
 <!-- ============ الأسئلة ============ -->
 <section class="section" style="padding-top:0">
   <div class="container">
@@ -214,7 +218,7 @@
         <p>50 كريدت مجاناً عند التسجيل — تكفي لعرضك الأول كاملاً.</p>
         <a class="btn btn-primary btn-lg" href="auth.html?mode=signup"><i data-i="sparkles"></i>ابدأ مجاناً</a>
       </div>
-      <div class="cta-mascot bob" data-mascot aria-hidden="true"></div>
+      <div class="cta-mascot" data-lab="cta-mascot" aria-hidden="true"><div class="wiggle" data-mascot="flame"></div></div>
     </div>
   </div>
 </section>

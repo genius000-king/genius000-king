@@ -29,6 +29,9 @@
   --mint: #22B07D;
   --mint-soft: #D5F3E6;
   --plum: #4E2D47;        /* لون حدود الشخصية */
+  --blob-yellow: #FFD978;
+  --blob-pink: #F9C2D9;
+  --blob-blue: #A9D5F5;
   --danger: #DC3B3B;
   --danger-soft: #FCE1E1;
 
@@ -281,3 +284,14 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
   .reveal { opacity: 1; transform: none; }
 }
+
+/* صور الشخصيات الرسمية */
+.mascot-img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; filter: drop-shadow(0 10px 14px rgba(78, 45, 71, .14)); }
+.wiggle { animation: wiggle 5s ease-in-out infinite; transform-origin: 50% 90%; }
+@keyframes wiggle { 0%, 100% { transform: rotate(0) translateY(0); } 25% { transform: rotate(-3deg) translateY(-6px); } 50% { transform: rotate(0) translateY(-10px); } 75% { transform: rotate(3deg) translateY(-6px); } }
+
+/* بلاطات الأيقونات بشكل عضوي — كما في الهوية */
+.tile { display: grid; place-items: center; width: 52px; height: 52px; flex: none; border-radius: 46% 54% 42% 58% / 52% 44% 56% 48%; color: var(--ink); }
+.tile .i { width: 24px; height: 24px; stroke-width: 2; }
+.tile.pink { background: #F9B7D3; } .tile.sun { background: #FFD465; } .tile.sky { background: #9FD0F5; } .tile.mint { background: #A8E3C8; } .tile.brand { background: #FBB79D; }
+.tile:nth-child(2n) { border-radius: 56% 44% 58% 42% / 44% 56% 46% 54%; }

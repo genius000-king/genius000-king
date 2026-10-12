@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>إتمام الدفع — بسّطها</title>
+  <meta name="theme-color" content="#FBF5EC">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/core.css">
+  <script src="assets/js/lab.js"></script>
+  <style>
+    .co-top { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+    .secure { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-xs); color: var(--ink-2); font-weight: 600; }
+    .secure .i { color: var(--mint); width: 16px; height: 16px; }
+    .co { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: var(--s6); align-items: start; padding: var(--s5) 0 var(--s9); }
+    .co h1 { font-size: var(--fs-2xl); margin-bottom: var(--s5); }
+    .step-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xl); padding: var(--s5); margin-bottom: var(--s4); }
+    .step-card h2 { display: flex; align-items: center; gap: 10px; font-size: var(--fs-lg); margin-bottom: var(--s4); }
+    .step-card h2 .n { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: var(--bg); font-size: var(--fs-xs); }
+
+    /* طرق الدفع */
+    .methods { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .method { position: relative; display: grid; justify-items: center; gap: 8px; padding: 16px 8px 12px; border: 1.5px solid var(--line-strong); border-radius: var(--r-lg); background: var(--surface); font-size: var(--fs-xs); font-weight: 600; transition: border-color var(--t-fast), background var(--t-fast), transform var(--t-fast); }
+    .method:hover { transform: translateY(-2px); }
+    .method[aria-checked="true"] { border: 2px solid var(--ink); background: var(--sun-soft); box-shadow: var(--shadow-pop); }
+    .method .logo-box { display: grid; place-items: center; height: 30px; }
+    .method .logo-box b { font-size: 15px; letter-spacing: .02em; }
+    .method .m-cards { display: flex; gap: 4px; }
+    .m-cards span { display: grid; place-items: center; height: 22px; padding: 0 5px; border-radius: 4px; font-size: 9px; font-weight: 800; color: #fff; }
+
+    /* البطاقة الحية */
+    .card-zone { display: grid; grid-template-columns: 260px 1fr; gap: var(--s5); align-items: start; margin-top: var(--s5); }
+    .cc { position: relative; aspect-ratio: 1.586; border-radius: 18px; padding: 18px; color: #fff; overflow: hidden; border: 2px solid var(--ink); box-shadow: var(--shadow-pop-lg); background: linear-gradient(135deg, #3A2A33, #1E1916); transition: background .5s; display: flex; flex-direction: column; justify-content: space-between; }
+    .cc.visa { background: linear-gradient(135deg, #1D4ED8, #1E3A8A); }
+    .cc.mc { background: linear-gradient(135deg, #F0643A, #B23E17); }
+    .cc.mada { background: linear-gradient(135deg, #22B07D, #0E6E4D); }
+    .cc::before { content: ""; position: absolute; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,.1); top: -70px; inset-inline-start: -50px; }
+    .cc-top { display: flex; justify-content: space-between; align-items: center; position: relative; }
+    .chip-ic { width: 36px; height: 26px; border-radius: 6px; background: linear-gradient(135deg, #FFD978, #E0A84A); }
+    .cc-brand { font-weight: 800; font-size: 15px; font-style: italic; }
+    .cc-num { font-size: 17px; letter-spacing: .12em; font-variant-numeric: tabular-nums; direction: ltr; text-align: left; position: relative; }
+    .cc-bot { display: flex; justify-content: space-between; font-size: 11px; position: relative; direction: ltr; }
+    .cc-bot small { display: block; opacity: .6; font-size: 9px; }
+    .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .fields .full { grid-column: 1 / -1; }
+    .input.ltr { direction: ltr; text-align: left; }
+    .err-msg { color: var(--danger); font-size: var(--fs-xs); min-height: 1em; }
+    .alt-pay { display: grid; justify-items: center; gap: 12px; padding: var(--s5); text-align: center; background: var(--bg); border-radius: var(--r-lg); margin-top: var(--s4); }
+    .apple-btn { width: min(100%, 320px); height: 52px; border-radius: 12px; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600; font-size: 17px; }
+    .stc-btn { width: min(100%, 320px); height: 52px; border-radius: 12px; background: #4F008C; color: #fff; font-weight: 700; }
+    .bnpl-btn { width: min(100%, 320px); height: 52px; border-radius: 12px; background: #3BFFC1; color: #1E1916; font-weight: 700; border: 2px solid var(--ink); }
+
+    /* الملخص */
+    .sum { position: sticky; top: 20px; background: var(--surface); border: 2px solid var(--ink); border-radius: var(--r-xl); padding: var(--s5); box-shadow: var(--shadow-pop-lg); }
+    .sum-plan { display: flex; gap: 14px; align-items: center; padding-bottom: var(--s4); border-bottom: 1px dashed var(--line-strong); }
+    .sum-plan .tile { width: 56px; height: 56px; }
+    .sum-plan b { display: block; font-size: var(--fs-lg); }
+    .sum-plan span { font-size: var(--fs-sm); color: var(--ink-3); }
+    .sum dl { margin: var(--s4) 0; display: grid; gap: 10px; font-size: var(--fs-sm); }
+    .sum dl div { display: flex; justify-content: space-between; }
+    .sum dt { color: var(--ink-2); }
+    .sum dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .sum .total { padding-top: var(--s3); border-top: 1px solid var(--line); font-size: var(--fs-lg); }
+    .sum .total dd { font-size: 1.5rem; }
+    .coupon { display: flex; gap: 8px; margin-bottom: var(--s4); }
+    .coupon .input { min-height: 44px; }
+    .sum .fine { font-size: var(--fs-xs); color: var(--ink-3); text-align: center; margin-top: 12px; line-height: 1.7; }
+    .discount dd { color: var(--mint); }
+    .spin { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: sp .7s linear infinite; }
+    @keyframes sp { to { transform: rotate(360deg); } }
+
+    /* نجاح */
+    .done { display: grid; justify-items: center; text-align: center; gap: 8px; }
+    .done .mascot-wrap { width: 120px; margin-top: -10px; }
+    .done h3 { font-family: var(--font-display); font-size: var(--fs-2xl); }
+    .receipt { width: 100%; margin: 14px 0; padding: 14px; border-radius: var(--r-md); background: var(--bg); font-size: var(--fs-sm); display: grid; gap: 6px; }
+    .receipt div { display: flex; justify-content: space-between; }
+
+    @media (max-width: 1000px) {
+      .co { grid-template-columns: 1fr; }
+      .sum { position: static; box-shadow: var(--shadow-pop); }
+    }
+    @media (max-width: 640px) {
+      .methods { grid-template-columns: repeat(2, 1fr); }
+      .card-zone { grid-template-columns: 1fr; }
+      .cc { max-width: 300px; justify-self: center; width: 100%; }
+      .fields { grid-template-columns: 1fr 1fr; }
+      .step-card { padding: var(--s4); }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header class="co-top">
+    <a href="index.html" data-logo></a>
+    <span class="secure"><i data-i="lock"></i>دفع آمن ومشفّر</span>
+  </header>
+
+  <main class="co">
+    <div>
+      <h1 class="display">إتمام الاشتراك</h1>
+
+      <section class="step-card">
+        <h2><span class="n">1</span>طريقة الدفع</h2>
+        <div class="methods" role="radiogroup" aria-label="طريقة الدفع">
+          <button type="button" class="method" role="radio" aria-checked="true" data-m="card">
+            <span class="logo-box m-cards"><span style="background:#22B07D">mada</span><span style="background:#1D4ED8">VISA</span><span style="background:#F0643A">MC</span></span>بطاقة
+          </button>
+          <button type="button" class="method" role="radio" aria-checked="false" data-m="apple"><span class="logo-box"><i data-i="apple" class="i-lg"></i></span>Apple Pay</button>
+          <button type="button" class="method" role="radio" aria-checked="false" data-m="stc"><span class="logo-box"><b style="color:#4F008C">stc pay</b></span>STC Pay</button>
+          <button type="button" class="method" role="radio" aria-checked="false" data-m="bnpl"><span class="logo-box"><b>4×</b></span>تقسيط</button>
+        </div>
+
+        <!-- البطاقة -->
+        <div id="pane-card">
+          <!-- الربط: في الإنتاج تُستبدل هذه الحقول بحقول مزوّد الدفع المستضافة (Moyasar / Tap / HyperPay)
+               حتى لا تمر بيانات البطاقة على سيرفرك أبداً (متطلبات PCI-DSS) -->
+          <div class="card-zone">
+            <div class="cc" id="cc" aria-hidden="true">
+              <div class="cc-top"><span class="chip-ic"></span><span class="cc-brand" id="ccBrand">بسّطها</span></div>
+              <div class="cc-num" id="ccNum">•••• •••• •••• ••••</div>
+              <div class="cc-bot"><div><small>CARD HOLDER</small><span id="ccName">YOUR NAME</span></div><div><small>EXPIRES</small><span id="ccExp">MM/YY</span></div></div>
+            </div>
+            <form class="fields" id="cardForm" novalidate>
+              <div class="field full"><label class="label" for="num">رقم البطاقة</label><input class="input ltr" id="num" inputmode="numeric" autocomplete="cc-number" placeholder="1234 5678 9012 3456" maxlength="19"><span class="err-msg" id="numErr"></span></div>
+              <div class="field full"><label class="label" for="name">الاسم على البطاقة</label><input class="input ltr" id="name" autocomplete="cc-name" placeholder="ABDULLAH M"></div>
+              <div class="field"><label class="label" for="exp">تاريخ الانتهاء</label><input class="input ltr" id="exp" inputmode="numeric" autocomplete="cc-exp" placeholder="MM/YY" maxlength="5"></div>
+              <div class="field"><label class="label" for="cvc">CVC</label><input class="input ltr" id="cvc" inputmode="numeric" autocomplete="cc-csc" placeholder="123" maxlength="4"></div>
+            </form>
+          </div>
+        </div>
+        <div id="pane-apple" class="alt-pay" hidden><p class="muted">ادفع بلمسة باستخدام Face ID أو Touch ID.</p><button type="button" class="apple-btn" data-pay><i data-i="apple"></i>Pay</button></div>
+        <div id="pane-stc" class="alt-pay" hidden><p class="muted">سيصلك طلب تأكيد في تطبيق STC Pay.</p><input class="input ltr" style="max-width:320px" placeholder="05X XXX XXXX" inputmode="tel" aria-label="رقم الجوال"><button type="button" class="stc-btn" data-pay>ادفع عبر STC Pay</button></div>
+        <div id="pane-bnpl" class="alt-pay" hidden><p class="muted">قسّمها على 4 دفعات بدون فوائد — أول دفعة اليوم.</p><b id="bnplAmt" style="font-size:1.3rem"></b><button type="button" class="bnpl-btn" data-pay>متابعة التقسيط</button></div>
+      </section>
+
+      <section class="step-card">
+        <h2><span class="n">2</span>بيانات الفاتورة</h2>
+        <div class="fields">
+          <div class="field"><label class="label" for="email">البريد الإلكتروني</label><input class="input ltr" id="email" type="email" value="abdullah@example.com"></div>
+          <div class="field"><label class="label" for="country">الدولة</label><select class="select" id="country"><option>السعودية</option><option>الإمارات</option><option>الكويت</option><option>قطر</option><option>البحرين</option><option>عُمان</option><option>مصر</option><option>أخرى</option></select></div>
+          <div class="field full"><label class="label" for="vat">الرقم الضريبي (اختياري — للشركات)</label><input class="input ltr" id="vat" placeholder="3XXXXXXXXXXXXX3"></div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="sum" aria-label="ملخص الطلب">
+      <div class="sum-plan"><span class="tile sun"><i data-i="star"></i></span><div><b id="planName">خطة احترافي</b><span id="planMeta">شهري · 500 كريدت كل شهر</span></div></div>
+      <dl>
+        <div><dt>السعر</dt><dd id="price">39.00 ر.س</dd></div>
+        <div class="discount" id="discRow" hidden><dt>خصم (<span id="discCode"></span>)</dt><dd id="disc"></dd></div>
+        <div><dt>ضريبة القيمة المضافة 15%</dt><dd id="vatAmt"></dd></div>
+        <div class="total"><dt>الإجمالي اليوم</dt><dd id="total"></dd></div>
+      </dl>
+      <form class="coupon" id="couponForm"><label class="sr-only" for="coupon">كود الخصم</label><input class="input" id="coupon" placeholder="كود الخصم"><button class="btn btn-soft" type="submit">تطبيق</button></form>
+      <button class="btn btn-primary btn-lg btn-block" id="payBtn"><i data-i="lock" class="i-sm"></i>ادفع <span id="payAmt"></span></button>
+      <p class="fine">يتجدد تلقائياً — تقدر تلغي في أي وقت من صفحة الاشتراك.<br>بالدفع أنت توافق على <a href="#" style="text-decoration:underline">الشروط</a> و<a href="#" style="text-decoration:underline">سياسة الاسترجاع</a>.</p>
+    </aside>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="doneModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="doneTitle">
+  <div class="modal">
+    <div class="done">
+      <div class="mascot-wrap"><div class="wiggle" data-mascot="flame"></div></div>
+      <h3 id="doneTitle">تم الدفع! 🎉</h3>
+      <p class="muted">أُضيف الرصيد لحسابك. يلا نبدأ أول عرض؟</p>
+      <div class="receipt"><div><span class="subtle">رقم الفاتورة</span><b id="invId"></b></div><div><span class="subtle">المبلغ</span><b id="invAmt"></b></div><div><span class="subtle">الرصيد المضاف</span><b id="invCred"></b></div></div>
+      <a class="btn btn-primary btn-lg btn-block" href="create.html"><i data-i="sparkles"></i>أنشئ عرضاً الآن</a>
+      <a class="btn btn-ghost btn-block" href="dashboard.html">الذهاب لعروضي</a>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/core.js"></script>
+<script src="assets/js/api.js"></script>
+<script>
+(() => {
+  const { $, $$, toast, openModal } = UI;
+  const q = new URLSearchParams(location.search);
+  const PLANS = { pro: { name: "احترافي", monthly: 39, yearly: 31, credits: 500 }, team: { name: "فِرق ومدارس", monthly: 119, yearly: 95, credits: 2000 } };
+  const PACKS = { 100: 19, 300: 49, 1000: 139 };
+  let base, credits, discount = 0;
+  if (q.get("pack") && PACKS[q.get("pack")]) {
+    credits = +q.get("pack"); base = PACKS[credits];
+    $("#planName").textContent = `${credits} كريدت`; $("#planMeta").textContent = "شحن لمرة واحدة · لا تنتهي صلاحيته";
+    $(".fine").firstChild.textContent = "دفعة واحدة — بلا تجديد تلقائي.";
+  } else {
+    const p = PLANS[q.get("plan")] || PLANS.pro, yearly = q.get("period") === "yearly";
+    base = yearly ? p.yearly * 12 : p.monthly; credits = p.credits;
+    $("#planName").textContent = "خطة " + p.name;
+    $("#planMeta").textContent = `${yearly ? "سنوي (وفّرت 20%)" : "شهري"} · ${p.credits} كريدت كل شهر`;
+  }
+  const money = (n) => n.toFixed(2) + " ر.س";
+  function totals() {
+    const sub = base - discount, vat = sub * 0.15, tot = sub + vat;
+    $("#price").textContent = money(base);
+    $("#vatAmt").textContent = money(vat);
+    $("#total").textContent = money(tot);
+    $("#payAmt").textContent = money(tot);
+    $("#bnplAmt").textContent = `4 × ${money(tot / 4)}`;
+    return tot;
+  }
+  totals();
+
+  $("#couponForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const c = $("#coupon").value.trim().toUpperCase();
+    if (c === "BSSATHA20") { discount = base * 0.2; $("#discRow").hidden = false; $("#discCode").textContent = c; $("#disc").textContent = "−" + money(discount); totals(); toast("تم تطبيق الخصم 20%", "gift"); }
+    else { toast("الكود غير صالح", "alert"); $("#coupon").select(); }
+  });
+
+  // طرق الدفع
+  let method = "card";
+  $$(".method").forEach((b) => b.addEventListener("click", () => {
+    method = b.dataset.m;
+    $$(".method").forEach((x) => x.setAttribute("aria-checked", x === b));
+    ["card", "apple", "stc", "bnpl"].forEach((m) => ($("#pane-" + m).hidden = m !== method));
+    $("#payBtn").hidden = method !== "card";
+  }));
+
+  // البطاقة الحية
+  const brand = (n) => (/^(4)/.test(n) ? ["visa", "VISA"] : /^(5[1-5]|2[2-7])/.test(n) ? ["mc", "Mastercard"] : /^(588845|440647|440795|446404|457865|968208|636120|417633|468540|468541|468542|468543|543357|434107|431361|604906|521076|588850|968202|535825|529415|543085|524130|554180|549760)/.test(n) ? ["mada", "mada"] : ["", "بسّطها"]);
+  $("#num").addEventListener("input", (e) => {
+    const d = e.target.value.replace(/\D/g, "").slice(0, 16);
+    e.target.value = d.replace(/(.{4})/g, "$1 ").trim();
+    $("#ccNum").textContent = (d + "•".repeat(16 - d.length)).replace(/(.{4})/g, "$1 ").trim();
+    const [cls, label] = brand(d);
+    const mada = /^(588845|440647|440795|446404|457865|968208|636120|417633|468540|543357|434107|431361|604906|521076|588850|968202|535825|529415|543085|524130|554180|549760)/.test(d);
+    $("#cc").className = "cc " + (mada ? "mada" : cls); $("#ccBrand").textContent = mada ? "mada" : label;
+  });
+  $("#name").addEventListener("input", (e) => ($("#ccName").textContent = e.target.value.toUpperCase() || "YOUR NAME"));
+  $("#exp").addEventListener("input", (e) => {
+    let d = e.target.value.replace(/\D/g, "").slice(0, 4);
+    if (d.length > 2) d = d.slice(0, 2) + "/" + d.slice(2);
+    e.target.value = d; $("#ccExp").textContent = d || "MM/YY";
+  });
+  $("#cvc").addEventListener("input", (e) => (e.target.value = e.target.value.replace(/\D/g, "")));
+
+  const luhn = (n) => { let s = 0, alt = false; for (let i = n.length - 1; i >= 0; i--) { let d = +n[i]; if (alt) { d *= 2; if (d > 9) d -= 9; } s += d; alt = !alt; } return s % 10 === 0; };
+
+  async function pay(btn) {
+    if (method === "card") {
+      const n = $("#num").value.replace(/\s/g, "");
+      $("#numErr").textContent = "";
+      if (n.length < 15 || !luhn(n)) { $("#numErr").textContent = "تأكد من رقم البطاقة"; $("#num").focus(); return; }
+      if (!/^(0[1-9]|1[0-2])\/\d\d$/.test($("#exp").value)) { toast("تاريخ الانتهاء غير صحيح", "alert"); $("#exp").focus(); return; }
+      if ($("#cvc").value.length < 3) { toast("أدخل رمز CVC", "alert"); $("#cvc").focus(); return; }
+    }
+    const html = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spin"></span>';
+    const tot = totals();
+    // الربط: POST /billing/checkout → يرجع رابط 3-D Secure أو تأكيد المحفظة
+    const r = await API.checkout({ method, plan: q.get("plan"), pack: q.get("pack"), coupon: $("#coupon").value });
+    btn.disabled = false; btn.innerHTML = html;
+    $("#invId").textContent = r.invoiceId; $("#invAmt").textContent = money(tot); $("#invCred").textContent = `+${credits} كريدت`;
+    openModal("doneModal");
+  }
+  $("#payBtn").addEventListener("click", (e) => pay(e.currentTarget));
+  $$("[data-pay]").forEach((b) => b.addEventListener("click", (e) => pay(e.currentTarget)));
+})();
+</script>
+</body>
+</html>

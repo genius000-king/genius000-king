@@ -146,11 +146,13 @@
 </svg>`;
 
   function hydrateBrand(root = document) {
+    // الشخصيات الرسمية (من تصميم الهوية): flame = الشعلة، cloud = الغيمة بالقلم
+    // data-mascot="svg" يستخدم النسخة المرسومة بالكود (للحالات الصغيرة جداً)
     root.querySelectorAll("[data-mascot]").forEach((el) => {
-      el.innerHTML = mascot({
-        arms: el.dataset.mascot !== "head",
-        legs: el.dataset.mascot !== "head" && el.dataset.mascot !== "bust",
-      });
+      const kind = el.dataset.mascot;
+      if (kind === "svg") { el.innerHTML = mascot({ arms: false, legs: false }); return; }
+      const name = kind === "cloud" ? "cloud" : "flame";
+      el.innerHTML = `<img class="mascot-img" src="assets/img/mascot-${name}.png" alt="" draggable="false" decoding="async">`;
     });
     root.querySelectorAll("[data-logo]").forEach((el) => {
       const sub = el.hasAttribute("data-logo-sub") ? "<small class=\"ltr\">BSSATHA</small>" : "";

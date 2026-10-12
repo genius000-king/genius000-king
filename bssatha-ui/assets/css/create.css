@@ -76,7 +76,7 @@
 /* الملخص */
 .summary { position: sticky; top: 72px; margin-top: 56px; }
 .summary-card { position: relative; padding: var(--s5); padding-top: var(--s7); background: var(--surface); border: 2px solid var(--ink); border-radius: var(--r-xl); box-shadow: var(--shadow-pop-lg); }
-.summary-mascot { position: absolute; width: 82px; top: -52px; inset-inline-end: 18px; }
+.summary-mascot { position: absolute; width: 96px; top: -64px; inset-inline-end: 14px; }
 .summary h3 { font-size: var(--fs-lg); margin-bottom: var(--s3); }
 .summary dl { display: grid; gap: 2px; margin: 0 0 var(--s4); }
 .summary dl div { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: var(--fs-sm); }

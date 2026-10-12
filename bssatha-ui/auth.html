@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/core.css">
+  <script src="assets/js/lab.js"></script>
   <style>
     .auth { display: grid; grid-template-columns: 1fr 1fr; min-height: 100dvh; }
     .auth-form { display: grid; align-content: center; justify-items: center; padding: var(--s7) 16px; }
@@ -94,9 +95,9 @@
   </section>
 
   <aside class="auth-art" aria-hidden="true">
-    <div class="floaty" style="top:12%;inset-inline-start:10%"><i data-i="gift"></i>50 كريدت مجاناً عند التسجيل</div>
-    <div class="floaty" style="bottom:14%;inset-inline-end:10%"><i data-i="bolt"></i>عرض كامل في أقل من 10 دقائق</div>
-    <div class="mascot-wrap bob" data-mascot></div>
+    <div class="floaty" data-lab="auth-badge1" style="top:12%;inset-inline-start:10%"><i data-i="gift"></i>50 كريدت مجاناً عند التسجيل</div>
+    <div class="floaty" data-lab="auth-badge2" style="bottom:14%;inset-inline-end:10%"><i data-i="bolt"></i>عرض كامل في أقل من 10 دقائق</div>
+    <div class="mascot-wrap" data-lab="auth-mascot"><div class="wiggle" data-mascot="flame"></div></div>
     <blockquote>«كل ما تحتاجه… فكرة.»</blockquote>
     <cite>والباقي علينا</cite>
   </aside>

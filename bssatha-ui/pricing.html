@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/core.css">
+  <script src="assets/js/lab.js"></script>
   <link rel="stylesheet" href="assets/css/landing.css">
   <style>
     .p-hero { padding: var(--s8) 0 var(--s6); text-align: center; display: grid; justify-items: center; gap: var(--s4); }
@@ -20,7 +21,7 @@
     .plan { position: relative; display: flex; flex-direction: column; padding: var(--s6); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xl); }
     .plan.pop { border: 2px solid var(--ink); box-shadow: var(--shadow-pop-lg); }
     .plan .ribbon { position: absolute; top: -14px; inset-inline-start: 24px; background: var(--sun); color: var(--ink); border: 2px solid var(--ink); }
-    .plan .sticker { position: absolute; width: 70px; top: -44px; inset-inline-end: 18px; }
+    .plan .sticker { position: absolute; width: 64px; top: -66px; inset-inline-end: 18px; }
     .plan h2 { font-size: var(--fs-xl); }
     .plan .desc { color: var(--ink-3); font-size: var(--fs-sm); margin-top: 4px; min-height: 2.6em; }
     .price { display: flex; align-items: baseline; gap: 6px; margin: var(--s5) 0 4px; }
@@ -144,7 +145,7 @@
       const price = p[period];
       const href = p.id === "free" ? "auth.html?mode=signup" : p.id === "team" ? "mailto:sales@bssatha.app" : `checkout.html?plan=${p.id}&period=${period}`;
       return `<article class="plan ${p.popular ? "pop" : ""}">
-        ${p.popular ? `<span class="badge ribbon">⭐ الأكثر اختياراً</span><div class="sticker bob" data-mascot="bust" aria-hidden="true"></div>` : ""}
+        ${p.popular ? `<span class="badge ribbon">⭐ الأكثر اختياراً</span><div class="sticker" aria-hidden="true"><div class="wiggle" data-mascot="flame"></div></div>` : ""}
         <h2>${p.name}</h2><p class="desc">${DESC[p.id]}</p>
         <div class="price"><b>${price}</b><span>ر.س / شهرياً${period === "yearly" && price ? " · تُدفع سنوياً" : ""}</span></div>
         <div class="credits-note">${icon("coin")}${p.credits.toLocaleString("ar-SA-u-nu-latn")} كريدت ${p.id === "free" ? "مرة واحدة" : "كل شهر"}</div>

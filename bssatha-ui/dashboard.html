@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/core.css">
+  <script src="assets/js/lab.js"></script>
   <link rel="stylesheet" href="assets/css/app.css">
   <style>
     .quick { display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 8px; padding-inline-start: 18px; margin-bottom: var(--s6); background: var(--surface); border: 2px solid var(--ink); border-radius: var(--r-full); box-shadow: var(--shadow-pop); transition: transform var(--t-fast), box-shadow var(--t-fast); }
@@ -101,7 +102,7 @@
 <!-- تأكيد الحذف -->
 <div class="modal-backdrop" id="delModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="delTitle">
   <div class="modal" style="text-align:center">
-    <div style="width:84px;margin:0 auto 12px" data-mascot="head"></div>
+    <div style="width:84px;margin:0 auto 12px" data-mascot="flame"></div>
     <h3 id="delTitle" style="font-size:var(--fs-xl)">حذف العرض؟</h3>
     <p class="muted" style="margin:8px 0 24px">سيُحذف «<span id="delName"></span>» نهائياً مع ملفاته.</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -172,7 +173,7 @@
     const grid = $("#decks");
     if (!decks.length) {
       grid.style.display = "block";
-      grid.innerHTML = `<div class="empty"><div class="mascot-wrap bob" data-mascot></div><h3 class="display">لا عروض بعد!</h3><p>ابدأ بفكرة واحدة، وخلّ الباقي علينا.</p><a class="btn btn-primary btn-lg" href="create.html">${icon("sparkles")}أنشئ عرضك الأول</a></div>`;
+      grid.innerHTML = `<div class="empty"><div class="mascot-wrap"><div class="wiggle" data-mascot="cloud"></div></div><h3 class="display">لا عروض بعد!</h3><p>ابدأ بفكرة واحدة، وخلّ الباقي علينا.</p><a class="btn btn-primary btn-lg" href="create.html">${icon("sparkles")}أنشئ عرضك الأول</a></div>`;
       UI.hydrateBrand(grid); return;
     }
     grid.style.display = "";

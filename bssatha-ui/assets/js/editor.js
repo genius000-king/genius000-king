@@ -282,7 +282,7 @@
   prompt.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("#composer").requestSubmit(); } });
   $$(".sugs button").forEach((b) => b.addEventListener("click", () => { prompt.value = b.textContent; $("#composer").requestSubmit(); }));
 
-  const MINI = () => `<span class="mini">${UI.mascot({ arms: false, legs: false })}</span>`;
+  const MINI = () => `<span class="mini"><img class="mascot-img" src="assets/img/mascot-flame.png" alt=""></span>`;
   function addMsg(who, html) {
     $("#chatEmpty")?.remove();
     const d = document.createElement("div");
