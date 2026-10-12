@@ -45,7 +45,7 @@
    "choices": [{"ar": "[زقزقة سعيدة]", "en": "[happy chirp]", "emote": "happy", "goto": "r1b"}]},
   "r1b": {"speaker": "marrow", "ar": "ستبقى للعشاء. إلزه تصرّ. وضعت صحنًا لـ«الأزرق».", "en": "You're staying for supper. Ilse insists. She's set a bowl for \"the blue one\".", "next": "r1c"},
   "r1c": {"speaker": "marrow", "ar": "وتلك القبّعة... تذكّرني بشيء. فتاة، العام الماضي. لا، الربيع الماضي.", "en": "And that cap... it reminds me of someone. A girl, last year. No, last spring.", "next": "r1d"},
-  "r1d": {"speaker": "marrow", "ar": "الفتاة فايل. كانت لها مثلها. الفتاة التي غرقت، يا حبيبي.", "en": "The Vael girl. She had one just like it. The one who drowned, poor thing.", "next": "r1e"},
+  "r1d": {"speaker": "marrow", "ar": "ابنة آل فايل… كانت عندها واحدة مثلها. البنت التي غرقت، المسكينة.", "en": "The Vael girl. She had one just like it. The one who drowned, poor thing.", "next": "r1e"},
   "r1e": {"speaker": "narrator", "ar": "(ترتجف القبّعة على رأسك. ولا تعرف لماذا.)", "en": "(The cap trembles on your head. You don't know why.)", "emote": "surprised",
    "actions": [{"reveal": "r1"}, {"journal": "lore_vael"}, {"journal": "lumen_log_2"}], "next": "r1f"},
   "r1f": {"speaker": "lumen", "ar": "فايل. فايل... [—DATA LOST—]. أظنّ أنّ جانبي الأيسر صفّر للتوّ.", "en": "Vael. Vael... [—DATA LOST—]. I think my left side just whistled.", "next": "r1g"},

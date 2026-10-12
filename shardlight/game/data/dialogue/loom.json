@@ -19,7 +19,7 @@
   "l5": {"speaker": "narrator", "ar": "قارب صغير يتأرجح. وفانوس على عموده يرتجف.", "en": "A small boat, swinging. A lantern shivering on its post.", "next": "l6"},
   "l6": {"speaker": "narrator", "ar": "في القارب فتاة تغرف الماء بقبّعتها. تضحك. أم تبكي؟ لا تعرف.", "en": "In the boat, a girl bails water with her cap. Laughing. Or crying. You can't tell.", "next": "l7"},
   "l7": {"speaker": "narrator", "ar": "تنظر إليك مباشرة. تقول شيئًا لا يُسمع. ثم الموجة.", "en": "She looks right at you. Says something you can't hear. Then the wave.", "emote": "surprised", "next": "l8"},
-  "l8": {"speaker": "lumen", "ar": "ما الذي رأيتَ؟ حسّاساتي لم ترصد شيئًا. [—DATA LOST—]", "en": "What did you see? My sensors detected nothing. [—DATA LOST—]",
+  "l8": {"speaker": "lumen", "ar": "ما الذي رأيتَ؟ مستشعراتي لم ترصد شيئًا. [—DATA LOST—]", "en": "What did you see? My sensors detected nothing. [—DATA LOST—]",
    "choices": [
     {"ar": "[إشارة إلى القبّعة]", "en": "[point at the cap]", "goto": "l9"},
     {"ar": "[ترهّل حزين]", "en": "[sad droop]", "emote": "sad", "goto": "l9"}]},
