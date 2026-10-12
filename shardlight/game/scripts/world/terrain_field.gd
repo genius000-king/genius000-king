@@ -200,6 +200,15 @@ func color_at(x: float, z: float, h: float, n: Vector3) -> Color:
 		c = c.lerp(rock, rock_t)
 	# subtle hue drift for painterly richness
 	c = c.lerp(Color(c.r * 1.06, c.g, c.b * 0.94), cn * 0.5)
+	# crater (hub): scorched, cracked floor around the Loom
+	if not crater.is_empty():
+		var cdist := Vector2(x, z).distance_to(crater.center)
+		var cr: float = crater.radius
+		if cdist < cr * 1.1:
+			var burn := 1.0 - smoothstep(cr * 0.35, cr * 1.05, cdist)
+			var crack := 1.0 - smoothstep(0.02, 0.07, absf(n_path.get_noise_2d(x * 1.6, z * 1.6)))
+			c = c.lerp(Color("#5b4a7a"), burn * 0.7)
+			c = c.lerp(Color("#c79bff"), crack * burn * 0.9)
 	# edge of the shard darkens toward the void tint
 	var rim := _rim_factor(x, z)
 	if rim < 1.0:
@@ -232,12 +241,17 @@ func surface_at(x: float, z: float) -> String:
 
 func grass_weight(x: float, z: float, h: float, n: Vector3) -> float:
 	var slope := 1.0 - n.y
+	var crater_k := 1.0
+	if not crater.is_empty():
+		crater_k = smoothstep(crater.radius * 0.6, crater.radius * 1.15, Vector2(x, z).distance_to(crater.center))
+		if crater_k <= 0.01:
+			return 0.0
 	var zone := zone_at(x, z, h, slope)
 	match zone:
 		Zone.MEADOW:
-			return 1.0
+			return 1.0 * crater_k
 		Zone.FOREST:
-			return 0.55
+			return 0.55 * crater_k
 		Zone.PLAZA:
 			return 0.25
 		Zone.PATH:

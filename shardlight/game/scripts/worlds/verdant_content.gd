@@ -18,6 +18,7 @@ func setup(w: ShardWorld) -> void:
 	_sanctum()
 	_echoes()
 	_sky_islands()
+	add_child(LumenCompanion.new())
 
 func _poi(id: String) -> Vector2:
 	for p in world.def.pois:
