@@ -140,27 +140,6 @@
 .kicker { font-size: var(--fs-sm); font-weight: 600; color: var(--brand); }
 @media (max-width: 640px) { .section { padding: var(--s8) 0; } .section-head { margin-bottom: var(--s6); } }
 
-/* ---------- العرض الحي ---------- */
-.live { display: grid; grid-template-columns: 1.25fr 1fr; gap: var(--s7); align-items: center; }
-.live-stage {
-  position: relative; aspect-ratio: 16 / 10; border-radius: var(--r-xl); overflow: hidden;
-  background: #121036; color: #fff; border: 2px solid var(--ink); box-shadow: var(--shadow-pop-lg);
-}
-.live-stage canvas { width: 100%; height: 100%; }
-.live-top { position: absolute; inset: 16px 16px auto; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; pointer-events: none; }
-.live-top h3 { font-size: clamp(1rem, .8rem + 1vw, 1.4rem); }
-.live-top .badge { background: rgba(255, 255, 255, .12); color: #fff; }
-.live-ctrl { position: absolute; inset: auto 16px 16px; display: flex; flex-wrap: wrap; gap: 10px 20px; padding: 12px 16px; border-radius: var(--r-md); background: rgba(255, 255, 255, .08); backdrop-filter: blur(8px); font-size: var(--fs-xs); }
-.live-ctrl label { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 160px; }
-.live-ctrl input[type="range"] { flex: 1; accent-color: var(--sun); }
-.live-ctrl output { min-width: 32px; font-variant-numeric: tabular-nums; color: var(--sun); font-weight: 600; }
-.live-points { display: grid; gap: var(--s5); }
-.live-points li { display: grid; grid-template-columns: 44px 1fr; gap: 14px; }
-.live-points .ico { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; }
-.live-points h3 { font-size: var(--fs-lg); margin-bottom: 2px; }
-.live-points p { color: var(--ink-2); font-size: var(--fs-sm); }
-@media (max-width: 900px) { .live { grid-template-columns: 1fr; gap: var(--s6); } .live-stage { aspect-ratio: 4 / 5; } }
-
 /* ---------- الخطوات ---------- */
 .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s5); counter-reset: s; }
 .step { position: relative; padding: var(--s6) var(--s5) var(--s5); }

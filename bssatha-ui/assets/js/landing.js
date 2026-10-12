@@ -91,7 +91,7 @@
     ["game", "لعبة الكسور", "مراحل ونقاط واختبار نهائي"],
   ];
   $("#galleryGrid").innerHTML = examplesData.map(([k, t, d], i) => `
-    <a class="g-card reveal" style="--d:${i * 60}ms" href="present.html?demo=${k}">
+    <a class="g-card reveal" style="--d:${i * 60}ms" href="create.html?idea=${encodeURIComponent(t + " — " + d)}">
       <div class="g-cover">${Covers.cover(k)}<span class="g-play">${icon("play")}</span></div>
       <div class="g-body"><h3>${t}</h3><p>${d}</p></div>
     </a>`).join("");
@@ -99,73 +99,4 @@
   const io = new IntersectionObserver((en) => en.forEach((x) => x.isIntersecting && (x.target.classList.add("is-in"), io.unobserve(x.target))), { threshold: .1 });
   $$("#galleryGrid .reveal").forEach((el) => io.observe(el));
 
-  /* ---------- محاكاة المدار (الشريحة الحية) ---------- */
-  const cv = $("#orbit"), ctx = cv.getContext("2d");
-  const massIn = $("#mass"), speedIn = $("#speed");
-  let W, H, dpr, star, p, trail = [], running = false;
-  const stars = Array.from({ length: 90 }, () => [Math.random(), Math.random(), Math.random() * 1.3 + .2]);
-
-  function size() {
-    dpr = Math.min(devicePixelRatio || 1, 2);
-    const r = cv.getBoundingClientRect();
-    W = r.width; H = r.height;
-    cv.width = W * dpr; cv.height = H * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    reset();
-  }
-  function reset() {
-    star = { x: W / 2, y: H / 2 + 6 };
-    const R = Math.min(W, H) * .3;
-    const GM = 4000 * +massIn.value * (R / 140);
-    const v = Math.sqrt(GM / R) * +speedIn.value;
-    p = { x: star.x + R, y: star.y, vx: 0, vy: -v };
-    trail = [];
-  }
-  function step(dt) {
-    const GM = 4000 * +massIn.value * (Math.min(W, H) * .3 / 140);
-    for (let k = 0; k < 4; k++) {
-      const dx = star.x - p.x, dy = star.y - p.y, d2 = dx * dx + dy * dy, d = Math.sqrt(d2);
-      if (d < 22) { reset(); return; }
-      const a = GM / d2;
-      p.vx += (a * dx / d) * dt / 4; p.vy += (a * dy / d) * dt / 4;
-      p.x += p.vx * dt / 4; p.y += p.vy * dt / 4;
-    }
-    if (p.x < -W || p.x > 2 * W || p.y < -H || p.y > 2 * H) reset();
-    trail.push([p.x, p.y]); if (trail.length > 220) trail.shift();
-  }
-  function draw(t) {
-    ctx.clearRect(0, 0, W, H);
-    stars.forEach(([x, y, r], i) => { ctx.globalAlpha = .4 + .4 * Math.sin(t / 900 + i); ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(x * W, y * H, r, 0, 7); ctx.fill(); });
-    ctx.globalAlpha = 1;
-    // المسار
-    for (let i = 1; i < trail.length; i++) {
-      ctx.strokeStyle = `rgba(255,200,61,${i / trail.length * .8})`; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(...trail[i - 1]); ctx.lineTo(...trail[i]); ctx.stroke();
-    }
-    // النجم
-    const sr = 16 + 9 * +massIn.value;
-    const g = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, sr * 2.6);
-    g.addColorStop(0, "rgba(255,200,61,.55)"); g.addColorStop(1, "rgba(255,200,61,0)");
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(star.x, star.y, sr * 2.6, 0, 7); ctx.fill();
-    ctx.fillStyle = "#FFC83D"; ctx.beginPath(); ctx.arc(star.x, star.y, sr, 0, 7); ctx.fill();
-    // الكوكب
-    ctx.fillStyle = "#3B82F6"; ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(p.x, p.y, 9, 0, 7); ctx.fill(); ctx.stroke();
-    // متجه السرعة
-    ctx.strokeStyle = "#F6A6C8"; ctx.lineWidth = 2.5;
-    ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + p.vx * .35, p.y + p.vy * .35); ctx.stroke();
-  }
-  let last = 0;
-  function loop(t) {
-    if (!running) return;
-    const dt = Math.min((t - last) / 1000, .033); last = t;
-    step(dt); draw(t);
-    requestAnimationFrame(loop);
-  }
-  const vis = new IntersectionObserver(([e]) => { running = e.isIntersecting; if (running) { last = performance.now(); requestAnimationFrame(loop); } });
-  vis.observe(cv);
-  massIn.addEventListener("input", () => { $("#massOut").textContent = (+massIn.value).toFixed(1); });
-  speedIn.addEventListener("input", () => { $("#speedOut").textContent = (+speedIn.value).toFixed(1); reset(); });
-  addEventListener("resize", size);
-  size();
 })();

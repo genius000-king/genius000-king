@@ -80,6 +80,7 @@
   .lab-fab:hover { transform: translate(-1px,-1px) rotate(-2deg); }
   .lab-fab svg { width: 22px; height: 22px; }
   @media (max-width: 960px) { body:has(.tabbar) .lab-fab, body:has(.m-tabs) .lab-fab { bottom: calc(84px + env(safe-area-inset-bottom)); } .lab-fab span { display: none; } .lab-fab { width: 48px; padding: 0; justify-content: center; } }
+  @media (min-width: 901px) { body:has(.ed) .lab-fab { inset-inline-end: 376px; } }
   .lab:not(.is-open) { visibility: hidden; transition: transform .35s cubic-bezier(.2,.8,.2,1), visibility 0s .35s; }
   .lab { position: fixed; z-index: 121; top: 12px; bottom: 12px; inset-inline-end: 12px; width: 340px; display: grid; grid-template-rows: auto auto 1fr auto; background: var(--surface); color: var(--ink); border: 2px solid var(--ink); border-radius: 22px; box-shadow: 6px 6px 0 var(--ink); font-family: var(--font-ui); font-size: 14px; transform: translateX(-120%); transition: transform .35s cubic-bezier(.2,.8,.2,1); overflow: hidden; }
   [dir="rtl"] .lab { transform: translateX(-120%); }

@@ -44,9 +44,33 @@ assets/
   js/lab.js         ← المختبر
   js/shell.js       ← الشريط الجانبي/السفلي لصفحات التطبيق
   js/covers.js      ← أغلفة احتياطية + مكتبة الأساليب
-  js/deck-demo.js   ← عرض تجريبي فقط (يُستبدل بالعروض المولّدة)
+  js/deck.js        ← حاوية الشرائح (فارغة) — هنا تضيف شرائحك
   img/              ← الشخصيات (مقصوصة من تصميمك) + motif.svg شريط الأشكال (مرسوم بالكود)
 ```
+
+## إضافة شرائحك
+
+لا توجد شرائح جاهزة. المحرر والمشغّل يقرآن من `assets/js/deck.js`.
+عرّف `window.BSSATHA_DECK` قبل تحميل `deck.js` (أو أرجعه من `GET /decks/:id`):
+
+```html
+<script>
+  window.BSSATHA_DECK = {
+    title: "اسم العرض",
+    css: ".my-box { background: #fff; }",
+    slides: [
+      { title: "الغلاف",
+        html: '<div class="slide"><h1 data-el="t" class="t-display" style="right:80px;top:260px;font-size:80px">عنوان</h1></div>',
+        init(root) { /* تفاعلات اختيارية، وترجع دالة تنظيف إن احتجت */ } },
+    ],
+  };
+</script>
+<script src="assets/js/deck.js"></script>
+```
+
+- كل شريحة لوحة 1280×720 تتكبّر تلقائياً لأي شاشة.
+- العنصر القابل للتحرير في المحرر يحمل `data-el` ويكون `position:absolute`.
+- بدون شرائح: المحرر يفتح بشريحة فارغة، والمشغّل يعرض «لا توجد شرائح بعد».
 
 ## الربط مع الباك إند
 

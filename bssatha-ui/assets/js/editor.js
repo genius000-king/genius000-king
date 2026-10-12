@@ -9,11 +9,12 @@
 (() => {
   "use strict";
   const { $, $$, icon, esc, toast, sleep } = UI;
-  const { SLIDES, CSS, W, H } = DeckDemo;
+  const { SLIDES, CSS, W, H } = Deck;
   document.head.insertAdjacentHTML("beforeend", `<style>${CSS}</style>`);
 
   const deckId = new URLSearchParams(location.search).get("id") || "d1";
-  const slides = SLIDES.map((s) => ({ title: s.title, html: s.html, init: s.init }));
+  const slides = (SLIDES.length ? SLIDES : [Deck.blank(1)]).map((s) => ({ title: s.title, html: s.html, init: s.init }));
+  $("#deckName").value = Deck.TITLE;
   let cur = 0, sel = null, mode = "edit", scale = 1, cleanup = null;
   const canvas = $("#canvas"), wrap = $("#wrap"), selBox = $("#sel"), ftb = $("#ftb");
   $("#playBtn").href = `present.html?id=${deckId}`;
@@ -102,7 +103,7 @@
 
   function addSlide() {
     serialize();
-    slides.splice(cur + 1, 0, { title: "شريحة جديدة", html: `<div class="slide" style="background:#FFF8EE"><h2 data-el="h" class="t-display" style="right:80px;top:280px;width:1120px;font-size:64px;margin:0">عنوان جديد</h2><p data-el="p" class="t-body" style="right:80px;top:400px;width:900px;margin:0">اضغط مرتين للكتابة، أو اطلب من المساعد أن يملأ الشريحة.</p></div>` });
+    slides.splice(cur + 1, 0, Deck.blank(cur + 2));
     cur++; renderRail(); renderCanvas(); commit();
     toast("أُضيفت شريحة جديدة", "plus");
   }

@@ -72,7 +72,7 @@
 
 <div class="top-hud" id="topHud">
   <a class="hb" href="editor.html" aria-label="خروج إلى المحرر"><i data-i="x"></i></a>
-  <span class="title" id="deckTitle">الخلية البشرية: رحلة إلى الداخل</span>
+  <span class="title" id="deckTitle"></span>
   <button class="hb" id="ovBtn" aria-label="كل الشرائح (G)"><i data-i="grid"></i></button>
 </div>
 
@@ -94,8 +94,8 @@
 
 <div class="start" id="start">
   <div class="mascot-wrap" data-lab="start-mascot" aria-hidden="true"><div class="wiggle" data-mascot="flame"></div></div>
-  <h1 class="display" id="startTitle">الخلية البشرية: رحلة إلى الداخل</h1>
-  <p><span id="startCount">6</span> شرائح · عرض تفاعلي</p>
+  <h1 class="display" id="startTitle"></h1>
+  <p><span id="startCount">0</span> شرائح · عرض تفاعلي</p>
   <button class="play" id="startBtn" aria-label="ابدأ العرض بملء الشاشة"><i data-i="play"></i></button>
   <div class="keys"><span><kbd>←</kbd><kbd>→</kbd>التنقل</span><span><kbd>F</kbd>ملء الشاشة</span><span><kbd>G</kbd>كل الشرائح</span></div>
   <span class="rotate-hint">📱↻ أدِر جوالك أفقياً لتجربة أفضل</span>
@@ -103,18 +103,22 @@
 </div>
 
 <script src="assets/js/core.js"></script>
-<script src="assets/js/deck-demo.js"></script>
+<script src="assets/js/deck.js"></script>
 <script>
 (() => {
   const { $, icon } = UI;
-  const { SLIDES, CSS, W, H } = DeckDemo;
+  const { SLIDES, CSS, W, H } = Deck;
   document.head.insertAdjacentHTML("beforeend", `<style>${CSS}</style>`);
 
-  const titles = { space: "النظام الشمسي", cell: "الخلية البشرية", history: "تاريخ الحضارات", data: "البيانات والإحصاءات", physics: "قوانين الحركة", game: "لعبة الكسور" };
-  const demo = new URLSearchParams(location.search).get("demo");
-  if (demo && titles[demo] && demo !== "cell") {
-    // جميع الأمثلة تستخدم نفس العرض التجريبي حالياً — في الإنتاج يُحمَّل العرض بمعرّفه
-    $("#startTitle").textContent = "مثال تجريبي: " + titles[demo];
+  $("#deckTitle").textContent = $("#startTitle").textContent = Deck.TITLE;
+  // لا توجد شرائح بعد: حالة فارغة واضحة بدل مشغّل معطّل
+  if (!SLIDES.length) {
+    $("#startTitle").textContent = "هذا العرض لا يحتوي شرائح بعد";
+    $("#startCount").parentElement.textContent = "أضف شرائحك من المحرر ثم ارجع هنا للتشغيل.";
+    $("#startBtn").outerHTML = '<a class="btn btn-primary btn-lg" href="editor.html">افتح المحرر</a>';
+    $("#startWindow").hidden = true;
+    document.querySelector(".keys").hidden = true;
+    return;
   }
   $("#startCount").textContent = SLIDES.length;
 

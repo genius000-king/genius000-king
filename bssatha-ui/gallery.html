@@ -105,10 +105,10 @@
     chips($("#deckFilters"), deckCats, dc, "dc");
     const list = DECKS.filter((d) => (dc === "الكل" || d[2] === dc) && (d[1] + d[5]).includes(q));
     $("#deckGrid").innerHTML = list.length ? list.map((d, i) => `<article class="ex" style="--d:${i * 50}ms">
-      <a class="ex-cover" href="present.html?demo=${d[0]}" aria-label="تشغيل ${esc(d[1])}">${Covers.cover(d[0])}<span class="ex-play">${icon("play")}</span></a>
+      <a class="ex-cover" href="create.html?idea=${encodeURIComponent(d[5] + " — " + d[1])}" aria-label="استخدم ${esc(d[1])} كقالب">${Covers.cover(d[0])}</a>
       <div class="ex-body"><h3>${esc(d[1])}</h3>
         <div class="ex-meta"><span class="avatar">${d[3][0]}</span>${d[3]} · ${d[4].toLocaleString("ar-SA-u-nu-latn")} مشاهدة</div>
-        <div class="ex-actions"><a class="btn btn-sm" href="present.html?demo=${d[0]}">${icon("play", "i-sm")}شغّل</a><a class="btn btn-sm btn-primary" href="create.html?idea=${encodeURIComponent(d[5] + " — " + d[1])}">${icon("copy", "i-sm")}استخدمه كقالب</a></div>
+        <div class="ex-actions"><a class="btn btn-sm btn-primary" href="create.html?idea=${encodeURIComponent(d[5] + " — " + d[1])}">${icon("copy", "i-sm")}استخدمه كقالب</a></div>
       </div></article>`).join("") : `<p class="muted" style="grid-column:1/-1;text-align:center;padding:40px">لا نتائج</p>`;
   }
   function renderStyles() {
