@@ -1,0 +1,8 @@
+{
+ "npc_id": "sign_verdant_hives",
+ "name": {"ar": "لافتة", "en": "Sign"},
+ "entries": [{"node": "s1"}],
+ "nodes": {
+  "s1": {"speaker": "sign", "ar": "خلايا رِن. العسل: خذ. الأسئلة: اسأل بهدوء.", "en": "Wren's Hives. Honey: take. Questions: ask softly."}
+ }
+}

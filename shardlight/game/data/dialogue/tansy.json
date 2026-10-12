@@ -1,0 +1,38 @@
+{
+ "npc_id": "tansy",
+ "entries": [
+  {"if": {"flag": "keystone_taken"}, "node": "a1"},
+  {"if": {"not_flag": "talked_tansy"}, "node": "f1", "marker": true},
+  {"node": "hub"}
+ ],
+ "barks": [
+  {"ar": "بِب! ابتعد عن الحافّة!", "en": "Pip! Away from the edge!"},
+  {"ar": "أعدّ الغيوم. حين أضيع، أعدّ.", "en": "I count clouds. When I'm lost, I count."},
+  {"if": {"flag": "keystone_taken"}, "ar": "الجرس يعمل. الدنيا في مكانها.", "en": "The Bell works. The world is where it should be."}
+ ],
+ "nodes": {
+  "f1": {"speaker": "tansy", "ar": "لا تُلقِ بالًا لبِب. يسلّم على كلّ شيء. أمس سلّم على صخرة.", "en": "Don't mind Pip. He greets everything. Yesterday it was a rock.", "next": "f2"},
+  "f2": {"speaker": "tansy", "ar": "هل أنتَ من الحفرة؟ من «المعهد»؟ لا تجب. أنتَ لا تجيب أصلًا.", "en": "Are you from the crater? The \"Institute\"? Don't answer. You don't, do you.",
+   "choices": [
+    {"ar": "[ارتجاج خفيف]", "en": "[a small wobble]", "emote": "blink", "goto": "f3"},
+    {"ar": "[إيماءة]", "en": "[nod]", "emote": "happy", "goto": "f3"}]},
+  "f3": {"speaker": "tansy", "ar": "انكسرت السماء فصارت الأرض خفيفة. أبي يقول إننا محظوظون. أمّي تقول: ابتعدوا عن الحافّة.", "en": "The sky cracked and the ground went light. Dad says we're lucky. Mum says stay off the edge.", "next": "f4"},
+  "f4": {"speaker": "tansy", "ar": "طبعًا نقترب من الحافّة.", "en": "Obviously we go to the edge.", "next": "hub"},
+  "hub": {"speaker": "tansy", "ar": "ماذا؟ أنا مشغولة. أبني طائرة ورقيّة أكبر من بِب.", "en": "What? I'm busy. I'm building a kite bigger than Pip.",
+   "choices": [
+    {"if": {"not_flag": "asked_tansy_kite"}, "ar": "[ميلان فضولي]", "en": "[curious tilt]", "emote": "surprised", "goto": "kite"},
+    {"if": {"not_flag": "asked_tansy_bell"}, "ar": "[ترهّل قلق]", "en": "[worried droop]", "emote": "sad", "goto": "bell"},
+    {"if": {"not_flag": "asked_tansy_static"}, "ar": "[رجفة خفيفة]", "en": "[nervous shiver]", "emote": "surprised", "goto": "static"},
+    {"ar": "[تلويحة]", "en": "[wave]", "goto": "bye"}]},
+  "kite": {"speaker": "tansy", "ar": "بِب يحاول القفز في البئر. فإن كانت الطائرة أكبر منه، طار بدل أن يقع.", "en": "Pip keeps trying to jump down the well. If the kite's bigger than him, he'll fly instead of fall.",
+   "actions": [{"set_flag": "asked_tansy_kite"}], "next": "hub"},
+  "bell": {"speaker": "tansy", "ar": "الجرس لم يرنّ منذ ثلاثة صباحات. الزهور تعبس، وإلزه تتظاهر بأنها بخير.", "en": "The Bell hasn't rung in three mornings. The flowers sulk and Ilse pretends she's fine.",
+   "actions": [{"set_flag": "asked_tansy_bell"}, {"start_quest": "bloom_bell"}], "next": "bell2"},
+  "bell2": {"speaker": "tansy", "ar": "العمّ مارو يعرف أكثر ممّا يقول. اذهب إليه فوق التلّ.", "en": "Old Marrow knows more than he says. Go see him up the hill.", "next": "hub"},
+  "static": {"speaker": "tansy", "ar": "لا تعضّ. لكنها تُلغيك قليلًا. تقف أمامها فتنسى لماذا جئت.", "en": "They don't bite. They un-happen you a little. You stand there and forget why you came.",
+   "actions": [{"set_flag": "asked_tansy_static"}], "next": "hub"},
+  "bye": {"speaker": "tansy", "ar": "انتبه للحافّة. (نحن لن ننتبه.)", "en": "Mind the edge. (We won't.)"},
+  "a1": {"speaker": "tansy", "ar": "بِب نام أخيرًا. لأوّل مرّة منذ ثلاث ليالٍ.", "en": "Pip finally slept. First time in three nights.", "next": "a2"},
+  "a2": {"speaker": "tansy", "ar": "...شكرًا. لا تخبره أنّي قلتها.", "en": "...Thanks. Don't tell him I said it."}
+ }
+}

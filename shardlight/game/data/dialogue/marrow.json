@@ -1,0 +1,68 @@
+{
+ "npc_id": "marrow",
+ "entries": [
+  {"if": {"keystone": "verdant", "not_flag": "r1_seen"}, "node": "r1a", "marker": true},
+  {"if": {"flag": "r1_seen"}, "node": "after"},
+  {"if": {"not_flag": "talked_marrow"}, "node": "m1", "marker": true},
+  {"node": "hub"}
+ ],
+ "barks": [
+  {"ar": "أيّها الملفوف، كفّ عن العبوس.", "en": "Cabbage, stop sulking."},
+  {"ar": "ممسحة؟ لا. مجرفة. أنا بستاني.", "en": "A mop? No. A spade. I'm a gardener."},
+  {"if": {"not_flag": "keystone_taken"}, "ar": "ثلاثة صباحات بلا جرس... يا للكآبة.", "en": "Three mornings without the Bell... what gloom."},
+  {"if": {"flag": "keystone_taken"}, "ar": "الجرس! أتسمعونه يا ملفوف؟", "en": "The Bell! D'you hear it, cabbages?"}
+ ],
+ "nodes": {
+  "m1": {"speaker": "marrow", "ar": "زائر! أزرق، رطب، بقبّعة رأت أيّامًا أفضل. أهلًا. انتبه للملفوف؛ إنه غاضب.", "en": "A visitor! Blue, damp, in a cap that's seen better days. Welcome. Mind the cabbages; they're sulking.", "next": "m2"},
+  "m2": {"speaker": "marrow", "ar": "أنا مارو. أرعى الحدائق والدروب... وأرعى، هذه الأيّام، الصمت.", "en": "I'm Marrow. I look after the gardens, the paths... and lately, the silence.", "next": "m3"},
+  "m3": {"speaker": "marrow", "ar": "جرس الزهرة الكبرى لم يرنّ منذ ثلاثة صباحات. حتى إلزه عبست، وهي لا تعبس.", "en": "The Great Bloom's bell hasn't rung in three mornings. Even Ilse's sulking, and Ilse never sulks.",
+   "choices": [
+    {"ar": "[ميلان قلق]", "en": "[worried tilt]", "emote": "sad", "goto": "m4a"},
+    {"ar": "[انتفاخ عازم]", "en": "[determined puff]", "emote": "determined", "goto": "m4b"}]},
+  "m4a": {"speaker": "marrow", "ar": "طيّب القلب أنت. لكن لا تحمل همّي وحدك؛ إنه ثقيل كالملفوف المبلّل.", "en": "Kind of you. But don't carry my worry alone; it weighs like wet cabbage.", "next": "m5"},
+  "m4b": {"speaker": "marrow", "ar": "هذه هي الروح! وإن بدت روحك... سائلة قليلًا.", "en": "That's the spirit! Though your spirit looks rather... runny.", "next": "m5"},
+  "m5": {"speaker": "marrow", "ar": "اذهب إلى إلزه في البيت الزجاجي. هي تحفظ أغنية الجرس، وأنا أحفظ منها السعال فقط.", "en": "Go see Ilse in the glasshouse. She knows the Bell's song. I only know the coughing parts.",
+   "actions": [{"start_quest": "bloom_bell"}, {"advance_quest": "bloom_bell", "from": 0}], "next": "hub"},
+
+  "hub": {"speaker": "marrow", "ar": "ماذا يدور في رأسك المائيّ؟", "en": "What's going on in that watery head?",
+   "choices": [
+    {"if": {"not_flag": "asked_m_bell"}, "ar": "[ميلان فضولي]", "en": "[curious tilt]", "emote": "surprised", "goto": "bell"},
+    {"if": {"not_flag": "asked_m_sky"}, "ar": "[إشارة إلى السماء]", "en": "[point at the sky]", "goto": "sky"},
+    {"if": {"flag": "asked_m_bell", "not_flag": "asked_m_dream"}, "ar": "[ميلان حائر]", "en": "[puzzled tilt]", "emote": "surprised", "goto": "dream"},
+    {"if": {"stage": "bloom_bell>=2"}, "ar": "[إيماءة سؤال]", "en": "[questioning nod]", "goto": "petals"},
+    {"ar": "[تلويحة]", "en": "[wave]", "goto": "bye"}]},
+  "bell": {"speaker": "marrow", "ar": "الجرس ليس من معدن، بل من زجاج البتلات. يرنّ حين تُضاء بتلات الملاذ الثلاث.", "en": "The Bell isn't metal. It's petal-glass. It rings when the Sanctum's three petals are lit.",
+   "actions": [{"set_flag": "asked_m_bell"}], "next": "bell2"},
+  "bell2": {"speaker": "marrow", "ar": "ثلاثة امتحانات: واحد للساقين، وواحد للشجاعة، وواحد للأذنين.", "en": "Three tests: one for the legs, one for the courage, one for the ears.", "next": "hub"},
+  "sky": {"speaker": "marrow", "ar": "السماء؟ تمزّقت وأنا أنقّي الأعشاب. لا يترك المرء التنقية من أجل سماء.", "en": "The sky? Tore while I was weeding. A man doesn't stop weeding for a sky.",
+   "actions": [{"set_flag": "asked_m_sky"}], "next": "hub"},
+  "dream": {"speaker": "marrow", "ar": "غريب... أحلم بممرّ طويل لامع، والممسحة في يدي. أنا بستاني! ما شأني بممسحة؟", "en": "Funny... I dream of a long shiny corridor, mop in hand. I'm a gardener! What would I want with a mop?",
+   "actions": [{"set_flag": "asked_m_dream"}], "next": "hub"},
+  "petals": {"speaker": "marrow", "ar": "{trials} من ثلاث بتلات مضاءة. أكاد أسمع الجرس يتنحنح.", "en": "{trials} of three petals lit. I can almost hear the Bell clearing its throat.", "next": "hub"},
+  "bye": {"speaker": "marrow", "ar": "انتبه للسماء المنخفضة. تعضّ الكواحل.", "en": "Mind the low sky. It bites ankles."},
+
+  "r1a": {"speaker": "marrow", "ar": "سمعتَ الجرس؟! انفتحت كلّ زهرة في الوادي دفعة واحدة. إلزه بكت في الحساء.", "en": "Did you hear the Bell?! Every flower in the valley opened at once. Ilse cried into the soup.",
+   "choices": [{"ar": "[زقزقة سعيدة]", "en": "[happy chirp]", "emote": "happy", "goto": "r1b"}]},
+  "r1b": {"speaker": "marrow", "ar": "ستبقى للعشاء. إلزه تصرّ. وضعت صحنًا لـ«الأزرق».", "en": "You're staying for supper. Ilse insists. She's set a bowl for \"the blue one\".", "next": "r1c"},
+  "r1c": {"speaker": "marrow", "ar": "وتلك القبّعة... تذكّرني بشيء. فتاة، العام الماضي. لا، الربيع الماضي.", "en": "And that cap... it reminds me of someone. A girl, last year. No, last spring.", "next": "r1d"},
+  "r1d": {"speaker": "marrow", "ar": "الفتاة فايل. كانت لها مثلها. الفتاة التي غرقت، يا حبيبي.", "en": "The Vael girl. She had one just like it. The one who drowned, poor thing.", "next": "r1e"},
+  "r1e": {"speaker": "narrator", "ar": "(ترتجف القبّعة على رأسك. ولا تعرف لماذا.)", "en": "(The cap trembles on your head. You don't know why.)", "emote": "surprised",
+   "actions": [{"reveal": "r1"}, {"journal": "lore_vael"}, {"journal": "lumen_log_2"}], "next": "r1f"},
+  "r1f": {"speaker": "lumen", "ar": "فايل. فايل... [—DATA LOST—]. أظنّ أنّ جانبي الأيسر صفّر للتوّ.", "en": "Vael. Vael... [—DATA LOST—]. I think my left side just whistled.", "next": "r1g"},
+  "r1g": {"speaker": "lumen", "ar": "أحتاج لحظة. لحظة تقنيّة، لا عاطفيّة. تقنيّة تمامًا.", "en": "I need a moment. A technical moment, not an emotional one. Entirely technical.", "next": "r1h"},
+  "r1h": {"speaker": "marrow", "ar": "يا ويلي، أزعجتُ الأزرق! إلزه! الحساء!", "en": "Oh dear, I've upset the blue one! Ilse! The soup!",
+   "choices": [
+    {"ar": "[زقزقة مطمئنة]", "en": "[reassuring chirp]", "emote": "happy", "goto": "r1i"},
+    {"ar": "[ترهّل حزين]", "en": "[sad droop]", "emote": "sad", "goto": "r1i"}]},
+  "r1i": {"speaker": "marrow", "ar": "كلّنا نحمل أسماء أثقل منّا. تعال، الحساء يبرد.", "en": "We all carry names heavier than we are. Come, the soup's getting cold.", "next": "r1fin"},
+  "r1fin": {"actions": [{"set_flag": "r1_seen"}, {"complete_quest": "bloom_bell"}, {"end": true}]},
+
+  "after": {"speaker": "marrow", "ar": "العشاء جاهز متى شئتَ. الأزهار مفتوحة، والدنيا لطيفة.", "en": "Supper's ready whenever you are. Flowers open, world kind.",
+   "choices": [
+    {"if": {"not_flag": "cap_noticed"}, "ar": "[إشارة إلى القبّعة]", "en": "[point at the cap]", "goto": "cap"},
+    {"ar": "[تلويحة]", "en": "[wave]", "goto": "after_bye"}]},
+  "cap": {"speaker": "marrow", "ar": "حافّتها مرقوعة، انظر. أحدهم أحبّ هذه القبّعة كثيرًا.", "en": "The brim's been mended, see? Someone loved this cap a great deal.",
+   "actions": [{"set_flag": "cap_noticed"}], "next": "after"},
+  "after_bye": {"speaker": "marrow", "ar": "عُد متى شئتَ. فنجانان على الطاولة دائمًا.", "en": "Come back anytime. There are always two cups on the table."}
+ }
+}

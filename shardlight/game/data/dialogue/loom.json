@@ -1,0 +1,31 @@
+{
+ "npc_id": "loom",
+ "entries": [
+  {"if": {"flag": "slice_end"}, "node": "after"},
+  {"if": {"keystone": "verdant", "not_flag": "loom_installed"}, "node": "l1", "marker": true},
+  {"if": {"flag": "loom_installed"}, "node": "l4"},
+  {"node": "idle"}
+ ],
+ "barks": [],
+ "nodes": {
+  "idle": {"speaker": "narrator", "ar": "النَّوْل صامت. سبعة تجاويف فارغة تنتظر.", "en": "The Loom is quiet. Seven empty sockets wait.", "actions": [{"event": "loom_near"}]},
+  "l1": {"speaker": "narrator", "ar": "حلقة أعلى من المنارة القديمة. في إطارها سبعة تجاويف، كأسنانٍ بلا ابتسامة.", "en": "A ring taller than the old lighthouse. Seven sockets in its frame, like teeth without a smile.", "next": "l2"},
+  "l2": {"speaker": "narrator", "ar": "حجر المفتاح ينبض في جوفك كقلب صغير.", "en": "The Keystone beats inside you like a small heart.",
+   "choices": [{"ar": "[ضع حجر المفتاح]", "en": "[place the Keystone]", "emote": "determined", "goto": "l3"}]},
+  "l3": {"speaker": "narrator", "ar": "ينزلق الحجر إلى مكانه. تغنّي الحلقة نغمة واحدة... وتحبس الحفرة أنفاسها.", "en": "The stone slides home. The ring sings one note... and the crater holds its breath.",
+   "actions": [{"set_flag": "loom_installed"}, {"complete_quest": "first_light"}, {"journal": "place_loom"}, {"sting": "mus_keystone"}, {"play_sound": "portal_enter"}], "next": "l4"},
+  "l4": {"speaker": "narrator", "ar": "ينطوي الهواء. ترى — لا تتذكّر — ميناءً في المطر.", "en": "The air folds. You see — not remember — a harbour in rain.",
+   "actions": [{"reveal": "loom_vision"}], "next": "l5"},
+  "l5": {"speaker": "narrator", "ar": "قارب صغير يتأرجح. وفانوس على عموده يرتجف.", "en": "A small boat, swinging. A lantern shivering on its post.", "next": "l6"},
+  "l6": {"speaker": "narrator", "ar": "في القارب فتاة تغرف الماء بقبّعتها. تضحك. أم تبكي؟ لا تعرف.", "en": "In the boat, a girl bails water with her cap. Laughing. Or crying. You can't tell.", "next": "l7"},
+  "l7": {"speaker": "narrator", "ar": "تنظر إليك مباشرة. تقول شيئًا لا يُسمع. ثم الموجة.", "en": "She looks right at you. Says something you can't hear. Then the wave.", "emote": "surprised", "next": "l8"},
+  "l8": {"speaker": "lumen", "ar": "ما الذي رأيتَ؟ حسّاساتي لم ترصد شيئًا. [—DATA LOST—]", "en": "What did you see? My sensors detected nothing. [—DATA LOST—]",
+   "choices": [
+    {"ar": "[إشارة إلى القبّعة]", "en": "[point at the cap]", "goto": "l9"},
+    {"ar": "[ترهّل حزين]", "en": "[sad droop]", "emote": "sad", "goto": "l9"}]},
+  "l9": {"speaker": "lumen", "ar": "واحد من سبعة. وبوّابة الكهرمان بدأت تُدندن. تبدو كساعة.", "en": "One of seven. And the Amber gate has begun to hum. It sounds like a clock.",
+   "next": "fin"},
+  "fin": {"actions": [{"set_flag": "gate_amber_awake"}, {"after_end": [{"event": "slice_end"}]}, {"end": true}]},
+  "after": {"speaker": "narrator", "ar": "تتوهّج الحلقة في تجويف واحد من سبعة. وتنتظر.", "en": "The ring glows in one socket of seven. Waiting."}
+ }
+}

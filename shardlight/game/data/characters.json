@@ -1,0 +1,15 @@
+{
+ "characters": {
+  "narrator": {"name": {"ar": "", "en": ""}},
+  "blu": {"name": {"ar": "بلو", "en": "Blu"}},
+  "lumen": {"name": {"ar": "لومِن", "en": "Lumen"}},
+  "marrow": {"name": {"ar": "العمّ مارو", "en": "Old Marrow"}},
+  "ilse": {"name": {"ar": "إلزه", "en": "Ilse"}},
+  "pip": {"name": {"ar": "بِب", "en": "Pip"}},
+  "tansy": {"name": {"ar": "تانزي", "en": "Tansy"}},
+  "wren": {"name": {"ar": "رِن", "en": "Wren"}},
+  "loom": {"name": {"ar": "النَّوْل", "en": "The Loom"}},
+  "gate_verdant": {"name": {"ar": "البوّابة", "en": "The Gate"}},
+  "sign": {"name": {"ar": "لافتة", "en": "Sign"}}
+ }
+}

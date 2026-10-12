@@ -1,0 +1,45 @@
+{
+ "npc_id": "wren",
+ "entries": [
+  {"if": {"flag": "r1_seen", "not_flag": "wren_told"}, "node": "r1a", "marker": true},
+  {"if": {"flag": "r1_seen"}, "node": "after"},
+  {"if": {"not_flag": "talked_wren"}, "node": "w1"},
+  {"node": "hub"}
+ ],
+ "barks": [
+  {"ar": "ششش. الخليّة تحلم.", "en": "Shh. The hive is dreaming."},
+  {"ar": "ألا تسمع الطنين؟ إنه يعدّ.", "en": "Hear the humming? It's counting."},
+  {"if": {"flag": "r1_seen"}, "ar": "الأحد قريب.", "en": "Sunday is near."}
+ ],
+ "nodes": {
+  "w1": {"speaker": "wren", "ar": "ششش. الخليّة تحلم. والأحلام ثقيلة، لذلك تطفو.", "en": "Shh. The hive is dreaming. Dreams are heavy, so they float.", "next": "w2"},
+  "w2": {"speaker": "wren", "ar": "لا صوت لك، لكنّك تضجّ يا صغير يا أزرق. كصرخة في جرّة.", "en": "You make no sound, little blue, yet you're loud. Like a shout in a jar.",
+   "choices": [
+    {"ar": "[انكماش خجول]", "en": "[shy shrink]", "emote": "sad", "goto": "w3"},
+    {"ar": "[زقزقة سعيدة]", "en": "[happy chirp]", "emote": "happy", "goto": "w3"}]},
+  "w3": {"speaker": "wren", "ar": "النحل هنا يطفو ولا يدري. يظنّ أنه بارع في الطيران فحسب.", "en": "The bees float here and don't know it. They think they're simply very good at flying.", "next": "hub"},
+
+  "hub": {"speaker": "wren", "ar": "اسأل. بصوت منخفض.", "en": "Ask. Softly.",
+   "choices": [
+    {"if": {"not_flag": "wren_grove_hint"}, "ar": "[ميلان فضولي]", "en": "[curious tilt]", "emote": "surprised", "goto": "grove"},
+    {"if": {"not_flag": "asked_w_honey"}, "ar": "[إشارة إلى الجرّة]", "en": "[point at the jar]", "goto": "honey"},
+    {"if": {"not_flag": "asked_w_cap"}, "ar": "[إشارة إلى القبّعة]", "en": "[point at the cap]", "goto": "cap"},
+    {"ar": "[تلويحة]", "en": "[wave]", "goto": "bye"}]},
+  "grove": {"speaker": "wren", "ar": "بستان الجذوع غرب الماء. الجذوع تُدندن. لا أدخل؛ في الدندنة صوتٌ كنتُ أعرفه.", "en": "The log grove, west of the water. The logs hum. I don't go in. There's a voice in it I used to know.",
+   "actions": [{"set_flag": "wren_grove_hint"}], "next": "hub"},
+  "honey": {"speaker": "wren", "ar": "العسل لمن يمرّ. أمّا الذي على السور فلا. ذاك لعطشانة لا تأتي.", "en": "The honey is for whoever passes. The jar on the wall isn't. That's for someone thirsty who doesn't come.",
+   "actions": [{"set_flag": "asked_w_honey"}], "next": "hub"},
+  "cap": {"speaker": "wren", "ar": "هذا الأزرق بالذات... لا يهمّ. قبّعة جميلة.", "en": "That particular blue... never mind. It's a lovely cap.", "emote": "determined",
+   "actions": [{"set_flag": "asked_w_cap"}], "next": "hub"},
+  "bye": {"speaker": "wren", "ar": "اذهب برفق. الريح هنا تفهم الصغار.", "en": "Go gently. The wind here understands small things."},
+
+  "r1a": {"speaker": "wren", "ar": "سمعتُ أنّ مارو تكلّم. ...إذن لك أن تعرف.", "en": "I hear Marrow talked. ...Then you may as well know.", "next": "r1b"},
+  "r1b": {"speaker": "wren", "ar": "كانت تجلس على ذاك السور وتعدّ النحل، وتخطئ في العدّ كلّ مرّة.", "en": "She used to sit on that wall and count the bees, and got a different number every time.", "next": "r1c"},
+  "r1c": {"speaker": "wren", "ar": "في ليلة العاصفة قلتُ لها: لا تخرجي. قالت: عشر دقائق.", "en": "The night of the storm I told her: don't go out. She said: ten minutes.", "next": "r1d"},
+  "r1d": {"speaker": "wren", "ar": "الكلّ يقول «عشر دقائق». إنها أطول وحدة زمن عرفتُها.", "en": "Everyone says \"ten minutes\". It's the longest unit of time I know.",
+   "choices": [{"ar": "[التصاق حزين]", "en": "[lean against her]", "emote": "sad", "goto": "r1e"}]},
+  "r1e": {"speaker": "wren", "ar": "(ضحكة صغيرة.) كانت ستحبّك. كانت تحبّ الصغير الغريب الصاخب.", "en": "(A small laugh.) She'd have liked you. She liked small, strange, loud things.",
+   "actions": [{"set_flag": "wren_told"}]},
+  "after": {"speaker": "wren", "ar": "العسل في الجرّة. والصمت يتّسع. ...اجلس إن شئت.", "en": "Honey's in the jar. The quiet has room. ...Sit, if you like."}
+ }
+}

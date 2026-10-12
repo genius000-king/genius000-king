@@ -1,0 +1,35 @@
+{
+ "quests": {
+  "first_light": {
+   "main": true,
+   "title": {"ar": "أوّل ضوء", "en": "First Light"},
+   "stages": [
+    {"objective": {"ar": "اشرب البلازما من فوّهة الحفرة", "en": "Drink plasma from the crater vent"},
+     "journal": {"ar": "الفوّهة تسرّب بلازما خامًا. نواة بلو تريدها بشدّة، ولا تخجل.", "en": "The vent leaks raw plasma. Blu's core wants it badly, and isn't shy about it."}},
+    {"objective": {"ar": "أطلق البلازما على بوّابة المرج", "en": "Fire plasma at the Verdant gate"},
+     "journal": {"ar": "بوّابة نائمة في جدار الحفرة. تحتاج إلى شيء صاخب.", "en": "A sleeping gate in the crater wall. It needs something loud."}},
+    {"objective": {"ar": "اعبر بوّابة المرج الطافي", "en": "Step through the Verdant Drift gate"},
+     "journal": {"ar": "استيقظت البوّابة وتُدندن لحنًا قديمًا.", "en": "The gate is awake and humming an old tune."}},
+    {"objective": {"ar": "اصعد إلى الملاذ وخذ حجر المفتاح", "en": "Reach the Sanctum and take the Keystone"},
+     "journal": {"ar": "حجر المفتاح الأوّل يطفو في عاصفة بتلات على قمّة الجبل.", "en": "The first Keystone floats in a storm of petals on the mountain top."}},
+    {"objective": {"ar": "احمل حجر المفتاح إلى النَّوْل", "en": "Carry the Keystone back to the Loom"},
+     "journal": {"ar": "في يدك ثقلُ عالمٍ كامل. النَّوْل ينتظر.", "en": "You carry the weight of a whole world. The Loom is waiting."}}
+   ]
+  },
+  "bloom_bell": {
+   "title": {"ar": "جرس الإزهار", "en": "The Bloom Bell"},
+   "stages": [
+    {"objective": {"ar": "تحدّث إلى العمّ مارو في القرية", "en": "Talk to Old Marrow in the village"},
+     "journal": {"ar": "جرس الزهرة الكبرى صمت ثلاثة صباحات، والأزهار عابسة.", "en": "The Great Bloom's bell has been silent three mornings. The flowers are sulking."}},
+    {"objective": {"ar": "اسأل إلزه عن أغنية الجرس", "en": "Ask Ilse about the Bell's song"},
+     "journal": {"ar": "مارو يقول إنّ إلزه تحفظ أغنية الجرس أكثر منه.", "en": "Marrow says Ilse knows the Bell's song better than he does."}},
+    {"objective": {"ar": "أضئ بتلات الملاذ الثلاث ({trials}/3)", "en": "Light the Sanctum's three petals ({trials}/3)"},
+     "journal": {"ar": "أغنية إلزه: «اصعد إلى الجرس. أزهِر حيث يؤلم. أنصت إلى الجوف.»", "en": "Ilse's song: \"Rise to the bell. Bloom where it hurts. Listen to the hollow.\""}},
+    {"objective": {"ar": "اصعد إلى الملاذ", "en": "Climb to the Sanctum"},
+     "journal": {"ar": "البتلات الثلاث مضاءة. الجبل ينتظر.", "en": "All three petals are lit. The mountain is waiting."}},
+    {"objective": {"ar": "عُد إلى العمّ مارو", "en": "Return to Old Marrow"},
+     "journal": {"ar": "انفتحت كلّ زهرة في الوادي دفعة واحدة. مارو يريد أن يشكرك.", "en": "Every flower in the valley opened at once. Marrow wants to thank you."}}
+   ]
+  }
+ }
+}

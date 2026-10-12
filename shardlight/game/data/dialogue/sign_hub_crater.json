@@ -1,0 +1,9 @@
+{
+ "npc_id": "sign_hub_crater",
+ "name": {"ar": "لافتة", "en": "Sign"},
+ "entries": [{"node": "s1"}],
+ "nodes": {
+  "s1": {"speaker": "sign", "ar": "معهد ميريديان للرنين · جناح العيّنات · الرجاء عدم إطعام العيّنات.", "en": "Meridian Institute of Resonance · Specimen Wing · Please do not feed the specimens.", "actions": [{"event": "tut_interact"}], "next": "s2"},
+  "s2": {"speaker": "lumen", "ar": "يقولون إنّ هذا يعنيك.", "en": "I'm told this refers to you."}
+ }
+}

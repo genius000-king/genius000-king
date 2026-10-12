@@ -1,0 +1,70 @@
+{
+ "npc_id": "lumen",
+ "entries": [
+  {"if": {"flag": "prologue_done"}, "node": "t0"},
+  {"node": "p1"}
+ ],
+ "barks": [
+  {"ar": "أراقب المحيط. ومحيط المحيط.", "en": "Scanning the perimeter. And the perimeter of the perimeter."},
+  {"ar": "لستُ قلقًا. أنا فقط أُحصي المخارج.", "en": "I'm not worried. I'm just counting exits."},
+  {"if": {"keystone": "verdant"}, "ar": "جاذبيتك أخفّ الآن. أراها في طريقة ارتدادك.", "en": "You're lighter now. I can see it in how you bounce."},
+  {"if": {"not_flag": "keystone_taken"}, "ar": "سبع شظايا، وأنا لا أملك خريطة. أملك فقط أملًا مضبوطًا بدقّة.", "en": "Seven shards, and no map. Only very precisely calibrated hope."}
+ ],
+ "nodes": {
+  "p1": {"speaker": "lumen", "ar": "...رَي؟ رَي، هل تسمعينني؟", "en": "...Rae? Rae, can you hear me?",
+   "choices": [{"ar": "[ارتجاج خفيف]", "en": "[a small wobble]", "emote": "blink", "goto": "p2"}]},
+  "p2": {"speaker": "lumen", "ar": "...لا. عفوًا. هذا ليس الاسم. خرج وحده. [—DATA LOST—]", "en": "...No. Sorry. That's not the name. It came out on its own. [—DATA LOST—]", "next": "p3"},
+  "p3": {"speaker": "lumen", "ar": "حسنًا. الإدراك: مؤكَّد. العينان: كبيرتان جدًّا. العيّنة السابعة، على ما يبدو.", "en": "Right. Cognition: confirmed. Eyes: very large. Specimen 7, apparently.", "next": "p4"},
+  "p4": {"speaker": "lumen", "ar": "أنا لومِن. هذا ما تقوله بطاقتي. وباقيّ يقول: [—DATA LOST—].", "en": "I'm Lumen. That's what my tag says. The rest of me says [—DATA LOST—].",
+   "choices": [
+    {"ar": "[ميلان فضولي]", "en": "[curious tilt]", "emote": "surprised", "goto": "p4b"},
+    {"ar": "[إيماءة]", "en": "[nod]", "emote": "happy", "goto": "p5"}]},
+  "p4b": {"speaker": "lumen", "ar": "لا تسأل. سألتُ أنا، فكان الجواب دائرةً تدور.", "en": "Don't ask. I did. The answer was a spinning wheel.", "next": "p5"},
+  "p5": {"speaker": "lumen", "ar": "أنتَ أزرق، وتلبس قبّعة. سأدعوك بلو. اسم وصفيّ؛ لستُ بارعًا في الأسماء.", "en": "You're blue, and wearing a cap. I'll call you Blu. It's descriptive; I'm bad at names.",
+   "choices": [
+    {"ar": "[زقزقة سعيدة]", "en": "[happy chirp]", "emote": "happy", "goto": "p6"},
+    {"ar": "[ارتجاج غاضب]", "en": "[wobble angrily]", "emote": "angry", "goto": "p5b"}]},
+  "p5b": {"speaker": "lumen", "ar": "اعتراضك مسجَّل كـ«بلوب». الاسم باقٍ.", "en": "Objection logged as \"bloop\". The name stays.", "next": "p6"},
+  "p6": {"speaker": "lumen", "ar": "لا تتكلّم؟ لا بأس، أتكلّم أنا. أُترجم ببراعة. (لم يتحقّق أحد من ذلك.)", "en": "You don't speak? Fine, I will. I translate beautifully. (No one has verified this.)", "next": "p7"},
+  "p7": {"speaker": "lumen", "ar": "فوق هذه الحفرة سبع شظايا ممّا كان بلدة. في كلّ شظيّة حجر مفتاح.", "en": "Above this crater: seven shards of what used to be a town. Each holds a Keystone.", "next": "p8"},
+  "p8": {"speaker": "lumen", "ar": "إن أعدناها إلى النَّوْل فربّما — ربّما — يعود كلّ شيء.", "en": "Return them to the Loom, and perhaps — perhaps — everything comes back.", "next": "p9"},
+  "p9": {"speaker": "lumen", "ar": "(سأتجاهل أنّي لا أعرف كيف.)", "en": "(I'll ignore the fact that I don't know how.)",
+   "choices": [{"ar": "[انتفاخ عازم]", "en": "[a determined puff]", "emote": "determined", "goto": "fin"}]},
+  "fin": {"actions": [
+    {"set_flag": "prologue_done"}, {"journal": "lumen_log_1"},
+    {"after_end": [{"event": "hub_control"}]}, {"end": true}]},
+
+  "t0": {"speaker": "lumen", "ar": "ما الذي يشغل بالك؟", "en": "What's on your mind?",
+   "choices": [
+    {"ar": "[ميلان فضولي]", "en": "[curious tilt]", "emote": "surprised", "goto": "hint"},
+    {"ar": "[إشارة إلى لومِن]", "en": "[point at Lumen]", "goto": "who"},
+    {"ar": "[زقزقة سريعة]", "en": "[rapid chirping]", "emote": "happy", "goto": "tr"},
+    {"ar": "[تلويحة]", "en": "[wave]", "goto": "bye"}]},
+  "hint": {"branch": [
+    {"if": {"stage": ["first_light==4", "bloom_bell==4"], "flag": "r1_seen"}, "goto": "h_loom_r1"},
+    {"if": {"stage": "first_light==4"}, "goto": "h_loom"},
+    {"if": {"stage": ["first_light==3", "bloom_bell==3"]}, "goto": "h_sanctum"},
+    {"if": {"stage": ["first_light==3", "bloom_bell==2"]}, "goto": "h_trials"},
+    {"if": {"stage": ["first_light==3", "bloom_bell==1"]}, "goto": "h_ilse"},
+    {"if": {"stage": "first_light==3"}, "goto": "h_marrow"},
+    {"if": {"stage": "first_light==2"}, "goto": "h_gate"},
+    {"if": {"stage": "first_light==1"}, "goto": "h_shoot"},
+    {"if": {"stage": "first_light==0"}, "goto": "h_gulp"},
+    {"goto": "h_none"}]},
+  "h_gulp": {"speaker": "lumen", "ar": "الفوّهة المتوهّجة في الحفرة. ادخل في الوهج. لا تقل إني لم أحذّرك من الدفء.", "en": "The glowing vent in the crater. Walk into the shimmer. Don't say I didn't warn you about warm.", "next": "t0"},
+  "h_shoot": {"speaker": "lumen", "ar": "اجمع البلازما ثم أطلقها على البوّابة الخضراء النائمة. بقوّة تكفي لإيقاظ جدّة.", "en": "Gather plasma and fire it at the sleeping green gate. Hard enough to wake a grandmother.", "next": "t0"},
+  "h_gate": {"speaker": "lumen", "ar": "البوّابة مستيقظة. اعبرها. أنا خلفك. (قريبًا خلفك.)", "en": "The gate's awake. Go through. I'm right behind you. (Nearly right behind you.)", "next": "t0"},
+  "h_marrow": {"speaker": "lumen", "ar": "القرية على التلّ. أحدهم يحتاج إلى مساعدة، وغالبًا هو عجوز بقبّعة كبيرة.", "en": "The village is on the hill. Someone needs help, and it's probably an old man in a big hat.", "next": "t0"},
+  "h_ilse": {"speaker": "lumen", "ar": "مارو قال إنّ إلزه تعرف أغنية الجرس. ابحث عن البيت الزجاجي.", "en": "Marrow said Ilse knows the Bell's song. Look for the glasshouse.", "next": "t0"},
+  "h_trials": {"speaker": "lumen", "ar": "ثلاث بتلات: جرس على أعلى جزيرة، وتشويش يمضغ الزهرة، وبستان جذوع مجوّفة.", "en": "Three petals: a bell on the highest island, Static chewing the Bloom, a grove of hollow logs.", "next": "t0"},
+  "h_sanctum": {"speaker": "lumen", "ar": "الملاذ على قمّة الجبل. الغيوم تعرف الطريق.", "en": "The Sanctum is on the mountain top. The clouds know the way.", "next": "t0"},
+  "h_loom": {"speaker": "lumen", "ar": "النَّوْل ينتظر. ضع حجر المفتاح في أحد تجاويفه. أيّها؟ اختر الأقلّ إخافةً.", "en": "The Loom is waiting. Put the Keystone in one of its sockets. Pick the least frightening.", "next": "t0"},
+  "h_loom_r1": {"speaker": "lumen", "ar": "إن أردتَ أن تقول شيئًا عمّا قاله مارو... فأنا أسمع. (لن أجيب.)", "en": "If you want to say something about what Marrow said... I'm listening. (I won't answer.)", "next": "t0"},
+  "h_none": {"speaker": "lumen", "ar": "لا شيء عاجل. استمتع بالمنظر. وأنا أستمتع بسلامتك.", "en": "Nothing urgent. Enjoy the view. I'll enjoy you being in one piece.", "next": "t0"},
+  "who": {"speaker": "lumen", "ar": "مساعد سلامة تجريبي تابع للمعهد. وظيفتي: ألّا تتأذّى. أدائي: متوسّط.", "en": "Prototype safety drone, Institute-issued. My job: you don't get hurt. My performance: moderate.", "next": "who2"},
+  "who2": {"speaker": "lumen", "ar": "ولماذا أتذكّر قبّعتك أكثر ممّا أتذكّر نفسي؟ لا جواب لديّ. [—DATA LOST—]", "en": "Why do I remember your cap better than myself? I have no answer. [—DATA LOST—]", "next": "t0"},
+  "tr": {"speaker": "lumen", "ar": "بلو يقول: «شكرًا على خدمتك الدؤوبة يا لومِن.»", "en": "Blu says: \"Thank you for your tireless service, Lumen.\"", "next": "tr2"},
+  "tr2": {"speaker": "lumen", "ar": "(الحقيقة: قال «زِق». لكنّ نسختي أجمل.)", "en": "(Actual: it said \"squeak\". My version is nicer.)", "next": "t0"},
+  "bye": {"speaker": "lumen", "ar": "أنا هنا إن احتجتني. أنا دائمًا هنا. هذا عيب في تصميمي.", "en": "I'm here if you need me. I'm always here. It's a design flaw."}
+ }
+}

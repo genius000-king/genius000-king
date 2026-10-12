@@ -1,0 +1,336 @@
+{
+ "echoes": {
+  "echo_hub_1": {
+   "world": "hub",
+   "title": {
+    "ar": "القبّعة",
+    "en": "The Cap"
+   },
+   "lines": [
+    {
+     "ar": "(ضحكة فتاة، ونوارس.)",
+     "en": "(A girl laughing. Gulls.)"
+    },
+    {
+     "ar": "رَي: يا أبي، إنها كبيرة عليّ!",
+     "en": "Rae: Dad, it's too big!"
+    },
+    {
+     "ar": "إدريس: ستكبرين عليها.",
+     "en": "Idris: You'll grow into it."
+    },
+    {
+     "ar": "رَي: وإن لم أكبر؟",
+     "en": "Rae: And if I don't?"
+    },
+    {
+     "ar": "إدريس: نُضيّق الحافّة. نحن عائلة تُصلح الأشياء.",
+     "en": "Idris: Then we take in the brim. We're a family that mends things."
+    }
+   ]
+  },
+  "echo_hub_2": {
+   "world": "hub",
+   "title": {
+    "ar": "تحذير حدّاد",
+    "en": "Haddad's Warning"
+   },
+   "lines": [
+    {
+     "ar": "نور: إدريس، لم تنم منذ ثلاثة أيام.",
+     "en": "Noor: Idris, you haven't slept in three days."
+    },
+    {
+     "ar": "نور: النَّوْل لا يقيس شيئًا، أليس كذلك؟",
+     "en": "Noor: The Loom isn't measuring anything, is it?"
+    },
+    {
+     "ar": "إدريس: إنه يقيس ما كان يمكن أن يكون.",
+     "en": "Idris: It measures what could have been."
+    },
+    {
+     "ar": "نور: إنه يمزّق النسيج يا إدريس.",
+     "en": "Noor: It tears the cloth, Idris."
+    },
+    {
+     "ar": "إدريس: إذن سأرتقه.",
+     "en": "Idris: Then I'll mend it."
+    }
+   ]
+  },
+  "echo_verdant_1": {
+   "world": "verdant",
+   "title": {
+    "ar": "يوم الطائرات الورقية",
+    "en": "Kite Day"
+   },
+   "lines": [
+    {
+     "ar": "(ريح. خيطٌ يُشدّ. طفل يلهث.)",
+     "en": "(Wind. A string pulled tight. A child panting.)"
+    },
+    {
+     "ar": "بِب: لن تطير! أنا ثقيل!",
+     "en": "Pip: It won't fly! I'm too heavy!"
+    },
+    {
+     "ar": "رَي: لستَ ثقيلًا. تجري كمن يخاف أن يصل.",
+     "en": "Rae: You're not heavy. You run like you're afraid of arriving."
+    },
+    {
+     "ar": "رَي: اجرِ كمن يطارد الغيم.",
+     "en": "Rae: Run like you're chasing the cloud."
+    },
+    {
+     "ar": "(ضحكة بِب. ورقة ترتفع في السماء.)",
+     "en": "(Pip laughs. A paper kite climbs the sky.)"
+    }
+   ]
+  },
+  "echo_verdant_2": {
+   "world": "verdant",
+   "title": {
+    "ar": "ممسحة مارو",
+    "en": "Marrow's Mop"
+   },
+   "lines": [
+    {
+     "ar": "(ممسحة على أرضيّة لامعة. ليل.)",
+     "en": "(A mop on a gleaming floor. Night.)"
+    },
+    {
+     "ar": "مارو: كانت إلزه تقول إنّ الحساء يزداد وقاحةً كلّما تأخّرتَ يا دكتور.",
+     "en": "Marrow: Ilse used to say the soup grows ruder the later you are, Doctor."
+    },
+    {
+     "ar": "مارو: أحدّثها بصوت عالٍ الآن. الممسحة لا تمانع.",
+     "en": "Marrow: I talk to her out loud now. The mop doesn't mind."
+    },
+    {
+     "ar": "إدريس: شكرًا يا مارو. سأعود إلى البيت. قريبًا.",
+     "en": "Idris: Thank you, Marrow. I'll go home. Soon."
+    },
+    {
+     "ar": "مارو: «قريبًا»... كلمة طويلة يا دكتور.",
+     "en": "Marrow: \"Soon\" is a long word, Doctor."
+    }
+   ]
+  },
+  "echo_verdant_3": {
+   "world": "verdant",
+   "title": {
+    "ar": "عسل الأحد",
+    "en": "Sunday Honey"
+   },
+   "lines": [
+    {
+     "ar": "(طنين نحل. غطاء صندوق يُرفع.)",
+     "en": "(Bees humming. A hive lid lifted.)"
+    },
+    {
+     "ar": "رِن: النحلة لا تسأل من أين جاءت، بل أين الزهور.",
+     "en": "Wren: A bee doesn't ask where she came from. She asks where the flowers are."
+    },
+    {
+     "ar": "رَي: وأنا أسأل الاثنين، فلا أصل.",
+     "en": "Rae: I ask both. I get nowhere."
+    },
+    {
+     "ar": "رِن: تعالي الأحد. أُريكِ كيف تُهدّئين خليّة غاضبة.",
+     "en": "Wren: Come Sunday. I'll show you how to calm an angry hive."
+    },
+    {
+     "ar": "رَي: وإن كنتُ أنا الغاضبة؟  رِن: أسهل. ندخّن الخليّة ونُطعم الفتاة.",
+     "en": "Rae: And if I'm the angry one?  Wren: Easier. We smoke the hive and feed the girl."
+    }
+   ]
+  },
+  "echo_verdant_4": {
+   "world": "verdant",
+   "title": {
+    "ar": "سجلّ المناوبة",
+    "en": "Night Log"
+   },
+   "lines": [
+    {
+     "ar": "إدريس (تسجيل): الحادية عشرة ليلًا. الحلقة مستقرّة عند 0.4 بالمئة.",
+     "en": "Idris (log): Eleven p.m. The ring is stable at 0.4 percent."
+    },
+    {
+     "ar": "لن أخبر نور أنّ الرقم ارتفع. ستقول إنه يعني شيئًا.",
+     "en": "I won't tell Noor the number rose. She'll say it means something."
+    },
+    {
+     "ar": "الجمعة عيد ميلاد رَي. وعدتُها ألّا أتأخّر.",
+     "en": "Friday is Rae's birthday. I promised her I wouldn't be late."
+    },
+    {
+     "ar": "(صمت.) سأضبط المنبّه. هذه المرّة سأضبطه فعلًا.",
+     "en": "(Pause.) I'll set an alarm. This time I really will."
+    }
+   ]
+  },
+  "echo_verdant_5": {
+   "world": "verdant",
+   "title": {
+    "ar": "نشرة الجوّ",
+    "en": "Weather Report"
+   },
+   "lines": [
+    {
+     "ar": "مذياع قديم: عاصفة قادمة من البحر. على القوارب العودة إلى الميناء.",
+     "en": "Old radio: A storm is coming off the sea. All boats back to harbour."
+    },
+    {
+     "ar": "رِن: سمعتِ؟ اتركي الزورق يا فتاة.",
+     "en": "Wren: Did you hear that? Leave the boat, girl."
+    },
+    {
+     "ar": "رَي: سأتفقّد الحبال فقط. عشر دقائق!",
+     "en": "Rae: I'll just check the ropes. Ten minutes!"
+    },
+    {
+     "ar": "رِن: عشر دقائق... كلّهم يقولونها.",
+     "en": "Wren: Ten minutes. They all say that."
+    }
+   ]
+  },
+  "echo_verdant_6": {
+   "world": "verdant",
+   "title": {
+    "ar": "عدّ الرعد",
+    "en": "Counting Thunder"
+   },
+   "lines": [
+    {
+     "ar": "(رعد بعيد. مطر على خشب مجوّف.)",
+     "en": "(Distant thunder. Rain on hollow wood.)"
+    },
+    {
+     "ar": "تانزي: واحد... اثنان... ثلاثة. كلّما كبر الرقم ابتعدت العاصفة يا بِب.",
+     "en": "Tansy: One... two... three. The bigger the number, the farther the storm, Pip."
+    },
+    {
+     "ar": "بِب: وإذا لم يأتِ الرعد أبدًا؟  تانزي: فقد أمسك به أحدهم يا غبي. عدّ.",
+     "en": "Pip: What if the thunder never comes?  Tansy: Then somebody caught it, silly. Count."
+    },
+    {
+     "ar": "رَي: سأعدّ معكما. واحد...",
+     "en": "Rae: I'll count with you. One..."
+    }
+   ]
+  },
+  "echo_verdant_7": {
+   "world": "verdant",
+   "title": {
+    "ar": "المصباح في النافذة",
+    "en": "The Lamp in the Window"
+   },
+   "lines": [
+    {
+     "ar": "(مطر غزير. مصراع نافذة يطرق.)",
+     "en": "(Heavy rain. A shutter knocking.)"
+    },
+    {
+     "ar": "(هاتف يرنّ ويرنّ... بلا جواب.)",
+     "en": "(A phone rings and rings. No answer.)"
+    },
+    {
+     "ar": "إدريس (من بعيد): ...عشر دقائق فقط. أنا على وشك أن أفهم.",
+     "en": "Idris (distant): ...ten more minutes. I'm so close to understanding."
+    },
+    {
+     "ar": "(مصباح في نافذة الميناء ما زال مضاءً.)",
+     "en": "(A lamp in the harbour window is still lit.)"
+    }
+   ]
+  },
+  "echo_trial_1": {
+   "world": "verdant",
+   "title": {
+    "ar": "جذعٌ مجوَّف",
+    "en": "Hollow Log"
+   },
+   "lines": [
+    {
+     "ar": "(ريح في جوف خشب. أنفاس فتاة، قريبة.)",
+     "en": "(Wind in a hollow. A girl's breath, close.)"
+    },
+    {
+     "ar": "رَي: ألو؟ ...ألو؟",
+     "en": "Rae: Hello? ...Hello?"
+    },
+    {
+     "ar": "(يردّ الجذع: ...ألو... ...ألو...)",
+     "en": "(The log answers: ...hello... ...hello...)"
+    },
+    {
+     "ar": "رَي: أبي يقول إنّ الصدى هو العالم يتأدّب معك.",
+     "en": "Rae: Dad says an echo is just the world being polite."
+    },
+    {
+     "ar": "رَي: إذن لماذا يبدو صدايَ دائمًا كأنّه يضحك عليّ؟",
+     "en": "Rae: Then why does mine always sound like it's laughing at me?"
+    }
+   ]
+  },
+  "echo_trial_2": {
+   "world": "verdant",
+   "title": {
+    "ar": "صوتان في جذع واحد",
+    "en": "Two Voices, One Log"
+   },
+   "lines": [
+    {
+     "ar": "نور: إدريس، الصدى يتردّد مرّتين. مرّة واحدة فيزياء؛ مرّتان سؤال.",
+     "en": "Noor: Idris, it echoes twice. Once is physics. Twice is a question."
+    },
+    {
+     "ar": "إدريس: فليسأل.",
+     "en": "Idris: Then let it ask."
+    },
+    {
+     "ar": "نور: مَن؟",
+     "en": "Noor: Whom?"
+    },
+    {
+     "ar": "إدريس: مَن يُنصت في الجهة الأخرى. (صمت.) لا تدوّني هذا.",
+     "en": "Idris: Whoever's listening on the other side. (Pause.) Don't write that down."
+    },
+    {
+     "ar": "(قلمٌ يدوّن ذلك على أيّ حال.)",
+     "en": "(A pen writes it down anyway.)"
+    }
+   ]
+  },
+  "echo_trial_3": {
+   "world": "verdant",
+   "title": {
+    "ar": "أنصتْ إلى الجوف",
+    "en": "Listen to the Hollow"
+   },
+   "lines": [
+    {
+     "ar": "(مطر خفيف يبدأ. صوت شابّ، ثابت.)",
+     "en": "(Light rain begins. A young voice, steady.)"
+    },
+    {
+     "ar": "رَي: رِن تقول إنّ الأغنية تسكن الجوف. قلت لها: ليس عندي أغنية.",
+     "en": "Rae: Wren says the song lives in the hollow. I said: I don't have one."
+    },
+    {
+     "ar": "رَي: قالت: لكلٍّ منّا جوف. بعضنا جذوعه أكبر فحسب.",
+     "en": "Rae: She said: everyone has a hollow. Some of us just have bigger logs."
+    },
+    {
+     "ar": "رَي: جذع أبي بحجم بيت. وهو فيه الآن، هناك فوق، والأضواء مشتعلة.",
+     "en": "Rae: Dad's is the size of a house. He's in it right now, up there, lights on."
+    },
+    {
+     "ar": "(الصدى يعيد الجملة الأخيرة بصوت أكثر هدوءًا.)",
+     "en": "(The echo repeats the last line, more gently.)"
+    }
+   ]
+  }
+ }
+}

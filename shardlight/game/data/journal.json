@@ -1,0 +1,83 @@
+{
+ "worlds": {
+  "hub": {"name": {"ar": "الحفرة", "en": "The Crater"}},
+  "verdant": {"name": {"ar": "المرج الطافي", "en": "Verdant Drift"}},
+  "amber": {"name": {"ar": "ساعات الكهرمان", "en": "Amber Hours"}},
+  "tidewell": {"name": {"ar": "البئر المقلوب", "en": "Tidewell"}},
+  "ember": {"name": {"ar": "جوقة الجمر", "en": "Ember Choir"}},
+  "glasswake": {"name": {"ar": "أرشيف الزجاج", "en": "Glasswake Archive"}},
+  "hollowbloom": {"name": {"ar": "الإزهار الأجوف", "en": "Hollowbloom"}}
+ },
+ "entries": {
+  "char_lumen": {"kind": "character", "title": {"ar": "لومِن", "en": "Lumen"},
+   "ar": "درون صغير: منشور وهالة. دقيق، حامٍ، وذاكرته مثقوبة. لا يتذكّر اسمه الكامل، وأظنّ هذا ليس كلّ ما ينساه.",
+   "en": "A small drone: prism and halo. Precise, protective, memory full of holes. Can't recall its full name. I doubt that's all."},
+  "char_marrow": {"kind": "character", "title": {"ar": "العمّ مارو", "en": "Old Marrow"},
+   "ar": "بستاني القرية. يكلّم الملفوف. يحلم بممرٍّ طويل وممسحة، ولا يعرف لماذا.",
+   "en": "The village gardener. Talks to cabbages. Dreams of a long corridor and a mop, and doesn't know why.",
+   "versions": [
+    {"world": "verdant", "ar": "بستاني مرح، زوجته إلزه بجانبه كلّ صباح.", "en": "A cheerful gardener. His wife Ilse is beside him every morning."},
+    {"world": "amber", "locked": true}
+   ]},
+  "char_ilse": {"kind": "character", "title": {"ar": "إلزه", "en": "Ilse"},
+   "ar": "زوجة مارو. تحفظ أغنية الجرس، وتضع له فنجانين كلّ صباح وتسمّيه عادة حسنة.",
+   "en": "Marrow's wife. Knows the Bell's song, and lets him set two cups each morning. A good habit, she says.",
+   "versions": [
+    {"world": "verdant", "ar": "حيّة، تضحك، وتدسّ الملح في كلّ شيء.", "en": "Alive, laughing, and sneaking salt into everything."},
+    {"world": "hollowbloom", "locked": true}
+   ]},
+  "char_pip": {"kind": "character", "title": {"ar": "بِب", "en": "Pip"},
+   "ar": "سبع سنوات، وركبتان لا تهدآن. يقول إنّ «تقريبًا» مكان ويسكنه.",
+   "en": "Seven years old, with knees that never rest. Says \"almost\" is a place, and lives there.",
+   "versions": [
+    {"world": "verdant", "ar": "طفل يكاد يطير.", "en": "A boy who can almost fly."},
+    {"world": "tidewell", "locked": true}
+   ]},
+  "char_tansy": {"kind": "character", "title": {"ar": "تانزي", "en": "Tansy"},
+   "ar": "تسع سنوات، وتتصرّف كأنها أمّ. تبني طائرة ورقيّة تكفي أخاها.",
+   "en": "Nine years old, acts like a mother. Building a kite big enough for her brother.",
+   "versions": [
+    {"world": "verdant", "ar": "فتاة تعدّ الرعد لتهدّئ أخاها.", "en": "A girl who counts thunder to calm her brother."},
+    {"world": "tidewell", "locked": true}
+   ]},
+  "char_wren": {"kind": "character", "title": {"ar": "رِن أوكافور", "en": "Wren Okafor"},
+   "ar": "مربّية نحل بخلايا عائمة. تتكلّم بصور، وتترك عسلًا على السور القديم كلّ أحد.",
+   "en": "Beekeeper of floating hives. Speaks in images, and leaves honey on the old wall every Sunday.",
+   "versions": [
+    {"world": "verdant", "ar": "هادئة، وحزينة بطريقة لطيفة.", "en": "Quiet, and sad in a gentle way."},
+    {"world": "glasswake", "locked": true}
+   ]},
+  "place_hub": {"kind": "place", "world": "hub", "title": {"ar": "حفرة المعهد", "en": "The Institute Crater"},
+   "ar": "حيث استيقظتُ. زجاج مكسور وسبع ندوب في السماء. لافتة: «الرجاء عدم إطعام العيّنات».",
+   "en": "Where I woke. Broken glass, seven scars in the sky. A sign: \"Please do not feed the specimens.\""},
+  "place_verdant": {"kind": "place", "world": "verdant", "title": {"ar": "المرج الطافي", "en": "Verdant Drift"},
+   "ar": "الجاذبية 0.35. جزر مزهرة، ونحل لا يعرف أنه يطفو، وقرية تحرس صمتًا.",
+   "en": "Gravity 0.35. Blooming islands, bees that don't know they float, a village minding a silence."},
+  "place_loom": {"kind": "place", "world": "hub", "title": {"ar": "النَّوْل", "en": "The Loom"},
+   "ar": "حلقة أعلى من المنارة القديمة، فيها سبع تجاويف. واحد منها مضاء الآن.",
+   "en": "A ring taller than the old lighthouse, with seven sockets. One is lit now."},
+  "lore_fracture": {"kind": "lore", "title": {"ar": "الشرخ", "en": "The Fracture"},
+   "ar": "ليلة واحدة تكسّر فيها العالم إلى سبع شظايا، لكلّ شظيّة قانونها. لا أحد يقول ما حدث في الرابعة وسبع عشرة دقيقة.",
+   "en": "One night the world broke into seven shards, each with its own law. Nobody says what happened at 4:17."},
+  "lore_keystones": {"kind": "lore", "title": {"ar": "أحجار المفتاح", "en": "Keystones"},
+   "ar": "سبعة أحجار تثبّت قانون كلّ عالم مكسور. إن أُعيدت إلى النَّوْل فربّما عاد كلّ شيء.",
+   "en": "Seven stones pinning each broken world's law in place. Return them to the Loom, and perhaps everything returns."},
+  "lore_lift": {"kind": "lore", "title": {"ar": "القدرة: الرفع", "en": "Ability: Lift"},
+   "ar": "حين يُقطع الشدّ يتذكّر العالم أنه لا يحتاج إلى وزنك. أنت الآن تطفو متى أردت.",
+   "en": "When the pull is cut, the world remembers it doesn't need your weight. You can now float when you like."},
+  "lore_vael": {"kind": "lore", "title": {"ar": "الفتاة فايل", "en": "The Vael Girl"},
+   "ar": "غرقت في الربيع الماضي. كانت لها قبّعة زرقاء بحافّة مرقوعة. لا أعرف لماذا أعرف الرقعة.",
+   "en": "Drowned last spring. She had a blue cap with a mended brim. I don't know why I know about the mend."},
+  "lumen_log_1": {"kind": "lumen", "title": {"ar": "سجلّ لومِن: الاستيقاظ", "en": "Lumen's Log: Waking"},
+   "lines": [
+    {"ar": "الحسّاسات تعمل. وجدتُ عيّنة زرقاء ترتدي قبّعة.", "en": "Sensors online. Found one blue specimen wearing a cap."},
+    {"ar": "اسمي لومِن. الباقي: [—DATA LOST—]", "en": "My name is Lumen. The rest: [—DATA LOST—]", "ar_restored": "اسمي لومِن. وقبل ذلك كنتُ إدريس فايل، وأنا أبو هذه العيّنة.", "en_restored": "My name is Lumen. Before that I was Idris Vael, and I am this specimen's father."},
+    {"ar": "ناديتُها «رَي» دون قصد. [—DATA LOST—]", "en": "I called it \"Rae\" by accident. [—DATA LOST—]", "ar_restored": "ناديتُها «رَي» لأنني عرفتُها.", "en_restored": "I called it \"Rae\" because I knew her."}
+   ]},
+  "lumen_log_2": {"kind": "lumen", "title": {"ar": "سجلّ لومِن: فايل", "en": "Lumen's Log: Vael"},
+   "lines": [
+    {"ar": "سمعتُ اسم «فايل» في القرية. تعطّل شيء ما في جانبي.", "en": "Heard the name \"Vael\" in the village. Something in my left side broke."},
+    {"ar": "تحليل: لا علاقة. [—DATA LOST—]", "en": "Analysis: unrelated. [—DATA LOST—]", "ar_restored": "تحليل: هذا اسمي. وهذه ابنتي. وهي أمامي.", "en_restored": "Analysis: that is my name. That is my daughter. And she is in front of me."}
+   ]}
+ }
+}

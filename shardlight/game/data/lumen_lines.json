@@ -1,0 +1,34 @@
+{
+ "lines": {
+  "tut_move":     {"once": true, "ar": "امشِ قليلًا. أنتَ سائل، فحاول أن تبدو وقورًا.", "en": "Walk a little. You're a liquid; try to look dignified."},
+  "tut_jump":     {"once": true, "ar": "الحافّة بارتفاع 0.8 متر، وأنتَ 0.75. اقفز.", "en": "That ledge is 0.8 metres. You are 0.75. Jump."},
+  "tut_interact": {"once": true, "ar": "اضغط التفاعل قرب كلّ ما يبدو ثرثارًا. اللافتات تُحسب. وأنا أيضًا.", "en": "Press interact near anything that looks talkative. Signs count. So do I."},
+  "vent_hint":    {"once": true, "ar": "تلك الفوّهة تسرّب بلازما خامًا. ونواتك تكاد تسيل لعابًا. مجازيًّا.", "en": "That vent leaks raw plasma. Your core is practically drooling. Figuratively."},
+  "gulp":         {"once": true, "ar": "خُزّنت البلازما. حرارة النواة 38 درجة. لا تُصَب بالفواق قرب الأوراق.", "en": "Plasma stored. Core at 38 degrees. Please don't hiccup near the paperwork."},
+  "shot":         {"once": true, "ar": "اضغط لتجمع، وأفلت لتطلق. أنا مندهش مثلك أنّ هذا ينجح.", "en": "Hold to gather, release to fire. I'm as surprised as you are that it works."},
+  "gate_asleep":  {"ar": "إنها نائمة. تريد شيئًا صاخبًا، وأنتَ ممتلئ بالصخب.", "en": "It's asleep. It wants something loud, and you're full of loud."},
+  "gate_awake":   {"once": true, "ar": "بوّابة المرج استيقظت. تُدندن. أتسمع؟ لحنٌ قديم، قبل أن... [—DATA LOST—]", "en": "The Verdant gate is awake. Humming. Hear it? An old tune, from before... [—DATA LOST—]"},
+  "verdant_arrive": {"once": true, "ar": "الجاذبية 0.35. كلّ شيء هنا قرّر أن يأخذ الأمور بخفّة.", "en": "Gravity: 0.35. Everything here has decided to take things lightly."},
+  "village_arrive": {"once": true, "ar": "مداخن تدخّن، وبئر، وماعز فوق سطح. الماعز ليس في ملفّاتي.", "en": "Chimneys, a well, a goat on a roof. The goat is not in my files."},
+  "lowg":         {"once": true, "ar": "اقفز مجدّدًا واثبت. نعم... أنتَ الآن سحابة زرقاء بطيئة جدًّا.", "en": "Jump again and hold it. Yes. You are now a very slow, very blue cloud."},
+  "static_seen":  {"once": true, "ar": "تشويش. ضجيج له آراء. لا تدعه يلمس الزهرة... ولا يلمسك.", "en": "Static. Noise with opinions. Don't let it touch the Bloom. Or you."},
+  "trial_float_start": {"once": true, "ar": "جرس على أعلى جزيرة. سبع قفزات بحسابي، وثماني بحسابك.", "en": "A bell on the highest island. Seven jumps by my count. Eight by yours."},
+  "float_done":   {"once": true, "ar": "اشتعلت البتلة الأولى. لا تبدُ فخورًا. ...حسنًا، قليلًا.", "en": "First petal lit. Don't look pleased with yourself. ...A little, then."},
+  "bloom_start":  {"once": true, "ar": "التشويش يمضغ الزهرة الكبرى. أطلق عليه؛ فهو يكره من يردّ عليه.", "en": "Static is chewing the Great Bloom. Fire at it. It hates being answered."},
+  "bloom_wave":   {"once": true, "ar": "الموجة الثانية. الضجيج نفسه، لكن أعلى.", "en": "Second wave. Same noise, louder."},
+  "bloom_done":   {"once": true, "ar": "الزهرة تتنفّس. البتلة الثانية. تحسّنت إصابتك. لن أذكر الطلقات الاثنتي عشرة الأولى.", "en": "The Bloom is breathing. Second petal. Your aim improved. I won't mention the first twelve shots."},
+  "echo_start":   {"once": true, "ar": "جذوع مجوّفة. شيء هنا يتذكّر. المس اللمعات، وسأُبقي ضوء التسجيل مفتوحًا.", "en": "Hollow logs. Something here remembers. Touch the glimmers; I'll keep the recorder on."},
+  "grove_done":   {"once": true, "ar": "ثلاثة أصداء. البتلة الثالثة. أظنّك صرتَ هادئًا. هذا ثمن الإصغاء.", "en": "Three echoes. Third petal. You've gone quiet. That's the price of listening."},
+  "sanctum_open": {"once": true, "ar": "البتلات الثلاث مضاءة. الملاذ مفتوح. اصعد الجبل؛ الغيوم ستساعدك.", "en": "All three petals lit. The Sanctum is open. Up the mountain; the clouds will help."},
+  "sanctum_enter": {"once": true, "ar": "حجر المفتاح. يطفو في بتلات. طبعًا يطفو في بتلات.", "en": "The Keystone. Floating in petals. Of course it's petals."},
+  "warden_wake":  {"once": true, "ar": "حارس. عشرة أمتار من التشويش في قبّعة سيّئة. تحرّك!", "en": "A Warden. Ten metres of Static in a terrible hat. Move!"},
+  "warden_down":  {"once": true, "ar": "سقط. خذ حجر المفتاح. برفق؛ إنه يحمل سماءً.", "en": "It's down. Take the Keystone. Gently. It's holding up a sky."},
+  "lift_get":     {"once": true, "ar": "الرفع. يسأل العالم عن وزنك، وتقول له: لا شيء. صار لك.", "en": "Lift. The world asks your weight, and you say: nothing. It's yours."},
+  "loom_near":    {"once": true, "ar": "النَّوْل. كان صاخبًا دائمًا. لاحظتُ ذلك الآن فقط.", "en": "The Loom. It was always this loud. I'm only noticing now."},
+  "down": [
+   {"ar": "طَخّ. أنتَ بخير. معظمك سائل، تذكّر.", "en": "Splat. You're fine. You're mostly liquid, remember."},
+   {"ar": "إعادة تشكّل. خذ وقتك. سأعدّ إلى ثلاثة، ثم ثلاثة أخرى.", "en": "Reforming. Take your time. I'll count to three, then three again."},
+   {"ar": "لا بأس. أنا أيضًا سقطتُ مرّة. أظنّ. [—DATA LOST—]", "en": "It's fine. I fell once too. I think. [—DATA LOST—]"}
+  ]
+ }
+}

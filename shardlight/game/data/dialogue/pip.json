@@ -1,0 +1,41 @@
+{
+ "npc_id": "pip",
+ "entries": [
+  {"if": {"flag": "keystone_taken"}, "node": "after"},
+  {"if": {"not_flag": "talked_pip"}, "node": "f1"},
+  {"node": "hub"}
+ ],
+ "barks": [
+  {"ar": "أنا أطير! تقريبًا!", "en": "I'm flying! Almost!"},
+  {"ar": "تانزي! الهواء ليّن اليوم!", "en": "Tansy! The air's soft today!"},
+  {"ar": "هل تطفو الحجارة لأنها خفيفة، أم لأنها تحبّ الغيم؟", "en": "Do rocks float because they're light, or because they like clouds?"},
+  {"if": {"flag": "keystone_taken"}, "ar": "سمعتَ الجرس؟ سمعتَ؟!", "en": "Did you hear the Bell? Did you?!"}
+ ],
+ "nodes": {
+  "f1": {"speaker": "pip", "ar": "أنتَ أزرق! هل أنتَ توتة؟ تانزي! التوتة تمشي!", "en": "You're BLUE! Are you a berry? Tansy! The berry's walking!",
+   "choices": [
+    {"ar": "[ارتجاج غاضب]", "en": "[wobble angrily]", "emote": "angry", "goto": "f2a"},
+    {"ar": "[زقزقة سعيدة]", "en": "[happy chirp]", "emote": "happy", "goto": "f2b"}]},
+  "f2a": {"speaker": "pip", "ar": "غاضبة! توتة لها مشاعر! آسف يا توتة!", "en": "It's angry! A berry with feelings! Sorry, berry!", "next": "f3"},
+  "f2b": {"speaker": "pip", "ar": "تتكلّم! لا، تزقزق. نفس الشيء!", "en": "It talks! No, it squeaks. Same thing!", "next": "f3"},
+  "f3": {"speaker": "pip", "ar": "أنا أكاد أطير. شاهد! شاهد شاهد شاهد.", "en": "I can almost fly. Watch! Watch watch watch.", "next": "f4"},
+  "f4": {"speaker": "pip", "ar": "(يقفز، ويهبط على مؤخّرته.) أرأيت؟ تقريبًا!", "en": "(He jumps, lands on his bottom.) See? Almost!", "next": "f5"},
+  "f5": {"speaker": "pip", "ar": "تانزي تقول إنّ «تقريبًا» كذبة. وأنا أقول إنها مكان، وأنا أسكن فيه.", "en": "Tansy says \"almost\" is a lie. I say it's a place, and I live there.", "next": "hub"},
+  "hub": {"speaker": "pip", "ar": "هيه! عندك سؤال؟ عندي ألف جواب. نصفها صحيح.", "en": "Hey! Got a question? I've got a thousand answers. Half are right.",
+   "choices": [
+    {"if": {"not_flag": "asked_pip_fly"}, "ar": "[ميلان فضولي]", "en": "[curious tilt]", "emote": "surprised", "goto": "fly"},
+    {"if": {"not_flag": "asked_pip_marrow"}, "ar": "[إشارة إلى التلّ]", "en": "[point at the hill]", "goto": "marrow"},
+    {"if": {"not_flag": "asked_pip_static"}, "ar": "[رجفة خفيفة]", "en": "[nervous shiver]", "emote": "surprised", "goto": "static"},
+    {"ar": "[تلويحة]", "en": "[wave]", "goto": "bye"}]},
+  "fly": {"speaker": "pip", "ar": "اقفز من مكان عالٍ وخذ وقتك في السقوط. الهواء هنا ليّن كالخبز.", "en": "Jump off something high and take your time falling. The air here is soft as bread.",
+   "actions": [{"set_flag": "asked_pip_fly"}], "next": "hub"},
+  "marrow": {"speaker": "pip", "ar": "العمّ مارو فوق التلّ. يكلّم الملفوف. تانزي تقول إنه لا يردّ، لكنّي سمعته.", "en": "Old Marrow's up the hill. He talks to the cabbages. Tansy says they don't answer. I've heard them.",
+   "actions": [{"set_flag": "asked_pip_marrow"}], "next": "hub"},
+  "static": {"speaker": "pip", "ar": "التشويش؟ يبدو كالوبر على كمّ. وإن لمسك... تنسى ما كنتَ تفعل!", "en": "Static? Looks like fuzz on a sleeve. If it touches you... you forget what you were doing!",
+   "actions": [{"set_flag": "asked_pip_static"}], "next": "hub"},
+  "bye": {"speaker": "pip", "ar": "إلى اللقاء يا توتة!", "en": "Bye, berry!"},
+  "after": {"speaker": "pip", "ar": "دقّ الجرس «دونغ»! أحسستُه في أسناني!", "en": "The Bell went DONG! I felt it in my teeth!",
+   "choices": [{"ar": "[زقزقة سعيدة]", "en": "[happy chirp]", "emote": "happy", "goto": "after2"}]},
+  "after2": {"speaker": "pip", "ar": "وأنا طرتُ! ...قليلًا. تقريبًا!", "en": "And I flew! ...A bit. Almost!"}
+ }
+}
