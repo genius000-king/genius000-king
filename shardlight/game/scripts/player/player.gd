@@ -272,7 +272,7 @@ func _physics_process(delta: float) -> void:
 		coyote = 0
 		slime.impulse_squash(-0.55)
 		slime.emote("happy", 0.5)
-		Audio.play("jump", global_position)
+		Audio.play("slime_jump" if Audio.has_event("slime_jump") else "jump", global_position)
 		jumped.emit()
 	velocity.x = hv.x + external_velocity.x
 	velocity.z = hv.z + external_velocity.z
@@ -286,7 +286,7 @@ func _physics_process(delta: float) -> void:
 		var impact := clampf(-fall_speed_peak / 11.0, 0.0, 1.6)
 		slime.impulse_squash(0.35 + impact * 0.45)
 		add_shake(impact * 0.3)
-		Audio.play("land_hard" if impact > 0.7 else "land_soft", global_position, -3.0 + impact * 4.0)
+		Audio.play(("slime_land_hard" if impact > 0.7 else "slime_land_soft") if Audio.has_event("slime_land_soft") else ("land_hard" if impact > 0.7 else "land_soft"), global_position, -3.0 + impact * 4.0)
 		landed.emit(impact)
 		_step(true)
 	if now_floor:
@@ -325,7 +325,11 @@ func _step(force: bool) -> void:
 	var ev := "step_%s_%s" % [surf, "run" if sprinting else "walk"]
 	if not Audio.has_event(ev):
 		ev = "step_grass_walk"
-	Audio.play(ev, global_position + Vector3(0, 0.05, 0), (-8.0 if crouching else -2.0) + (2.0 if force else 0.0), 1.15)
+	# liquid squelch is the main voice; the surface layer underneath tells you what you're on
+	var sq := "slime_hop_run" if sprinting else "slime_hop"
+	if Audio.has_event(sq):
+		Audio.play(sq, global_position, (-8.0 if crouching else 0.0) + (2.0 if force else 0.0))
+	Audio.play(ev, global_position + Vector3(0, 0.05, 0), (-14.0 if crouching else -9.0), 1.25)
 	footstep.emit(surf, sprinting)
 
 

@@ -23,9 +23,9 @@ sys.path.insert(0, HERE)
 import toolkit as T  # noqa: E402
 
 OUT = os.path.normpath(os.path.join(HERE, "..", "game", "assets", "audio"))
-MODULES = ["gen_music", "gen_ambience", "gen_weapons", "gen_abilities", "gen_pickup", "gen_foley",
+MODULES = ["gen_slime", "gen_music", "gen_ambience", "gen_weapons", "gen_abilities", "gen_pickup", "gen_foley",
            "gen_env", "gen_ui", "gen_npc", "gen_creatures"]
-CATEGORIES = ["foley", "weapons", "abilities", "ui", "pickup", "npc", "creatures", "env", "ambience", "music"]
+CATEGORIES = ["slime", "foley", "weapons", "abilities", "ui", "pickup", "npc", "creatures", "env", "ambience", "music"]
 
 # The event-name CONTRACT (variants per event; 1 = single file, no _NN suffix)
 CONTRACT = {}

@@ -201,6 +201,33 @@
   "pitch_jitter": 0.0,
   "bus": "SFX"
  },
+ "goo_shot": {
+  "files": [
+   "slime/goo_shot_01.ogg",
+   "slime/goo_shot_02.ogg",
+   "slime/goo_shot_03.ogg",
+   "slime/goo_shot_04.ogg",
+   "slime/goo_shot_05.ogg"
+  ],
+  "category": "slime",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.08,
+  "bus": "SFX"
+ },
+ "goo_splat": {
+  "files": [
+   "slime/goo_splat_01.ogg",
+   "slime/goo_splat_02.ogg",
+   "slime/goo_splat_03.ogg",
+   "slime/goo_splat_04.ogg"
+  ],
+  "category": "slime",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
  "hover": {
   "files": [
    "ui/hover.ogg"
@@ -581,6 +608,114 @@
    "foley/slide.ogg"
   ],
   "category": "foley",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "slime_dash": {
+  "files": [
+   "slime/slime_dash_01.ogg",
+   "slime/slime_dash_02.ogg",
+   "slime/slime_dash_03.ogg"
+  ],
+  "category": "slime",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "slime_gulp": {
+  "files": [
+   "slime/slime_gulp_01.ogg",
+   "slime/slime_gulp_02.ogg"
+  ],
+  "category": "slime",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "slime_hop": {
+  "files": [
+   "slime/slime_hop_01.ogg",
+   "slime/slime_hop_02.ogg",
+   "slime/slime_hop_03.ogg",
+   "slime/slime_hop_04.ogg",
+   "slime/slime_hop_05.ogg",
+   "slime/slime_hop_06.ogg",
+   "slime/slime_hop_07.ogg",
+   "slime/slime_hop_08.ogg"
+  ],
+  "category": "slime",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "slime_hop_run": {
+  "files": [
+   "slime/slime_hop_run_01.ogg",
+   "slime/slime_hop_run_02.ogg",
+   "slime/slime_hop_run_03.ogg",
+   "slime/slime_hop_run_04.ogg",
+   "slime/slime_hop_run_05.ogg",
+   "slime/slime_hop_run_06.ogg",
+   "slime/slime_hop_run_07.ogg",
+   "slime/slime_hop_run_08.ogg"
+  ],
+  "category": "slime",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.06,
+  "bus": "SFX"
+ },
+ "slime_jump": {
+  "files": [
+   "slime/slime_jump_01.ogg",
+   "slime/slime_jump_02.ogg",
+   "slime/slime_jump_03.ogg",
+   "slime/slime_jump_04.ogg"
+  ],
+  "category": "slime",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.05,
+  "bus": "SFX"
+ },
+ "slime_land_hard": {
+  "files": [
+   "slime/slime_land_hard_01.ogg",
+   "slime/slime_land_hard_02.ogg",
+   "slime/slime_land_hard_03.ogg",
+   "slime/slime_land_hard_04.ogg"
+  ],
+  "category": "slime",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "slime_land_soft": {
+  "files": [
+   "slime/slime_land_soft_01.ogg",
+   "slime/slime_land_soft_02.ogg",
+   "slime/slime_land_soft_03.ogg",
+   "slime/slime_land_soft_04.ogg"
+  ],
+  "category": "slime",
+  "loop": false,
+  "volume_db": 0.0,
+  "pitch_jitter": 0.0,
+  "bus": "SFX"
+ },
+ "slime_splash": {
+  "files": [
+   "slime/slime_splash_01.ogg",
+   "slime/slime_splash_02.ogg",
+   "slime/slime_splash_03.ogg"
+  ],
+  "category": "slime",
   "loop": false,
   "volume_db": 0.0,
   "pitch_jitter": 0.0,
