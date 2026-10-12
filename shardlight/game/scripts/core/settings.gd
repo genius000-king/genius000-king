@@ -13,6 +13,7 @@ var music_db := -4.0
 var sfx_db := 0.0
 var invert_y := false
 var show_fps := false
+var first_person := false
 
 const PATH := "user://settings.cfg"
 
@@ -132,7 +133,7 @@ func apply_audio() -> void:
 
 func save() -> void:
 	var c := ConfigFile.new()
-	for k in ["quality", "mouse_sensitivity", "touch_sensitivity", "fov", "language", "master_db", "music_db", "sfx_db", "invert_y", "show_fps"]:
+	for k in ["quality", "mouse_sensitivity", "touch_sensitivity", "fov", "language", "master_db", "music_db", "sfx_db", "invert_y", "show_fps", "first_person"]:
 		c.set_value("settings", k, get(k))
 	c.save(PATH)
 

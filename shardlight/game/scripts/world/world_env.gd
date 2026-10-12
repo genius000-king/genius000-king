@@ -29,30 +29,33 @@ static func build(parent: Node, def: Dictionary) -> Dictionary:
 	env.ambient_light_sky_contribution = 0.35
 	env.ambient_light_energy = float(def.ambient_energy) * 0.6
 	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
-	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
 	env.tonemap_exposure = 1.0
-	env.tonemap_white = 5.0
 	env.glow_enabled = true
-	env.glow_intensity = 0.9
+	env.glow_intensity = 0.7
 	env.glow_strength = 1.0
-	env.glow_bloom = 0.06
-	env.glow_hdr_threshold = 1.0
+	env.glow_bloom = 0.0
+	env.glow_hdr_threshold = 1.15
 	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT if Settings.is_mobile() else Environment.GLOW_BLEND_MODE_SCREEN
 	for i in 7:
 		env.set_glow_level(i, 1.0 if i in [1, 3, 5] else 0.0)
 	var fog: Dictionary = def.fog
+	# comic depth fog: only far distances fade toward the world tint; near/mid stays flat & saturated
 	env.fog_enabled = true
-	env.fog_mode = Environment.FOG_MODE_EXPONENTIAL
+	env.fog_mode = Environment.FOG_MODE_DEPTH
 	env.fog_light_color = fog.color
-	env.fog_density = fog.density
-	env.fog_sky_affect = 0.05
-	env.fog_sun_scatter = fog.sun_scatter
-	env.fog_height = float(def.sea_level) + float(fog.height)
-	env.fog_height_density = fog.height_density
-	env.fog_aerial_perspective = 0.2
+	env.fog_light_energy = 1.0
+	env.fog_depth_begin = 140.0
+	env.fog_depth_end = Settings.view_distance() * 1.05
+	env.fog_depth_curve = 1.6
+	env.fog_density = 0.85
+	env.fog_sky_affect = 0.0
+	env.fog_sun_scatter = 0.0
+	env.fog_height_density = 0.0
+	env.fog_aerial_perspective = 0.0
 	if Settings.volumetric_fog():
 		env.volumetric_fog_enabled = true
-		env.volumetric_fog_density = 0.0012
+		env.volumetric_fog_density = 0.0004
 		env.volumetric_fog_albedo = fog.color
 		env.volumetric_fog_length = 64.0
 		env.volumetric_fog_detail_spread = 2.0
@@ -64,7 +67,7 @@ static func build(parent: Node, def: Dictionary) -> Dictionary:
 		env.ssao_intensity = 1.4
 		env.ssao_light_affect = 0.15
 	env.adjustment_enabled = true
-	env.adjustment_saturation = 1.22
+	env.adjustment_saturation = 1.15
 	env.adjustment_contrast = 1.08
 	we.environment = env
 	parent.add_child(we)
