@@ -1,0 +1,42 @@
+{
+ "npc_id": "ilse",
+ "entries": [
+  {"if": {"flag": "r1_seen"}, "node": "a1"},
+  {"if": {"not_flag": "talked_ilse", "stage": "bloom_bell==1"}, "node": "i1", "marker": true},
+  {"if": {"not_flag": "talked_ilse"}, "node": "i1"},
+  {"node": "hub"}
+ ],
+ "barks": [
+  {"ar": "لا أحد يغادر هذا البيت جائعًا.", "en": "Nobody leaves this house hungry."},
+  {"ar": "مارو! جزرتك تتكلّم مجدّدًا!", "en": "Marrow! Your carrot's talking again!"},
+  {"if": {"flag": "keystone_taken"}, "ar": "الأزهار مفتوحة. والشاي جاهز.", "en": "Flowers are open. Tea's ready."}
+ ],
+ "nodes": {
+  "i1": {"speaker": "ilse", "ar": "لا تصدّق زوجي: الجرس لم يصمت، بل حبس أنفاسه.", "en": "Don't believe my husband. The Bell hasn't gone silent. It's holding its breath.", "next": "i2"},
+  "i2": {"speaker": "ilse", "ar": "ذُقْ هذا.", "en": "Taste this.",
+   "choices": [{"ar": "[زقزقة سعيدة]", "en": "[happy chirp]", "emote": "happy", "goto": "i3"}]},
+  "i3": {"speaker": "ilse", "ar": "(تدسّ ملعقة مربّى في نواتك.) ...لمعتَ! أهذا المربّى أم أنتَ؟", "en": "(She slips a spoonful of jam into your core.) ...You glowed! Is that the jam or you?", "next": "i4"},
+  "i4": {"speaker": "ilse", "ar": "أغنية الجرس ثلاثة أسطر: «اصعد إلى الجرس. أزهِر حيث يؤلم. أنصت إلى الجوف.»", "en": "The Bell's song has three lines: \"Rise to the bell. Bloom where it hurts. Listen to the hollow.\"",
+   "actions": [
+    {"start_quest": "bloom_bell"}, {"advance_quest": "bloom_bell", "from": 0}, {"advance_quest": "bloom_bell", "from": 1},
+    {"if": {"flag": "sanctum_open"}, "then": [{"advance_quest": "bloom_bell", "from": 2}]}],
+   "next": "i5"},
+  "i5": {"speaker": "ilse", "ar": "لا أعرف معناها. أعرف فقط أنّ جدّتي كانت تدندنها وهي تعجن.", "en": "I don't know what it means. I only know my grandmother hummed it while kneading.", "next": "hub"},
+
+  "hub": {"speaker": "ilse", "ar": "اجلس، اجلس. لا أعضّ. أنا أُطعِم.", "en": "Sit, sit. I don't bite. I feed.",
+   "choices": [
+    {"if": {"not_flag": "asked_i_marrow"}, "ar": "[ميلان فضولي]", "en": "[curious tilt]", "emote": "surprised", "goto": "marrow"},
+    {"if": {"not_flag": "asked_i_wren"}, "ar": "[إشارة إلى الخلايا]", "en": "[point at the hives]", "goto": "wren"},
+    {"ar": "[زقزقة طامعة]", "en": "[greedy chirp]", "emote": "happy", "goto": "jam"},
+    {"ar": "[تلويحة]", "en": "[wave]", "goto": "bye"}]},
+  "marrow": {"speaker": "ilse", "ar": "يضع فنجانين كلّ صباح، وأنا أمامه. يقول عادة قديمة. عادة حسنة.", "en": "He sets out two cups every morning, with me right there. Says it's an old habit. A good one.",
+   "actions": [{"set_flag": "asked_i_marrow"}], "next": "hub"},
+  "wren": {"speaker": "ilse", "ar": "رِن عند الخلايا. لم تعد تنزل للعشاء. تضع عسلًا على السور القديم كلّ أحد. لا تسأل لمن.", "en": "Wren's up at the hives. Won't come down for supper. Leaves honey on the old wall each Sunday. Don't ask who for.",
+   "actions": [{"set_flag": "asked_i_wren"}], "next": "hub"},
+  "jam": {"speaker": "ilse", "ar": "حسنًا، ملعقة أخرى. لكن لا تتوهّج على مفرش الطاولة.", "en": "Fine, one more spoon. But no glowing on the tablecloth.", "next": "hub"},
+  "bye": {"speaker": "ilse", "ar": "عُد حين تجوع. أيّ وقت. أيّ عالم.", "en": "Come back when you're hungry. Any time. Any world."},
+
+  "a1": {"speaker": "ilse", "ar": "الجرس! سمعتَه؟ بكيتُ في الحساء. مارو يقول إنّ الملح زاد. وأنا أقول: ليكن.", "en": "The Bell! Did you hear it? I cried into the soup. Marrow says it's too salty. I say: so be it.", "next": "a2"},
+  "a2": {"speaker": "ilse", "ar": "وفيك شيء يشبه دفء هذا البيت. (تهزّ رأسها.) كلام عجائز.", "en": "And there's something in you like the warmth of this house. (Shakes her head.) Old-woman talk."}
+ }
+}

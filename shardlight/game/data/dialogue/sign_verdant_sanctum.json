@@ -1,0 +1,12 @@
+{
+ "npc_id": "sign_verdant_sanctum",
+ "name": {"ar": "لافتة", "en": "Sign"},
+ "entries": [
+  {"if": {"flag": "sanctum_open"}, "node": "open"},
+  {"node": "closed"}
+ ],
+ "nodes": {
+  "closed": {"speaker": "sign", "ar": "الملاذ لا يُفتح إلا لمن أضاء البتلات الثلاث ({trials}/3).", "en": "The Sanctum opens only for those who have lit three petals ({trials}/3)."},
+  "open": {"speaker": "sign", "ar": "البتلات تتوهّج. الباب مستيقظ.", "en": "The petals glow. The door is awake."}
+ }
+}

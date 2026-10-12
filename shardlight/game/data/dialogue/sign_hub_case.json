@@ -1,0 +1,9 @@
+{
+ "npc_id": "sign_hub_case",
+ "name": {"ar": "لافتة", "en": "Sign"},
+ "entries": [{"node": "s1"}],
+ "nodes": {
+  "s1": {"speaker": "sign", "ar": "العيّنة 7 — الحافظة محطّمة من الداخل.", "en": "Specimen 7 — case broken from the inside.", "next": "s2"},
+  "s2": {"speaker": "lumen", "ar": "لم أقل شيئًا. أنا أقرأ فقط.", "en": "I said nothing. I'm only reading."}
+ }
+}

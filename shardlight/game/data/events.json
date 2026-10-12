@@ -1,0 +1,57 @@
+{
+ "events": {
+  "hub_wake": {"actions": [
+    {"start_quest": "first_light"}, {"journal": "place_hub"}, {"journal": "lore_fracture"},
+    {"start_dialogue": "lumen", "node": "p1"}]},
+  "hub_control": {"actions": [{"lumen_say": "tut_move"}]},
+  "tut_jump": {"actions": [{"lumen_say": "tut_jump"}]},
+  "tut_interact": {"actions": [{"lumen_say": "tut_interact"}]},
+  "hub_vent_near": {"actions": [{"lumen_say": "vent_hint"}]},
+  "plasma_first_gulp": {"actions": [
+    {"set_flag": "gulped"}, {"advance_quest": "first_light", "from": 0}, {"lumen_say": "gulp"}]},
+  "plasma_first_shot": {"actions": [{"set_flag": "shot_fired"}, {"lumen_say": "shot"}]},
+  "gate_verdant_awake": {"actions": [
+    {"set_flag": "gate_verdant_awake"}, {"advance_quest": "first_light", "from": 1},
+    {"sting": "mus_reveal"}, {"lumen_say": "gate_awake"}]},
+  "loom_near": {"actions": [{"lumen_say": "loom_near"}]},
+
+  "arrive_verdant": {"actions": [
+    {"set_flag": "in_verdant"}, {"advance_quest": "first_light", "from": 2},
+    {"journal": "place_verdant"}, {"lumen_say": "verdant_arrive"}]},
+  "enter_village": {"actions": [{"lumen_say": "village_arrive"}]},
+  "verdant_first_jump": {"actions": [{"lumen_say": "lowg"}]},
+  "static_first_seen": {"actions": [{"lumen_say": "static_seen"}]},
+
+  "trial_float_start": {"actions": [{"lumen_say": "trial_float_start"}]},
+  "trial_float_done": {"actions": [
+    {"set_flag": "trial_float"}, {"play_sound": "quest_complete"}, {"lumen_say": "float_done"},
+    {"event": "sanctum_open"}]},
+  "trial_bloom_start": {"actions": [{"lumen_say": "bloom_start"}]},
+  "trial_bloom_wave": {"actions": [{"lumen_say": "bloom_wave"}]},
+  "trial_bloom_done": {"actions": [
+    {"set_flag": "trial_bloom"}, {"play_sound": "quest_complete"}, {"lumen_say": "bloom_done"},
+    {"event": "sanctum_open"}]},
+  "trial_echo_start": {"actions": [{"lumen_say": "echo_start"}]},
+  "trial_echo_done": {"actions": [
+    {"set_flag": "trial_echo"}, {"play_sound": "quest_complete"}, {"lumen_say": "grove_done"},
+    {"event": "sanctum_open"}]},
+  "sanctum_open": {"once": false,
+   "if": {"flag": ["trial_float", "trial_bloom", "trial_echo"], "not_flag": "sanctum_open"},
+   "actions": [
+    {"set_flag": "sanctum_open"},
+    {"advance_quest": "bloom_bell", "from": 2},
+    {"lumen_say": "sanctum_open"}]},
+
+  "enter_sanctum": {"actions": [{"lumen_say": "sanctum_enter"}]},
+  "warden_wake": {"actions": [{"lumen_say": "warden_wake"}]},
+  "warden_down": {"actions": [{"set_flag": "warden_down"}, {"lumen_say": "warden_down"}]},
+  "keystone_verdant": {"actions": [
+    {"set_flag": "keystone_taken"}, {"give_keystone": "verdant"}, {"give_ability": "lift"},
+    {"sting": "mus_keystone"}, {"play_sound": "keystone_pickup"},
+    {"advance_quest": "first_light", "from": 3}, {"advance_quest": "bloom_bell", "from": 3},
+    {"journal": "lore_keystones"}, {"journal": "lore_lift"}, {"lumen_say": "lift_get"}]},
+
+  "player_down": {"once": false, "actions": [{"lumen_say": "down"}]},
+  "slice_end": {"actions": [{"slice_end": true}]}
+ }
+}

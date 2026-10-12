@@ -1,0 +1,19 @@
+{
+ "reveals": {
+  "r1": {
+   "title": {"ar": "اسمٌ يعرفه الجميع", "en": "A Name Everyone Knows"},
+   "subtitle": {"ar": "المرج الطافي", "en": "Verdant Drift"},
+   "text": {"ar": "غرقت فتاة اسمها فايل في الربيع الماضي. وقبّعتك ترتجف.", "en": "A girl named Vael drowned last spring. Your cap is trembling."}
+  },
+  "loom_vision": {
+   "title": {"ar": "رؤيا النَّوْل", "en": "The Loom's Vision"},
+   "subtitle": {"ar": "حجر المفتاح الأوّل", "en": "The First Keystone"},
+   "text": {"ar": "ميناء عاصف. قارب صغير. وفانوس ما زال مضاءً.", "en": "A stormy harbour. A small boat. A lantern still lit."}
+  },
+  "slice_end": {
+   "title": {"ar": "١/٧ — حجر المفتاح الأوّل", "en": "Keystone 1 of 7"},
+   "subtitle": {"ar": "ضوء الشظايا", "en": "Shardlight"},
+   "text": {"ar": "يتبع... بوّابة الكهرمان بدأت تُدندن.", "en": "To be continued... the Amber gate has begun to hum."}
+  }
+ }
+}

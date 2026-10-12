@@ -1,0 +1,9 @@
+{
+ "npc_id": "sign_verdant_grove",
+ "name": {"ar": "لافتة", "en": "Sign"},
+ "entries": [{"node": "s1"}],
+ "nodes": {
+  "s1": {"speaker": "sign", "ar": "بستان الجذوع. المس ما يلمع، وأنصت.", "en": "Log Grove. Touch what glimmers. Listen.", "actions": [{"event": "trial_echo_start"}], "next": "s2"},
+  "s2": {"speaker": "sign", "ar": "(بقلم رصاص تحتها: الجذوع تتذكّر. احذر ما تسأل.)", "en": "(In pencil below: The logs remember. Careful what you ask.)"}
+ }
+}

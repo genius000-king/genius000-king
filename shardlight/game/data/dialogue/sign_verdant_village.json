@@ -1,0 +1,8 @@
+{
+ "npc_id": "sign_verdant_village",
+ "name": {"ar": "لافتة", "en": "Sign"},
+ "entries": [{"node": "s1"}],
+ "nodes": {
+  "s1": {"speaker": "sign", "ar": "قرية المرج. تُعبر الجسور بالتحايل على الجاذبية. الرجاء عدم إيقاظ الملفوف.", "en": "Meadow Village. Bridges are crossed by arguing with gravity. Please don't wake the cabbages."}
+ }
+}

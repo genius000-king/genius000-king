@@ -1,0 +1,23 @@
+{
+ "npc_id": "gate_verdant",
+ "entries": [
+  {"if": {"world": "verdant"}, "node": "back"},
+  {"if": {"flag": "gate_verdant_awake"}, "node": "open"},
+  {"node": "asleep"}
+ ],
+ "barks": [],
+ "nodes": {
+  "asleep": {"speaker": "narrator", "ar": "قوس من ضوء قديم، مظلم. نقوشه من نقوش النَّوْل، لكنّها متعبة.", "en": "An arch of old light, dark. Its patterns are the Loom's, but tired.", "actions": [{"lumen_say": "gate_asleep"}]},
+  "open": {"speaker": "narrator", "ar": "القوس يتنفّس أخضر. من خلفه رائحة عشب مبلّل.", "en": "The arch breathes green. Behind it, the smell of wet grass.",
+   "choices": [
+    {"ar": "[زقزقة سعيدة]", "en": "[happy chirp]", "emote": "happy", "goto": "go"},
+    {"ar": "[تردّد]", "en": "[hesitate]", "emote": "blink", "goto": "end"}]},
+  "go": {"speaker": "narrator", "ar": "تخطو. العالم يميل إلى الأعلى برفق.", "en": "You step. The world tilts gently upward.", "next": "go2"},
+  "go2": {"actions": [{"after_end": [{"travel": "verdant"}]}, {"end": true}]},
+  "back": {"speaker": "narrator", "ar": "القوس يهمهم باللون الذي جئتَ منه.", "en": "The arch hums the colour you came from.",
+   "choices": [
+    {"ar": "[ارجع إلى الحفرة]", "en": "[head back to the crater]", "goto": "back2"},
+    {"ar": "[ابقَ]", "en": "[stay]", "goto": "end"}]},
+  "back2": {"actions": [{"after_end": [{"travel": "hub"}]}, {"end": true}]}
+ }
+}
