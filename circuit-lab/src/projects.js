@@ -493,7 +493,7 @@ void loop() {
 
 void loop() {
   if (Serial.available()) {
-    int n = Serial.parseInt();
+    int n = Serial.readStringUntil('\n').toInt();
     digitalWrite(LED_BUILTIN, n % 2);
     Serial.print("ack ");
     Serial.println(n);
@@ -576,6 +576,7 @@ def('pir-alarm','Motion alarm','ESP32','Beginner',['PIR','Buzzer','Logic'],'A PI
  w(p,'esp:5V','pir:VCC','red');w(p,'esp:GND1','pir:GND','black');w(p,'esp:IO27','pir:OUT','yellow');w(p,'esp:IO26','bz:+','orange');w(p,'bz:-','esp:GND2','black');w(p,'esp:IO25','r:A','red');w(p,'r:B','led:A','red');w(p,'led:K','esp:GND3','black');
  code(p,'esp',`const int PIR = 27, BUZZER = 26, LED = 25;
 unsigned long until = 0;
+bool wasAlarm = false;
 
 void setup() {
   pinMode(PIR, INPUT);
@@ -585,11 +586,10 @@ void setup() {
 }
 
 void loop() {
-  if (digitalRead(PIR) == HIGH) {
-    if (millis() > until) Serial.println("Motion detected!");
-    until = millis() + 3000;
-  }
+  if (digitalRead(PIR) == HIGH) until = millis() + 3000;
   bool alarm = millis() < until;
+  if (alarm && !wasAlarm) Serial.println("Motion detected!");
+  wasAlarm = alarm;
   digitalWrite(LED, alarm);
   digitalWrite(BUZZER, alarm && (millis() / 250) % 2);
   delay(10);

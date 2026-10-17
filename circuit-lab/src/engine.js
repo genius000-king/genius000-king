@@ -19,17 +19,20 @@ export class Circuit {
   this.connected=new Set(this.project.wires.flatMap(w=>[w.a,w.b]));this.transient=this.project.components.some(c=>TRANSIENT.has(c.type));this.precision=this.project.config?.precision??this.precision??5;}
  same(a,b){return this.graph.u.m.has(a)&&this.graph.u.m.has(b)&&this.graph.u.root(a)===this.graph.u.root(b);}
  voltage(node){return this.voltages[node]??0;}
+ // Nets joined directly or through resistors up to 100 kΩ (e.g. a level-shifting divider).
+ linked(a,b){const ia=this.netOf(a),ib=this.netOf(b);if(ia===undefined||ib===undefined)return false;if(ia===ib)return true;const adj=new Map();for(const c of this.project.components){if(c.type!=='resistor'||c.params.resistance>100000)continue;const x=this.netOf(ref(c,'A')),y=this.netOf(ref(c,'B'));if(x===undefined||y===undefined)continue;(adj.get(x)??adj.set(x,[]).get(x)).push(y);(adj.get(y)??adj.set(y,[]).get(y)).push(x);}const seen=new Set([ia]),q=[ia];while(q.length){const n=q.shift();for(const m of adj.get(n)??[]){if(m===ib)return true;if(!seen.has(m)){seen.add(m);q.push(m);}}}return false;}
  netOf(node){return this.graph.index[node];}
  // Advance the analog state to `time` (ms). Repeated calls at one time re-solve the last sub-step
  // from its starting state, so firmware GPIO changes within a millisecond are not integrated twice.
  step(hw,time){hw=this.sharedHardware??hw;if(this.count>700)throw Error('Circuit exceeds the 700-net solver budget.');if(this.t!==null&&time<this.t){this.state={};this.prevState={};this.t=null;this.ledAcc={};for(const k in this.samples)this.samples[k]={t:[],v:[]};}
   if(this.t===null){this.lastH=1e-6;this.prevState=this.state;this.state=this.substep(hw,time,1e-6,this.state,false);this.t=time;}
-  else if(time>this.t){const n=this.transient?Math.max(1,this.precision):1,h=(time-this.t)/n;this.ledAcc={};for(let j=1;j<=n;j++){this.prevState=this.state;this.state=this.substep(hw,this.t+h*j,h,this.prevState,true);}this.lastH=h;this.t=time;}
+  else if(time>this.t){this.switching=this.transient||this.pwmActive(hw);const n=this.switching?Math.max(1,this.precision):1,h=(time-this.t)/n;this.ledAcc={};for(let j=1;j<=n;j++){this.prevState=this.state;this.state=this.substep(hw,this.t+h*j,h,this.prevState,true);}this.lastH=h;this.t=time;}
   else this.state=this.substep(hw,time,this.lastH,this.prevState,false);
   this.finalize();return this;}
+ pwmActive(hw){for(const c of this.project.components){if(!isBoard(c))continue;const g=this.deviceFor(hw,c)?.gpio;if(g)for(const s of Object.values(g))if(s.mode===1&&s.duty!==undefined&&!s.servo&&s.duty>0&&s.duty<1)return true;}return false;}
  drivers(hw){const map=new Map();for(const c of this.project.components){if(!isBoard(c))continue;const dev=this.deviceFor(hw,c);if(!dev)continue;for(const t of terminals(c)){if(t.gpio===undefined)continue;const s=dev.gpio?.[t.gpio];if(!s||s.mode!==1)continue;if(s.duty!==undefined||s.servo){const net=this.netOf(ref(c,t.id));if(net!==undefined)map.set(net,{freq:s.frequency??0,duty:s.duty??0,servo:s.servo,board:c.id,pin:t.gpio});}}}return map;}
  deviceFor(hw,c){if(!hw)return null;if(hw.boards)return hw.boards[c.id]??null;const own=hw.board?.();return !own||own.id===c.id?hw:null;}
- substep(hw,t,hMs,base,accumulate){const n=this.count,M=this.matrix,rhs=this.rhs,h=hMs/1000,graph=this.graph;const lin=[],sources=[],leds=[],nls=[],posts=[],results=[],next={};const prevX=this.last,drivers=this.drivers(hw),diags=[],edges=this.edges;
+ substep(hw,t,hMs,base,accumulate){const n=this.count,M=this.matrix,rhs=this.rhs,h=hMs/1000,graph=this.graph;const lin=[],sources=[],leds=[],nls=[],posts=[],results=[],next={},refs=[];const prevX=this.last,drivers=this.drivers(hw),diags=[],edges=this.edges;
   const G=(a,b,g)=>{if(a===b)return;if(a!==undefined)M[a*n+a]+=g;if(b!==undefined&&b!==null)M[b*n+b]+=g;if(a!==undefined&&b!==undefined&&b!==null){M[a*n+b]-=g;M[b*n+a]-=g;}};
   const st={G,I:(a,b,i)=>{if(a!==undefined)rhs[a]-=i;if(b!==undefined&&b!==null)rhs[b]+=i;},M:(r,c,v)=>{if(r!==undefined&&c!==undefined)M[r*n+c]+=v;},rhs:(r,v)=>{if(r!==undefined)rhs[r]+=v;}};
   let x=prevX;
@@ -37,20 +40,22 @@ export class Circuit {
    const k={c,p:c.params,id:c.id,t,h,s,next:nx,digital,hw,n:idx,
     R:(a,b,r)=>lin.push([idx(a),idx(b),1/Math.max(1e-6,r)]),
     S:(a,b,v,r,kind,opt={})=>{sources.push({a:idx(a),b:idx(b),v,g:1/r,kind,component:c.id,...opt});},
-    ref:p=>lin.push([idx(p),null,1e-9]),
+    ref:p=>refs.push(idx(p)),
     led:(a,b,vf,rd=15)=>leds.push({a:idx(a),b:idx(b),vf,rd,key:c.id+':'+a}),
     nl:f=>nls.push(f),post:f=>posts.push(f),result:f=>results.push([c,f]),
     v:p=>this.x?.[idx(p)]??0,vn:i=>this.x?.[i]??0,vprev:p=>prevX[idx(p)]??0,
-    avg:(tag,inst)=>{const a=this.ledAcc[c.id+':'+tag];return this.transient&&a?.time>0?a.sum/a.time:inst;},
+    avg:(tag,inst)=>{const a=this.ledAcc[c.id+':'+tag];return this.switching&&a?.time>0?a.sum/a.time:inst;},
     drive:p=>drivers.get(idx(p)),edge:(p,level,at=t)=>{edges.push({net:idx(p),level,t:at});if(edges.length>64)edges.shift();},
     sample:vals=>{const b=this.samples[c.id]??(this.samples[c.id]={t:[],v:[]});if(b.t.length&&b.t.at(-1)>=t){b.v[b.v.length-1]=vals;return;}b.t.push(t);b.v.push(vals);if(b.t.length>SCOPE_SAMPLES){b.t.splice(0,b.t.length-SCOPE_SAMPLES);b.v.splice(0,b.v.length-SCOPE_SAMPLES);}},
     diag:(level,message)=>diags.push({level,component:c.id,message})};
    if(isBoard(c))this.boardElement(k,hw,t,hMs);else ELEMENTS[c.type]?.(k);}
+  // Without a board the first supply's negative terminal is the 0 V reference, like a bench ground.
+  const boardGround=this.project.components.some(isBoard);refs.forEach((r,i)=>{if(r!==undefined)lin.push([r,null,!boardGround&&r===refs.find(x=>x!==undefined)?1e3:1e-9]);});
   // Linear part of the matrix is identical for every Newton iteration.
   M.fill(0);rhs.fill(0);for(let i=0;i<n;i++)M[i*n+i]=1e-10;for(const [a,b,g]of lin)G(a,b,g);for(const s of sources){G(s.a,s.b,s.g);st.I(s.a,s.b,-s.g*s.v);}
   const baseM=M.slice(),baseR=rhs.slice(),nonlinear=leds.length||nls.length;let converged=!nonlinear,codes=[];
   for(let iter=0;iter<(nonlinear?120:1);iter++){if(iter){M.set(baseM);rhs.set(baseR);}const nextCodes=[];for(const l of leds){const on=(x[l.a]??0)-(x[l.b]??0)>l.vf;nextCodes.push(on);if(on){G(l.a,l.b,1/l.rd);st.I(l.a,l.b,-l.vf/l.rd);}else G(l.a,l.b,1e-10);}for(const f of nls)nextCodes.push(f(x,st));
-   const sol=solveMatrix(M,rhs,n);let delta=0;for(let i=0;i<n;i++){const d=Math.abs(sol[i]-(x[i]??0));if(d>delta)delta=d;}const same=nextCodes.length===codes.length&&nextCodes.every((c,i)=>c===codes[i]);codes=nextCodes;x=sol;if(!nonlinear){converged=true;break;}if(delta<1e-6&&same&&iter>0){converged=true;break;}}
+   const sol=solveMatrix(M,rhs,n);let delta=0;for(let i=0;i<n;i++){const d=Math.abs(sol[i]-(x[i]??0));if(d>delta)delta=d;}const same=nextCodes.length===codes.length&&nextCodes.every((c,i)=>c===codes[i]);codes=nextCodes;x=iter>25&&delta>1?x.map((v,i)=>v+(sol[i]-v)*.5):sol;if(!nonlinear){converged=true;break;}let scale=0;for(let i=0;i<n;i++)scale=Math.max(scale,Math.abs(sol[i]));if(delta<1e-6+1e-7*scale&&same&&iter>0){converged=true;break;}}
   if(!converged)diags.push({level:'warning',message:'Nonlinear solver did not converge in 120 iterations. Results may be inaccurate.'});
   for(let i=0;i<n;i++){if(!Number.isFinite(x[i])||Math.abs(x[i])>1e6)throw Error('Electrical solver diverged. Check supplies and component values.');}
   this.x=x;this.last=x;this.sources=sources;this.leds=leds;
@@ -69,7 +74,7 @@ export class Circuit {
   if(prof.strap==='esp8266'){if(p.bootPressed)k.R('D3',gnd,.1);k.R('D3','3V3_2',12000);k.R('D4','3V3_2',12000);k.R('D8',gnd,12000);}
   for(const tm of prof.pins){if(tm.gpio===undefined)continue;const s=gpio[tm.gpio];if(!s)continue;const label=tm.label;
    if(s.dac!==undefined){src(tm.id,s.dac,50,`DAC ${label}`,{gpio:tm.gpio,board:c.id});continue;}
-   if(s.mode===1){let level=s.value??0;if(s.duty!==undefined){const period=s.frequency?1000/s.frequency:0;level=this.transient&&period>=4*hMs&&!s.servo?(((t/period)%1)<s.duty?1:0):s.duty;}src(tm.id,L*level,prof.outR,`GPIO ${tm.gpio}`,{gpio:tm.gpio,board:c.id,label,output:true});}
+   if(s.mode===1){let level=s.value??0;if(s.duty!==undefined){const period=s.frequency?1000/s.frequency:0;level=this.switching&&period>=4*hMs&&!s.servo?(((t/period)%1)<s.duty?1:0):s.duty;}src(tm.id,L*level,prof.outR,`GPIO ${tm.gpio}`,{gpio:tm.gpio,board:c.id,label,output:true});}
    else if(s.mode===2)src(tm.id,L,prof.pullR,`GPIO ${tm.gpio} pull-up`,{pull:true});else if(s.mode===3||s.mode===4)k.R(tm.id,gnd,prof.pullR);}
   k.result(()=>{const r={},v=p=>k.v(p)-k.v(gnd);if(c.type==='board')r.powerCurrent=Math.max(0,(v('5V')-1.8)/2000);
    r.leds=prof.leds.map(l=>{let on=0;if(l.power)on=1;else if(l.pin!==undefined){const id=pinOf(l.pin);on=id&&v(id)>prof.vih?1:0;}else if(l.gpio!==undefined){const s=gpio[l.gpio];const level=s?.mode===1?(s.duty??s.value??0):(prof.pins.some(t=>t.gpio===l.gpio)?(v(pinOf(l.gpio))>prof.vih?1:0):0);on=l.activeLow?(s?.mode===1||prof.pins.some(t=>t.gpio===l.gpio)?1-level:0):level;}else if(l.uart&&dev?.uartActivity){on=t-(dev.uartActivity[l.uart]??-1e9)<40?1:0;}return {label:l.label,color:l.color,on};});
@@ -228,7 +233,7 @@ export class Simulator {
   if(this.irqEnabled)for(const [pin,v]of Object.entries(this.interrupts)){const next=this.read(Number(pin));if(next!==v.last&&(v.mode===1||v.mode===2&&next||v.mode===3&&!next))this.vm?.callback(v.fn);v.last=next;}
   for(const timer of Object.values(this.timers))if(this.time>=timer.next){this.vm?.callback(timer.fn);timer.next+=timer.period;}
   if(!this.world)this.deliverUart([this]);this.time++;if(this.time%10===0){this.trace.push({t:this.time,v:this.voltageAt(prof.constants?.LED_BUILTIN??2)});if(this.trace.length>200)this.trace.shift();}}}catch(e){this.running=false;this.boot='runtime error';this.log(e.message,'error');this.warn(e.message);}}
- deliverUart(devices){const due=(this.pendingUart??[]).filter(p=>p.at<=this.time);if(!due.length)return;this.pendingUart=this.pendingUart.filter(p=>p.at>this.time);const from=this.board();for(const p of due){const txNode=this.node(p.pin);if(!txNode)continue;for(const d of devices){const b=d.board();if(!b)continue;if(!this.circuit.same(ref(from,this.profile.gnd[0]),ref(b,d.profile.gnd[0])))continue;for(const u of Object.values(d.uarts)){const rxPin=u.rx;if(typeof rxPin!=='number')continue;const rxNode=d.node(rxPin);if(rxNode&&this.circuit.same(txNode,rxNode)&&!(d===this&&u.name===p.port&&rxPin===p.pin))d.receiveUart(u.name,p.bytes,p.baud);}}}}
+ deliverUart(devices){const due=(this.pendingUart??[]).filter(p=>p.at<=this.time);if(!due.length)return;this.pendingUart=this.pendingUart.filter(p=>p.at>this.time);const from=this.board();for(const p of due){const txNode=this.node(p.pin);if(!txNode)continue;for(const d of devices){const b=d.board();if(!b)continue;if(!this.circuit.same(ref(from,this.profile.gnd[0]),ref(b,d.profile.gnd[0])))continue;for(const u of Object.values(d.uarts)){const rxPin=u.rx;if(typeof rxPin!=='number')continue;const rxNode=d.node(rxPin);if(rxNode&&!(d===this&&u.name===p.port&&rxPin===p.pin)&&this.circuit.linked(txNode,rxNode)&&(this.circuit.same(txNode,rxNode)||this.circuit.voltage(rxNode)>=d.profile.vih))d.receiveUart(u.name,p.bytes,p.baud);}}}}
  snapshot(){return {...this.circuit.snapshot(),time:this.time,running:this.running,boot:this.boot,gpio:this.gpio,logs:this.logs,transactions:this.transactions,warnings:this.warnings,oled:this.oled.screens,gfx:this.oled.gfx,trace:this.trace,instructions:this.vm?.instructions??0};}
 }
 function stringCall(method,a){const s=String(a[0]??''),x=a.slice(1);switch(method){case'length':return s.length;case'toInt':return parseInt(s)||0;case'toFloat':return parseFloat(s)||0;case'indexOf':return s.indexOf(typeof x[0]==='number'?String.fromCharCode(x[0]):x[0],x[1]??0);case'lastIndexOf':return s.lastIndexOf(typeof x[0]==='number'?String.fromCharCode(x[0]):x[0]);case'substring':return s.substring(x[0],x[1]??s.length);case'charAt':return s.charCodeAt(x[0])||0;case'startsWith':return s.startsWith(x[0])?1:0;case'endsWith':return s.endsWith(x[0])?1:0;case'equals':return s===String(x[0])?1:0;case'equalsIgnoreCase':return s.toLowerCase()===String(x[0]).toLowerCase()?1:0;case'compareTo':return s<x[0]?-1:s>x[0]?1:0;case'c_str':case'toString':return s;case'toUpperCase':return s.toUpperCase();case'toLowerCase':return s.toLowerCase();case'trim':return s.trim();case'replace':return s.split(typeof x[0]==='number'?String.fromCharCode(x[0]):String(x[0])).join(typeof x[1]==='number'?String.fromCharCode(x[1]):String(x[1]));case'concat':return s+String(x[0]);case'fromChar':return String.fromCharCode(Number(a[0])&255);default:throw Error(`Unsupported String method ${method}`);}}
