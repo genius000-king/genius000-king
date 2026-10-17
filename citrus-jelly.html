@@ -1,0 +1,1194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Citrus Jelly · Material Studies No. 010</title>
+<meta name="description" content="A grabbable half-moon citrus slice: soft-body simulation in plain JavaScript, rendered with WebGPU.">
+<style>
+  :root {
+    --paper: #efe9dd;
+    --ink: #1c1a16;
+    --ink-soft: #645c4f;
+    --rule: rgba(28, 26, 22, 0.2);
+    --glass: rgba(239, 233, 221, 0.84);
+    --accent: #d9531e;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .mono { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; }
+
+  .stage { position: fixed; inset: 0; }
+  #gl {
+    position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+    touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
+  }
+  #gl.can-grab { cursor: grab; }
+  #gl.is-grabbing { cursor: grabbing; }
+
+  .masthead {
+    position: absolute; top: clamp(20px, 3.6vw, 52px); left: clamp(20px, 3.6vw, 52px);
+    max-width: min(58vw, 640px); pointer-events: none;
+  }
+  .kicker { margin: 0 0 clamp(14px, 2vw, 26px); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-soft); }
+  h1 { margin: 0; font-weight: 400; font-size: clamp(52px, 9.4vw, 148px); line-height: 0.88; letter-spacing: -0.035em; }
+  h1 .sep { color: var(--accent); }
+  .hint { margin: clamp(14px, 2vw, 26px) 0 0; font-style: italic; font-size: clamp(17px, 1.7vw, 24px); color: var(--ink-soft); }
+
+  .panel {
+    position: absolute; top: 50%; right: clamp(20px, 3.6vw, 52px); transform: translateY(-50%);
+    width: min(296px, 30vw); display: grid; gap: 24px;
+  }
+  .group-label { margin: 0 0 12px; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-soft); }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .swatch {
+    display: inline-flex; align-items: center; gap: 8px; padding: 7px 13px 7px 8px;
+    font: inherit; font-size: 15px; color: var(--ink); background: transparent;
+    border: 1px solid var(--rule); border-radius: 999px; cursor: pointer;
+  }
+  .swatch .dot { width: 18px; height: 18px; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12); }
+  .swatch[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+
+  .slider { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 6px 10px; font-size: 16px; }
+  .slider output { font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .slider input { grid-column: 1 / -1; width: 100%; margin: 4px 0 0; accent-color: var(--ink); }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn {
+    font: inherit; font-size: 15px; padding: 10px 14px; color: var(--ink); background: transparent;
+    border: 1px solid var(--ink); border-radius: 2px; cursor: pointer;
+  }
+  .btn:hover { background: var(--ink); color: var(--paper); }
+  .btn.solid { background: var(--ink); color: var(--paper); }
+  .btn.solid:hover { background: var(--accent); border-color: var(--accent); }
+  .btn[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+  .keys { margin: 0; font-size: 12px; line-height: 2; color: var(--ink-soft); }
+  kbd { font: 11px ui-monospace, Menlo, Consolas, monospace; border: 1px solid var(--rule); padding: 1px 5px; border-radius: 3px; }
+  .link {
+    font: inherit; font-size: 12px; color: var(--ink); background: none; border: 0; padding: 0;
+    text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+  }
+  .link[aria-pressed="true"] { color: var(--accent); }
+
+  button:focus-visible, .swatch:focus-visible, input[type="range"]:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 3px;
+  }
+
+  .fallback { position: absolute; inset: 0; display: none; place-items: center; text-align: center; padding: 24px; }
+  .fallback p { margin: 0; font-size: clamp(28px, 4vw, 48px); font-style: italic; font-weight: 400; color: var(--ink-soft); }
+
+  .no-gpu #gl, .no-gpu .panel { display: none; }
+  .no-gpu .fallback { display: grid; }
+
+  @media (max-width: 720px) {
+    .masthead { top: 18px; left: 20px; right: 20px; max-width: none; }
+    h1 { font-size: clamp(44px, 14.5vw, 76px); }
+    .hint { margin-top: 10px; font-size: 17px; }
+    .panel {
+      top: auto; bottom: 14px; left: 14px; right: 14px; width: auto; transform: none;
+      grid-template-columns: 1fr 1fr; gap: 14px 16px; padding: 16px;
+      background: var(--glass); border: 1px solid var(--rule); border-radius: 6px;
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    }
+    .panel > .group, .panel > .actions { grid-column: 1 / -1; }
+    .group-label { margin-bottom: 8px; }
+    .swatch { padding: 6px 11px 6px 7px; font-size: 14px; }
+    .slider { font-size: 14px; }
+    .keys { display: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <canvas id="gl" role="img" aria-label="Half-moon citrus slice. Press and drag to grab, stretch and let go."></canvas>
+
+    <header class="masthead">
+      <p class="kicker mono">Material Studies / No. 010</p>
+      <h1>Citrus <span class="sep">/</span><br>Jelly.</h1>
+      <p class="hint">Grab. Stretch. Let go.</p>
+    </header>
+
+    <section class="panel" aria-label="Controls">
+      <div class="group">
+        <p class="group-label mono">Variety</p>
+        <div class="swatches" role="group" aria-label="Variety">
+          <button class="swatch" type="button" data-variety="orange" aria-pressed="true"><span class="dot" style="--c:#e8740f"></span>Orange</button>
+          <button class="swatch" type="button" data-variety="blood" aria-pressed="false"><span class="dot" style="--c:#b5122f"></span>Blood Orange</button>
+          <button class="swatch" type="button" data-variety="lemon" aria-pressed="false"><span class="dot" style="--c:#ffd83e"></span>Lemon</button>
+        </div>
+      </div>
+
+      <label class="slider">
+        <span>Firmness</span><output id="firmOut" for="firm">60</output>
+        <input id="firm" type="range" min="0" max="100" step="1" value="60">
+      </label>
+
+      <label class="slider">
+        <span>Internal damping</span><output id="dampOut" for="damp">35</output>
+        <input id="damp" type="range" min="0" max="100" step="1" value="35">
+      </label>
+
+      <div class="actions">
+        <button class="btn solid" id="nudge" type="button">Give it a nudge</button>
+        <button class="btn" id="reset" type="button">Reset</button>
+        <button class="btn" id="pause" type="button" aria-pressed="false">Pause</button>
+      </div>
+
+      <p class="keys mono">
+        <kbd>Space</kbd> pause &middot; <kbd>N</kbd> nudge &middot; <kbd>R</kbd> reset<br>
+        <button class="link mono" id="mesh" type="button" aria-pressed="false">Mesh overlay (M)</button>
+      </p>
+    </section>
+
+    <div class="fallback" role="status"><p>This slice needs WebGPU.</p></div>
+  </div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ---------------- Geometry ----------------
+     The slice is a half-disk of radius 1 (flat cut edge on y = 0, arc on top),
+     sampled on a polar lattice and stacked into NZ layers. The slab's rounded
+     rim and cut edge come from a half-thickness that shrinks with the distance d
+     to the nearest edge: a quarter-circle profile of radius RHO. */
+  const THICK = 0.4, RHO = 0.13, RHO_CUT = 0.05;   // arc rim and flat cut edge get different rounding radii
+  const NR = 20, NT = 32, NZ = 3, NL = NZ + 1;
+  const TWIST = 0.3;                               // clusters angular samples toward the cut edge
+
+  /* ---------------- Solver ---------------- */
+  const FIXED = 1 / 240;                           // substep length; fixed so stiffness does not depend on frame rate
+  const MAX_STEPS = 16;
+  const ITER = 6;
+  const GRAVITY = 9.8;
+  const INV_MASS = 50;                             // particle mass 0.02: keeps gravity sag inside the firmness range
+  const GRAB_RADIUS = 0.42, GRAB_RATE = 70;
+  const FRICTION = 7, DAMP_MAX = 30;
+  const FLOOR_STIFF = 20000, FLOOR_DAMP = 60;      // penalty contact: spring and damper per unit penetration
+  const NUDGE_HOP = 2.6, NUDGE_SPIN = 5.5;
+
+  /* ---------------- Camera ---------------- */
+  const TARGET = [0, 0.1, -0.42];
+  const FOV = 28 * Math.PI / 180;
+  const LOOK = [0, 0.72, 0.69];                    // camera looks down at the slice lying on the table
+  const MIN_DIST = 5.6;
+
+  const VARIETIES = {
+    orange: { name: 'Orange', flesh: '#ff8c1a', pith: '#f7ebd3', rind: '#e26f0e' },
+    blood: { name: 'Blood Orange', flesh: '#9c0d26', pith: '#eed9c7', rind: '#c2402a' },
+    lemon: { name: 'Lemon', flesh: '#ffd83e', pith: '#fff6d4', rind: '#edbe12' },
+  };
+
+  /* ---------------- Lattice indexing ---------------- */
+  const N2 = 1 + NR * (NT + 1);                    // 2D nodes, the center is a single node
+  const P = N2 * NL;                               // particles
+  const node2 = (i, j) => (i === 0 ? 0 : 1 + (i - 1) * (NT + 1) + j);
+  const pid = (i, j, k) => node2(i, j) * NL + k;
+  const angle = (j) => { const s = j / NT; return Math.PI * s - TWIST * Math.sin(2 * Math.PI * s); };
+  const slabHalf = (d, rho) => {
+    if (d >= rho) return THICK / 2;
+    const q = rho - d;
+    return THICK / 2 - rho + Math.sqrt(Math.max(0, rho * rho - q * q));
+  };
+
+  const rest = new Float64Array(3 * P);
+  const attr = new Float32Array(4 * P);           // radius, angle, unused, unused
+  for (let i = 0; i <= NR; i++) {
+    const r = i / NR;
+    for (let j = 0; j <= NT; j++) {
+      if (i === 0 && j > 0) continue;
+      const th = i === 0 ? 0 : angle(j);
+      const x = r * Math.cos(th), y = r * Math.sin(th);
+      const h = Math.min(slabHalf(Math.max(0, 1 - r), RHO), slabHalf(Math.max(0, y), RHO_CUT));
+      for (let k = 0; k < NL; k++) {
+        const p = pid(i, j, k);
+        rest[3 * p] = x;
+        rest[3 * p + 1] = y;
+        rest[3 * p + 2] = (-1 + (2 * k) / NZ) * h;
+        attr[4 * p] = r;
+        attr[4 * p + 1] = th;
+      }
+    }
+  }
+
+  // Lay the slice flat on the table: the profile's y becomes depth, slab thickness becomes height.
+  // A thick slice standing on its thin cut edge is unstable; lying on its face is its real rest pose.
+  for (let p = 0; p < P; p++) {
+    const q = 3 * p, px = rest[q], py = rest[q + 1], pz = rest[q + 2];
+    rest[q] = px;
+    rest[q + 1] = pz + THICK / 2;
+    rest[q + 2] = -py;
+  }
+
+  /* Surface triangles, all outward-facing: top, bottom, the arc rim and the two cut faces. */
+  const triList = [];
+  const tri = (a, b, c) => triList.push(a, b, c);
+  for (let i = 0; i < NR; i++) for (let j = 0; j < NT; j++) {
+    for (const k of [NZ, 0]) {
+      const up = k === NZ;
+      if (i === 0) {
+        const c = pid(0, 0, k), b = pid(1, j, k), d = pid(1, j + 1, k);
+        if (up) tri(c, b, d); else tri(c, d, b);
+      } else {
+        const A = pid(i, j, k), B = pid(i + 1, j, k), C = pid(i + 1, j + 1, k), D = pid(i, j + 1, k);
+        if (up) { tri(A, B, C); tri(A, C, D); } else { tri(A, C, B); tri(A, D, C); }
+      }
+    }
+  }
+  for (let j = 0; j < NT; j++) for (let k = 0; k < NZ; k++) {
+    const a = pid(NR, j, k), b = pid(NR, j + 1, k), c = pid(NR, j + 1, k + 1), d = pid(NR, j, k + 1);
+    tri(a, b, c); tri(a, c, d);
+  }
+  for (const j of [0, NT]) for (let i = 0; i < NR; i++) for (let k = 0; k < NZ; k++) {
+    const a = pid(i, j, k), b = pid(i + 1, j, k), c = pid(i + 1, j, k + 1), d = pid(i, j, k + 1);
+    if (j === 0) { tri(a, b, c); tri(a, c, d); } else { tri(a, c, b); tri(a, d, c); }
+  }
+  const triIdx = Uint32Array.from(triList);
+  const T = triIdx.length / 3;
+
+  /* Springs: structural edges plus in-plane diagonals (shear), and vertical edges through the slab. */
+  const springA = [], springB = [];
+  const link = (a, b) => { springA.push(a); springB.push(b); };
+  for (let k = 0; k < NL; k++) {
+    for (let i = 0; i < NR; i++) for (let j = 0; j <= NT; j++) link(pid(i, j, k), pid(i + 1, j, k));
+    for (let i = 1; i <= NR; i++) for (let j = 0; j < NT; j++) link(pid(i, j, k), pid(i, j + 1, k));
+    for (let i = 1; i < NR; i++) for (let j = 0; j < NT; j++) {
+      link(pid(i, j, k), pid(i + 1, j + 1, k));
+      link(pid(i + 1, j, k), pid(i, j + 1, k));
+    }
+  }
+  for (let i = 0; i <= NR; i++) for (let j = 0; j <= NT; j++) {
+    if (i === 0 && j > 0) continue;
+    for (let k = 0; k < NZ; k++) link(pid(i, j, k), pid(i, j, k + 1));
+  }
+  // Diagonals across the vertical faces: without them the slab shears like a parallelogram at no cost.
+  for (let k = 0; k < NZ; k++) {
+    for (let i = 0; i < NR; i++) for (let j = 0; j <= NT; j++) {
+      link(pid(i, j, k), pid(i + 1, j, k + 1));
+      link(pid(i + 1, j, k), pid(i, j, k + 1));
+    }
+    for (let i = 1; i <= NR; i++) for (let j = 0; j < NT; j++) {
+      link(pid(i, j, k), pid(i, j + 1, k + 1));
+      link(pid(i, j + 1, k), pid(i, j, k + 1));
+    }
+  }
+  const E = springA.length;
+  const springPa = Uint32Array.from(springA), springPb = Uint32Array.from(springB);
+  const springRest = new Float64Array(E);
+  for (let e = 0; e < E; e++) {
+    const a = 3 * springPa[e], b = 3 * springPb[e];
+    springRest[e] = Math.hypot(rest[b] - rest[a], rest[b + 1] - rest[a + 1], rest[b + 2] - rest[a + 2]);
+  }
+
+  /* Unique wireframe edges of the surface, for the mesh overlay. */
+  const lineList = [], seenEdge = new Set();
+  for (let t = 0; t < triIdx.length; t += 3) {
+    for (const [a, b] of [[triIdx[t], triIdx[t + 1]], [triIdx[t + 1], triIdx[t + 2]], [triIdx[t + 2], triIdx[t]]]) {
+      const lo = Math.min(a, b), hi = Math.max(a, b);
+      const key = lo * P + hi;
+      if (!seenEdge.has(key)) { seenEdge.add(key); lineList.push(a, b); }
+    }
+  }
+  const lineIdx = Uint32Array.from(lineList);
+  const surfMark = new Uint8Array(P);
+  for (const id of triIdx) surfMark[id] = 1;
+  const surfIds = Int32Array.from(Array.from(surfMark.keys()).filter((p) => surfMark[p]));
+
+  /* ---------------- Simulation state ---------------- */
+  const x = new Float64Array(3 * P), xp = new Float64Array(3 * P), v = new Float64Array(3 * P);
+  const lam = new Float64Array(E);
+  const nrm = new Float64Array(3 * P);
+  const vbuf = new Float32Array(10 * P);          // pos, normal, attr  (40 bytes per vertex)
+
+  let alpha = 1e-5;                               // XPBD edge compliance, log-mapped from Firmness
+  let dampRate = 10;                              // internal damping, 1/s
+  let paused = false, acc = 0, grab = null, nudgeSign = 1, mesh = false;
+  let frameMs = 16.7;
+  let activePointer = null;
+
+  const compliance = (f) => Math.pow(10, -3.3 - 2.2 * f);
+
+  function resetPose(lift) {
+    for (let p = 0; p < P; p++) {
+      const q = 3 * p;
+      x[q] = rest[q];
+      x[q + 1] = rest[q + 1] + lift;
+      x[q + 2] = rest[q + 2];
+    }
+    xp.set(x);
+    v.fill(0);
+    grab = null;
+    acc = 0;
+    canvas.classList.remove('is-grabbing');
+  }
+
+  function applyGrab(h) {
+    const f0 = 1 - Math.exp(-GRAB_RATE * h);
+    const gx = grab.cx, gy = grab.cy, gz = grab.cz;
+    for (let g = 0; g < grab.ids.length; g++) {
+      const q = 3 * grab.ids[g], f = f0 * grab.w[g], o = 3 * g;
+      x[q] += (gx + grab.off[o] - x[q]) * f;
+      x[q + 1] += (gy + grab.off[o + 1] - x[q + 1]) * f;
+      x[q + 2] += (gz + grab.off[o + 2] - x[q + 2]) * f;
+    }
+  }
+
+  function substep(h, live) {
+    const n3 = 3 * P;
+    xp.set(x);
+    if (live) {
+      for (let q = 1; q < n3; q += 3) {
+        v[q] -= GRAVITY * h;
+        if (x[q] < 0) v[q] += (FLOOR_STIFF * -x[q] - FLOOR_DAMP * v[q]) * h;
+      }
+      for (let q = 0; q < n3; q++) x[q] += v[q] * h;
+    }
+    if (grab) applyGrab(h);
+
+    lam.fill(0);
+    const alphaT = alpha / (h * h);
+    const denom = 2 * INV_MASS + alphaT;
+    for (let it = 0; it < ITER; it++) {
+      for (let e = 0; e < E; e++) {
+        const a = 3 * springPa[e], b = 3 * springPb[e];
+        const dx = x[b] - x[a], dy = x[b + 1] - x[a + 1], dz = x[b + 2] - x[a + 2];
+        const L = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1e-9;
+        const dl = (-(L - springRest[e]) - alphaT * lam[e]) / denom;
+        lam[e] += dl;
+        const s = INV_MASS * dl / L;
+        x[a] -= s * dx; x[a + 1] -= s * dy; x[a + 2] -= s * dz;
+        x[b] += s * dx; x[b + 1] += s * dy; x[b + 2] += s * dz;
+      }
+    }
+
+    const inv = 1 / h;
+    for (let q = 0; q < n3; q++) v[q] = (x[q] - xp[q]) * inv;
+    if (!live) { v.fill(0); return; }
+
+    if (dampRate > 0) {
+      const kd = Math.min(1, dampRate * h) * 0.5;
+      for (let e = 0; e < E; e++) {
+        const a = 3 * springPa[e], b = 3 * springPb[e];
+        const dx = x[b] - x[a], dy = x[b + 1] - x[a + 1], dz = x[b + 2] - x[a + 2];
+        const L = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1e-9;
+        const nx = dx / L, ny = dy / L, nz = dz / L;
+        const c = kd * ((v[b] - v[a]) * nx + (v[b + 1] - v[a + 1]) * ny + (v[b + 2] - v[a + 2]) * nz);
+        v[a] += c * nx; v[a + 1] += c * ny; v[a + 2] += c * nz;
+        v[b] -= c * nx; v[b + 1] -= c * ny; v[b + 2] -= c * nz;
+      }
+    }
+
+    // Ground friction removes rigid horizontal motion (drift and spin) in one shot, so the lattice keeps its shape.
+    let touching = false;
+    for (let q = 1; q < n3; q += 3) if (x[q] < 0.01) { touching = true; break; }
+    if (touching) {
+      const k = 1 - Math.exp(-FRICTION * h);
+      let cx = 0, cz = 0, mx = 0, mz = 0;
+      for (let q = 0; q < n3; q += 3) { cx += x[q]; cz += x[q + 2]; mx += v[q]; mz += v[q + 2]; }
+      cx /= P; cz /= P; mx /= P; mz /= P;
+      let spin = 0, inertia = 0;
+      for (let q = 0; q < n3; q += 3) {
+        const rx = x[q] - cx, rz = x[q + 2] - cz;
+        spin += rz * (v[q] - mx) - rx * (v[q + 2] - mz);
+        inertia += rx * rx + rz * rz;
+      }
+      spin /= inertia || 1;
+      for (let q = 0; q < n3; q += 3) {
+        const rx = x[q] - cx, rz = x[q + 2] - cz;
+        v[q] -= k * (mx + spin * rz);
+        v[q + 2] -= k * (mz - spin * rx);
+      }
+    }
+  }
+
+  function stepWorld(dt) {
+    if (paused) {
+      if (grab) for (let s = 0; s < 4; s++) substep(FIXED, false);
+      return;
+    }
+    acc += dt;
+    let n = 0;
+    while (acc >= FIXED && n < MAX_STEPS) { substep(FIXED, true); acc -= FIXED; n++; }
+    if (n === MAX_STEPS) acc = 0;
+  }
+
+  function nudge() {
+    if (paused) setPaused(false);
+    let cx = 0, cy = 0, cz = 0;
+    for (let p = 0; p < P; p++) { cx += x[3 * p]; cy += x[3 * p + 1]; cz += x[3 * p + 2]; }
+    cx /= P; cy /= P; cz /= P;
+    const spin = NUDGE_SPIN * nudgeSign;
+    nudgeSign = -nudgeSign;
+    for (let p = 0; p < P; p++) {
+      const q = 3 * p;
+      const rx = x[q] - cx, rz = x[q + 2] - cz;
+      v[q] += spin * rz;
+      v[q + 1] += NUDGE_HOP;
+      v[q + 2] -= spin * rx;
+    }
+  }
+
+  /* ---------------- Pointer grab ---------------- */
+  let cam = null;
+
+  function rayPlaneHit(px, py, plane) {
+    const ndcX = (px / canvas.clientWidth) * 2 - 1 - cam.shiftX;
+    const ndcY = (1 - (py / canvas.clientHeight) * 2) - cam.shiftY;
+    const d = [0, 1, 2].map((i) => cam.fwd[i] + cam.right[i] * ndcX * cam.tanX + cam.up[i] * ndcY * cam.tanY);
+    const t = ((plane[0] - cam.eye[0]) * cam.fwd[0] + (plane[1] - cam.eye[1]) * cam.fwd[1] + (plane[2] - cam.eye[2]) * cam.fwd[2])
+            / (d[0] * cam.fwd[0] + d[1] * cam.fwd[1] + d[2] * cam.fwd[2]);
+    return [cam.eye[0] + d[0] * t, cam.eye[1] + d[1] * t, cam.eye[2] + d[2] * t];
+  }
+
+  function projectPoint(p) {
+    const q = 3 * p, m = cam.viewProj;
+    const X = x[q], Y = x[q + 1], Z = x[q + 2];
+    const w = m[3] * X + m[7] * Y + m[11] * Z + m[15];
+    const sx = (m[0] * X + m[4] * Y + m[8] * Z + m[12]) / w;
+    const sy = (m[1] * X + m[5] * Y + m[9] * Z + m[13]) / w;
+    return [(sx * 0.5 + 0.5) * canvas.clientWidth, (1 - (sy * 0.5 + 0.5)) * canvas.clientHeight];
+  }
+
+  function pickAt(px, py, touch) {
+    let best = -1, bestD = Infinity;
+    for (let s = 0; s < surfIds.length; s++) {
+      const p = surfIds[s];
+      const [sx, sy] = projectPoint(p);
+      const d = (sx - px) ** 2 + (sy - py) ** 2;
+      if (d < bestD) { bestD = d; best = p; }
+    }
+    const limit = touch ? 56 : 36;
+    return bestD <= limit * limit ? best : -1;
+  }
+
+  function startGrab(p, px, py) {
+    const plane = [x[3 * p], x[3 * p + 1], x[3 * p + 2]];
+    const hit = rayPlaneHit(px, py, plane);
+    const handOff = [hit[0] - plane[0], hit[1] - plane[1], hit[2] - plane[2]];
+    const ids = [], w = [], off = [];
+    for (let q = 0; q < P; q++) {
+      const dx = x[3 * q] - plane[0], dy = x[3 * q + 1] - plane[1], dz = x[3 * q + 2] - plane[2];
+      const d = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      if (d < GRAB_RADIUS) {
+        ids.push(q);
+        w.push((1 - d / GRAB_RADIUS) ** 2);
+        off.push(dx, dy, dz);
+      }
+    }
+    grab = {
+      ids: Int32Array.from(ids), w: Float64Array.from(w), off: Float64Array.from(off),
+      plane, handOff, px, py, cx: plane[0], cy: plane[1], cz: plane[2],
+    };
+  }
+
+  function updateGrab() {
+    const hit = rayPlaneHit(grab.px, grab.py, grab.plane);
+    grab.cx = hit[0] - grab.handOff[0];
+    grab.cy = hit[1] - grab.handOff[1];
+    grab.cz = hit[2] - grab.handOff[2];
+  }
+
+  function endGrab() {
+    grab = null;
+    canvas.classList.remove('is-grabbing');
+  }
+
+  /* ---------------- Normals & vertex data ---------------- */
+  function computeNormals() {
+    nrm.fill(0);
+    for (let t = 0; t < triIdx.length; t += 3) {
+      const a = 3 * triIdx[t], b = 3 * triIdx[t + 1], c = 3 * triIdx[t + 2];
+      const ux = x[b] - x[a], uy = x[b + 1] - x[a + 1], uz = x[b + 2] - x[a + 2];
+      const wx = x[c] - x[a], wy = x[c + 1] - x[a + 1], wz = x[c + 2] - x[a + 2];
+      const nx = uy * wz - uz * wy, ny = uz * wx - ux * wz, nz = ux * wy - uy * wx;
+      nrm[a] += nx; nrm[a + 1] += ny; nrm[a + 2] += nz;
+      nrm[b] += nx; nrm[b + 1] += ny; nrm[b + 2] += nz;
+      nrm[c] += nx; nrm[c + 1] += ny; nrm[c + 2] += nz;
+    }
+    for (let s = 0; s < surfIds.length; s++) {
+      const q = 3 * surfIds[s];
+      const len = Math.hypot(nrm[q], nrm[q + 1], nrm[q + 2]) || 1;
+      nrm[q] /= len; nrm[q + 1] /= len; nrm[q + 2] /= len;
+    }
+    // The centre column sits where the top fan, bottom fan and both cut faces meet; averaging those normals cancels out.
+    // Borrow the normal of the first ring instead.
+    for (let k = 0; k < NL; k++) {
+      let nx = 0, ny = 0, nz = 0;
+      for (let j = 0; j <= NT; j++) { const q = 3 * pid(1, j, k); nx += nrm[q]; ny += nrm[q + 1]; nz += nrm[q + 2]; }
+      const len = Math.hypot(nx, ny, nz) || 1;
+      const c = 3 * pid(0, 0, k);
+      nrm[c] = nx / len; nrm[c + 1] = ny / len; nrm[c + 2] = nz / len;
+    }
+  }
+
+  function fillVertices() {
+    for (let p = 0; p < P; p++) {
+      const q = 3 * p, o = 10 * p;
+      vbuf[o] = x[q]; vbuf[o + 1] = x[q + 1]; vbuf[o + 2] = x[q + 2];
+      vbuf[o + 3] = nrm[q]; vbuf[o + 4] = nrm[q + 1]; vbuf[o + 5] = nrm[q + 2];
+      vbuf[o + 6] = attr[4 * p]; vbuf[o + 7] = attr[4 * p + 1]; vbuf[o + 8] = attr[4 * p + 2]; vbuf[o + 9] = attr[4 * p + 3];
+    }
+  }
+
+  /* ---------------- Math ---------------- */
+  const sub3 = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  const cross3 = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const dot3 = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const norm3 = (a) => { const l = Math.hypot(a[0], a[1], a[2]); return [a[0] / l, a[1] / l, a[2] / l]; };
+
+  function lookAt(e, c, u) {
+    const z = norm3(sub3(e, c));
+    const xa = norm3(cross3(u, z));
+    const ya = cross3(z, xa);
+    return new Float64Array([
+      xa[0], ya[0], z[0], 0,
+      xa[1], ya[1], z[1], 0,
+      xa[2], ya[2], z[2], 0,
+      -dot3(xa, e), -dot3(ya, e), -dot3(z, e), 1,
+    ]);
+  }
+
+  function perspective(fovy, aspect, n, f) {
+    const t = 1 / Math.tan(fovy / 2);
+    return new Float64Array([
+      t / aspect, 0, 0, 0,
+      0, t, 0, 0,
+      0, 0, f / (n - f), -1,
+      0, 0, (f * n) / (n - f), 0,
+    ]);
+  }
+
+  function mul(a, b) {
+    const o = new Float64Array(16);
+    for (let c = 0; c < 4; c++) for (let r = 0; r < 4; r++) {
+      let s = 0;
+      for (let k = 0; k < 4; k++) s += a[k * 4 + r] * b[c * 4 + k];
+      o[c * 4 + r] = s;
+    }
+    return o;
+  }
+
+  /* Fits the slice to the free stage area (above the controls on phones) and sets the camera. */
+  function layoutCamera() {
+    const W = canvas.clientWidth, H = canvas.clientHeight;
+    const aspect = W / H;
+    const mobile = window.matchMedia('(max-width: 720px)').matches;
+    let top = 0, bottom = H, left = 0, right = W;
+    if (mobile) {
+      top = head.getBoundingClientRect().bottom;
+      bottom = panel.getBoundingClientRect().top;
+    } else {
+      left = head.querySelector('h1').getBoundingClientRect().right + 24;
+      right = panel.getBoundingClientRect().left - 24;
+    }
+    // The slice is centred in the free area: between header and controls on phones, between title and panel on desktop.
+    const shiftY = 1 - (top + bottom) / H;
+    const shiftX = mobile ? 0 : (left + right) / W - 1;
+    const areaFrac = Math.max(0.2, (bottom - top) / H);
+    const freeFrac = Math.max(0.2, (right - left) / W);
+    const tanY = Math.tan(FOV / 2);
+    const dist = Math.max(MIN_DIST, 1.22 / (tanY * aspect * freeFrac), 1.2 / (tanY * aspect), 0.78 / (tanY * areaFrac));
+    const dir = norm3(LOOK);
+    const eye = [TARGET[0] + dir[0] * dist, TARGET[1] + dir[1] * dist, TARGET[2] + dir[2] * dist];
+    const view = lookAt(eye, TARGET, [0, 1, 0]);
+    const proj = perspective(FOV, aspect, 0.1, 80);
+    proj[8] = -shiftX;                             // lens shift: moves the slice into the free area
+    proj[9] = -shiftY;
+    const fwd = norm3(sub3(TARGET, eye));
+    const right3 = norm3(cross3(fwd, [0, 1, 0]));
+    const up = cross3(right3, fwd);
+    cam = {
+      eye, fwd, right: right3, up, shiftX, shiftY, tanY, tanX: tanY * aspect,
+      viewProj: mul(proj, view),
+    };
+  }
+
+  /* ---------------- Variety palette (linear RGB, eased) ---------------- */
+  const lin = (hex) => {
+    const n = parseInt(hex.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((c) => {
+      const s = c / 255;
+      return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    });
+  };
+  const paletteNow = { flesh: lin(VARIETIES.orange.flesh), pith: lin(VARIETIES.orange.pith), rind: lin(VARIETIES.orange.rind) };
+  const paletteGoal = { flesh: paletteNow.flesh, pith: paletteNow.pith, rind: paletteNow.rind };
+  let variety = 'orange';
+
+  function setVariety(key) {
+    const v = VARIETIES[key];
+    if (!v) return;
+    variety = key;
+    paletteGoal.flesh = lin(v.flesh);
+    paletteGoal.pith = lin(v.pith);
+    paletteGoal.rind = lin(v.rind);
+    document.querySelectorAll('.swatch').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.variety === key)));
+  }
+
+  function easePalette(dt) {
+    const k = 1 - Math.exp(-dt * 6);
+    for (const key of ['flesh', 'pith', 'rind']) for (let c = 0; c < 3; c++) {
+      paletteNow[key][c] += (paletteGoal[key][c] - paletteNow[key][c]) * k;
+    }
+  }
+
+  /* ---------------- DOM & controls ---------------- */
+  const canvas = document.getElementById('gl');
+  const head = document.querySelector('.masthead');
+  const panel = document.querySelector('.panel');
+  const firm = document.getElementById('firm'), firmOut = document.getElementById('firmOut');
+  const damp = document.getElementById('damp'), dampOut = document.getElementById('dampOut');
+  const pauseBtn = document.getElementById('pause'), meshBtn = document.getElementById('mesh');
+
+  function setPaused(on) {
+    paused = on;
+    acc = 0;
+    if (on) v.fill(0);
+    pauseBtn.textContent = on ? 'Resume' : 'Pause';
+    pauseBtn.setAttribute('aria-pressed', String(on));
+  }
+  const togglePause = () => setPaused(!paused);
+
+  function setMesh(on) {
+    mesh = on;
+    meshBtn.setAttribute('aria-pressed', String(on));
+  }
+
+  document.querySelectorAll('.swatch').forEach((b) => b.addEventListener('click', () => setVariety(b.dataset.variety)));
+  firm.addEventListener('input', () => { firmOut.textContent = firm.value; alpha = compliance(firm.value / 100); });
+  damp.addEventListener('input', () => { dampOut.textContent = damp.value; dampRate = (damp.value / 100) * DAMP_MAX; });
+  document.getElementById('nudge').addEventListener('click', nudge);
+  document.getElementById('reset').addEventListener('click', () => resetPose(0));
+  pauseBtn.addEventListener('click', togglePause);
+  meshBtn.addEventListener('click', () => setMesh(!mesh));
+
+  window.addEventListener('keydown', (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
+    if (e.code === 'Space') {
+      if (e.target instanceof HTMLButtonElement) return;     // buttons handle Space natively
+      e.preventDefault();
+      togglePause();
+      return;
+    }
+    const key = e.key.toLowerCase();
+    if (key === 'n') nudge();
+    else if (key === 'r') resetPose(0);
+    else if (key === 'm') setMesh(!mesh);
+  });
+
+  /* Pointer: grab the nearest surface point, pull a neighbourhood of it, release to let go. */
+  canvas.addEventListener('pointerdown', (e) => {
+    if (activePointer !== null || !gpuReady) return;
+    const rect = canvas.getBoundingClientRect();
+    const px = e.clientX - rect.left, py = e.clientY - rect.top;
+    const p = pickAt(px, py, e.pointerType === 'touch');
+    if (p < 0) return;
+    activePointer = e.pointerId;
+    canvas.setPointerCapture(e.pointerId);
+    startGrab(p, px, py);
+    canvas.classList.add('is-grabbing');
+    canvas.classList.remove('can-grab');
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const px = e.clientX - rect.left, py = e.clientY - rect.top;
+    if (e.pointerId === activePointer && grab) {
+      grab.px = px; grab.py = py;
+      return;
+    }
+    if (activePointer === null && e.pointerType !== 'touch' && gpuReady) {
+      canvas.classList.toggle('can-grab', pickAt(px, py, false) >= 0);
+    }
+  });
+  const release = (e) => {
+    if (e.pointerId !== activePointer) return;
+    activePointer = null;
+    endGrab();
+  };
+  canvas.addEventListener('pointerup', release);
+  canvas.addEventListener('pointercancel', release);
+  canvas.addEventListener('lostpointercapture', release);
+
+  /* ---------------- WebGPU ---------------- */
+  const SHADER = `
+struct Globals {
+  viewProj : mat4x4f,
+  eye : vec4f,
+  keyDir : vec4f,
+  fillDir : vec4f,
+  backDir : vec4f,
+  flesh : vec4f,
+  pith : vec4f,
+  rind : vec4f,
+  shadow : vec4f,
+  shade : vec4f,
+};
+@group(0) @binding(0) var<uniform> G : Globals;
+
+struct BodyIn {
+  @location(0) pos : vec3f,
+  @location(1) nrm : vec3f,
+  @location(2) attr : vec4f,
+};
+
+struct BodyOut {
+  @builtin(position) clip : vec4f,
+  @location(0) wpos : vec3f,
+  @location(1) nrm : vec3f,
+  @location(2) attr : vec4f,
+};
+
+const PI : f32 = 3.14159265;
+
+@vertex
+fn vsBody(v : BodyIn) -> BodyOut {
+  var o : BodyOut;
+  o.clip = G.viewProj * vec4f(v.pos, 1.0);
+  o.wpos = v.pos;
+  o.nrm = v.nrm;
+  o.attr = v.attr;
+  return o;
+}
+
+fn hash12(p : vec2f) -> f32 {
+  let q = fract(p * vec2f(0.1031, 0.1030));
+  let r = q + dot(q, q.yx + vec2f(33.33));
+  return fract((r.x + r.y) * r.x);
+}
+
+@fragment
+fn fsBody(i : BodyOut) -> @location(0) vec4f {
+  var N = normalize(i.nrm);
+  let V = normalize(G.eye.xyz - i.wpos);
+  if (dot(N, V) < 0.0) { N = -N; }
+  let L = G.keyDir.xyz;
+  let F = G.fillDir.xyz;
+  let B = G.backDir.xyz;
+
+  let r = i.attr.x;
+  let th = i.attr.y;
+  let arc = smoothstep(0.0005, 0.02, sin(th));
+  let pithM = smoothstep(0.86, 0.89, r);
+  let rindM = smoothstep(0.925, 0.94, r) * arc;
+
+  // Nine wedges across the half turn, each divided by a pale membrane.
+  let seg = th / PI * 9.0;
+  let fr = fract(seg);
+  let membrane = (1.0 - smoothstep(0.0, 0.07, min(fr, 1.0 - fr))) * (1.0 - pithM);
+  let pulp = hash12(vec2f(floor(r * 90.0), floor(seg * 6.0)));
+
+  var albedo = mix(G.flesh.rgb * (0.93 + 0.12 * pulp), G.pith.rgb, pithM);
+  albedo = mix(albedo, G.pith.rgb, membrane * 0.6);
+  albedo = mix(albedo, G.rind.rgb, rindM);
+
+  let NdL = dot(N, L);
+  let NdV = saturate(dot(N, V));
+  let wrap = saturate((NdL + 0.4) / 1.4);
+  let keyC = vec3f(1.0, 0.96, 0.9) * 1.7;
+  let fill = saturate(dot(N, F)) * 0.25;
+  let hemi = mix(vec3f(0.26, 0.22, 0.18), vec3f(0.62, 0.68, 0.76), N.y * 0.5 + 0.5) * 0.45;
+  let diffuse = albedo * (wrap * keyC + fill + hemi);
+
+  // Light from behind bleeds through the flesh toward the viewer.
+  let through = pow(saturate(dot(V, -B)), 4.0);
+  let glow = G.flesh.rgb * through * 0.55 * (1.0 - rindM) * (1.0 - 0.5 * pithM);
+  let edge = albedo * pow(1.0 - NdV, 2.5) * 0.3 * (1.0 - rindM);
+
+  let H = normalize(L + V);
+  let NdH = saturate(dot(N, H));
+  let spec = pow(NdH, 180.0) * 2.2 + pow(NdH, 24.0) * 0.06;
+  let fres = 0.04 + 0.96 * pow(1.0 - NdV, 5.0);
+  let env = mix(vec3f(0.18, 0.15, 0.12), vec3f(1.0, 0.97, 0.9), smoothstep(-0.2, 0.8, reflect(-V, N).y)) * 1.1;
+  let gloss = (spec * keyC + env * fres) * rindM;
+
+  return vec4f(diffuse + glow + edge + gloss, 1.0);
+}
+
+@vertex
+fn vsOverlay(v : BodyIn) -> @builtin(position) vec4f {
+  return G.viewProj * vec4f(v.pos + v.nrm * 0.003, 1.0);
+}
+
+@fragment
+fn fsOverlay() -> @location(0) vec4f {
+  return vec4f(0.09, 0.07, 0.05, 0.6);
+}
+
+struct ShadowOut {
+  @builtin(position) clip : vec4f,
+  @location(0) xz : vec2f,
+};
+
+@vertex
+fn vsShadow(@builtin(vertex_index) i : u32) -> ShadowOut {
+  let corner = array<vec2f, 6>(
+    vec2f(-1.0, -1.0), vec2f(1.0, -1.0), vec2f(1.0, 1.0),
+    vec2f(-1.0, -1.0), vec2f(1.0, 1.0), vec2f(-1.0, 1.0));
+  let p = corner[i] * vec2f(3.0, 2.2) + vec2f(0.0, -0.4);
+  var o : ShadowOut;
+  o.clip = G.viewProj * vec4f(p.x, 0.0, p.y, 1.0);
+  o.xz = p;
+  return o;
+}
+
+@fragment
+fn fsShadow(s : ShadowOut) -> @location(0) vec4f {
+  let d = length(vec2f((s.xz.x - G.shadow.x) / G.shadow.z, (s.xz.y - G.shadow.y) / G.shadow.w));
+  let a = G.shade.x * (1.0 - smoothstep(0.3, 1.0, d));
+  return vec4f(0.14, 0.09, 0.05, a);
+}
+
+struct PostU {
+  exposure : f32,
+  vignette : f32,
+  pad0 : f32,
+  pad1 : f32,
+};
+@group(0) @binding(0) var hdr : texture_2d<f32>;
+@group(0) @binding(1) var<uniform> post : PostU;
+
+@vertex
+fn vsFull(@builtin(vertex_index) i : u32) -> @builtin(position) vec4f {
+  let p = array<vec2f, 3>(vec2f(-1.0, -1.0), vec2f(3.0, -1.0), vec2f(-1.0, 3.0));
+  return vec4f(p[i], 0.0, 1.0);
+}
+
+// Khronos PBR Neutral tone mapping.
+fn khronosNeutral(c0 : vec3f) -> vec3f {
+  let startCompression = 0.8 - 0.04;
+  let desaturation = 0.15;
+  var c = c0;
+  let x = min(c.r, min(c.g, c.b));
+  let offset = select(0.04, x - 6.25 * x * x, x < 0.08);
+  c -= vec3f(offset);
+  let peak = max(c.r, max(c.g, c.b));
+  if (peak < startCompression) { return c; }
+  let d = 1.0 - startCompression;
+  let newPeak = 1.0 - d * d / (peak + d - startCompression);
+  c *= newPeak / peak;
+  let g = 1.0 - 1.0 / (desaturation * (peak - newPeak) + 1.0);
+  return mix(c, vec3f(newPeak), g);
+}
+
+fn toSRGB(c : vec3f) -> vec3f {
+  let lo = c * 12.92;
+  let hi = 1.055 * pow(c, vec3f(1.0 / 2.4)) - vec3f(0.055);
+  return select(hi, lo, c <= vec3f(0.0031308));
+}
+
+@fragment
+fn fsPost(@builtin(position) frag : vec4f) -> @location(0) vec4f {
+  let size = vec2f(textureDimensions(hdr));
+  let uv = frag.xy / size;
+  var c = textureLoad(hdr, vec2i(frag.xy), 0).rgb * post.exposure;
+  let d = length((uv - vec2f(0.5)) * vec2f(1.0, 0.85));
+  c *= 1.0 - post.vignette * smoothstep(0.4, 1.0, d);
+  c = toSRGB(max(khronosNeutral(c), vec3f(0.0)));
+  c += (fract(52.9829189 * fract(dot(frag.xy, vec2f(0.06711056, 0.00583715)))) - 0.5) / 255.0;
+  return vec4f(clamp(c, vec3f(0.0), vec3f(1.0)), 1.0);
+}
+`;
+
+  const HDR_FORMAT = 'rgba16float';
+  const DEPTH_FORMAT = 'depth24plus';
+  const SAMPLES = 4;
+  const globals = new Float32Array(52);
+  const postParams = new Float32Array([1.0, 0.18, 0, 0]);
+  const KEY = normalize3([-0.5, 0.75, 0.55]);
+  const FILL = normalize3([0.85, 0.25, 0.45]);
+  const BACK = normalize3([-0.15, 0.35, -1]);
+  function normalize3(a) { return norm3(a); }
+
+  let gpuReady = false;
+  let device, ctx, canvasFormat;
+  let globalsBuf, postBuf, vertexBuf, indexBuf, lineBuf;
+  let bodyPipe, overlayPipe, shadowPipe, postPipe;
+  let sceneBG, postBGL, postBind;
+  let msaaView, hdrView, depthView, hdrTex, msaaTex, depthTex;
+
+  function fail(reason) {
+    console.error('Citrus Jelly:', reason);
+    document.body.classList.add('no-gpu');
+  }
+
+  async function initGPU() {
+    if (!navigator.gpu) throw new Error('navigator.gpu is missing');
+    const adapter = await navigator.gpu.requestAdapter({ powerPreference: 'high-performance' });
+    if (!adapter) throw new Error('no WebGPU adapter');
+    device = await adapter.requestDevice();
+    device.lost.then((info) => fail('device lost: ' + info.message));
+    device.addEventListener('uncapturederror', (e) => console.error('WebGPU:', e.error.message));
+
+    canvasFormat = navigator.gpu.getPreferredCanvasFormat();
+    ctx = canvas.getContext('webgpu');
+    if (!ctx) throw new Error('no webgpu canvas context');
+    ctx.configure({ device, format: canvasFormat, alphaMode: 'opaque' });
+
+    const module = device.createShaderModule({ code: SHADER });
+
+    const sceneBGL = device.createBindGroupLayout({
+      entries: [{ binding: 0, visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT, buffer: { type: 'uniform' } }],
+    });
+    const sceneLayout = device.createPipelineLayout({ bindGroupLayouts: [sceneBGL] });
+    postBGL = device.createBindGroupLayout({
+      entries: [
+        { binding: 0, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'unfilterable-float' } },
+        { binding: 1, visibility: GPUShaderStage.FRAGMENT, buffer: { type: 'uniform' } },
+      ],
+    });
+    const postLayout = device.createPipelineLayout({ bindGroupLayouts: [postBGL] });
+
+    const alphaBlend = {
+      color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha', operation: 'add' },
+      alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },
+    };
+    const bodyBuffers = [{
+      arrayStride: 40,
+      attributes: [
+        { shaderLocation: 0, offset: 0, format: 'float32x3' },
+        { shaderLocation: 1, offset: 12, format: 'float32x3' },
+        { shaderLocation: 2, offset: 24, format: 'float32x4' },
+      ],
+    }];
+    const msaa = { count: SAMPLES };
+
+    shadowPipe = device.createRenderPipeline({
+      layout: sceneLayout,
+      vertex: { module, entryPoint: 'vsShadow' },
+      fragment: { module, entryPoint: 'fsShadow', targets: [{ format: HDR_FORMAT, blend: alphaBlend }] },
+      primitive: { topology: 'triangle-list' },
+      depthStencil: { format: DEPTH_FORMAT, depthWriteEnabled: false, depthCompare: 'always' },
+      multisample: msaa,
+    });
+    bodyPipe = device.createRenderPipeline({
+      layout: sceneLayout,
+      vertex: { module, entryPoint: 'vsBody', buffers: bodyBuffers },
+      fragment: { module, entryPoint: 'fsBody', targets: [{ format: HDR_FORMAT }] },
+      primitive: { topology: 'triangle-list', cullMode: 'none' },
+      depthStencil: { format: DEPTH_FORMAT, depthWriteEnabled: true, depthCompare: 'less' },
+      multisample: msaa,
+    });
+    overlayPipe = device.createRenderPipeline({
+      layout: sceneLayout,
+      vertex: { module, entryPoint: 'vsOverlay', buffers: bodyBuffers },
+      fragment: { module, entryPoint: 'fsOverlay', targets: [{ format: HDR_FORMAT, blend: alphaBlend }] },
+      primitive: { topology: 'line-list' },
+      depthStencil: { format: DEPTH_FORMAT, depthWriteEnabled: false, depthCompare: 'less-equal' },
+      multisample: msaa,
+    });
+    postPipe = device.createRenderPipeline({
+      layout: postLayout,
+      vertex: { module, entryPoint: 'vsFull' },
+      fragment: { module, entryPoint: 'fsPost', targets: [{ format: canvasFormat }] },
+      primitive: { topology: 'triangle-list' },
+    });
+
+    globalsBuf = device.createBuffer({ size: globals.byteLength, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+    postBuf = device.createBuffer({ size: postParams.byteLength, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+    vertexBuf = device.createBuffer({ size: vbuf.byteLength, usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST });
+    indexBuf = device.createBuffer({ size: triIdx.byteLength, usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST });
+    lineBuf = device.createBuffer({ size: lineIdx.byteLength, usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST });
+    device.queue.writeBuffer(indexBuf, 0, triIdx);
+    device.queue.writeBuffer(lineBuf, 0, lineIdx);
+    device.queue.writeBuffer(postBuf, 0, postParams);
+
+    sceneBG = device.createBindGroup({ layout: sceneBGL, entries: [{ binding: 0, resource: { buffer: globalsBuf } }] });
+    gpuReady = true;
+  }
+
+  function createTargets(w, h) {
+    [msaaTex, hdrTex, depthTex].forEach((t) => t && t.destroy());
+    msaaTex = device.createTexture({ size: [w, h], sampleCount: SAMPLES, format: HDR_FORMAT, usage: GPUTextureUsage.RENDER_ATTACHMENT });
+    hdrTex = device.createTexture({ size: [w, h], format: HDR_FORMAT, usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING });
+    depthTex = device.createTexture({ size: [w, h], sampleCount: SAMPLES, format: DEPTH_FORMAT, usage: GPUTextureUsage.RENDER_ATTACHMENT });
+    msaaView = msaaTex.createView();
+    hdrView = hdrTex.createView();
+    depthView = depthTex.createView();
+    postBind = device.createBindGroup({
+      layout: postBGL,
+      entries: [
+        { binding: 0, resource: hdrView },
+        { binding: 1, resource: { buffer: postBuf } },
+      ],
+    });
+  }
+
+  function resize() {
+    layoutCamera();
+    if (!gpuReady) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.max(1, Math.round(canvas.clientWidth * dpr));
+    const h = Math.max(1, Math.round(canvas.clientHeight * dpr));
+    if (w !== canvas.width || h !== canvas.height) {
+      canvas.width = w;
+      canvas.height = h;
+      createTargets(w, h);
+    }
+  }
+
+  function uploadFrame() {
+    const vp = cam.viewProj;
+    globals.set(vp, 0);
+    globals.set([cam.eye[0], cam.eye[1], cam.eye[2], 1], 16);
+    globals.set([KEY[0], KEY[1], KEY[2], 0], 20);
+    globals.set([FILL[0], FILL[1], FILL[2], 0], 24);
+    globals.set([BACK[0], BACK[1], BACK[2], 0], 28);
+    globals.set([...paletteNow.flesh, 1], 32);
+    globals.set([...paletteNow.pith, 1], 36);
+    globals.set([...paletteNow.rind, 1], 40);
+
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, minZ = Infinity, maxZ = -Infinity;
+    for (let s = 0; s < surfIds.length; s++) {
+      const q = 3 * surfIds[s];
+      if (x[q] < minX) minX = x[q];
+      if (x[q] > maxX) maxX = x[q];
+      if (x[q + 1] < minY) minY = x[q + 1];
+      if (x[q + 2] < minZ) minZ = x[q + 2];
+      if (x[q + 2] > maxZ) maxZ = x[q + 2];
+    }
+    const lift = Math.max(0, minY);
+    globals.set([(minX + maxX) / 2, (minZ + maxZ) / 2, (maxX - minX) / 2 + 0.12, (maxZ - minZ) / 2 + 0.12], 44);
+    globals[48] = 0.5 / (1 + 4 * lift);
+    device.queue.writeBuffer(globalsBuf, 0, globals);
+    device.queue.writeBuffer(vertexBuf, 0, vbuf);
+  }
+
+  function draw() {
+    const encoder = device.createCommandEncoder();
+    const scene = encoder.beginRenderPass({
+      colorAttachments: [{
+        view: msaaView,
+        resolveTarget: hdrView,
+        clearValue: { r: 0.8627, g: 0.8118, b: 0.7216, a: 1 },
+        loadOp: 'clear',
+        storeOp: 'discard',
+      }],
+      depthStencilAttachment: { view: depthView, depthClearValue: 1, depthLoadOp: 'clear', depthStoreOp: 'discard' },
+    });
+    scene.setBindGroup(0, sceneBG);
+    scene.setPipeline(shadowPipe);
+    scene.draw(6);
+    scene.setPipeline(bodyPipe);
+    scene.setVertexBuffer(0, vertexBuf);
+    scene.setIndexBuffer(indexBuf, 'uint32');
+    scene.drawIndexed(triIdx.length);
+    if (mesh) {
+      scene.setPipeline(overlayPipe);
+      scene.setIndexBuffer(lineBuf, 'uint32');
+      scene.drawIndexed(lineIdx.length);
+    }
+    scene.end();
+
+    const post = encoder.beginRenderPass({
+      colorAttachments: [{ view: ctx.getCurrentTexture().createView(), loadOp: 'clear', storeOp: 'store', clearValue: { r: 0, g: 0, b: 0, a: 1 } }],
+    });
+    post.setPipeline(postPipe);
+    post.setBindGroup(0, postBind);
+    post.draw(3);
+    post.end();
+    device.queue.submit([encoder.finish()]);
+  }
+
+  /* ---------------- Loop ---------------- */
+  let last = performance.now();
+  let frames = 0;
+
+  function frame(now) {
+    requestAnimationFrame(frame);
+    const dt = Math.min(0.1, (now - last) / 1000);
+    last = now;
+    frameMs += (dt * 1000 - frameMs) * 0.05;
+    frames++;
+
+    if (grab) updateGrab();
+    stepWorld(dt);
+    easePalette(dt);
+    computeNormals();
+    fillVertices();
+    if (gpuReady) {
+      uploadFrame();
+      draw();
+    }
+  }
+
+  /* ---------------- Debug surface for automated checks ---------------- */
+  window.citrusJelly = {
+    stats() {
+      let finite = true, minY = Infinity, cx = 0, cy = 0, cz = 0, ke = 0;
+      for (let q = 0; q < 3 * P; q++) {
+        if (!Number.isFinite(x[q])) finite = false;
+        ke += v[q] * v[q];
+      }
+      ke *= 0.5 / INV_MASS;
+      for (let p = 0; p < P; p++) { cx += x[3 * p]; cy += x[3 * p + 1]; cz += x[3 * p + 2]; if (x[3 * p + 1] < minY) minY = x[3 * p + 1]; }
+      return {
+        particles: P, springs: E, triangles: T, frames, frameMs: +frameMs.toFixed(2),
+        gpu: gpuReady, paused, variety, mesh, grabbed: grab ? grab.ids.length : 0,
+        firmness: +firm.value, damping: +damp.value, finite,
+        compliance: alpha, dampRate, kinetic: ke,
+        com: [cx / P, cy / P, cz / P], minY,
+      };
+    },
+    bench(steps = 480) {
+      const t0 = performance.now();
+      for (let s = 0; s < steps; s++) substep(FIXED, true);
+      const sim = performance.now() - t0;
+      const t1 = performance.now();
+      for (let s = 0; s < 60; s++) { computeNormals(); fillVertices(); }
+      const cpuFrame = (performance.now() - t1) / 60;
+      return { msPerSubstep: sim / steps, msPerFrameCpuMesh: cpuFrame };
+    },
+    positions() { return Array.from(x); },
+    springError() {
+      let worst = 0, zero = 0, worstIdx = -1;
+      for (let e = 0; e < E; e++) {
+        const a = 3 * springPa[e], b = 3 * springPb[e];
+        const L = Math.hypot(x[b] - x[a], x[b + 1] - x[a + 1], x[b + 2] - x[a + 2]);
+        if (L < 1e-9) zero++;
+        const err = Math.abs(L - springRest[e]);
+        if (err > worst) { worst = err; worstIdx = e; }
+      }
+      return { worst, zero, worstIdx, worstRest: worstIdx >= 0 ? springRest[worstIdx] : null, count: E };
+    },
+    restPositions() { return Array.from(rest); },
+    setPaused,
+    nudge,
+    reset: () => resetPose(0),
+    pickAt(px, py) { return pickAt(px, py, false); },
+    projectParticle(p) { return projectPoint(p); },
+    surfaceIds() { return Array.from(surfIds); },
+  };
+
+  /* ---------------- Boot ---------------- */
+  setVariety('orange');
+  firm.dispatchEvent(new Event('input'));
+  damp.dispatchEvent(new Event('input'));
+  resetPose(0.9);
+  layoutCamera();
+
+  (async () => {
+    try {
+      await initGPU();
+    } catch (err) {
+      fail(err && err.message ? err.message : String(err));
+      return;
+    }
+    resize();
+    new ResizeObserver(resize).observe(canvas);
+    window.addEventListener('resize', resize);
+    requestAnimationFrame((t) => { last = t; frame(t); });
+  })();
+})();
+</script>
+</body>
+</html>
