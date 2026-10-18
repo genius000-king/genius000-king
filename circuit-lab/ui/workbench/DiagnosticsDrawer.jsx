@@ -18,8 +18,7 @@ import {
 import {isBoard} from '../../engines/catalog/boards.js';
 import {terminals, ref} from '../../engines/catalog/types.js';
 import {IconButton} from '../common/IconButton.jsx';
-import {LogicView} from '../panels/LogicView.jsx';
-import {ScopeView} from '../panels/ScopeView.jsx';
+import {LogicView, ScopeView} from './lazy.jsx';
 import {useWorkbench} from './context.js';
 
 export default function DiagnosticsDrawer() {

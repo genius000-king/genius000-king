@@ -1,6 +1,0 @@
-page.reload: net::ERR_CONNECTION_REFUSED
-Call log:
-[2m  - waiting for navigation until "networkidle"[22m
-
-    at /home/user/genius000-king/circuit-lab/tests/browser-tail.mjs:30:416
-["Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."]

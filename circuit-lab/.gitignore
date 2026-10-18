@@ -3,3 +3,6 @@ dist/
 playwright-report/
 test-results/
 *.log
+.next/
+out/
+next-env.d.ts

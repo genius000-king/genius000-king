@@ -5,7 +5,7 @@ import fs from 'node:fs/promises';
 const out=new URL('../screenshots/',import.meta.url).pathname,only=process.argv.slice(2);
 const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome',args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
 const p=await b.newPage({viewport:{width:1600,height:1000}}),errors=[];p.setDefaultTimeout(60000);p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});p.on('dialog',d=>d.accept());
-await p.addInitScript(()=>{sessionStorage.setItem('circuit-lab-force-webgl','1');});
+await p.addInitScript(()=>{sessionStorage.setItem('circuit-lab-force-webgl','1');sessionStorage.setItem('circuit-lab-debug','1');});
 const click=sel=>p.locator(sel).first().evaluate(el=>el.click());const btn=name=>p.getByRole('button',{name,exact:true}).first().evaluate(el=>el.click());
 const shot=async(name,wait=900)=>{await p.waitForTimeout(wait);await p.screenshot({path:out+name+'.png'});console.log('shot',name);};
 const state=()=>p.evaluate(()=>window.__circuitLab.state());

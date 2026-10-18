@@ -6,13 +6,13 @@ A browser-based 3D electronics bench. Place real-proportioned boards and parts, 
 
 ```sh
 npm ci
-npm run dev                                         # http://127.0.0.1:5173
-npm test                                            # 153 engine / compiler / physics / project tests
-npm run build                                       # dist/
-npx vite build --config vite.standalone.config.js   # standalone/index.html, single file, works offline
+npm run dev        # Next.js dev server, http://127.0.0.1:5173
+npm test           # 153 engine / compiler / physics / project tests
+npm run build      # static site in out/ (plain HTML/JS/CSS, any static host)
+npm start          # serves out/ on http://127.0.0.1:5173
 ```
 
-`Circuit-Lab.html` in this folder is the latest single-file build. Open it directly in Chrome, Edge, Firefox or Safari.
+The site is a static Next.js export: no server code, no account. It loads in stages (see "Architecture"), so it has to be served over HTTP; the old single-file `Circuit-Lab.html` is gone because one inlined file cannot load parts on demand.
 
 ## What is in the box
 

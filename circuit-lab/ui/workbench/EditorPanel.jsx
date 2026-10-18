@@ -23,7 +23,7 @@ import {
 import {profileOf, isBoard} from '../../engines/catalog/boards.js';
 import {sourceForBoard} from '../../engines/workspace/project.js';
 import {IconButton} from '../common/IconButton.jsx';
-import Editor from '../editor/Editor.jsx';
+import {Editor} from './lazy.jsx';
 import {useWorkbench} from './context.js';
 
 export default function EditorPanel() {

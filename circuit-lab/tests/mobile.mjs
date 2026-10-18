@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 const out=new URL('../screenshots/',import.meta.url).pathname;
 const b=await chromium.launch({executablePath:process.env.CHROMIUM??'/opt/pw-browsers/chromium-1194/chrome-linux/chrome',args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
 const ctx=await b.newContext({...devices['iPhone 13'],defaultBrowserType:undefined}),p=await ctx.newPage(),errors=[];p.setDefaultTimeout(60000);p.on('pageerror',e=>errors.push(e.message));p.on('dialog',d=>d.accept());
-await p.addInitScript(()=>sessionStorage.setItem('circuit-lab-force-webgl','1'));
+await p.addInitScript(()=>(sessionStorage.setItem('circuit-lab-force-webgl','1'),sessionStorage.setItem('circuit-lab-debug','1')));
 const btn=name=>p.getByRole('button',{name,exact:true}).first().evaluate(e=>e.click());
 // Fraction of the screen width covered by the projected bounds of every part.
 const coverage=()=>p.evaluate(()=>{const s=window.__circuitLab.scene();let min=1,max=-1,ymin=1,ymax=-1;for(const g of s.objects.values()){const bx=g.userData.localBounds.clone().applyMatrix4(g.matrixWorld);for(const x of [bx.min.x,bx.max.x])for(const y of [bx.min.y,bx.max.y])for(const z of [bx.min.z,bx.max.z]){const v=new s.camera.position.constructor(x,y,z).project(s.camera);min=Math.min(min,v.x);max=Math.max(max,v.x);ymin=Math.min(ymin,v.y);ymax=Math.max(ymax,v.y);}}return {min,max,ymin,ymax,width:(max-min)/2,height:(ymax-ymin)/2};});

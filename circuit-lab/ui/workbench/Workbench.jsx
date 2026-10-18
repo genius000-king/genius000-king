@@ -3,33 +3,39 @@ import {useState, useEffect, useRef, useCallback} from 'react';
 import {isBoard} from '../../engines/catalog/boards.js';
 
 import {makeComponent, TYPES} from '../../engines/catalog/types.js';
-import {PROJECTS} from '../../engines/projects/projects.js';
-import {LabScene} from '../../engines/render/scene.js';
-import SimulationWorker from '../../engines/runtime/sim.worker.js?worker&inline';
 
 import {filesForBoard, sourceForBoard, validateProject} from '../../engines/workspace/project.js';
 import {reseat} from '../../engines/workspace/snap.js';
 
-import {Library} from '../panels/Library.jsx';
-
-import {ProjectGallery} from '../panels/ProjectGallery.jsx';
-
-import {ToolsModal} from '../panels/ToolsModal.jsx';
 import {load, blankState, loadIssue, KEY} from './storage.js';
 import '../styles.css';
 import {WorkbenchContext} from './context.js';
+import {preloadScene} from './scene-loader.js';
+import {
+  WorkspaceMenu,
+  ProjectMenu,
+  Inspector,
+  DiagnosticsDrawer,
+  ConnectModal,
+  NewFileModal,
+  DocsModal,
+  Library,
+  ToolsModal,
+  ProjectGallery,
+} from './lazy.jsx';
 import TopBar from './TopBar.jsx';
-import WorkspaceMenu from './WorkspaceMenu.jsx';
-import ProjectMenu from './ProjectMenu.jsx';
-import Inspector from './Inspector.jsx';
 import CanvasControls from './CanvasControls.jsx';
 import EditorPanel from './EditorPanel.jsx';
-import DiagnosticsDrawer from './DiagnosticsDrawer.jsx';
 import StatusBar from './StatusBar.jsx';
 import PinTooltip from './PinTooltip.jsx';
-import ConnectModal from './modals/ConnectModal.jsx';
-import NewFileModal from './modals/NewFileModal.jsx';
-import DocsModal from './modals/DocsModal.jsx';
+
+const debugHook = (() => {
+  try {
+    return sessionStorage.getItem('circuit-lab-debug') === '1';
+  } catch {
+    return false;
+  }
+})();
 
 export function App() {
   const [project, setProject] = useState(load),
@@ -114,10 +120,13 @@ export function App() {
     didCamera = useRef(false),
     preserveBadSave = useRef(!!loadIssue.message),
     serialBottom = useRef(null),
-    runSource = useRef('');
+    runSource = useRef(''),
+    latest = useRef({});
   current.current = project;
   simRef.current = sim;
-  if (import.meta.env.DEV)
+  latest.current = {selected, wireId, mode, pending};
+  // test hook: always in development, and in a production build once a test sets the session flag
+  if (process.env.NODE_ENV !== 'production' || debugHook)
     window.__circuitLab = {
       project: () => current.current,
       state: () => simRef.current,
@@ -405,7 +414,7 @@ export function App() {
       }, false),
   };
   useEffect(() => {
-    const w = new SimulationWorker();
+    const w = new Worker(new URL('../../engines/runtime/sim.worker.js', import.meta.url), {type: 'module'});
     worker.current = w;
     w.onmessage = ({data}) => {
       if (data.type === 'state') setSim(data.state);
@@ -451,27 +460,36 @@ export function App() {
     return () => w.terminate();
   }, []);
   useEffect(() => {
-    let dead = false;
-    const lab = new LabScene(
-      sceneRoot.current,
-      new Proxy(
-        {},
-        {
-          get:
-            (_, key) =>
-            (...args) =>
-              callbacks.current[key]?.(...args),
-        }
-      )
-    );
-    scene.current = lab;
-    lab.ready
-      .then(() => {
+    let dead = false,
+      lab;
+    preloadScene()
+      .then(({LabScene}) => {
         if (dead) return;
-        lab.update(current.current);
-        lab.setTheme(current.current.appearance?.theme ?? 'dark');
-        lab.restoreCamera(current.current.camera);
-        lab.select(selected);
+        lab = new LabScene(
+          sceneRoot.current,
+          new Proxy(
+            {},
+            {
+              get:
+                (_, key) =>
+                (...args) =>
+                  callbacks.current[key]?.(...args),
+            }
+          )
+        );
+        scene.current = lab;
+        return lab.ready.then(() => {
+          if (dead) return;
+          // the engine arrives after the first render, so apply whatever the user has done meanwhile
+          const now = latest.current;
+          lab.update(current.current);
+          lab.setTheme(current.current.appearance?.theme ?? 'dark');
+          lab.restoreCamera(current.current.camera);
+          lab.select(now.selected, now.wireId);
+          lab.setMode(now.mode);
+          lab.setPending(now.pending);
+          lab.state(simRef.current);
+        });
       })
       .catch(e => {
         setError({message: '3D graphics unavailable: ' + e.message});
@@ -479,7 +497,7 @@ export function App() {
       });
     return () => {
       dead = true;
-      lab.dispose();
+      lab?.dispose();
     };
   }, [graphicsGeneration]);
   useEffect(() => {
@@ -927,9 +945,7 @@ export function App() {
           </div>
         )}
         {connect && <ConnectModal />}
-        {gallery && (
-          <ProjectGallery projects={PROJECTS} onLoad={loadProject} onClose={() => setGallery(false)} />
-        )}
+        {gallery && <ProjectGallery onLoad={loadProject} onClose={() => setGallery(false)} />}
         {tools && <ToolsModal onClose={() => setTools(false)} />}
         {newFile && <NewFileModal />}
         {docs && <DocsModal />}
