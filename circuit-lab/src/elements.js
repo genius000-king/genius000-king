@@ -1,7 +1,7 @@
 // Electrical element models. Each builder receives a context `k` for one component and
 // registers linear stamps, Newton-linearised nonlinear stamps and post-solve updates.
 // Reactive parts use backward-Euler companion models over the solver sub-step `k.h` (s).
-import {BJT_MODELS,MOS_MODELS,DIODE_MODELS,REG_MODELS} from './parts.js';
+import {BJT_MODELS,MOS_MODELS,DIODE_MODELS,REG_MODELS,TRANSFORMER_MODELS,CT_TRANSFORMER_MODELS,FUSE_MODELS,BRIDGE_MODELS} from './parts.js';
 export const VT=.025852;
 const ex=v=>Math.exp(Math.min(v,80));
 export function pnjlim(vnew,vold,vt,vcrit){if(vnew>vcrit&&Math.abs(vnew-vold)>2*vt){if(vold>0){const arg=1+(vnew-vold)/vt;vnew=arg>0?vold+vt*Math.log(arg):vcrit;}else vnew=vt*Math.log(vnew/vt);}return vnew;}
@@ -96,7 +96,91 @@ export const ELEMENTS={
    const vm=k.v('VΩ')-k.v('COM'),r=vm*10000/Math.max(1e-12,2-vm);const ol=vm>=1.999||r>4e7||r<0;const beep=mode==='continuity'&&!ol&&r<50;return {reading:ol?Infinity:r,display:ol?'O.L':fmt(r,'Ω'),beep};});},
  scope(k){k.R('CH1','GND',1e6);k.R('CH2','GND',1e6);k.ref('GND');k.post(()=>k.sample([k.v('CH1')-k.v('GND'),k.v('CH2')-k.v('GND')]));k.result(()=>({ch1:k.v('CH1')-k.v('GND'),ch2:k.v('CH2')-k.v('GND')}));},
  logic(k){for(let i=0;i<8;i++)k.R('D'+i,'GND',1e6);k.ref('GND');k.post(()=>{const g=k.v('GND');let bits=0;for(let i=0;i<8;i++)if(k.v('D'+i)-g>k.p.threshold)bits|=1<<i;k.sample([bits]);});k.result(()=>({}));},
+ // ── Magnetics and AC ─────────────────────────────────────────────────────────────────────────
+ acsource(k){const p=k.p,vpk=p.vrms*Math.SQRT2,v=p.on?vpk*Math.sin(2*Math.PI*p.frequency*k.t/1000):0;k.S('L','N',v,.5,'AC source',{max:3});k.ref('N');
+  k.result(()=>{const vt=k.v('L')-k.v('N'),i=(v-vt)/.5;if(p.on&&p.vrms>50)k.diag('warning',`${k.c.name}: ${p.vrms.toFixed(0)} V AC. On a real bench this is lethal; use an isolation transformer and insulated probes.`);if(Math.abs(i)>3)k.diag('error',`${k.c.name}: ${Math.abs(i).toFixed(1)} A peak exceeds the 3 A output rating.`);return {voltage:vt,current:i,vrms:p.on?p.vrms:0,frequency:p.frequency};});},
+ transformer(k){const m=TRANSFORMER_MODELS[k.p.model]??Object.values(TRANSFORMER_MODELS)[0],n=m.vp/(m.vs*1.08);/* real transformers are wound ≈8 % high so they reach the rated voltage at full load */
+  windings(k,[['P1','P2',m.lp,m.rp],['S1','S2',m.lp/(n*n),m.rs]],m.vp?m.va/m.vp:1,(i,v)=>({vp:v[0],vs:v[1],ip:i[0],is:i[1]}));},
+ transformerct(k){const m=CT_TRANSFORMER_MODELS[k.p.model]??Object.values(CT_TRANSFORMER_MODELS)[0],n=m.vp/(m.vs*1.08);
+  windings(k,[['P1','P2',m.lp,m.rp],['S1','CT',m.lp/(n*n),m.rs],['CT','S2',m.lp/(n*n),m.rs]],m.va/m.vp,(i,v)=>({vp:v[0],vs:v[1],ip:i[0],is:i[1]}));},
+ toroid(k){ELEMENTS.inductor(k);},choke(k){ELEMENTS.inductor(k);},
+ // ── Power ───────────────────────────────────────────────────────────────────────────────────
+ bridge(k){const m=BRIDGE_MODELS[k.p.model]??Object.values(BRIDGE_MODELS)[0],dm=DIODE_MODELS[m.diode],P=k.n('+'),N=k.n('-'),A1=k.n('AC1'),A2=k.n('AC2');const d1=diodeStamp(k,A1,P,dm),d2=diodeStamp(k,A2,P,dm);diodeStamp(k,N,A1,dm);diodeStamp(k,N,A2,dm);
+  k.result(()=>{const i=d1().i+d2().i;if(i>m.imax)k.diag('error',`${k.c.name}: ${i.toFixed(2)} A exceeds the ${m.imax} A rating of the ${k.p.model.split(' ')[0]}.`);return {vdc:k.v('+')-k.v('-'),current:i};});},
+ lm317(k){const IN=k.n('IN'),OUT=k.n('OUT'),ADJ=k.n('ADJ'),g=20,vref=1.25,drop=2;
+  k.nl((x,st)=>{const vin=x[IN]??0,vout=x[OUT]??0,vadj=x[ADJ]??0;if(vin-drop>=vadj+vref){const i=g*(vadj+vref-vout);if(i<0)return 'off';st.M(OUT,OUT,g);st.M(OUT,ADJ,-g);st.rhs(OUT,g*vref);st.M(IN,OUT,-g);st.M(IN,ADJ,g);st.rhs(IN,-g*vref);return 'reg';}const i=g*(vin-drop-vout);if(i<0)return 'off';st.G(IN,OUT,g);st.I(IN,OUT,-g*drop);return 'drop';});
+  k.result(()=>{const vin=k.v('IN'),vout=k.v('OUT'),vadj=k.v('ADJ'),reg=vin-drop>=vadj+vref,iout=Math.max(0,reg?g*(vadj+vref-vout):g*(vin-drop-vout)),dissipation=(vin-vout)*iout;
+   if(vin>.5&&!reg)k.diag('warning',`${k.c.name}: input ${vin.toFixed(2)} V is less than 2 V above the ${(vadj+vref).toFixed(2)} V target; the LM317 is in dropout.`);if(iout>0&&iout<.0035)k.diag('warning',`${k.c.name}: only ${(iout*1000).toFixed(1)} mA flows; the LM317 needs ≈3.5 mA minimum load (use 240 Ω from OUT to ADJ).`);
+   if(dissipation>1.5)k.diag('warning',`${k.c.name}: dissipates ${dissipation.toFixed(2)} W; it needs a heatsink.`);if(iout>1.5)k.diag('error',`${k.c.name}: ${iout.toFixed(2)} A exceeds 1.5 A.`);if(vin-vout>40)k.diag('error',`${k.c.name}: input–output difference exceeds 40 V.`);return {vin,vout,iout,dissipation};});},
+ buck(k){const p=k.p,vin=k.vprev('IN+')-k.vprev('IN-'),on=vin>=4.5,target=Math.max(0,Math.min(p.vout,vin-1.5)),pout=k.s.pout??0;
+  if(on){k.S('OUT+','OUT-',target,.04,'buck output',{max:3});k.R('IN+','IN-',Math.max(.5,Math.min(1e6,vin*vin/(Math.max(1e-4,pout/p.efficiency)+vin*.005))));}else{k.R('OUT+','OUT-',1e6);k.R('IN+','IN-',1e5);}
+  k.post(()=>{const vo=k.v('OUT+')-k.v('OUT-'),io=on?Math.max(0,(target-vo)/.04):0;k.next.pout=vo*io;});
+  k.result(()=>{const vi=k.v('IN+')-k.v('IN-'),vo=k.v('OUT+')-k.v('OUT-'),io=on?Math.max(0,(target-vo)/.04):0,iin=on?(vo*io/p.efficiency+vi*.005)/Math.max(.1,vi):0;if(on&&p.vout>vi-1.5)k.diag('warning',`${k.c.name}: a buck converter can only step down; input ${vi.toFixed(1)} V cannot give ${p.vout.toFixed(1)} V.`);if(vi>40)k.diag('error',`${k.c.name}: input exceeds 40 V.`);if(io>3)k.diag('error',`${k.c.name}: ${io.toFixed(1)} A exceeds 3 A.`);return {vin:vi,vout:vo,iout:io,iin,powered:on};});},
+ solar(k){const iph=.2*Math.max(0,k.p.irradiance)/1000,P=k.n('+'),N=k.n('-'),m={is:3.5e-9,n:1.3*12};diodeStamp(k,P,N,m);k.R('+','-',300);k.nl((x,st)=>{st.I(N,P,iph);return 'pv';});k.ref('-');
+  k.result(()=>{const v=k.v('+')-k.v('-'),i=iph-diodeIV(v,m).i-v/300;return {voltage:v,current:i,power:v*i};});},
+ fuse(k){const m=FUSE_MODELS[k.p.model]??Object.values(FUSE_MODELS)[0],d=k.digital;if(k.p.replace){d.blown=false;d.tripped=false;d.H=0;}if(d.model!==k.p.model){d.model=k.p.model;d.blown=false;d.tripped=false;d.H=0;}d.H??=0;
+  const R=d.blown?1e9:m.ptc?(d.tripped?150:.6):(m.tau>1?.1:.05);k.R('A','B',R);
+  k.post(()=>{const i=(k.v('A')-k.v('B'))/R,x=i*i/(m.rating*m.rating);d.H+=(x-d.H)*Math.min(1,k.h/m.tau);d.peak=Math.max(d.peak??0,Math.abs(i));if(!m.ptc&&!d.blown&&d.H>m.blow){d.blown=true;d.blownAt=Math.abs(i);}if(m.ptc){if(!d.tripped&&d.H>m.blow)d.tripped=true;else if(d.tripped&&i*i*R<.05)d.tripped=false;}});
+  k.result(()=>{const i=(k.v('A')-k.v('B'))/R;if(d.blown)k.diag('error',`${k.c.name}: the ${m.rating*1000<1000?m.rating*1000+' mA':m.rating+' A'} fuse blew at ${(d.blownAt??0).toFixed(2)} A. Find the fault, then press “Replace fuse”.`);if(d.tripped)k.diag('warning',`${k.c.name}: PTC tripped to high resistance. Remove power to let it cool and reset.`);return {current:i,blown:!!d.blown,tripped:!!d.tripped,state:d.blown?'blown · open circuit':d.tripped?'tripped · high resistance':'intact'};});},
+ pwmgen(k){const p=k.p,vin=k.vprev('VIN+')-k.vprev('VIN-'),on=vin>=3.3,period=1000/Math.max(.001,p.frequency),hMs=k.h*1000,avg=period<4*hMs;const high=((k.t%period)+period)%period<p.duty*period;
+  const v=on?(avg?vin*p.duty:high?vin:0):0;k.S('PWM','GND',v,47,'PWM generator output',{max:.03});k.R('VIN+','VIN-',on?vin/.015:1e5);
+  k.result(()=>({out:k.v('PWM')-k.v('GND'),frequency:p.frequency,duty:p.duty,powered:on,averaged:on&&avg}));},
+ // ── Logic and drivers ──────────────────────────────────────────────────────────────────────
+ hc00(k){gates(k,QUAD,(a,b)=>!(a&&b));},hc02(k){gates(k,QUAD,(a,b)=>!(a||b));},hc08(k){gates(k,QUAD,(a,b)=>a&&b);},hc32(k){gates(k,QUAD,(a,b)=>a||b);},hc86(k){gates(k,QUAD,(a,b)=>a!==b);},
+ hc04(k){gates(k,HEX,a=>!a);},hc14(k){gates(k,HEX,a=>!a,true);},
+ cd4017(k){const d=k.digital;d.count??=0;d.clk??=0;const vdd=k.vprev('VDD')-k.vprev('VSS'),on=vdd>=3;k.R('VDD','VSS',1e5);const r=Math.max(200,6000/Math.max(1,vdd));
+  for(let i=0;i<10;i++){if(on)k.S('Q'+i,'VSS',i===d.count?vdd:0,r,'CD4017 Q'+i,{max:.02});else k.R('Q'+i,'VSS',1e6);}if(on)k.S('CO','VSS',d.count<5?vdd:0,r,'CD4017 CO',{max:.02});
+  k.post(()=>{const g=k.v('VSS'),vd=k.v('VDD')-g;if(vd<3)return;const v=pin=>k.v(pin)-g;/* Schmitt-trigger clock input */const clk=d.clk?v('CLK')>.3*vd:v('CLK')>.7*vd;if(v('MR')>vd/2)d.count=0;else if(clk&&!d.clk&&v('CE')<vd/2)d.count=(d.count+1)%10;d.clk=clk?1:0;});
+  k.result(()=>({count:d.count}));},
+ l293d(k){const vcc1=k.vprev('VCC1')-k.vprev('GND1'),vcc2=k.vprev('VCC2')-k.vprev('GND1'),logic=vcc1>=4.5,hi=p=>k.vprev(p)-k.vprev('GND1')>2.3;k.R('VCC1','GND1',300);k.R('VCC2','GND1',3000);const out=[];
+  for(const [en,a,y]of [['EN12','1A','1Y'],['EN12','2A','2Y'],['EN34','3A','3Y'],['EN34','4A','4Y']]){const enabled=logic&&hi(en),level=hi(a);if(enabled&&level)k.S('VCC2',y,1.4,.5,'L293D '+y+' high side',{max:1.2});else if(enabled)k.S(y,'GND1',1.2,.5,'L293D '+y+' low side',{max:1.2});else k.R(y,'GND1',1e6);
+   diodeStamp(k,k.n(y),k.n('VCC2'),{is:1e-9,n:1.8});diodeStamp(k,k.n('GND1'),k.n(y),{is:1e-9,n:1.8});out.push(`${y}=${enabled?level?'H':'L':'Z'}`);}
+  k.result(()=>{const v1=k.v('VCC1')-k.v('GND1'),v2=k.v('VCC2')-k.v('GND1');if(v1>.5&&v1<4.5)k.diag('warning',`${k.c.name}: logic supply VCC1 is ${v1.toFixed(2)} V; it needs 4.5–7 V.`);if(v2>36)k.diag('error',`${k.c.name}: motor supply exceeds 36 V.`);if(logic&&v2<4.5&&out.some(o=>!o.endsWith('Z')))k.diag('warning',`${k.c.name}: motor supply VCC2 is ${v2.toFixed(2)} V; connect 4.5–36 V for the outputs.`);return {state:out.join(' ')};});},
+ uln2003(k){const out=[];for(let i=1;i<=7;i++){k.R('IN'+i,'GND',4000);const on=k.vprev('IN'+i)-k.vprev('GND')>1.8;if(on)k.S('OUT'+i,'GND',.85,1.6,'ULN2003 OUT'+i,{max:.6});else k.R('OUT'+i,'GND',1e7);diodeStamp(k,k.n('OUT'+i),k.n('COM'),{is:1e-9,n:1.8});out.push(on?'■':'□');}
+  k.result(()=>({state:out.join('')}));},
+ lm393(k){const d=k.digital;k.R('VCC','GND',5000);for(const u of ['1','2']){if(d['low'+u]&&k.vprev('VCC')-k.vprev('GND')>2)k.R('OUT'+u,'GND',60);else k.R('OUT'+u,'GND',1e8);}
+  k.post(()=>{for(const u of ['1','2'])d['low'+u]=k.v('IN'+u+'-')>k.v('IN'+u+'+');});
+  k.result(()=>{const vcc=k.v('VCC')-k.v('GND');if(vcc>36)k.diag('error',`${k.c.name}: supply exceeds 36 V.`);/* TI: the output is correct as long as at least one input stays within the common-mode range (0 … VCC − 1.5 V) */for(const u of ['1','2'])if(vcc>2&&k.v('IN'+u+'+')-k.v('GND')>vcc-1.5&&k.v('IN'+u+'-')-k.v('GND')>vcc-1.5)k.diag('warning',`${k.c.name}: both inputs of comparator ${u} are above VCC − 1.5 V (outside the common-mode range); its output is undefined.`);return {out1:k.v('OUT1')-k.v('GND'),out2:k.v('OUT2')-k.v('GND')};});},
+ pc817(k){k.led('A','K',1,10);const ifPrev=Math.max(0,(k.vprev('A')-k.vprev('K')-1)/10),src=k.p.ctr*ifPrev,C=k.n('C'),E=k.n('E');
+  let vOld=0;k.nl((x,st)=>{let vce=(x[C]??0)-(x[E]??0);/* the near-step saturation knee makes Newton overshoot; limit each move */if(Math.abs(vce-vOld)>.2)vce=vOld+Math.sign(vce-vOld)*.2;vOld=vce;const t=Math.tanh(vce/.15),ic=src*t,g=src*(1-t*t)/.15+1e-9;st.G(C,E,g);st.I(C,E,ic-g*vce);return Math.round(vce*1e3);});
+  k.result(()=>{const iF=Math.max(0,(k.v('A')-k.v('K')-1)/10),vce=k.v('C')-k.v('E'),ic=src*Math.tanh(vce/.15);if(iF>.05)k.diag('error',`${k.c.name}: LED current ${(iF*1000).toFixed(0)} mA exceeds 50 mA. Add a series resistor.`);if(vce>35)k.diag('error',`${k.c.name}: V CE exceeds 35 V.`);return {if:iF,ic,ctr:k.p.ctr};});},
+ // ── Outputs ────────────────────────────────────────────────────────────────────────────────
+ stepper(k){const d=k.digital,W=['BLUE','PINK','YELLOW','ORANGE'];d.p??=0;d.next??=0;for(const w of W)k.R('RED',w,50);
+  k.post(()=>{const on=W.map(w=>(k.v('RED')-k.v(w))/50>.04);let target=null;const n=on.filter(Boolean).length;if(n===1)target=2*on.indexOf(true);else if(n===2){for(let i=0;i<4;i++)if(on[i]&&on[(i+1)%4])target=(2*i+1)%8;}
+   if(target!==null&&k.t>=d.next){const e=((d.p%8)+8)%8,diff=((target-e+12)%8)-4;if(diff!==0&&diff!==-4){d.p+=Math.sign(diff);d.next=k.t+.9;}}
+   if(d.rt===undefined||k.t-d.rt>=200){d.rpm=d.rt===undefined?0:(d.p-d.rp)/4096/((k.t-d.rt)/60000);d.rt=k.t;d.rp=d.p;}});
+  k.result(()=>{const i=W.reduce((a,w)=>a+Math.max(0,(k.v('RED')-k.v(w))/50),0);return {angle:((d.p*360/4096)%360+360)%360,steps:d.p,rpm:d.rpm??0,current:i};});},
+ speaker(k){k.R('+','-',8);const d=k.digital;/* the cone only knows the voltage across it, so the pitch is measured from its rising edges */k.post(()=>{const on=Math.abs(k.v('+')-k.v('-'))>.2;if(on&&!d.on){if(d.rise!==undefined){const f=1000/(k.t-d.rise);d.freq=d.freq?d.freq*.6+f*.4:f;}d.rise=k.t;}d.on=on;});k.result(()=>{const v=k.v('+')-k.v('-'),i=v/8,power=v*v/8,pwm=d.rise!==undefined&&k.t-d.rise<30&&d.freq>15;if(power>.5)k.diag('warning',`${k.c.name}: ${(power*1000).toFixed(0)} mW exceeds the 0.5 W rating; the voice coil would overheat.`);return {voltage:v,current:i,power,frequency:pwm?Math.round(d.freq):0,active:pwm};});},
+ trafficlight(k){const L=[['R',2,'red'],['Y',2.1,'yellow'],['G',2.2,'green']];for(const [pin,vf]of L)k.led(pin,'GND',vf,235);
+  k.result(()=>{const r={};for(const [pin,vf,key]of L){const i=Math.max(0,(k.v(pin)-k.v('GND')-vf)/235);r[key]=i;r[key+'Level']=Math.min(1,k.avg(pin,i)/.012);}return r;});},
+ panelmeter(k){k.R('V+','GND',300);k.R('VIN','GND',1e5);k.result(()=>{const vs=k.v('V+')-k.v('GND'),r=k.v('VIN')-k.v('GND'),powered=vs>=4.5;if(vs>30)k.diag('error',`${k.c.name}: supply exceeds 30 V.`);if(r>100)k.diag('warning',`${k.c.name}: ${r.toFixed(0)} V is beyond the 0–100 V range.`);
+  const display=!powered?'':r>=99.95?'HHH':r<0?'0.00':r<9.995?r.toFixed(2):r.toFixed(1);return {display,powered,reading:r};});},
+ // ── Sensors and inputs ─────────────────────────────────────────────────────────────────────
+ reed(k){const d=k.digital,dist=k.p.distance;d.closed=d.closed?dist<=11:dist<8;if(d.closed)k.R('A','B',.1);k.result(()=>({closed:d.closed,state:d.closed?'closed':'open'}));},
+ hall(k){const d=k.digital,f=k.p.field,vcc=k.vprev('VCC')-k.vprev('GND');d.on=d.on?f>=15:f>=20;k.R('VCC','GND',1100);if(d.on&&vcc>3.5)k.R('OUT','GND',25);else k.R('OUT','GND',1e8);
+  k.result(()=>{const v=k.v('VCC')-k.v('GND');if(v>.5&&v<4.5)k.diag('warning',`${k.c.name}: A3144 needs 4.5–24 V (has ${v.toFixed(2)} V).`);return {out:k.v('OUT')-k.v('GND'),on:d.on&&v>3.5};});},
+ irsensor(k){const vcc=k.vprev('VCC')-k.vprev('GND'),powered=vcc>=3,detected=powered&&k.p.distance<=k.p.threshold;k.R('VCC','GND',220);k.S('OUT','GND',detected?.1:Math.max(0,vcc),detected?30:10000,'FC-51 output');
+  k.result(()=>({out:k.v('OUT')-k.v('GND'),detected,powered}));},
+ trimpot(k){ELEMENTS.pot(k);},slidepot(k){ELEMENTS.pot(k);},
+
 };
+
+const QUAD=[[['1A','1B'],'1Y'],[['2A','2B'],'2Y'],[['3A','3B'],'3Y'],[['4A','4B'],'4Y']],HEX=[1,2,3,4,5,6].map(i=>[[i+'A'],i+'Y']);
+// CMOS logic: outputs are 50 Ω sources from the previous sub-step's decision (a fraction of a millisecond of propagation),
+// inputs switch at VCC/2 (Schmitt parts at 0.6/0.4 VCC) and anything between 0.3 and 0.7 VCC is flagged as undefined.
+function gates(k,list,fn,schmitt=false){const d=k.digital;d.o??=list.map(()=>false);d.in??={};const vcc=k.vprev('VCC')-k.vprev('GND'),on=vcc>=1.8;k.R('VCC','GND',1e5);
+ list.forEach(([,y],i)=>{if(on)k.S(y,'GND',d.o[i]?vcc:0,50,k.c.name+' '+y,{max:.025});else k.R(y,'GND',1e6);});
+ k.post(()=>{const g=k.v('GND'),vc=k.v('VCC')-g;if(vc<1.8)return;d.bad=[];list.forEach(([ins,],i)=>{const lv=ins.map(p=>{const v=k.v(p)-g;let h;if(schmitt)h=d.in[p]?v>.4*vc:v>.6*vc;else h=v>vc/2;if(!schmitt&&v>.3*vc&&v<.7*vc)d.bad.push(p);d.in[p]=h;return h;});d.o[i]=!!fn(...lv);});});
+ k.result(()=>{const vc=k.v('VCC')-k.v('GND');if(vc>.5&&vc<2)k.diag('warning',`${k.c.name}: supply ${vc.toFixed(2)} V is below the 2 V minimum.`);if(vc>6)k.diag('error',`${k.c.name}: 74HC parts are rated for 2–6 V (has ${vc.toFixed(1)} V).`);if(d.bad?.length)k.diag('warning',`${k.c.name}: ${[...new Set(d.bad)].join(', ')} between 0.3 and 0.7 × VCC; a real CMOS input is undefined there (floating or a weak divider?).`);return {state:list.map(([,y],i)=>`${y}=${d.o[i]?1:0}`).join(' ')};});}
+// Magnetically coupled windings (backward Euler). Each winding [a,b,L,R]; mutual M = 0.998·√(Li·Lj).
+// Branch currents are eliminated: i = Y·v + Y·(L/h)·i_prev with Z = R + L/h, so the stamp is a constant admittance block.
+function windings(k,list,ratedPrimary,report){const n=list.length,h=k.h,kc=.998,L=list.map(w=>w[2]),ip=k.s.i??list.map(()=>0);const Z=list.map((w,i)=>list.map((v,j)=>i===j?w[3]+L[i]/h:kc*Math.sqrt(L[i]*L[j])/h));const Y=invert(Z),Lm=list.map((w,i)=>list.map((v,j)=>(i===j?1:kc)*Math.sqrt(L[i]*L[j])/h));
+ const E=Lm.map(row=>row.reduce((a,x,j)=>a+x*ip[j],0)),J=Y.map(row=>row.reduce((a,y,j)=>a+y*E[j],0)),nodes=list.map(([a,b])=>[k.n(a),k.n(b)]);
+ k.nl((x,st)=>{for(let i=0;i<n;i++){const [ai,bi]=nodes[i];for(let j=0;j<n;j++){const [aj,bj]=nodes[j],y=Y[i][j];st.M(ai,aj,y);st.M(ai,bj,-y);st.M(bi,aj,-y);st.M(bi,bj,y);}st.rhs(ai,-J[i]);st.rhs(bi,J[i]);}return 'w';});
+ const cur=()=>{const v=list.map(([a,b])=>k.v(a)-k.v(b));return {v,i:Y.map((row,i)=>row.reduce((s,y,j)=>s+y*v[j],0)+J[i])};};
+ k.post(()=>{k.next.i=cur().i;});
+ k.result(()=>{const {v,i}=cur();if(Math.abs(i[0])>2.5*ratedPrimary*Math.SQRT2)k.diag('error',`${k.c.name}: primary current ${(Math.abs(i[0])*1000).toFixed(0)} mA. The core is saturated or the winding is shorted; a transformer needs AC, not DC.`);return report(i,v);});}
+function invert(A){const n=A.length,M=A.map((r,i)=>[...r,...A.map((_,j)=>i===j?1:0)]);for(let c=0;c<n;c++){let p=c;for(let r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;[M[c],M[p]]=[M[p],M[c]];const d=M[c][c];for(let j=0;j<2*n;j++)M[c][j]/=d;for(let r=0;r<n;r++)if(r!==c){const f=M[r][c];for(let j=0;j<2*n;j++)M[r][j]-=f*M[c][j];}}return M.map(r=>r.slice(n));}
 function display(k){k.R('VCC','GND',330);k.R('SDA','VCC',4700);k.R('SCL','VCC',4700);k.result(()=>{const v=k.v('VCC')-k.v('GND');const powered=k.c.type==='lcd'?v>2.7&&v<5.5:v>2.7&&v<5.5;if(!powered)k.diag('warning',`${k.c.name}: connect VCC to 3.3–5 V and GND to ground.`);return {voltage:v,powered};});}
 function bjt(k,npn){const m=BJT_MODELS[k.p.model]??BJT_MODELS[npn?'2N2222A':'2N2907A'],pol=m.npn?1:-1,nf=m.darlington?2:1,C=k.n('C'),B=k.n('B'),E=k.n('E');const vtf=nf*VT,vc=vcrit(m.is,vtf);let be0=0,bc0=0;
  const ev=(vbe,vbc)=>{const ebe=ex(vbe/vtf),ebc=ex(vbc/VT),If=m.is*(ebe-1),Ir=m.is*(ebc-1),gf=m.is*ebe/vtf,gr=m.is*ebc/VT;return {ic:If-Ir-Ir/m.br,ib:If/m.bf+Ir/m.br,ic_be:gf,ic_bc:-gr-gr/m.br,ib_be:gf/m.bf,ib_bc:gr/m.br};};
