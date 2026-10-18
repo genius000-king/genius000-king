@@ -6,7 +6,8 @@ import {KEYPAD} from './elements.js';
 import {resistorBands} from './geo.js';
 import {thumb} from './thumbs.js';
 const fmtNum=(v,digits=2)=>{if(typeof v!=='number')return v??'—';if(!Number.isFinite(v))return v>0?'∞':'—';const a=Math.abs(v);return a!==0&&(a<1e-3||a>=1e6)?v.toExponential(2):v.toFixed(digits);};
-function Thumb({type,size=58}){const [src,setSrc]=useState(()=>thumb(type));useEffect(()=>{if(!src)thumb(type,setSrc);},[type]);return src?<img className="part-thumb" src={src} width={size} height={size} alt="" draggable={false}/>:<ComponentArt type={type} size={size*.9}/>;}
+function Thumb({type,size=58}){const [src,setSrc]=useState(()=>thumb(type));useEffect(()=>{if(!src)thumb(type,setSrc);},[type]);return src?<img className="part-thumb" src={src} width={size} height={size} alt="" draggable={false}/>:LEGACY_ART.has(type)?<ComponentArt type={type} size={size*.9}/>:<span className="thumb-placeholder" style={{width:size,height:size}}/>;}
+const LEGACY_ART=new Set(['board','led','resistor','button','pot','mic','buzzer','oled','lcd','ldr','thermistor','switch','sevenseg','battery','breadboard']);
 export {Thumb};
 export function Library({onAdd,onClose}){const [query,setQuery]=useState(''),[category,setCategory]=useState('All');const counts=useMemo(()=>Object.values(TYPES).reduce((m,t)=>{m[t.category]=(m[t.category]??0)+1;return m;},{}),[]);
  const list=Object.entries(TYPES).filter(([key,t])=>(category==='All'||t.category===category)&&(t.name+' '+t.subtitle+' '+t.category+' '+(t.spec??'')+' '+key).toLowerCase().includes(query.toLowerCase()));
