@@ -23,7 +23,7 @@ try{
  if(step('opamp')){await openProject('Op-amp amplifier');await run(800);await pause();await shot('07-opamp-breadboard');}
  if(step('555')){await openProject('555 LED flasher');await run(600);await shot('08-555-breadboard');await pause();}
  if(step('pico')){await openProject('NeoPixel rainbow');await run(300);await pause();await shot('09-pico-neopixel');}
- if(step('inspector')){await openProject('Shift register');const pt=await p.evaluate(()=>{const s=window.__circuitLab.scene(),g=s.objects.get('uno'),v=g.position.clone();v.y+=12;v.project(s.camera);const r=s.renderer.domElement.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2};});await p.mouse.click(pt.x,pt.y);await shot('10-board-inspector');}
+ if(step('inspector')){await openProject('Shift register');const pt=await p.evaluate(()=>{const s=window.__circuitLab.scene(),g=s.objects.get('uno'),v=g.position.clone();v.x-=12;v.z+=17;v.y+=3;v.project(s.camera);const r=s.renderer.domElement.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2};});await p.mouse.click(pt.x,pt.y);await shot('10-board-inspector');}
  if(step('tools')){await btn('Workspace options');await btn('Engineering calculators');await shot('11-calculators');await btn('Close tools');}
  if(step('code')){await openProject('Keypad door lock');await btn('Code');await shot('12-editor-keypad');}
  await fs.writeFile(out+'tour-errors.json',JSON.stringify(errors,null,1));console.log('errors',errors.length,errors.slice(0,5));

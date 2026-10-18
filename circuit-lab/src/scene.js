@@ -81,7 +81,7 @@ export class LabScene {
   for(const c of project.components){let g=this.objects.get(c.id);if(g&&g.userData.geomKey!==geometryKey(c)){this.scene.remove(g);this.disposeGroup(g);this.objects.delete(c.id);g=null;}if(!g){g=componentModel(c);this.scene.add(g);this.objects.set(c.id,g);if(this.mode==='wire')this.showTerminals(g,true);}
    g.position.fromArray(c.position).multiplyScalar(MM);g.scale.setScalar(MM);g.rotation.set(...c.rotation);const ud=g.userData,p=c.params;
    if(ud.ledMaterial){ud.ledMaterial.emissive.set(p.color);ud.halo?.material.color.set(p.color);}if(ud.knob)ud.knob.rotation.y=(p.value-.5)*Math.PI*1.6;if(ud.button)ud.button.position.y=p.pressed?(c.type==='button'?4.95:3.8):(c.type==='button'?5.4:4.25);if(ud.slider)ud.slider.position.x=p.position?1.8:-1.8;
-   if(ud.stick){ud.stick.rotation.x=(p.y-.5)*.7;ud.stick.rotation.z=-(p.x-.5)*.7;}if(ud.encoderKnob)ud.encoderKnob.rotation.y=-(p.target??0)*Math.PI/10;if(ud.keys)for(const [k,m]of Object.entries(ud.keys))m.position.y=p.key===k?1.15:1.6;if(ud.dial)ud.dial.rotation.y=-({V:0,A:.55,'Ω':1.1,continuity:1.65}[p.mode]??0)+.8;
+   if(ud.stick){ud.stick.rotation.x=(p.y-.5)*.7;ud.stick.rotation.z=-(p.x-.5)*.7;}if(ud.encoderKnob)ud.encoderKnob.rotation.y=-(p.target??0)*Math.PI/10;if(ud.keys)for(const [k,m]of Object.entries(ud.keys))m.position.y=p.key===k?.95:1.15;if(ud.dial)ud.dial.rotation.y=-({V:0,A:.55,'Ω':1.1,continuity:1.65}[p.mode]??0)+.8;
    g.updateMatrixWorld();}
   this.updateWires();this.select(this.selection,this.selectedWire);this.dirty=true;}
  showTerminals(g,visible){for(const t of Object.values(g.userData.terminals??{}))t.visible=visible;if(g.userData.terminalMesh)g.userData.terminalMesh.visible=visible;}
@@ -131,7 +131,7 @@ export class LabScene {
    if(ud.segments)for(const [key,material]of Object.entries(ud.segments))set(material,(c?.segments?.[key]??0)*3);
    if(ud.rgbMaterial){const r=c?.redLevel??0,gg=c?.greenLevel??0,b=c?.blueLevel??0;const col=new THREE.Color(r,gg,b);if(!ud.rgbMaterial.emissive.equals(col)){ud.rgbMaterial.emissive.copy(col).multiplyScalar(2.2);changed=true;}}
    if(ud.bars)ud.bars.forEach((m,i)=>set(m,(c?.levels?.[i]??0)*3));
-   if(ud.pixels){const cols=c?.colors??[];ud.pixels.forEach((m,i)=>{const p=cols[i]??[0,0,0],col=new THREE.Color(p[0]/255,p[1]/255,p[2]/255),lvl=Math.max(p[0],p[1],p[2])/255;if(!m.emissive.equals(col)){m.emissive.copy(col);m.color.copy(col).lerp(new THREE.Color('#f2f2ee'),1-lvl);changed=true;}set(m,lvl>0?2.4:0);});}
+   if(ud.pixels){const cols=c?.colors??[];ud.pixels.forEach((m,i)=>{const p=cols[i]??[0,0,0],lvl=Math.max(p[0],p[1],p[2])/255,col=lvl?new THREE.Color(p[0]/255/lvl,p[1]/255/lvl,p[2]/255/lvl):new THREE.Color(0,0,0);/* A dimmed WS2812B still shows its hue — only the intensity drops */if(!m.emissive.equals(col)){m.emissive.copy(col);m.color.copy(lvl?col.clone().multiplyScalar(.08):new THREE.Color('#f2f2ee'));changed=true;}set(m,lvl>0?.5+.6*Math.sqrt(lvl):0);});}
    if(ud.lamp){set(ud.lamp.fil,(c?.glow??0)*4);set(ud.lamp.glass,(c?.glow??0)*1.5);}
    if(ud.boardLeds){const leds=c?.leds??[];for(const l of ud.boardLeds){const s=leds.find(x=>x.label===l.label);set(l.material,(s?.on??0)*2.5);}}
    if(ud.horn&&c?.angle!==undefined){const r=-(c.angle-90)*Math.PI/180;if(Math.abs(ud.horn.rotation.y-r)>.002){ud.horn.rotation.y=r;changed=true;}}
