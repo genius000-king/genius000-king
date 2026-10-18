@@ -8,6 +8,25 @@ import {preloadScene} from './workbench/scene-loader.js';
 
 if (typeof window !== 'undefined') preloadScene();
 
+// repeat visits and offline use: the production site caches itself (see public/sw.js)
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator)
+  window.addEventListener('load', () =>
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then(() => navigator.serviceWorker.ready)
+      .then(registration => {
+        const own = performance
+          .getEntriesByType('resource')
+          .map(e => e.name)
+          .filter(url => url.startsWith(location.origin + '/_next/static/'));
+        registration.active?.postMessage({type: 'cache', urls: own});
+      })
+      .catch(() => {})
+  );
+// development files are not content-hashed: never let a worker left by a production build serve them
+else if (typeof window !== 'undefined' && 'serviceWorker' in navigator)
+  navigator.serviceWorker.getRegistrations().then(list => list.forEach(r => r.unregister()));
+
 const Workbench = dynamic(() => import('./workbench/Workbench.jsx'), {
   ssr: false,
   loading: () => <Splash />,
