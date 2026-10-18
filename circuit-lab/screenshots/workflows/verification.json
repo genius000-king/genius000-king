@@ -1,0 +1,13 @@
+{
+  "passed": [
+    "Physical button contact drives GPIO input and LED firmware",
+    "Potentiometer live analog voltage and ADC serial output update",
+    "Wired I2C OLED receives an ACK and displays compiled firmware text",
+    "Invalid wiring is permitted and generates a genuine short-circuit diagnostic",
+    "Unsupported firmware APIs report source errors and do not fake compilation",
+    "Project saved and reloaded with transforms, circuit graph and source intact",
+    "Nine core component types added and placed as independent 3D objects"
+  ],
+  "consoleErrors": [],
+  "renderer": "WebGL2"
+}
