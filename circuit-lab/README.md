@@ -22,6 +22,10 @@ npx vite build --config vite.standalone.config.js   # standalone/index.html, sin
 
 **Projects (39):** blink, traffic light, chaser, dice/7-segment, shift-register bar graph, servo knob, ultrasonic LCD ruler, weather station, melody, keypad lock, joystick RGB, night light, thermometer, Mega chaser, Pico breathing and NeoPixel rainbow, Blue Pill interrupt, ESP8266↔ESP32 Wi-Fi remote, wired UART link between two boards, IMU tilt, RTC OLED clock, PIR alarm, plant watering (relay + pump), MOSFET motor PWM with flyback diode, 555 flasher, RC and RL transients on the scope, op-amp amplifier, 7805 regulator, Zener reference, transistor lamp switch, multimeter/ohmmeter and more. `tests/projects.test.js` runs every one of them and checks the physical result (LED current, timing, scope ratio, LCD text, etc.).
 
+**Wiring realism:** parts seated in a breadboard connect through its strips. Hole-to-hole jumpers are flat solid-core wire bent at right angles. Header wires are Dupont leads with housings. Instrument leads (PSU, generator, scope, meter, logic analyzer) drop from the jack to the bench, lie along it and drape over anything in the way.
+
+**Hands-on controls:** press buttons, keypad keys and EN/BOOT in 3D; drag pot and encoder shafts to turn them; drag the joystick (spring-centred on release); click slide/tilt switches and the multimeter dial. `tests/hand-controls.mjs` drives these with a real mouse and checks the circuit responds (the knob turns the servo to the matching angle).
+
 **Tools:** library with live 3D thumbnails and search; schema-driven inspector (part parameters, live readouts, board information and datasheet links); oscilloscope and logic-analyzer drawer; engineering calculators (LED resistor, Ohm's law, divider, RC/filter, 555 astable, color code); BOM CSV and SPICE netlist export; JSON project import/export (drag a `.circuitlab.json`/`.json` file in or use the open button); camera snapshot; undo/redo; autosave.
 
 ## Simulation model (and its honest limits)
@@ -70,7 +74,7 @@ Not supported: pointers, structs/classes you define, templates, dynamic memory, 
 ## Tests
 
 - `npm test`: 114 Node tests (`engine`, `expanded`, `physics`, `projects`).
-- Browser (needs `npm run dev`; Chromium path from `$CHROMIUM` or the Playwright default): `node tests/app-tour.mjs` captures the feature tour into `screenshots/`. `tests/showcase.mjs out.png type1,type2,… [cols] [gap] [dir] [zoom]` renders any parts through the app's file import. `tests/browser-workflows.mjs`, `browser-tail.mjs`, `additional-workflows.mjs`, `drag-check.mjs`, `inspect-browser.mjs` and `visual-check.mjs` are end-to-end UI workflows.
+- Browser (needs `npm run dev`; Chromium path from `$CHROMIUM` or the Playwright default): `node tests/app-tour.mjs` captures the feature tour into `screenshots/`. `tests/showcase.mjs out.png type1,type2,… [cols] [gap] [dir] [zoom]` renders any parts through the app's file import. `tests/hand-controls.mjs`, `tests/browser-workflows.mjs`, `browser-tail.mjs`, `additional-workflows.mjs`, `drag-check.mjs`, `inspect-browser.mjs` and `visual-check.mjs` are end-to-end UI workflows.
 
 Browser QA runs on software WebGL2 (SwiftShader). WebGPU is used when available but was not verified on real GPU hardware here.
 

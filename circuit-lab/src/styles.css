@@ -67,3 +67,5 @@
 .app.theme-dark .glass,.app.theme-dark .topbar{backdrop-filter:blur(22px) saturate(140%) brightness(.6);-webkit-backdrop-filter:blur(22px) saturate(140%) brightness(.6)}
 /* The reference is long-form reading: the scene must not compete with its text, so it keeps a denser tint than other glass. */
 .app.theme-dark .docs-modal{background:rgba(24,24,28,.88)}
+/* Whatever is behind the canvas (e.g. under an open drawer) must stay charcoal in the dark theme. */
+.app.theme-dark,.app.theme-dark .workbench{background:#1d1d21}

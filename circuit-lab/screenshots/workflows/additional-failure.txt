@@ -1,8 +1,10 @@
-locator.evaluate: Timeout 30000ms exceeded.
+locator.evaluate: Error: strict mode violation: locator('.component-card').filter({ hasText: 'Battery' }) resolved to 2 elements:
+    1) <button draggable="true" class="component-card" title="Battery 9 V · Alkaline PP3↵Click to add, or drag into the workspace">…</button> aka getByRole('button', { name: 'Battery 9 V' })
+    2) <button draggable="true" class="component-card" title="AA battery pack · Alkaline cells in holder↵Click to add, or drag into the workspace">…</button> aka getByRole('button', { name: 'AA battery pack' })
+
 Call log:
-[2m  - waiting for locator('.project-menu').getByRole('button', { name: /LCD workbench/ })[22m
+[2m  - waiting for locator('.component-card').filter({ hasText: 'Battery' })[22m
 
     at click (/home/user/genius000-king/circuit-lab/tests/additional-workflows.mjs:7:22)
-    at example (/home/user/genius000-king/circuit-lab/tests/additional-workflows.mjs:12:168)
-    at async file:///home/user/genius000-king/circuit-lab/tests/additional-workflows.mjs:19:2
+    at /home/user/genius000-king/circuit-lab/tests/additional-workflows.mjs:26:238
 []

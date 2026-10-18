@@ -7,16 +7,17 @@ User priorities (unchanged): charcoal black/gray UI, highly transparent glass, m
 - 7 boards with per-board profiles, 52 parts, 39 projects (all executed and physically checked by `tests/projects.test.js`).
 - Transient MNA engine with nonlinear semiconductors, companion models for C/L, switching PWM, behavioural ICs, bus/UART/Wi-Fi models. See README "Simulation model" for the exact limits.
 - Typed compiler/VM with library classes. API availability depends on the board.
-- Breadboard seating (`src/snap.js`) creates explicit `kind:'contact'` connections. Hole-to-hole wires are flat solid-core jumpers bent at right angles, with a small per-wire lift so crossings don't share a surface. Other wires are Dupont jumpers with housings.
+- Breadboard seating (`src/snap.js`) creates explicit `kind:'contact'` connections. Hole-to-hole wires are flat solid-core jumpers bent at right angles, with a small per-wire lift so crossings don't share a surface. Other wires are Dupont jumpers with housings. Instrument leads lie on the bench and drape over obstacles (`benchBoxes`/`layoutKey` in `scene.js`). The render loop resizes itself whenever the canvas and its container disagree (the ResizeObserver alone missed drawer openings).
 - UI: library with live thumbnails, schema inspector, project gallery, scope/logic drawer, calculators, BOM/SPICE/JSON export, file import (projects and `.ino` sources), and an in-app reference that matches the README.
-- `npm test`: 114 passing. Browser: `tests/app-tour.mjs` (12 shots, zero page errors). The legacy workflows were ported to the project gallery and portable paths.
+- Hand controls in 3D: pot/encoder shafts turn by dragging, the joystick tilts and springs back, the meter dial and tilt switch click (`tests/hand-controls.mjs`).
+- `npm test`: 114 passing. Browser: `tests/app-tour.mjs` (13 shots, zero page errors). The legacy workflows were ported to the project gallery and portable paths.
 
 ## Verify
 
 ```sh
 npm ci && npm test
 npm run dev &
-node tests/app-tour.mjs            # screenshots/01…12
+node tests/app-tour.mjs            # screenshots/01…13
 node tests/showcase.mjs screenshots/x.png uno,nano,pico 3 90
 npx vite build --config vite.standalone.config.js && cp standalone/index.html Circuit-Lab.html
 ```

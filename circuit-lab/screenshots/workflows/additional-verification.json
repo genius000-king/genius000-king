@@ -1,0 +1,12 @@
+{
+  "passed": [
+    "Global glass opacity and dark theme update all workspace panels",
+    "Clicking a 3D GPIO pin exposes its label, functions and measured voltage",
+    "16×2 LCD receives powered I2C text from firmware",
+    "Independent firmware selection preserves sender and receiver sketches; virtual UDP drives receiver LED",
+    "Wrong Wi-Fi credentials prevent delivery and are visible in network diagnostics",
+    "Export and reload preserve per-board source files, dark theme and global opacity",
+    "Additional component bodies are separately selectable, positioned and rendered in 3D"
+  ],
+  "errors": []
+}

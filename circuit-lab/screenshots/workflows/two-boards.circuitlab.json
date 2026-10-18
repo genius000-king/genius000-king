@@ -1,0 +1,174 @@
+{
+  "version": 2,
+  "name": "Two boards · Wi-Fi",
+  "appearance": {
+    "theme": "dark",
+    "opacity": 0.22
+  },
+  "boardRevision": "Espressif ESP32-DevKitC V4 / ESP32-WROOM-32E",
+  "components": [
+    {
+      "id": "esp32",
+      "type": "board",
+      "name": "Receiver",
+      "position": [
+        -15,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "params": {}
+    },
+    {
+      "id": "breadboard",
+      "type": "breadboard",
+      "name": "Mini breadboard",
+      "position": [
+        26,
+        0,
+        13
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "params": {}
+    },
+    {
+      "id": "led",
+      "type": "led",
+      "name": "LED",
+      "position": [
+        24.73,
+        3.3,
+        9.19
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "params": {
+        "color": "#f45740",
+        "vf": 1.9,
+        "maxCurrent": 20
+      }
+    },
+    {
+      "id": "resistor",
+      "type": "resistor",
+      "name": "Resistor",
+      "position": [
+        18.380000000000003,
+        3.3,
+        4.109999999999999
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "params": {
+        "resistance": 220
+      }
+    },
+    {
+      "id": "sender",
+      "type": "board",
+      "name": "Sender",
+      "position": [
+        -65,
+        0,
+        -20
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "params": {}
+    }
+  ],
+  "wires": [
+    {
+      "id": "wire1",
+      "a": "esp32:IO2",
+      "b": "breadboard:A4",
+      "color": "#d9822b",
+      "lift": 10
+    },
+    {
+      "id": "wire3",
+      "a": "breadboard:A9",
+      "b": "esp32:GND3",
+      "color": "#2b2b30",
+      "lift": 12
+    },
+    {
+      "id": "contact:led:A",
+      "a": "led:A",
+      "b": "breadboard:E8",
+      "kind": "contact"
+    },
+    {
+      "id": "contact:led:K",
+      "a": "led:K",
+      "b": "breadboard:E9",
+      "kind": "contact"
+    },
+    {
+      "id": "contact:resistor:A",
+      "a": "resistor:A",
+      "b": "breadboard:C4",
+      "kind": "contact"
+    },
+    {
+      "id": "contact:resistor:B",
+      "a": "resistor:B",
+      "b": "breadboard:C8",
+      "kind": "contact"
+    }
+  ],
+  "files": {
+    "main.ino": "// This board joins the AP and drives its wired LED.\nvoid setup() {\n  pinMode(2, OUTPUT);\n  Serial.begin(115200);\n  WiFi.begin(\"CircuitLab\", \"learn1234\", 6);\n  UDP.begin(4210);\n}\nvoid loop() {\n  if (UDP.parsePacket()) {\n    String message = UDP.readString();\n    digitalWrite(2, message == \"1\");\n    Serial.println(message);\n  }\n  delay(1);\n}\n"
+  },
+  "activeFile": "main.ino",
+  "layout": "3d",
+  "camera": {
+    "position": [
+      115,
+      145,
+      185
+    ],
+    "target": [
+      -8,
+      0,
+      0
+    ]
+  },
+  "config": {
+    "timestep": 1,
+    "speed": 1,
+    "precision": 5
+  },
+  "activeBoard": "esp32",
+  "firmware": {
+    "esp32": {
+      "files": {
+        "main.ino": "// This board joins the AP and drives its wired LED.\nvoid setup() {\n  pinMode(2, OUTPUT);\n  Serial.begin(115200);\n  WiFi.begin(\"CircuitLab\", \"learn1234\", 6);\n  UDP.begin(4210);\n}\nvoid loop() {\n  if (UDP.parsePacket()) {\n    String message = UDP.readString();\n    digitalWrite(2, message == \"1\");\n    Serial.println(message);\n  }\n  delay(1);\n}\n"
+      },
+      "activeFile": "main.ino"
+    },
+    "sender": {
+      "files": {
+        "main.ino": "// Virtual Wi-Fi + UDP. This board creates the access point.\nint state = 0;\nvoid setup() {\n  Serial.begin(115200);\n  WiFi.softAP(\"CircuitLab\", \"learn1234\", 6);\n  UDP.begin(4210);\n}\nvoid loop() {\n  state = !state;\n  UDP.beginPacket(\"192.168.4.255\", 4210);\n  UDP.print(state);\n  UDP.endPacket();\n  Serial.println(state);\n  delay(500);\n}\n"
+      },
+      "activeFile": "main.ino"
+    }
+  }
+}
