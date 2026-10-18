@@ -1,9 +1,6 @@
-locator.evaluate: Target page, context or browser has been closed
+page.reload: net::ERR_CONNECTION_REFUSED
 Call log:
-[2m  - waiting for getByRole('button', { name: 'Close instruments' })[22m
-[2m    - locator resolved to visible <button class="icon-button  " title="Close instruments" aria-label="Close instruments">…</button>[22m
+[2m  - waiting for navigation until "networkidle"[22m
 
-    at closeDrawer (/home/user/genius000-king/circuit-lab/tests/browser-tail.mjs:16:116)
-    at async example (/home/user/genius000-king/circuit-lab/tests/browser-tail.mjs:18:28)
-    at async file:///home/user/genius000-king/circuit-lab/tests/browser-tail.mjs:28:2
-[]
+    at /home/user/genius000-king/circuit-lab/tests/browser-tail.mjs:30:416
+["Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document."]

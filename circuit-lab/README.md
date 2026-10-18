@@ -26,6 +26,8 @@ npx vite build --config vite.standalone.config.js   # standalone/index.html, sin
 
 **Hands-on controls:** press buttons, keypad keys and EN/BOOT in 3D; drag pot and encoder shafts to turn them; drag the joystick (spring-centred on release); click slide/tilt switches and the multimeter dial. `tests/hand-controls.mjs` drives these with a real mouse and checks the circuit responds (the knob turns the servo to the matching angle).
 
+**Full screen and phones:** the ⛶ button in the top bar enters real browser full screen and a compact layout. iPhone Safari only allows full screen for video, so there the button switches to the compact layout alone. On phones the camera frames the circuit for the tall screen and turns long circuits (a board beside a breadboard) so they run up the screen. The inspector becomes a bottom sheet, controls are thumb-sized, a double-tap frames the circuit, and pinch/two-finger drag zoom and pan. Taps never fire a delayed "ghost" click on a panel that opens under the finger. `tests/mobile.mjs` checks all of this on an emulated iPhone 13.
+
 **Tools:** library with live 3D thumbnails and search; schema-driven inspector (part parameters, live readouts, board information and datasheet links); oscilloscope and logic-analyzer drawer; engineering calculators (LED resistor, Ohm's law, divider, RC/filter, 555 astable, color code); BOM CSV and SPICE netlist export; JSON project import/export (drag a `.circuitlab.json`/`.json` file in or use the open button); camera snapshot; undo/redo; autosave.
 
 ## Simulation model (and its honest limits)
@@ -74,7 +76,7 @@ Not supported: pointers, structs/classes you define, templates, dynamic memory, 
 ## Tests
 
 - `npm test`: 114 Node tests (`engine`, `expanded`, `physics`, `projects`).
-- Browser (needs `npm run dev`; Chromium path from `$CHROMIUM` or the Playwright default): `node tests/app-tour.mjs` captures the feature tour into `screenshots/`. `tests/showcase.mjs out.png type1,type2,… [cols] [gap] [dir] [zoom]` renders any parts through the app's file import. `tests/hand-controls.mjs`, `tests/browser-workflows.mjs`, `browser-tail.mjs`, `additional-workflows.mjs`, `drag-check.mjs`, `inspect-browser.mjs` and `visual-check.mjs` are end-to-end UI workflows.
+- Browser (needs `npm run dev`; Chromium path from `$CHROMIUM` or the Playwright default): `node tests/app-tour.mjs` captures the feature tour into `screenshots/`. `tests/showcase.mjs out.png type1,type2,… [cols] [gap] [dir] [zoom]` renders any parts through the app's file import. `tests/hand-controls.mjs`, `tests/mobile.mjs`, `tests/browser-workflows.mjs`, `browser-tail.mjs`, `additional-workflows.mjs`, `drag-check.mjs`, `inspect-browser.mjs` and `visual-check.mjs` are end-to-end UI workflows.
 
 Browser QA runs on software WebGL2 (SwiftShader). WebGPU is used when available but was not verified on real GPU hardware here.
 

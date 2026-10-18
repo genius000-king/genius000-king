@@ -69,3 +69,36 @@
 .app.theme-dark .docs-modal{background:rgba(24,24,28,.88)}
 /* Whatever is behind the canvas (e.g. under an open drawer) must stay charcoal in the dark theme. */
 .app.theme-dark,.app.theme-dark .workbench{background:#1d1d21}
+
+/* ── Full screen / immersive: the circuit gets the whole screen, only the essentials float ── */
+.app.immersive .brand>span:last-child,.app.immersive .top-separator,.app.immersive .project-heading,.app.immersive .statusbar{display:none}
+.app.immersive .topbar{left:auto;width:auto;padding:0 8px;gap:6px}
+
+/* ── Phones: thumb-sized controls, sheet-style inspector, safe areas ── */
+@media(max-width:700px){
+ .app .topbar{top:calc(env(safe-area-inset-top) + 8px);left:calc(env(safe-area-inset-left) + 8px);right:calc(env(safe-area-inset-right) + 8px);height:52px;min-height:52px;padding:0 6px 0 10px;gap:4px;border-radius:16px}
+ .app .brand>span:last-child,.app .top-separator,.app .save-indicator{display:none}
+ .app .project-heading{min-width:0;flex:1}
+ .app .project-button{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;min-height:40px}
+ .app .top-actions{gap:2px}
+ .app .top-actions>button,.app .top-actions .icon-button{min-width:40px;min-height:40px}
+ .app .run-button{min-width:44px;min-height:40px;padding:0 12px}
+ .app .run-button span{display:none}
+ .app .workspace-bottom{bottom:calc(env(safe-area-inset-bottom) + 12px)}
+ .app .toolstrip{padding:6px;gap:4px;border-radius:18px}
+ .app .toolstrip .icon-button,.app .toolstrip>button{min-width:46px;min-height:46px}
+ .app .statusbar{bottom:calc(env(safe-area-inset-bottom) + 8px)}
+ .app .statusbar button{width:38px;height:38px;pointer-events:auto}
+ /* the inspector becomes a sheet above the tool strip, leaving the circuit visible */
+ .app .inspector{display:flex;top:auto;left:calc(env(safe-area-inset-left) + 8px);right:calc(env(safe-area-inset-right) + 8px);bottom:calc(env(safe-area-inset-bottom) + 82px);width:auto;max-height:42vh;min-height:0;border-radius:20px;padding-top:10px}
+ .app .inspector::before{content:'';position:absolute;top:6px;left:50%;width:38px;height:4px;margin-left:-19px;border-radius:2px;background:var(--hairline)}
+ .app .inspector input[type=range]{height:30px}
+ .app .inspector button,.app .inspector select,.app .inspector input:not([type=range]){min-height:38px}
+ .app.has-selection .camera-popover{display:none}
+}
+@media(max-width:700px){
+ /* status buttons sit above the tool strip instead of colliding with it */
+ .app .statusbar{left:auto;right:calc(env(safe-area-inset-right) + 10px);bottom:calc(env(safe-area-inset-bottom) + 84px);height:auto;flex-direction:column;align-items:flex-end;gap:6px}
+ .app .statusbar>:first-child{display:none}
+ .app.has-selection .statusbar{display:none}
+}
