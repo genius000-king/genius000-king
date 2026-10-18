@@ -21,11 +21,16 @@ import {
   Calculator,
   BookOpen,
 } from 'lucide-react';
+import {MODES, PROFILES} from '../../engines/performance/index.js';
 import {IconButton} from '../common/IconButton.jsx';
 import {useWorkbench} from './context.js';
 
 export default function WorkspaceMenu() {
   const {
+    choosePerformance,
+    device,
+    performanceMode,
+    profile,
     change,
     grid,
     history,
@@ -186,6 +191,28 @@ export default function WorkspaceMenu() {
               <option value="20">Precise · 50 µs sub-steps</option>
             </select>
           </label>
+        </details>
+        <details>
+          <summary>Performance</summary>
+          <label className="glass-control">
+            Graphics
+            <b>{profile.label}</b>
+            <select
+              aria-label="Graphics performance"
+              value={performanceMode}
+              onChange={e => choosePerformance(e.target.value)}
+            >
+              {Object.entries(MODES).map(([mode, label]) => (
+                <option key={mode} value={mode}>
+                  {mode === 'auto' ? `${label} · ${PROFILES[device.tier].label} for this device` : label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <p className="inline-note">
+            Battery saver turns off shadows, antialiasing and panel blur and caps the frame rate. Quality uses
+            WebGPU where the browser has it.
+          </p>
         </details>
         <button
           className="reference-button"

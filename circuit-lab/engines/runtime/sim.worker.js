@@ -8,6 +8,9 @@ export let last = performance.now();
 
 export let lastSend = 0;
 
+/** How often a running simulation sends a snapshot to the UI (set by the UI per device and visibility). */
+export let stateMs = 50;
+
 export const send = () => {
   if (sim) postMessage({type: 'state', state: sim.snapshot()});
 };
@@ -59,6 +62,9 @@ onmessage = ({data}) => {
         sim.serial(data.text);
         send();
         break;
+      case 'config':
+        if (data.stateMs >= 16) stateMs = data.stateMs;
+        break;
       case 'clear':
         sim.clear();
         send();
@@ -86,7 +92,7 @@ setInterval(() => {
     accumulator -= advanced;
     if (accumulator > 200) accumulator = 200;
   }
-  if (now - lastSend > 50 && sim) {
+  if (now - lastSend > stateMs && sim) {
     if (sim.running) send();
     lastSend = now;
   }

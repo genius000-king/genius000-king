@@ -3,6 +3,7 @@ import {loadModels, missingModels} from './models/index.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {TransformControls} from 'three/addons/controls/TransformControls.js';
 import {MM} from '../catalog/types.js';
+import {AdaptiveResolution, PROFILES} from '../performance/index.js';
 import {mixin} from '../shared/mixin.js';
 import {cameraMethods} from './camera.js';
 import {geometryKey, componentModel} from './components.js';
@@ -12,9 +13,11 @@ import {visualsMethods} from './visuals.js';
 import {wiresMethods} from './wires.js';
 
 export class LabScene {
-  constructor(container, callbacks) {
+  /** `profile` is a performance profile (engines/performance); it is fixed for the life of the scene. */
+  constructor(container, callbacks, profile = {...PROFILES.medium, tier: 'medium'}) {
     this.container = container;
     this.cb = callbacks;
+    this.profile = profile;
     this.objects = new Map();
     this.wires = new Map();
     this.selection = [];
@@ -29,12 +32,13 @@ export class LabScene {
     this.camera = new THREE.PerspectiveCamera(34, 1, 0.1, 4000);
     this.camera.position.set(85, 105, 130);
     this.renderer = null;
-    if (navigator.gpu && !sessionStorage.getItem('circuit-lab-force-webgl')) {
+    const profile = this.profile;
+    if (profile.webgpu && navigator.gpu && !sessionStorage.getItem('circuit-lab-force-webgl')) {
       try {
         const adapter = await navigator.gpu.requestAdapter({powerPreference: 'high-performance'});
         if (!adapter) throw Error('No WebGPU adapter');
         const {WebGPURenderer} = await import('three/webgpu');
-        const r = new WebGPURenderer({antialias: true, alpha: false});
+        const r = new WebGPURenderer({antialias: profile.antialias, alpha: false});
         await r.init();
         if (!r.backend.isWebGPUBackend) {
           r.dispose();
@@ -48,9 +52,10 @@ export class LabScene {
     }
     if (!this.renderer) {
       this.renderer = new THREE.WebGLRenderer({
-        antialias: true,
+        antialias: profile.antialias,
         alpha: false,
-        powerPreference: 'high-performance',
+        // on laptops with two GPUs, battery saver keeps the integrated one
+        powerPreference: profile.tier === 'low' ? 'low-power' : 'high-performance',
         preserveDrawingBuffer: false,
       });
       this.backend = 'WebGL2';
@@ -62,25 +67,39 @@ export class LabScene {
       this.software =
         !!debug && /SwiftShader|llvmpipe|Software/i.test(gl.getParameter(debug.UNMASKED_RENDERER_WEBGL));
     }
-    this.renderer.setPixelRatio(this.software ? 1 : Math.min(devicePixelRatio, 1.75));
-    this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    const maxRatio = Math.min(devicePixelRatio, this.software ? 1 : profile.pixelRatio);
+    this.renderer.setPixelRatio(maxRatio);
+    this.adaptive = new AdaptiveResolution({
+      max: maxRatio,
+      min: Math.min(maxRatio, profile.minPixelRatio),
+      frameMs: profile.frameMs,
+      onChange: ratio => {
+        this.renderer.setPixelRatio(ratio);
+        this.resize();
+        this.cb.onResolution?.(ratio);
+      },
+    });
+    this.renderer.shadowMap.enabled = profile.shadows;
+    this.renderer.shadowMap.type = profile.softShadows ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.12;
     this.container.appendChild(this.renderer.domElement);
     this.cb.onBackend?.(this.backend);
-    const envCanvas = document.createElement('canvas');
-    envCanvas.width = 1024;
-    envCanvas.height = 512;
+    // the reflection map is drawn at 1024 × 512 and scaled to the profile's size
+    const envCanvas = document.createElement('canvas'),
+      envScale = profile.environmentSize / 1024;
+    envCanvas.width = profile.environmentSize;
+    envCanvas.height = profile.environmentSize / 2;
     const ec = envCanvas.getContext('2d'),
       eg = ec.createLinearGradient(0, 0, 0, 512);
+    ec.scale(envScale, envScale);
     eg.addColorStop(0, '#d3dbd9');
     eg.addColorStop(0.48, '#84928c');
     eg.addColorStop(0.52, '#4b5550');
     eg.addColorStop(1, '#b3bbae');
     ec.fillStyle = eg;
     ec.fillRect(0, 0, 1024, 512);
-    ec.filter = 'blur(12px)';
+    ec.filter = `blur(${12 * envScale}px)`;
     ec.fillStyle = '#ffffff';
     ec.fillRect(100, 90, 220, 110);
     ec.fillStyle = '#dde7ed';
@@ -94,8 +113,9 @@ export class LabScene {
     this.scene.add(new THREE.HemisphereLight('#ffffff', '#8b9684', 1.5));
     const sun = new THREE.DirectionalLight('#fffaf2', 2.8);
     sun.position.set(-55, 140, 60);
-    sun.castShadow = true;
-    sun.shadow.mapSize.set(this.software ? 512 : 2048, this.software ? 512 : 2048);
+    sun.castShadow = profile.shadows;
+    const shadowSize = this.software ? Math.min(512, profile.shadowSize) : profile.shadowSize;
+    if (profile.shadows) sun.shadow.mapSize.set(shadowSize, shadowSize);
     Object.assign(sun.shadow.camera, {left: -180, right: 180, top: 180, bottom: -180, near: 1, far: 500});
     sun.shadow.normalBias = 0.35;
     sun.shadow.bias = -0.0002;
@@ -179,18 +199,21 @@ export class LabScene {
     this.renderer.setAnimationLoop(() => {
       if (this.disposed) return;
       const stamp = performance.now();
-      if (this.software && stamp - lastFrame < 48) return;
+      const minGap = this.software ? Math.max(48, profile.frameMs) : profile.frameMs;
+      if (minGap && stamp - lastFrame < minGap) return;
       lastFrame = stamp;
       /* ResizeObserver can miss a layout change (e.g. a drawer opening mid-frame); never leave a stale or cleared canvas */ const el =
         this.renderer.domElement;
       if (el.clientWidth !== this.container.clientWidth || el.clientHeight !== this.container.clientHeight)
         this.resize();
-      const changed = this.controls.update();
-      if (this.dirty || changed) {
+      const changed = this.controls.update(),
+        rendered = this.dirty || changed;
+      if (rendered) {
         this.renderer.render(this.scene, this.camera);
         this.dirty = false;
         frames++;
       }
+      this.adaptive.frame(stamp, rendered);
       const now = performance.now();
       if (now - then > 1500) {
         this.cb.onPerformance?.(Math.round((frames * 1000) / (now - then)));

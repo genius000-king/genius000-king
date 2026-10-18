@@ -1,5 +1,5 @@
 import {CheckCircle2, GripVertical} from 'lucide-react';
-import {useState, useEffect, useRef, useCallback} from 'react';
+import {useState, useEffect, useRef, useCallback, useMemo} from 'react';
 import {isBoard} from '../../engines/catalog/boards.js';
 
 import {makeComponent, TYPES} from '../../engines/catalog/types.js';
@@ -10,6 +10,7 @@ import {reseat} from '../../engines/workspace/snap.js';
 import {load, blankState, loadIssue, KEY} from './storage.js';
 import '../styles.css';
 import {WorkbenchContext} from './context.js';
+import {detectDevice, profileFor, readMode, writeMode} from '../../engines/performance/index.js';
 import {preloadScene} from './scene-loader.js';
 import {
   WorkspaceMenu,
@@ -73,6 +74,8 @@ export function App() {
     [saveState, setSaveState] = useState('Saved locally'),
     [historyVersion, setHistoryVersion] = useState(0),
     [graphicsGeneration, setGraphicsGeneration] = useState(0),
+    [performanceMode, setPerformanceMode] = useState(readMode),
+    [resolution, setResolution] = useState(null),
     [newFile, setNewFile] = useState(false),
     [fileName, setFileName] = useState('helpers.ino'),
     [gallery, setGallery] = useState(false),
@@ -132,6 +135,23 @@ export function App() {
       state: () => simRef.current,
       scene: () => scene.current,
     };
+  // how much this device renders; changing the mode rebuilds the renderer (antialiasing is fixed per context)
+  const device = detectDevice(),
+    profile = useMemo(() => profileFor(performanceMode, device), [performanceMode]);
+  const choosePerformance = mode => {
+    writeMode(mode);
+    setPerformanceMode(mode);
+    setResolution(null);
+    setGraphicsGeneration(n => n + 1);
+  };
+  useEffect(() => {
+    // a hidden tab keeps simulating but only needs a snapshot a second
+    const apply = () =>
+      worker.current?.postMessage({type: 'config', stateMs: document.hidden ? 1000 : profile.stateMs});
+    apply();
+    document.addEventListener('visibilitychange', apply);
+    return () => document.removeEventListener('visibilitychange', apply);
+  }, [profile.stateMs]);
   const notify = useCallback(s => {
     setToast(s);
     clearTimeout(notifyTimer.current);
@@ -325,6 +345,7 @@ export function App() {
     onTerminal: terminalClick,
     onHover: setHover,
     onBackend: setBackend,
+    onResolution: setResolution,
     onRecover: message => {
       notify(message);
       setGraphicsGeneration(n => n + 1);
@@ -457,6 +478,7 @@ export function App() {
       setDrawer('diagnostics');
     };
     w.postMessage({type: 'init', project: initial.current});
+    w.postMessage({type: 'config', stateMs: document.hidden ? 1000 : profile.stateMs});
     return () => w.terminate();
   }, []);
   useEffect(() => {
@@ -475,7 +497,8 @@ export function App() {
                 (...args) =>
                   callbacks.current[key]?.(...args),
             }
-          )
+          ),
+          profile
         );
         scene.current = lab;
         return lab.ready.then(() => {
@@ -808,6 +831,11 @@ export function App() {
   };
   /* Everything the extracted panels read; see context.js */
   const workbench = {
+    performanceMode,
+    choosePerformance,
+    device,
+    profile,
+    resolution,
     audioEnabled,
     backend,
     cameraTools,
@@ -897,7 +925,7 @@ export function App() {
   return (
     <WorkbenchContext.Provider value={workbench}>
       <div
-        className={`app theme-${project.appearance?.theme ?? 'dark'} layout-${project.layout} dock-${dock} ${drawer ? 'has-drawer' : ''} ${full ? 'immersive' : ''} ${selected.length ? 'has-selection' : ''}`}
+        className={`app theme-${project.appearance?.theme ?? 'dark'} layout-${project.layout} dock-${dock} ${drawer ? 'has-drawer' : ''} ${full ? 'immersive' : ''} ${selected.length ? 'has-selection' : ''} ${profile.glass ? '' : 'low-power'}`}
         style={{'--split': `${split}%`, '--glass-alpha': project.appearance?.opacity ?? 0.36}}
       >
         <TopBar />

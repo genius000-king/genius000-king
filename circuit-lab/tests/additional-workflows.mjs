@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
 const out=new URL('../screenshots/workflows',import.meta.url).pathname;
 const b=await chromium.launch({executablePath:process.env.CHROMIUM??'/opt/pw-browsers/chromium-1194/chrome-linux/chrome',args:['--no-sandbox','--disable-dev-shm-usage','--enable-unsafe-swiftshader','--use-angle=swiftshader','--disable-gpu-compositing']});
-const p=await b.newPage({viewport:{width:1440,height:960}}),errors=[],passed=[];p.setDefaultTimeout(30000);p.on('pageerror',e=>errors.push(e.message));p.on('dialog',d=>d.accept());await p.addInitScript(()=>(sessionStorage.setItem('circuit-lab-force-webgl','1'),sessionStorage.setItem('circuit-lab-debug','1')));
+const p=await b.newPage({viewport:{width:1440,height:960}}),errors=[],passed=[];p.setDefaultTimeout(30000);p.on('pageerror',e=>errors.push(e.message));p.on('dialog',d=>d.accept());await p.addInitScript(()=>(sessionStorage.setItem('circuit-lab-force-webgl','1'),sessionStorage.setItem('circuit-lab-debug','1'),localStorage.getItem('circuit-lab-performance')||localStorage.setItem('circuit-lab-performance','quality')));
 const click=loc=>loc.evaluate(el=>el.click());const button=name=>p.getByRole('button',{name,exact:true});
 const shot=async name=>{await p.waitForTimeout(300);await p.screenshot({path:`${out}/${name}.png`});console.log('SCREENSHOT',name);};
 const state=()=>p.evaluate(()=>window.__circuitLab.state());const project=()=>p.evaluate(()=>window.__circuitLab.project());

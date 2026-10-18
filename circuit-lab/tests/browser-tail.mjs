@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 const out=new URL('../screenshots/workflows',import.meta.url).pathname;
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM??'/opt/pw-browsers/chromium-1194/chrome-linux/chrome',headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--enable-unsafe-swiftshader','--use-angle=swiftshader','--disable-gpu-compositing','--remote-debugging-port=9222']});
 const page=await browser.newPage({viewport:{width:1440,height:960},deviceScaleFactor:1});
-page.setDefaultTimeout(30000);await page.addInitScript(()=>(sessionStorage.setItem('circuit-lab-force-webgl','1'),sessionStorage.setItem('circuit-lab-debug','1')));page.on('dialog',d=>d.accept());
+page.setDefaultTimeout(30000);await page.addInitScript(()=>(sessionStorage.setItem('circuit-lab-force-webgl','1'),sessionStorage.setItem('circuit-lab-debug','1'),localStorage.getItem('circuit-lab-performance')||localStorage.setItem('circuit-lab-performance','quality')));page.on('dialog',d=>d.accept());
 const errors=[],results=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error'&&!m.text().includes('net::ERR'))errors.push(m.text());});
 const screenshot=async(name)=>{console.log('CAPTURE',name);await page.waitForTimeout(250);await page.screenshot({path:`${out}/${name}.png`});console.log('SCREENSHOT',name);};
 const state=()=>page.evaluate(()=>window.__circuitLab.state());

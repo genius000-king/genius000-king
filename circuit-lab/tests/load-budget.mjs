@@ -14,6 +14,7 @@ p.on('dialog', d => d.accept());
 await p.addInitScript(() => {
   sessionStorage.setItem('circuit-lab-force-webgl', '1');
   sessionStorage.setItem('circuit-lab-debug', '1');
+  localStorage.getItem('circuit-lab-performance') || localStorage.setItem('circuit-lab-performance', 'quality');
 });
 let stage = [];
 p.on('response', async r => {

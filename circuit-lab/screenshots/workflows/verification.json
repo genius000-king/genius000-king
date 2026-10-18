@@ -1,9 +1,5 @@
 {
   "passed": [
-    "3D board and breadboard render with WebGL2 fallback",
-    "Board flips 180°, lifts, and drags with persisted transforms",
-    "Floating code editor docks left and split resizes without resetting simulation",
-    "Wire route control points persist; disconnecting ground extinguishes LED",
     "Physical button contact drives GPIO input and LED firmware",
     "Potentiometer live analog voltage and ADC serial output update",
     "Wired I2C OLED receives an ACK and displays compiled firmware text",

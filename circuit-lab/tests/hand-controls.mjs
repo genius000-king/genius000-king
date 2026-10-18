@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 const out=new URL('../screenshots/',import.meta.url).pathname;
 const b=await chromium.launch({executablePath:process.env.CHROMIUM??'/opt/pw-browsers/chromium-1194/chrome-linux/chrome',args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
 const p=await b.newPage({viewport:{width:1600,height:1000}}),errors=[];p.setDefaultTimeout(60000);p.on('pageerror',e=>errors.push(e.message));p.on('dialog',d=>d.accept());
-await p.addInitScript(()=>(sessionStorage.setItem('circuit-lab-force-webgl','1'),sessionStorage.setItem('circuit-lab-debug','1')));
+await p.addInitScript(()=>(sessionStorage.setItem('circuit-lab-force-webgl','1'),sessionStorage.setItem('circuit-lab-debug','1'),localStorage.getItem('circuit-lab-performance')||localStorage.setItem('circuit-lab-performance','quality')));
 const open=async name=>{await p.getByRole('button',{name:'Projects',exact:true}).first().evaluate(e=>e.click());await p.getByLabel('Search projects').fill(name);await p.locator('.project-card').first().click();await p.waitForFunction(()=>window.__circuitLab.scene().objects.size>0);await p.waitForTimeout(1500);};
 // Screen point of a named userData group inside a component, so the pointer lands on the actual knob.
 const at=(id,key,lift=1)=>p.evaluate(([id,key,lift])=>{const s=window.__circuitLab.scene(),g=s.objects.get(id),o=g.userData[key]??g;const v=o.getWorldPosition(o.position.clone());v.y+=lift;v.project(s.camera);const r=s.renderer.domElement.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2};},[id,key,lift]);

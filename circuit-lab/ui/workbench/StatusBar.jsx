@@ -3,11 +3,12 @@ import {Terminal, AlertTriangle, Activity} from 'lucide-react';
 import {useWorkbench} from './context.js';
 
 export default function StatusBar() {
-  const {backend, diagnostics, drawer, project, saveState, setDrawer, sim} = useWorkbench();
+  const {backend, diagnostics, drawer, profile, project, resolution, saveState, setDrawer, sim} =
+    useWorkbench();
   return (
     <footer className="statusbar">
       <div
-        title={`${project.components.length} components · ${project.wires.length} wires · ${backend} · ${saveState}`}
+        title={`${project.components.length} components · ${project.wires.length} wires · ${backend} · ${profile.label}${resolution ? ` · ${resolution}× resolution` : ''} · ${saveState}`}
       >
         <span className={sim.running ? 'pulse-dot' : 'status-dot'} />
         <b>{sim.running ? 'Running' : sim.boot === 'idle' ? 'Ready' : sim.boot}</b>
