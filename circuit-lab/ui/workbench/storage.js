@@ -31,3 +31,12 @@ export const blankState = {
   trace: [],
   nets: 0,
 };
+
+/** Tests set this session flag to reach window.__circuitLab in a production build. */
+export const debugHook = (() => {
+  try {
+    return sessionStorage.getItem('circuit-lab-debug') === '1';
+  } catch {
+    return false;
+  }
+})();
