@@ -1,0 +1,8 @@
+locator.evaluate: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('.project-menu').getByRole('button', { name: /LCD workbench/ })[22m
+
+    at click (/home/user/genius000-king/circuit-lab/tests/additional-workflows.mjs:7:22)
+    at example (/home/user/genius000-king/circuit-lab/tests/additional-workflows.mjs:12:168)
+    at async file:///home/user/genius000-king/circuit-lab/tests/additional-workflows.mjs:19:2
+[]

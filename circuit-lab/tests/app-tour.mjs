@@ -25,6 +25,7 @@ try{
  if(step('pico')){await openProject('NeoPixel rainbow');await run(300);await pause();await shot('09-pico-neopixel');}
  if(step('inspector')){await openProject('Shift register');const pt=await p.evaluate(()=>{const s=window.__circuitLab.scene(),g=s.objects.get('uno'),v=g.position.clone();v.x-=12;v.z+=17;v.y+=3;v.project(s.camera);const r=s.renderer.domElement.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2};});await p.mouse.click(pt.x,pt.y);await shot('10-board-inspector');}
  if(step('tools')){await btn('Workspace options');await btn('Engineering calculators');await shot('11-calculators');await btn('Close tools');}
+ if(step('docs')){await btn('Workspace options');await btn('Reference & shortcuts');await p.waitForSelector('.docs-modal');await p.locator('.docs-modal details').nth(1).evaluate(el=>el.open=true);await shot('13-reference');await btn('Close reference');}
  if(step('code')){await openProject('Keypad door lock');await btn('Code');await shot('12-editor-keypad');}
  await fs.writeFile(out+'tour-errors.json',JSON.stringify(errors,null,1));console.log('errors',errors.length,errors.slice(0,5));
 }catch(e){console.error(e);await p.screenshot({path:out+'tour-failure.png'});process.exitCode=1;}finally{await b.close();}

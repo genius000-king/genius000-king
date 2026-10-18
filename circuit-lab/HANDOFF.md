@@ -1,31 +1,31 @@
 # Circuit Lab handoff
 
-Latest user priority: deliver the current application immediately as one standalone HTML, plus full source and a short continuation prompt. Stop expanding scope until that delivery. The user prefers charcoal/black/grayscale UI, high glass transparency everywhere, minimal visible controls, realistic 3D components, arbitrary wiring, precise manipulation and independent multiple ESP32 boards.
+User priorities (unchanged): charcoal black/gray UI, highly transparent glass, minimal visible controls. 3D models must use real, sourced proportions, colors and markings. Electronics and interactions must behave like the real thing. Send real in-app screenshots while working, with no separate display or gallery site. Be honest about limits.
 
-## Current implementation
+## State
 
-- React + Three.js procedural 3D, native WebGPU attempted with WebGL2 fallback; physically separate meshes merged for efficiency. Official DevKitC V4 / WROOM-32E-N4 reference dimensions and explicitly approximate fine geometry.
-- 15 component types: ESP32, LED, resistor, button, pot, microphone, buzzer, OLED, breadboard, LCD, LDR, NTC, SPDT, seven-segment, battery.
-- Real explicit net graph / nodal DC solver, GPIO/ADC/PWM models, per-component electrical behavior and diagnostics. Auto wire paths clear bounding boxes and separate crossing heights; manual bends remain allowed.
-- Lexer/parser/compiler -> bounded bytecode VM for a documented Arduino-like subset. CodeMirror editing. Not arbitrary C++ or Xtensa binaries.
-- Separate source/VM/GPIO per ESP32, shared deterministic 1 ms clock. Virtual AP/station association with SSID/password/channel matching, UDP delivery, independent programs and network log. Not RF, 802.11, real cryptography, TCP, DNS, internet, or full ESP-IDF.
-- Floating/split editor, global opacity, charcoal default theme, pin-click inspector and actual net tracing, camera controls, undo/redo, JSON export/import and local autosave.
+- 7 boards with per-board profiles, 52 parts, 39 projects (all executed and physically checked by `tests/projects.test.js`).
+- Transient MNA engine with nonlinear semiconductors, companion models for C/L, switching PWM, behavioural ICs, bus/UART/Wi-Fi models. See README "Simulation model" for the exact limits.
+- Typed compiler/VM with library classes. API availability depends on the board.
+- Breadboard seating (`src/snap.js`) creates explicit `kind:'contact'` connections. Hole-to-hole wires are flat solid-core jumpers bent at right angles, with a small per-wire lift so crossings don't share a surface. Other wires are Dupont jumpers with housings.
+- UI: library with live thumbnails, schema inspector, project gallery, scope/logic drawer, calculators, BOM/SPICE/JSON export, file import (projects and `.ino` sources), and an in-app reference that matches the README.
+- `npm test`: 114 passing. Browser: `tests/app-tour.mjs` (12 shots, zero page errors). The legacy workflows were ported to the project gallery and portable paths.
 
-## Build and verification
+## Verify
 
-`npm ci`, `npm run dev`, `npm test`, `npm run build`.
-Standalone: `npx vite build --config vite.standalone.config.js`. Worker is imported with `?worker&inline` so no external worker asset is required. Dynamic imports are bundled into the standalone HTML. Browser font requests are optional; system fonts are the fallback.
-45 engine/compiler/network/routing/persistence tests passed. Browser workflows 1–9 passed in an initial phase after fixing stale transform axes. `tests/browser-tail.mjs` then passed button, ADC, OLED, incorrect wiring, compiler diagnostics, persistence and mobile checks with zero browser errors. `tests/additional-workflows.mjs` passed theme/opacity, pin picking, LCD, independent board programs, UDP, wrong-password failure, export/reload and added models, zero browser errors. Chromium software WebGL2 was tested; real hardware WebGPU was not verified.
+```sh
+npm ci && npm test
+npm run dev &
+node tests/app-tour.mjs            # screenshots/01…12
+node tests/showcase.mjs screenshots/x.png uno,nano,pico 3 90
+npx vite build --config vite.standalone.config.js && cp standalone/index.html Circuit-Lab.html
+```
 
-## Known limits and next work
+## Next work (most valuable first)
 
-- Preserve honest scope: dense 700-active-net budget, up to 200 parts / 2,000 wires, average-voltage PWM, ideal ADC, synthetic microphone, logical UART/SPI/display/network APIs. It is not SPICE or a complete ESP32/Wi-Fi emulator.
-- Generic component dimensions and small board geometry are approximated. Improve models using verifiable references rather than claiming photoreal manufacturing fidelity.
-- The present OLED.setCursor stores a cursor but text writing currently appends; implement correct cursor-aware text behavior and add tests, or explicitly diagnose unsupported cursor positioning.
-- CodeMirror propagates programmatic document replacement to its onChange callback. Suppress that callback during external synchronization so switching board source does not mark a valid build dirty.
-- The resistor body bands currently depict the default 220 ohms and should update with the configured resistance.
-- More detailed/performance-tested large projects, import validation, I2C address collision diagnostics, mechanical wire collision review, real peripherals and broader firmware execution remain future work.
-- Screenshots 23–33 show the latest neutral charcoal theme. Screenshots 1–22 include earlier light/green interface states and should be recaptured before presenting a final gallery as all-current.
-- Sites publication was prepared earlier but no production version was published. The immediate user request superseded publishing with urgent file delivery. Do not claim that a live site exists.
+1. Model pass still worth doing: relay *module* variant (blue PCB, transistor, flyback diode, screw terminal), 18650 holder vs LiPo pouch choice, MQ-2 mesh texture, servo horn variants.
+2. Large-circuit performance: the dense LU is O(n³). Switch to sparse LU or a KLU-style ordering before exceeding about 300 active nets.
+3. Firmware: structs, user classes, pointers to arrays.
+4. Real-GPU WebGPU verification (QA so far is SwiftShader WebGL2).
 
-The standalone HTML is a deliverable snapshot; continue development from these source files, not by editing the generated minified HTML.
+Continue development from the sources. `Circuit-Lab.html` is a generated, minified snapshot.

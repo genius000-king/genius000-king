@@ -1,11 +1,11 @@
 import {chromium} from '@playwright/test';
-const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--enable-unsafe-swiftshader']});
+const browser=await chromium.launch({executablePath:process.env.CHROMIUM??'/opt/pw-browsers/chromium-1194/chrome-linux/chrome',headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--enable-unsafe-swiftshader']});
 const page=await browser.newPage({viewport:{width:1440,height:960},deviceScaleFactor:1});
 const issues=[];page.on('pageerror',e=>issues.push(e.message));page.on('console',m=>{if(m.type()==='error')issues.push(m.text());});
 await page.goto('http://127.0.0.1:5173',{waitUntil:'networkidle'});await page.waitForTimeout(4000);
-await page.screenshot({path:'/workspace/artifacts/circuit-lab-desktop.png'});
+await page.screenshot({path:new URL('../screenshots/workflows/circuit-lab-desktop.png',import.meta.url).pathname});
 console.log(JSON.stringify({title:await page.title(),canvas:await page.locator('canvas').count(),issues,body:(await page.locator('body').innerText()).slice(-1400)},null,2));
 await page.getByRole('button',{name:'Run circuit'}).click();await page.waitForTimeout(1200);console.log('after run', (await page.locator('body').innerText()).slice(-700));
-await page.getByRole('button',{name:'Code',exact:true}).click();await page.waitForTimeout(500);await page.screenshot({path:'/workspace/artifacts/circuit-lab-editor.png'});
-await page.setViewportSize({width:390,height:844});await page.getByRole('button',{name:'Close editor'}).click();await page.waitForTimeout(500);await page.screenshot({path:'/workspace/artifacts/circuit-lab-mobile.png'});console.log('final issues',issues);
+await page.getByRole('button',{name:'Code',exact:true}).click();await page.waitForTimeout(500);await page.screenshot({path:new URL('../screenshots/workflows/circuit-lab-editor.png',import.meta.url).pathname});
+await page.setViewportSize({width:390,height:844});await page.getByRole('button',{name:'Close editor'}).click();await page.waitForTimeout(500);await page.screenshot({path:new URL('../screenshots/workflows/circuit-lab-mobile.png',import.meta.url).pathname});console.log('final issues',issues);
 await browser.close();

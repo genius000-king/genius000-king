@@ -1,17 +1,17 @@
 import {chromium} from '@playwright/test';
 import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
-const out='/workspace/artifacts/circuit-lab';
-const b=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox','--disable-dev-shm-usage','--enable-unsafe-swiftshader','--use-angle=swiftshader','--disable-gpu-compositing']});
+const out=new URL('../screenshots/workflows',import.meta.url).pathname;
+const b=await chromium.launch({executablePath:process.env.CHROMIUM??'/opt/pw-browsers/chromium-1194/chrome-linux/chrome',args:['--no-sandbox','--disable-dev-shm-usage','--enable-unsafe-swiftshader','--use-angle=swiftshader','--disable-gpu-compositing']});
 const p=await b.newPage({viewport:{width:1440,height:960}}),errors=[],passed=[];p.setDefaultTimeout(30000);p.on('pageerror',e=>errors.push(e.message));p.on('dialog',d=>d.accept());await p.addInitScript(()=>sessionStorage.setItem('circuit-lab-force-webgl','1'));
 const click=loc=>loc.evaluate(el=>el.click());const button=name=>p.getByRole('button',{name,exact:true});
 const shot=async name=>{await p.waitForTimeout(300);await p.screenshot({path:`${out}/${name}.png`});console.log('SCREENSHOT',name);};
 const state=()=>p.evaluate(()=>window.__circuitLab.state());const project=()=>p.evaluate(()=>window.__circuitLab.project());
 const close=async name=>{const el=button(name);if(await el.count())await click(el);};
 const pause=async()=>{if((await state()).running){await click(p.locator('.run-button'));await p.waitForFunction(()=>!window.__circuitLab.state().running);}};
-const example=async name=>{await close('Close instruments');await close('Close editor');await close('Close inspector');await click(p.locator('.project-button'));await click(p.locator('.project-menu').getByRole('button',{name:new RegExp(name)}));};
+const example=async name=>{await close('Close instruments');await close('Close editor');await close('Close inspector');const g=p.getByRole('button',{name:'Projects',exact:true}).first();await g.evaluate(el=>el.click());await p.getByLabel('Search projects').fill(name);await p.locator('.project-card',{hasText:name}).first().click();await p.waitForFunction(()=>window.__circuitLab.scene().objects.size>0);};
 try{
- await p.goto('http://localhost:5173');await p.waitForFunction(()=>window.__circuitLab?.scene()?.objects.size>0);await p.waitForTimeout(800);
+ await p.goto('http://127.0.0.1:5173');await p.waitForFunction(()=>window.__circuitLab?.scene()?.objects.size>0);await p.waitForTimeout(800);
  await click(button('Workspace options'));await click(p.getByText('Appearance',{exact:true}));if(await button('Dark mode').count())await click(button('Dark mode'));await p.getByLabel('Workspace panel opacity').focus();await p.keyboard.press('Home');for(let i=0;i<10;i++)await p.keyboard.press('ArrowRight');assert.equal((await project()).appearance.opacity,.22);await shot('23-dark-mode-glass-settings');await click(button('Workspace options'));await click(button('Components'));await shot('24-expanded-component-library');await click(button('Collapse components'));passed.push('Global glass opacity and dark theme update all workspace panels');
  await click(button('Camera controls'));await click(button('Orbit camera left'));await click(button('Orbit camera up'));await click(button('Zoom in'));await shot('25-camera-controls');await click(button('Camera controls'));
  // A real pin pick: project a terminal, then use the pointer on the 3D canvas.

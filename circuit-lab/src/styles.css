@@ -65,3 +65,5 @@
 .app .modal-icon{background:var(--control);color:var(--ink);border:1px solid var(--hairline)}
 /* Keep the glass see-through but stop bright objects behind it (white breadboards, lit LEDs) from washing out text. */
 .app.theme-dark .glass,.app.theme-dark .topbar{backdrop-filter:blur(22px) saturate(140%) brightness(.6);-webkit-backdrop-filter:blur(22px) saturate(140%) brightness(.6)}
+/* The reference is long-form reading: the scene must not compete with its text, so it keeps a denser tint than other glass. */
+.app.theme-dark .docs-modal{background:rgba(24,24,28,.88)}
