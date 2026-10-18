@@ -31,6 +31,17 @@ export class LabScene {
     this.scene.background = new THREE.Color('#e9ece7');
     this.camera = new THREE.PerspectiveCamera(34, 1, 0.1, 4000);
     this.camera.position.set(85, 105, 130);
+    await this.createRenderer();
+    this.buildEnvironment();
+    this.addLights();
+    this.addFloor();
+    this.createControls();
+    this.bindPointer();
+    this.startLoop();
+    this.watchDeviceLoss();
+  }
+  /** Picks WebGPU (Quality only) or WebGL2 and applies the profile: resolution, shadows, tone mapping. */
+  async createRenderer() {
     this.renderer = null;
     const profile = this.profile;
     if (profile.webgpu && navigator.gpu && !sessionStorage.getItem('circuit-lab-force-webgl')) {
@@ -85,6 +96,10 @@ export class LabScene {
     this.renderer.toneMappingExposure = 1.12;
     this.container.appendChild(this.renderer.domElement);
     this.cb.onBackend?.(this.backend);
+  }
+  /** A soft studio reflection map, painted on a canvas (no image download). */
+  buildEnvironment() {
+    const profile = this.profile;
     // the reflection map is drawn at 1024 × 512 and scaled to the profile's size
     const envCanvas = document.createElement('canvas'),
       envScale = profile.environmentSize / 1024;
@@ -110,6 +125,10 @@ export class LabScene {
     environment.colorSpace = THREE.SRGBColorSpace;
     this.scene.environment = environment;
     this.scene.environmentIntensity = 0.9;
+  }
+  /** Sky/ground fill, a shadow-casting sun and a cool rim light. */
+  addLights() {
+    const profile = this.profile;
     this.scene.add(new THREE.HemisphereLight('#ffffff', '#8b9684', 1.5));
     const sun = new THREE.DirectionalLight('#fffaf2', 2.8);
     sun.position.set(-55, 140, 60);
@@ -124,6 +143,9 @@ export class LabScene {
     const fill = new THREE.DirectionalLight('#d6e3f0', 0.8);
     fill.position.set(80, 70, -90);
     this.scene.add(fill);
+  }
+  /** The bench surface and its faint grid. */
+  addFloor() {
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000), mat('#e3e6df', 0, 0.95));
     floor.rotation.x = -Math.PI / 2;
     floor.position.y = -2;
@@ -136,6 +158,9 @@ export class LabScene {
     grid.material.opacity = 0.2;
     this.scene.add(grid);
     this.grid = grid;
+  }
+  /** Orbit camera and the move/rotate gizmo. */
+  createControls() {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.target.set(0, 0, 0);
     this.controls.enableDamping = true;
@@ -166,6 +191,9 @@ export class LabScene {
       this.dirty = true;
     });
     this.scene.add(this.transform.getHelper());
+  }
+  /** Picking rays, pointer and touch events, and size tracking. */
+  bindPointer() {
     this.ray = new THREE.Raycaster();
     this.pointer = new THREE.Vector2();
     this.plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
@@ -193,6 +221,10 @@ export class LabScene {
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(this.container);
     this.resize();
+  }
+  /** Renders only when something changed, within the profile’s frame budget. */
+  startLoop() {
+    const profile = this.profile;
     let frames = 0,
       then = performance.now(),
       lastFrame = 0;
@@ -221,6 +253,9 @@ export class LabScene {
         then = now;
       }
     });
+  }
+  /** Rebuilds the scene after a lost WebGL context or WebGPU device. */
+  watchDeviceLoss() {
     this.renderer.domElement.addEventListener('webglcontextlost', e => {
       e.preventDefault();
       this.cb.onRecover?.('Graphics context lost. Restoring your workspace.');
