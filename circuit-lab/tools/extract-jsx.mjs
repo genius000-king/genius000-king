@@ -88,7 +88,8 @@ for (const sel of plan.blocks) {
     if (!b) return;
     if (b.scope === hostScope) fromHost.add(name);
     else if (b.scope === programScope) {
-      if (b.kind !== 'module') throw Error(`${sel.name} uses module-level ${name}; move it to a module first`);
+      if (b.kind !== 'module')
+        throw Error(`${sel.name} uses module-level ${name}; move it to a module first`);
       const line = importLine(b, name, target);
       if (!imports.has(line.source)) imports.set(line.source, []);
       imports.get(line.source).push(line);
@@ -162,7 +163,10 @@ edits.sort((a, b) => b.start - a.start || b.end - a.end);
 for (const e of edits) src = src.slice(0, e.start) + e.text + src.slice(e.end);
 const own = plan.blocks
   .map(sel => {
-    let r = path.relative(dir, path.resolve(dir, sel.file ?? `${sel.name}.jsx`)).split(path.sep).join('/');
+    let r = path
+      .relative(dir, path.resolve(dir, sel.file ?? `${sel.name}.jsx`))
+      .split(path.sep)
+      .join('/');
     return `import ${sel.name} from '${r.startsWith('.') ? r : './' + r}';`;
   })
   .join('\n');
@@ -199,7 +203,8 @@ function prune(text) {
       }
     },
   });
-  for (const c of cuts.sort((a, b) => b.start - a.start)) text = text.slice(0, c.start) + c.text + text.slice(c.end);
+  for (const c of cuts.sort((a, b) => b.start - a.start))
+    text = text.slice(0, c.start) + c.text + text.slice(c.end);
   return text.replace(/\n{3,}/g, '\n\n');
 }
 fs.writeFileSync(hostFile, prune(src));

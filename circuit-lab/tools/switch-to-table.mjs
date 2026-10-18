@@ -9,6 +9,10 @@ import traverseModule from '@babel/traverse';
 const traverse = traverseModule.default ?? traverseModule;
 
 const plan = (await import(path.resolve(process.argv[2]))).default;
+const params = plan.params ?? ['a', plan.discriminant], // handler parameters, in order
+  key = plan.key ?? plan.discriminant,
+  table = plan.table ?? 'API',
+  suffix = plan.suffix ?? 'Api';
 const hostFile = path.resolve(plan.host),
   src = fs.readFileSync(hostFile, 'utf8'),
   ast = parse(src, {sourceType: 'module'});
@@ -21,7 +25,7 @@ traverse(ast, {
 });
 method.traverse({
   SwitchStatement(p) {
-    if (!sw && p.get('discriminant').isIdentifier({name: plan.discriminant})) sw = p;
+    if (!sw && src.slice(p.node.discriminant.start, p.node.discriminant.end) === key) sw = p;
   },
 });
 if (!sw) throw Error('switch not found');
@@ -50,17 +54,16 @@ for (const g of groups) {
   if (!family) throw Error(`no family for ${g.labels[0]}`);
   const uses = new Set(),
     imports = new Map();
-  let usesName = false;
+  const usedParams = new Set([params[0]]);
   for (const stmt of g.cons) {
     const visit = q => {
       if (!q.isReferencedIdentifier()) return;
       const b = q.scope.getBinding(q.node.name);
       if (!b) return;
       if (b.scope === hostScope) {
-        if (b.kind === 'param') {
-          if (q.node.name === plan.discriminant) usesName = true;
-          else if (q.node.name !== 'a') throw Error(`uses parameter ${q.node.name}`);
-        } else uses.add(q.node.name);
+        // host locals listed in plan.passLocals travel as arguments; other locals are recomputed
+        if (b.kind === 'param' || plan.passLocals?.includes(q.node.name)) usedParams.add(q.node.name);
+        else uses.add(q.node.name);
       } else if (b.kind === 'module') {
         const decl = b.path.parentPath.node;
         imports.set(q.node.name, decl.source.value);
@@ -83,13 +86,18 @@ for (const g of groups) {
       ? src.slice(g.cons[0].node.start + 1, g.cons[0].node.end - 1)
       : g.cons.map(s => src.slice(s.node.start, s.node.end)).join('\n');
   const needs = [...local.keys()].filter(n => uses.has(n));
+  for (const n of needs)
+    for (const p of params) if (new RegExp(`\\b${p}\\b`).test(local.get(n))) usedParams.add(p);
+  const last = Math.max(...[...usedParams].map(p => params.indexOf(p)));
+  if (last < 0 || [...usedParams].some(p => !params.includes(p)))
+    throw Error(`unknown parameter in ${g.labels[0]}`);
   const head = needs.length
     ? `const ${needs.map(n => `${n} = ${local.get(n).replace(/\ba\b/g, 'a')}`).join(', ')};\n`
     : '';
-  const key = /^[A-Za-z_$][\w$]*$/.test(g.labels[0]) ? g.labels[0] : `'${g.labels[0]}'`;
+  const prop = /^[A-Za-z_$][\w$]*$/.test(g.labels[0]) ? g.labels[0] : `'${g.labels[0]}'`;
   if (!families.has(family)) families.set(family, {methods: [], aliases: [], imports: new Map()});
   const f = families.get(family);
-  f.methods.push(`${key}(a${usesName ? `, ${plan.discriminant}` : ''}) {\n${head}${body}\n}`);
+  f.methods.push(`${prop}(${params.slice(0, last + 1).join(', ')}) {\n${head}${body}\n}`);
   for (const alias of g.labels.slice(1)) f.aliases.push([alias, g.labels[0]]);
   for (const [n, s] of imports) f.imports.set(n, s);
 }
@@ -97,7 +105,7 @@ for (const g of groups) {
 // ---------------------------------------------------------------- write the family modules
 const dir = path.resolve(path.dirname(hostFile), plan.dir);
 fs.mkdirSync(dir, {recursive: true});
-const tableName = f => `${f}Api`;
+const tableName = f => `${f.replace(/-(\w)/g, (_, c) => c.toUpperCase())}${suffix}`;
 const q = s => (/^[A-Za-z_$][\w$]*$/.test(s) ? s : `'${s}'`);
 for (const [family, f] of families) {
   const bySource = new Map();
@@ -111,7 +119,7 @@ for (const [family, f] of families) {
   const doc = plan.docs[family] ?? '';
   let text =
     (lines.length ? lines.join('\n') + '\n\n' : '') +
-    `/** ${doc} Called as handler.call(simulator, args, name). */\n` +
+    `/** ${doc} Called as handler.call(simulator, ${params.join(', ')}). */\n` +
     `export const ${tableName(family)} = {\n${f.methods.join(',\n')}\n};\n`;
   if (f.aliases.length)
     text += `\n// same behaviour, other names\nObject.assign(${tableName(family)}, {${f.aliases
@@ -120,9 +128,9 @@ for (const [family, f] of families) {
   fs.writeFileSync(path.join(dir, `${family}.js`), text);
 }
 const index =
-  `// The Arduino-style API, one module per family. Every handler runs with \`this\` = the Simulator.\n` +
+  `// ${plan.title ?? 'Handler tables'}, one module per family. Every handler runs with \`this\` = the Simulator.\n` +
   [...families.keys()].map(f => `import {${tableName(f)}} from './${f}.js';`).join('\n') +
-  `\n\nexport const API = {\n${[...families.keys()].map(f => `  ...${tableName(f)},`).join('\n')}\n};\n`;
+  `\n\nexport const ${table} = {\n${[...families.keys()].map(f => `  ...${tableName(f)},`).join('\n')}\n};\n`;
 fs.writeFileSync(path.join(dir, 'index.js'), index);
 
 // ---------------------------------------------------------------- the host keeps only the dispatcher
@@ -130,10 +138,10 @@ const def = sw.node.cases.find(c => !c.test);
 const fallback = def ? def.consequent.map(s => src.slice(s.start, s.end)).join('\n') : 'return undefined;';
 let host =
   src.slice(0, sw.node.start) +
-  `const handler = API[${plan.discriminant}];\nif (handler) return handler.call(this, a, ${plan.discriminant});\n${fallback}` +
+  `const handler = ${table}[${key}];\nif (handler) return handler.call(this, ${params.join(', ')});\n${fallback}` +
   src.slice(sw.node.end);
 // drop host-scope variables nobody uses any more and imports that moved away
 const rel = path.relative(path.dirname(hostFile), path.join(dir, 'index.js')).split(path.sep).join('/');
-host = host.replace(/(\nimport [^\n]*;\n)(?![\s\S]*\nimport )/, `$1import {API} from './${rel}';\n`);
+host = host.replace(/(\nimport [^\n]*;\n)(?![\s\S]*\nimport )/, `$1import {${table}} from './${rel}';\n`);
 fs.writeFileSync(hostFile, host);
 console.log(`${groups.length} handlers in ${families.size} families`);
