@@ -1,8 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {newProject,makeComponent,EXAMPLES,validateProject,terminals,BOARD} from '../src/data.js';
-import {Simulator,Circuit} from '../src/engine.js';
-import {compile,CompileError} from '../src/compiler.js';
+import {newProject,EXAMPLES,validateProject} from '../engines/workspace/index.js';
+import {makeComponent,terminals,BOARD} from '../engines/catalog/index.js';
+import {Simulator} from '../engines/runtime/index.js';
+import {Circuit} from '../engines/circuit/index.js';
+import {compile,CompileError} from '../engines/firmware/index.js';
 const connect=(p,a,b)=>p.wires.push({id:'t'+p.wires.length,a,b,lift:10,color:'#888888'});
 const simFor=(p,source)=>{const s=new Simulator(p);s.compile(source??p.files['main.ino']);s.start();return s;};
 const near=(a,b,e=.01)=>assert.ok(Math.abs(a-b)<e,`${a} should be within ${e} of ${b}`);

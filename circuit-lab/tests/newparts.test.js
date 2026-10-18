@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {makeComponent} from '../src/data.js';
-import {Circuit,Simulator} from '../src/engine.js';
+import {makeComponent} from '../engines/catalog/index.js';
+import {Circuit} from '../engines/circuit/index.js';
+import {Simulator} from '../engines/runtime/index.js';
 const EMPTY='void setup(){}\nvoid loop(){delay(10);}\n';
 const P=(...comps)=>({version:2,name:'t',components:comps.map(([type,id,params={}])=>{const c=makeComponent(type,[0,0,0],id);Object.assign(c.params,params);return c;}),wires:[],files:{'main.ino':EMPTY},activeFile:'main.ino',config:{precision:5}});
 const W=(p,...pairs)=>{for(const [a,b]of pairs)p.wires.push({id:'w'+p.wires.length,a,b});return p;};

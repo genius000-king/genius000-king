@@ -1,0 +1,4 @@
+// Simulator methods: netCall
+export const netApiMethods = {
+netCall(name,a){if(!this.network)throw Error('Virtual networking requires the multi-board workspace.');if(/\.(print|println)$/.test(name))a=[this.fmt(a[0]??'',a.at(-1),a.length>2?a[1]:undefined)+(name.endsWith('println')?'\r\n':'')];if(name==='UDP.read'){const s=this.network.call(this.board().id,'UDP.readString',[]);return s.length?s.charCodeAt(0):-1;}if(name==='UDP.available')return this.network.call(this.board().id,'UDP.parsePacket',[]);if(['WiFi.mode','WiFi.SSID','WiFi.macAddress'].includes(name)){const n=this.network.node(this.board().id);return name==='WiFi.mode'?1:name==='WiFi.SSID'?(n.ssid??''):'24:6F:28:'+[...this.board().id].slice(0,3).map(c=>c.charCodeAt(0).toString(16).padStart(2,'0').toUpperCase()).join(':');}return this.network.call(this.board().id,name,a);}
+};

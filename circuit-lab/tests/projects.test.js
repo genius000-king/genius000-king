@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {PROJECTS} from '../src/projects.js';
-import {LabWorld} from '../src/world.js';
-import {Circuit} from '../src/engine.js';
-import {validateProject,isBoard} from '../src/data.js';
+import {PROJECTS} from '../engines/projects/index.js';
+import {LabWorld} from '../engines/runtime/index.js';
+import {Circuit} from '../engines/circuit/index.js';
+import {validateProject} from '../engines/workspace/index.js';
+import {isBoard} from '../engines/catalog/index.js';
 const near=(a,b,e,msg='')=>assert.ok(Math.abs(a-b)<=e,`${msg} ${a} should be within ${e} of ${b}`);
 // Runs a project the way the app does: one shared circuit, every board on its own VM.
 function run(id,ms,each){const def=PROJECTS.find(p=>p.id===id);const p=validateProject(structuredClone(def.build()));const hasBoard=p.components.some(isBoard);if(!hasBoard){const c=new Circuit(p);for(let t=0;t<=ms;t++){c.step(null,t);each?.({circuit:c,time:t});}return {circuit:c,project:p};}

@@ -2,7 +2,8 @@
 // file import, and screenshots it.  Usage: node tests/showcase.mjs out.png type1,type2,… [cols] [spacing]
 import {chromium} from '@playwright/test';
 import fs from 'node:fs/promises';
-import {newProject,makeComponent} from '../src/data.js';
+import {newProject} from '../engines/workspace/index.js';
+import {makeComponent} from '../engines/catalog/index.js';
 const [out,list,cols='4',gap='60',dir='0.55,0.95,1',zoom='0.92']=process.argv.slice(2),types=list.split(','),p=newProject();p.name='Parts showcase';p.wires=[];p.components=types.map((t,i)=>makeComponent(t,[(i%+cols-(+cols-1)/2)*+gap,0,(Math.floor(i/+cols))*+gap],t+i));delete p.activeBoard;
 const file='/tmp/claude-0/-home-user-genius000-king/e0fff6b0-f9ff-5166-b792-c5c87228c0e9/scratchpad/showcase.circuitlab.json';await fs.writeFile(file,JSON.stringify(p));
 const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome',args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader']});

@@ -1,9 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {newProject,makeComponent,EXAMPLES,wirelessProject,validateProject,sourceForBoard} from '../src/data.js';
-import {Circuit,Simulator,sensorResistance} from '../src/engine.js';
-import {LabWorld} from '../src/world.js';
-import {autoRoute,pathsCross,segmentIntersectsBox} from '../src/routing.js';
+import {newProject,EXAMPLES,wirelessProject,validateProject,sourceForBoard} from '../engines/workspace/index.js';
+import {makeComponent} from '../engines/catalog/index.js';
+import {Circuit,sensorResistance} from '../engines/circuit/index.js';
+import {Simulator} from '../engines/runtime/index.js';
+import {LabWorld} from '../engines/runtime/index.js';
+import {autoRoute,pathsCross,segmentIntersectsBox} from '../engines/render/index.js';
 const wire=(p,a,b)=>p.wires.push({id:'w'+p.wires.length,a,b,color:'#aaa',lift:10});
 const run=(p,source)=>{const s=new Simulator(p);s.compile(source);s.start();s.tick(1);return s;};
 test('LCD text comes from compiled code and powered I2C graph',()=>{const p=newProject();p.components.push(makeComponent('lcd',[0,0,0],'lcd'));for(const [a,b]of [['3V3','VCC'],['GND1','GND'],['IO21','SDA'],['IO22','SCL']])wire(p,'esp32:'+a,'lcd:'+b);const s=run(p,EXAMPLES.lcd);assert.match(s.oled.screens.lcd,/CIRCUIT LAB/);assert.match(s.oled.screens.lcd,/Hello, hardware!/);p.wires=p.wires.filter(w=>w.b!=='lcd:VCC');s.update(p);assert.equal(s.call('LCD.begin',[39]),0);});

@@ -49,7 +49,7 @@ for (const info of files.values()) {
   } else if (decl.type === 'ClassDeclaration' && spec.classes?.[decl.id.name]) {
    info.units.push({kind: 'class', name: decl.id.name, node: decl, spec: spec.classes[decl.id.name]});
   } else if (decl.id) {
-   const name = decl.id.name;info.units.push({kind: 'decl', name, node: decl, target: target(name), names: [name], isDefault});
+   const name = decl.id.name;info.units.push({kind: 'decl', name, node: decl, target: target(name), names: isDefault ? [name, 'default'] : [name], isDefault});
   } else if (isDefault) {
    info.units.push({kind: 'default', name: 'default', node: decl, target: target('default'), names: ['default'], isDefault: true});
   } else {
@@ -66,7 +66,9 @@ for (const info of files.values()) {
 }
 for (const info of files.values()) for (const [exp, r] of info.reexports) {
  if (r.source) symbols.set(symKey(info.file, exp), {alias: {from: info.file, source: r.source, imported: r.imported}});
+ else if (info.imports.has(r.local ?? exp)) {const imp = info.imports.get(r.local ?? exp);symbols.set(symKey(info.file, exp), {alias: {from: info.file, source: imp.source, imported: imp.imported}});}
 }
+for (const info of files.values()) for (const n of info.ast.program.body) if (n.type === 'ExportNamedDeclaration' && !n.declaration && !n.source) for (const sp of n.specifiers) if (info.imports.has(sp.local.name) && !info.reexports.has(sp.exported.name)) {const imp = info.imports.get(sp.local.name);symbols.set(symKey(info.file, sp.exported.name), {alias: {from: info.file, source: imp.source, imported: imp.imported}});}
 
 // ---------------------------------------------------------------- 3. references per unit (scope aware)
 const unitAt = (info, pos) => info.units.find(u => pos >= u.node.start && pos < u.node.end) ?? info.units.find(u => u.decl && pos >= u.decl.start && pos < u.decl.end);
