@@ -1,0 +1,144 @@
+export default function ComponentArt({type, size = 52}) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden="true">
+      <defs>
+        <linearGradient id={'metal' + type} x1="0" y1="0" x2="1" y2="1">
+          <stop stopColor="#dde1dd" />
+          <stop offset="1" stopColor="#9ca69e" />
+        </linearGradient>
+        <linearGradient id={'red' + type}>
+          <stop stopColor="#f7a08d" />
+          <stop offset="1" stopColor="#d54e39" />
+        </linearGradient>
+      </defs>
+      {type === 'board' ? (
+        <g transform="rotate(-25 32 32)">
+          <rect x="18" y="7" width="28" height="50" rx="2" fill="#2f4b3c" />
+          <rect x="17" y="8" width="3" height="48" rx="1" fill="#24332a" />
+          <rect x="44" y="8" width="3" height="48" rx="1" fill="#24332a" />
+          {Array.from({length: 12}, (_, i) => (
+            <g key={i}>
+              <rect x="16" y={10 + i * 3.7} width="4" height="1.4" fill="#b9a771" />
+              <rect x="44" y={10 + i * 3.7} width="4" height="1.4" fill="#b9a771" />
+            </g>
+          ))}
+          <rect x="23" y="8" width="18" height="8" fill="#1c2d22" />
+          <path d="M25 14v-4h3v4h3v-4h3v4h4v-4" stroke="#b99f55" />
+          <rect x="23" y="18" width="18" height="19" rx="1" fill={'url(#metal' + type + ')'} />
+          <path d="M26 24h12M28 28h8M29 31h6" stroke="#829084" strokeWidth="1" />
+          <rect x="29" y="41" width="6" height="6" fill="#1c2920" />
+          <rect x="27" y="52" width="10" height="7" rx="1" fill="#a6b1a8" />
+        </g>
+      ) : type === 'led' ? (
+        <g>
+          <path d="M28 39v20m9-20v16" stroke="#aab3aa" strokeWidth="2.2" />
+          <path d="M22 35V24a10 10 0 0120 0v11" fill={'url(#red' + type + ')'} />
+          <ellipse cx="32" cy="36" rx="12" ry="4" fill="#d86b58" />
+          <path d="M27 23v8" stroke="#ffcbb9" strokeWidth="3" strokeLinecap="round" />
+        </g>
+      ) : type === 'resistor' ? (
+        <g transform="rotate(-32 32 32)">
+          <path d="M2 32h60" stroke="#aab5a9" strokeWidth="2.2" />
+          <rect x="17" y="26" width="30" height="12" rx="5" fill="#cfbf90" />
+          {['#be613c', '#be613c', '#665545', '#aa9154'].map((c, i) => (
+            <path key={c + i} d={`M${23 + i * 6} 26v12`} stroke={c} strokeWidth="3" />
+          ))}
+        </g>
+      ) : type === 'button' ? (
+        <g transform="rotate(-20 32 32)">
+          <path d="M12 24h40M12 41h40" stroke="#aab3aa" strokeWidth="3" />
+          <rect x="18" y="18" width="29" height="29" rx="3" fill="#3d4840" />
+          <rect x="20" y="20" width="25" height="24" rx="2" fill={'url(#metal' + type + ')'} />
+          <circle cx="32.5" cy="32" r="8" fill="#38473d" />
+        </g>
+      ) : type === 'pot' ? (
+        <g>
+          <path d="M24 41v13m8-13v13m8-13v13" stroke="#aab3aa" strokeWidth="2" />
+          <rect x="18" y="25" width="29" height="20" rx="3" fill="#49848b" />
+          <ellipse cx="32" cy="24" rx="14" ry="8" fill="#9ca89c" />
+          <path d="M22 23V14h21v9" fill="#47594a" />
+          <ellipse cx="32.5" cy="14" rx="10.5" ry="6" fill="#66785e" />
+          <path d="M32 10v6" stroke="#d6e1cb" strokeWidth="2" />
+        </g>
+      ) : type === 'mic' ? (
+        <g transform="rotate(-18 32 32)">
+          <rect x="19" y="17" width="27" height="39" rx="2" fill="#3b7970" />
+          <rect x="24" y="7" width="17" height="23" rx="7" fill={'url(#metal' + type + ')'} />
+          <ellipse cx="32.5" cy="10" rx="8.5" ry="5" fill="#5f7064" />
+          {[28, 33, 38].map(x => (
+            <path key={x} d={`M${x} 51v11`} stroke="#b6aa76" strokeWidth="2" />
+          ))}
+          <rect x="28" y="36" width="10" height="8" fill="#233b30" />
+        </g>
+      ) : type === 'buzzer' ? (
+        <g>
+          <path d="M25 42v16m14-16v13" stroke="#aab3aa" strokeWidth="2" />
+          <path d="M15 22v20c0 13 34 13 34 0V22" fill="#33483b" />
+          <ellipse cx="32" cy="22" rx="17" ry="11" fill="#4c6050" />
+          <ellipse cx="32" cy="22" rx="4" ry="3" fill="#182a20" />
+          <path d="M40 20v5m-2.5-2.5h5" stroke="#9eb28e" />
+        </g>
+      ) : type === 'lcd' ? (
+        <g>
+          <rect x="3" y="17" width="58" height="30" rx="2" fill="#41694c" />
+          <rect x="8" y="21" width="48" height="22" fill="#303e31" />
+          <rect x="11" y="24" width="42" height="16" fill="#a1b66b" />
+          <path d="M16 29h28m-28 6h22" stroke="#465d38" strokeWidth="2" />
+        </g>
+      ) : type === 'battery' ? (
+        <g>
+          <rect x="19" y="12" width="27" height="46" rx="3" fill="#37463a" />
+          <rect x="19" y="44" width="27" height="14" fill="#b49c6a" />
+          <path d="M25 12V7h5v5m8 0V7h5v5" stroke="#aeb8aa" strokeWidth="3" />
+          <text x="24" y="34" fill="#dddcc6" fontSize="12">
+            9V
+          </text>
+        </g>
+      ) : type === 'sevenseg' ? (
+        <g>
+          <rect x="17" y="9" width="30" height="46" rx="2" fill="#d5d6ca" />
+          <rect x="20" y="12" width="24" height="40" fill="#28392d" />
+          <path
+            d="M27 18h10m-10 14h10m-10 14h10m-12-25v8m14-8v8m-14 6v8m14-8v8"
+            stroke="#c66e59"
+            strokeWidth="3"
+          />
+        </g>
+      ) : type === 'switch' ? (
+        <g>
+          <path d="M23 40v13m9-13v13m9-13v13" stroke="#aab3aa" strokeWidth="2" />
+          <rect x="12" y="22" width="41" height="23" rx="3" fill="#aeb7ad" />
+          <rect x="18" y="25" width="29" height="9" fill="#34473b" />
+          <rect x="19" y="15" width="12" height="18" rx="2" fill="#26382b" />
+        </g>
+      ) : ['ldr', 'thermistor'].includes(type) ? (
+        <g>
+          <path d="M26 35v22m12-22v22" stroke="#aab3aa" strokeWidth="2" />
+          <circle cx="32" cy="27" r="15" fill={type === 'ldr' ? '#bda77b' : '#765141'} />
+          {type === 'ldr' && <path d="M23 19v16h5V19h5v16h5V19h4" stroke="#785b48" strokeWidth="2" />}
+        </g>
+      ) : type === 'oled' ? (
+        <g transform="rotate(-13 32 32)">
+          <rect x="12" y="14" width="40" height="36" rx="2" fill="#346477" />
+          <rect x="15" y="19" width="34" height="22" rx="2" fill="#172a2b" />
+          <path d="M20 27h20m-20 5h14" stroke="#85b9ac" strokeWidth="2" />
+          {[25, 30, 35, 40].map(x => (
+            <path key={x} d={`M${x} 47v9`} stroke="#b3a16b" strokeWidth="2" />
+          ))}
+        </g>
+      ) : (
+        <g transform="rotate(-15 32 32)">
+          <rect x="5" y="16" width="54" height="34" rx="4" fill="#d9ddd1" />
+          <path d="M6 33h52" stroke="#aeb7a6" />
+          {Array.from({length: 10}, (_, i) => (
+            <g key={i}>
+              {[23, 27, 39, 43].map(y => (
+                <rect key={y} x={10 + i * 4.5} y={y} width="1.5" height="1.5" fill="#8c9c85" />
+              ))}
+            </g>
+          ))}
+        </g>
+      )}
+    </svg>
+  );
+}

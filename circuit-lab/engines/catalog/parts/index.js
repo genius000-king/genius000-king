@@ -8,4 +8,14 @@ import {prototypingParts} from './prototyping.js';
 import {semiconductorsParts} from './semiconductors.js';
 import {sensorsParts} from './sensors.js';
 
-export const PARTS = {...outputsParts, ...passiveParts, ...semiconductorsParts, ...powerParts, ...icsParts, ...inputsParts, ...sensorsParts, ...instrumentsParts, ...prototypingParts};
+export const PARTS = {
+  ...outputsParts,
+  ...passiveParts,
+  ...semiconductorsParts,
+  ...powerParts,
+  ...icsParts,
+  ...inputsParts,
+  ...sensorsParts,
+  ...instrumentsParts,
+  ...prototypingParts,
+};

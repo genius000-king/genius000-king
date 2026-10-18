@@ -7,4 +7,13 @@ import {powerElements} from './power.js';
 import {semiconductorsElements} from './semiconductors.js';
 import {sensorsElements} from './sensors.js';
 
-export const ELEMENTS = {...passiveElements, ...outputsElements, ...semiconductorsElements, ...powerElements, ...icsElements, ...inputsElements, ...sensorsElements, ...instrumentsElements};
+export const ELEMENTS = {
+  ...passiveElements,
+  ...outputsElements,
+  ...semiconductorsElements,
+  ...powerElements,
+  ...icsElements,
+  ...inputsElements,
+  ...sensorsElements,
+  ...instrumentsElements,
+};

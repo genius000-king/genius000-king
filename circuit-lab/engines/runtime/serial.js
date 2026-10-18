@@ -1,19 +1,186 @@
 import {ref} from '../catalog/types.js';
 
-export const UART_PER_BYTE=baud=>10000/baud;
+export const UART_PER_BYTE = baud => 10000 / baud;
 
 // Simulator methods: fmt, printf, serialWrite, serialRead, receiveUart, serialCall, deliverUart
 export const serialMethods = {
-fmt(v,tag,arg){if(tag==='c')return String.fromCharCode(Number(v)&255);if(typeof v==='string')return v;if(arg!==undefined&&[2,8,16].includes(arg)&&tag!=='f')return (v<0?(v>>>0):v).toString(arg).toUpperCase();if(tag==='f'||(!Number.isInteger(v)&&tag!=='i'&&tag!=='u')){if(!Number.isFinite(v))return Number.isNaN(v)?'nan':'inf';return v.toFixed(arg!==undefined&&arg<=10?arg:2);}return String(v);},
-printf(fmt,args,types){let i=0;return String(fmt).replace(/%([-+0 #]*)(\d*)(?:\.(\d+))?(l{0,2}|h{0,2})([diufFxXcs%])/g,(m,fl,w,prec,_,conv)=>{if(conv==='%')return '%';const v=args[i++];let s;switch(conv){case'd':case'i':s=String(Math.trunc(v));break;case'u':s=String(Math.trunc(v)>>>0);break;case'f':case'F':s=Number(v).toFixed(prec===undefined?6:Number(prec));break;case'x':s=(Math.trunc(v)>>>0).toString(16);break;case'X':s=(Math.trunc(v)>>>0).toString(16).toUpperCase();break;case'c':s=String.fromCharCode(v);break;default:s=String(v);}const width=Number(w||0);return s.length<width?(fl.includes('-')?s.padEnd(width):s.padStart(width,fl.includes('0')&&!/[cs]/.test(conv)?'0':' ')):s;});},
-serialWrite(port,text){const u=this.uarts[port];if(!u)throw Error(`${port} is not available on ${this.profile.name}.`);if(!u.baud){this.warn(`${port}.print() before ${port}.begin(): nothing is transmitted.`);return 0;}this.stream(text,u.usb?'serial':'uart',u.usb?'':`${port} → `);if(u.tx!==undefined&&u.tx!==null&&typeof u.tx==='number'){const start=Math.max(this.time,u.busyUntil),dur=text.length*UART_PER_BYTE(u.baud);u.busyUntil=start+dur;this.pendingUart=this.pendingUart??[];this.pendingUart.push({from:this.board()?.id,port,pin:u.tx,baud:u.baud,bytes:Array.from(text,c=>c.charCodeAt(0)&255),at:start+dur});this.uartActivity.tx=this.time;}return text.length;},
-serialRead(port,name,a){const u=this.uarts[port];if(!u)throw Error(`${port} is not available on ${this.profile.name}.`);const q=u.q;switch(name){case'available':return q.length;case'read':return q.length?q.shift():-1;case'peek':return q.length?q[0]:-1;case'readString':return String.fromCharCode(...q.splice(0));case'readStringUntil':{const stop=typeof a[0]==='string'?a[0].charCodeAt(0):a[0];const i=q.indexOf(stop);const bytes=i<0?q.splice(0):q.splice(0,i+1).slice(0,-1);return String.fromCharCode(...bytes);}
-  case'parseInt':case'parseFloat':{while(q.length&&!/[-0-9.]/.test(String.fromCharCode(q[0])))q.shift();let s='';while(q.length&&/[-0-9.]/.test(String.fromCharCode(q[0])))s+=String.fromCharCode(q.shift());return name==='parseInt'?(parseInt(s)||0):(parseFloat(s)||0);}}},
-receiveUart(port,bytes,baud){const u=this.uarts[port];if(!u||!u.baud)return;if(Math.abs(baud/u.baud-1)>.05){this.warn(`${port}: received data at ${baud} baud but the port is set to ${u.baud} baud. Bytes are garbled.`);bytes=bytes.map(b=>(b*37+11)&255);}u.q.push(...bytes);if(u.q.length>256)u.q.splice(0,u.q.length-256);this.uartActivity.rx=this.time;},
-serialCall(port,method,a){switch(method){case'begin':{const u=this.uarts[port];if(!u)throw Error(`${port} is not available on ${this.profile.name}.`);u.baud=a[0]||9600;if(typeof u.tx==='number')Object.assign(this.pin(u.tx),{mode:1,value:1});return 0;}case'end':if(this.uarts[port])this.uarts[port].baud=0;return 0;case'flush':case'setTimeout':return 0;
-  case'print':case'println':{const tag=a.at(-1),v=a.length>1?a[0]:'';return this.serialWrite(port,this.fmt(v,tag,a.length>2?a[1]:undefined)+(method==='println'?'\r\n':''));}
-  case'write':return this.serialWrite(port,typeof a[0]==='string'?a[0]:String.fromCharCode(a[0]&255));
-  case'printf':{const types=a.at(-1);return this.serialWrite(port,this.printf(a[0],a.slice(1,-1),types));}
-  default:return this.serialRead(port,method,a);}},
-deliverUart(devices){const due=(this.pendingUart??[]).filter(p=>p.at<=this.time);if(!due.length)return;this.pendingUart=this.pendingUart.filter(p=>p.at>this.time);const from=this.board();for(const p of due){const txNode=this.node(p.pin);if(!txNode)continue;for(const d of devices){const b=d.board();if(!b)continue;if(!this.circuit.same(ref(from,this.profile.gnd[0]),ref(b,d.profile.gnd[0])))continue;for(const u of Object.values(d.uarts)){const rxPin=u.rx;if(typeof rxPin!=='number')continue;const rxNode=d.node(rxPin);if(rxNode&&!(d===this&&u.name===p.port&&rxPin===p.pin)&&this.circuit.linked(txNode,rxNode)&&(this.circuit.same(txNode,rxNode)||this.circuit.voltage(rxNode)>=d.profile.vih))d.receiveUart(u.name,p.bytes,p.baud);}}}}
+  fmt(v, tag, arg) {
+    if (tag === 'c') return String.fromCharCode(Number(v) & 255);
+    if (typeof v === 'string') return v;
+    if (arg !== undefined && [2, 8, 16].includes(arg) && tag !== 'f')
+      return (v < 0 ? v >>> 0 : v).toString(arg).toUpperCase();
+    if (tag === 'f' || (!Number.isInteger(v) && tag !== 'i' && tag !== 'u')) {
+      if (!Number.isFinite(v)) return Number.isNaN(v) ? 'nan' : 'inf';
+      return v.toFixed(arg !== undefined && arg <= 10 ? arg : 2);
+    }
+    return String(v);
+  },
+  printf(fmt, args, types) {
+    let i = 0;
+    return String(fmt).replace(
+      /%([-+0 #]*)(\d*)(?:\.(\d+))?(l{0,2}|h{0,2})([diufFxXcs%])/g,
+      (m, fl, w, prec, _, conv) => {
+        if (conv === '%') return '%';
+        const v = args[i++];
+        let s;
+        switch (conv) {
+          case 'd':
+          case 'i':
+            s = String(Math.trunc(v));
+            break;
+          case 'u':
+            s = String(Math.trunc(v) >>> 0);
+            break;
+          case 'f':
+          case 'F':
+            s = Number(v).toFixed(prec === undefined ? 6 : Number(prec));
+            break;
+          case 'x':
+            s = (Math.trunc(v) >>> 0).toString(16);
+            break;
+          case 'X':
+            s = (Math.trunc(v) >>> 0).toString(16).toUpperCase();
+            break;
+          case 'c':
+            s = String.fromCharCode(v);
+            break;
+          default:
+            s = String(v);
+        }
+        const width = Number(w || 0);
+        return s.length < width
+          ? fl.includes('-')
+            ? s.padEnd(width)
+            : s.padStart(width, fl.includes('0') && !/[cs]/.test(conv) ? '0' : ' ')
+          : s;
+      }
+    );
+  },
+  serialWrite(port, text) {
+    const u = this.uarts[port];
+    if (!u) throw Error(`${port} is not available on ${this.profile.name}.`);
+    if (!u.baud) {
+      this.warn(`${port}.print() before ${port}.begin(): nothing is transmitted.`);
+      return 0;
+    }
+    this.stream(text, u.usb ? 'serial' : 'uart', u.usb ? '' : `${port} → `);
+    if (u.tx !== undefined && u.tx !== null && typeof u.tx === 'number') {
+      const start = Math.max(this.time, u.busyUntil),
+        dur = text.length * UART_PER_BYTE(u.baud);
+      u.busyUntil = start + dur;
+      this.pendingUart = this.pendingUart ?? [];
+      this.pendingUart.push({
+        from: this.board()?.id,
+        port,
+        pin: u.tx,
+        baud: u.baud,
+        bytes: Array.from(text, c => c.charCodeAt(0) & 255),
+        at: start + dur,
+      });
+      this.uartActivity.tx = this.time;
+    }
+    return text.length;
+  },
+  serialRead(port, name, a) {
+    const u = this.uarts[port];
+    if (!u) throw Error(`${port} is not available on ${this.profile.name}.`);
+    const q = u.q;
+    switch (name) {
+      case 'available':
+        return q.length;
+      case 'read':
+        return q.length ? q.shift() : -1;
+      case 'peek':
+        return q.length ? q[0] : -1;
+      case 'readString':
+        return String.fromCharCode(...q.splice(0));
+      case 'readStringUntil': {
+        const stop = typeof a[0] === 'string' ? a[0].charCodeAt(0) : a[0];
+        const i = q.indexOf(stop);
+        const bytes = i < 0 ? q.splice(0) : q.splice(0, i + 1).slice(0, -1);
+        return String.fromCharCode(...bytes);
+      }
+      case 'parseInt':
+      case 'parseFloat': {
+        while (q.length && !/[-0-9.]/.test(String.fromCharCode(q[0]))) q.shift();
+        let s = '';
+        while (q.length && /[-0-9.]/.test(String.fromCharCode(q[0]))) s += String.fromCharCode(q.shift());
+        return name === 'parseInt' ? parseInt(s) || 0 : parseFloat(s) || 0;
+      }
+    }
+  },
+  receiveUart(port, bytes, baud) {
+    const u = this.uarts[port];
+    if (!u || !u.baud) return;
+    if (Math.abs(baud / u.baud - 1) > 0.05) {
+      this.warn(
+        `${port}: received data at ${baud} baud but the port is set to ${u.baud} baud. Bytes are garbled.`
+      );
+      bytes = bytes.map(b => (b * 37 + 11) & 255);
+    }
+    u.q.push(...bytes);
+    if (u.q.length > 256) u.q.splice(0, u.q.length - 256);
+    this.uartActivity.rx = this.time;
+  },
+  serialCall(port, method, a) {
+    switch (method) {
+      case 'begin': {
+        const u = this.uarts[port];
+        if (!u) throw Error(`${port} is not available on ${this.profile.name}.`);
+        u.baud = a[0] || 9600;
+        if (typeof u.tx === 'number') Object.assign(this.pin(u.tx), {mode: 1, value: 1});
+        return 0;
+      }
+      case 'end':
+        if (this.uarts[port]) this.uarts[port].baud = 0;
+        return 0;
+      case 'flush':
+      case 'setTimeout':
+        return 0;
+      case 'print':
+      case 'println': {
+        const tag = a.at(-1),
+          v = a.length > 1 ? a[0] : '';
+        return this.serialWrite(
+          port,
+          this.fmt(v, tag, a.length > 2 ? a[1] : undefined) + (method === 'println' ? '\r\n' : '')
+        );
+      }
+      case 'write':
+        return this.serialWrite(port, typeof a[0] === 'string' ? a[0] : String.fromCharCode(a[0] & 255));
+      case 'printf': {
+        const types = a.at(-1);
+        return this.serialWrite(port, this.printf(a[0], a.slice(1, -1), types));
+      }
+      default:
+        return this.serialRead(port, method, a);
+    }
+  },
+  deliverUart(devices) {
+    const due = (this.pendingUart ?? []).filter(p => p.at <= this.time);
+    if (!due.length) return;
+    this.pendingUart = this.pendingUart.filter(p => p.at > this.time);
+    const from = this.board();
+    for (const p of due) {
+      const txNode = this.node(p.pin);
+      if (!txNode) continue;
+      for (const d of devices) {
+        const b = d.board();
+        if (!b) continue;
+        if (!this.circuit.same(ref(from, this.profile.gnd[0]), ref(b, d.profile.gnd[0]))) continue;
+        for (const u of Object.values(d.uarts)) {
+          const rxPin = u.rx;
+          if (typeof rxPin !== 'number') continue;
+          const rxNode = d.node(rxPin);
+          if (
+            rxNode &&
+            !(d === this && u.name === p.port && rxPin === p.pin) &&
+            this.circuit.linked(txNode, rxNode) &&
+            (this.circuit.same(txNode, rxNode) || this.circuit.voltage(rxNode) >= d.profile.vih)
+          )
+            d.receiveUart(u.name, p.bytes, p.baud);
+        }
+      }
+    }
+  },
 };

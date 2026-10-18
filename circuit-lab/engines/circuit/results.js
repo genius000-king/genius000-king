@@ -3,12 +3,103 @@ import {isBreadboard, TYPES, terminals, ref} from '../catalog/types.js';
 
 // Circuit methods: finalize, scope, snapshot
 export const resultsMethods = {
-finalize(){const x=this.x,diagnostics=this.invalid.map(message=>({level:'error',message}));if(!x)return;this.graph.nodes.forEach(node=>this.voltages[node]=x[this.graph.index[node]]??0);
-  const comps={};this.diagContext=diagnostics;for(const [c,f]of this.pendingResults??[]){try{comps[c.id]=f()??{};}catch(e){comps[c.id]={};}}this.components=comps;diagnostics.push(...(this.pendingDiags??[]));
-  for(const s of this.sources??[]){const actual=(x[s.a]??0)-(s.b===undefined||s.b===null?0:(x[s.b]??0)),current=(s.v-actual)*s.g;s.current=current;if(s.a!==undefined&&s.a===s.b&&s.v>0)diagnostics.push({level:'error',message:`Short circuit: ${s.kind} is connected directly to its ground.`});else if(s.supply&&Math.abs(current)>s.max)diagnostics.push({level:'error',message:`${s.kind}: ${(Math.abs(current)*1000).toFixed(0)} mA exceeds the modeled ${(s.max*1000).toFixed(0)} mA supply limit.`});else if(s.output){const prof=profileOf(this.project.components.find(c=>c.id===s.board));const mA=Math.abs(current)*1000;if(mA>(prof?.pinMax??40))diagnostics.push({level:'error',message:`${s.kind}: ${mA.toFixed(1)} mA load. Possible conflicting outputs or short circuit.`});else if(prof?.weak?.[s.gpio]&&mA>prof.weak[s.gpio])diagnostics.push({level:'warning',message:`${s.kind} (${s.label}) can only sink/source ${prof.weak[s.gpio]} mA; ${mA.toFixed(1)} mA drawn.`});else if(prof?.pinRec&&mA>prof.pinRec)diagnostics.push({level:'warning',message:`${s.kind} (${s.label}): ${mA.toFixed(1)} mA is above the recommended ${prof.pinRec} mA per pin.`});}else if(s.max&&!s.supply&&Math.abs(current)>s.max)diagnostics.push({level:'warning',component:s.component,message:`${s.kind}: output current ${(Math.abs(current)*1000).toFixed(0)} mA exceeds its ${(s.max*1000).toFixed(0)} mA drive.`});}
-  const outs=(this.sources??[]).filter(s=>s.output);for(let i=0;i<outs.length;i++)for(let j=i+1;j<outs.length;j++){const a=outs[i],b=outs[j];if(a.a===b.a&&Math.abs(a.v-b.v)>.5)diagnostics.push({level:'error',message:`Conflicting outputs: ${a.kind} and ${b.kind} drive the same net.`});}
-  for(const c of this.project.components){if(isBoard(c)||isBreadboard(c)||['button'].includes(c.type))continue;const optional=new Set(TYPES[c.type]?.optional??[]);const missing=terminals(c).filter(t=>!optional.has(t.id)&&!this.connected.has(ref(c,t.id)));if(missing.length)diagnostics.push({level:'warning',component:c.id,message:`${c.name}: unconnected ${missing.map(t=>t.id).join(', ')}. No connection is inferred from physical proximity.`});}
-  this.diagnostics=[...new Map(diagnostics.map(d=>[d.message,d])).values()];},
-scope(){const out={};for(const [id,b]of Object.entries(this.samples)){const n=Math.min(b.t.length,2000),t0=b.t.length-n;out[id]={t:Float64Array.from(b.t.slice(t0)),v:b.v.slice(t0)};}return out;},
-snapshot(){return {voltages:this.voltages,components:this.components,diagnostics:this.diagnostics,nets:this.count,netIndex:this.graph.index,scope:this.scope(),digital:this.digital};}
+  finalize() {
+    const x = this.x,
+      diagnostics = this.invalid.map(message => ({level: 'error', message}));
+    if (!x) return;
+    this.graph.nodes.forEach(node => (this.voltages[node] = x[this.graph.index[node]] ?? 0));
+    const comps = {};
+    this.diagContext = diagnostics;
+    for (const [c, f] of this.pendingResults ?? []) {
+      try {
+        comps[c.id] = f() ?? {};
+      } catch (e) {
+        comps[c.id] = {};
+      }
+    }
+    this.components = comps;
+    diagnostics.push(...(this.pendingDiags ?? []));
+    for (const s of this.sources ?? []) {
+      const actual = (x[s.a] ?? 0) - (s.b === undefined || s.b === null ? 0 : (x[s.b] ?? 0)),
+        current = (s.v - actual) * s.g;
+      s.current = current;
+      if (s.a !== undefined && s.a === s.b && s.v > 0)
+        diagnostics.push({
+          level: 'error',
+          message: `Short circuit: ${s.kind} is connected directly to its ground.`,
+        });
+      else if (s.supply && Math.abs(current) > s.max)
+        diagnostics.push({
+          level: 'error',
+          message: `${s.kind}: ${(Math.abs(current) * 1000).toFixed(0)} mA exceeds the modeled ${(s.max * 1000).toFixed(0)} mA supply limit.`,
+        });
+      else if (s.output) {
+        const prof = profileOf(this.project.components.find(c => c.id === s.board));
+        const mA = Math.abs(current) * 1000;
+        if (mA > (prof?.pinMax ?? 40))
+          diagnostics.push({
+            level: 'error',
+            message: `${s.kind}: ${mA.toFixed(1)} mA load. Possible conflicting outputs or short circuit.`,
+          });
+        else if (prof?.weak?.[s.gpio] && mA > prof.weak[s.gpio])
+          diagnostics.push({
+            level: 'warning',
+            message: `${s.kind} (${s.label}) can only sink/source ${prof.weak[s.gpio]} mA; ${mA.toFixed(1)} mA drawn.`,
+          });
+        else if (prof?.pinRec && mA > prof.pinRec)
+          diagnostics.push({
+            level: 'warning',
+            message: `${s.kind} (${s.label}): ${mA.toFixed(1)} mA is above the recommended ${prof.pinRec} mA per pin.`,
+          });
+      } else if (s.max && !s.supply && Math.abs(current) > s.max)
+        diagnostics.push({
+          level: 'warning',
+          component: s.component,
+          message: `${s.kind}: output current ${(Math.abs(current) * 1000).toFixed(0)} mA exceeds its ${(s.max * 1000).toFixed(0)} mA drive.`,
+        });
+    }
+    const outs = (this.sources ?? []).filter(s => s.output);
+    for (let i = 0; i < outs.length; i++)
+      for (let j = i + 1; j < outs.length; j++) {
+        const a = outs[i],
+          b = outs[j];
+        if (a.a === b.a && Math.abs(a.v - b.v) > 0.5)
+          diagnostics.push({
+            level: 'error',
+            message: `Conflicting outputs: ${a.kind} and ${b.kind} drive the same net.`,
+          });
+      }
+    for (const c of this.project.components) {
+      if (isBoard(c) || isBreadboard(c) || ['button'].includes(c.type)) continue;
+      const optional = new Set(TYPES[c.type]?.optional ?? []);
+      const missing = terminals(c).filter(t => !optional.has(t.id) && !this.connected.has(ref(c, t.id)));
+      if (missing.length)
+        diagnostics.push({
+          level: 'warning',
+          component: c.id,
+          message: `${c.name}: unconnected ${missing.map(t => t.id).join(', ')}. No connection is inferred from physical proximity.`,
+        });
+    }
+    this.diagnostics = [...new Map(diagnostics.map(d => [d.message, d])).values()];
+  },
+  scope() {
+    const out = {};
+    for (const [id, b] of Object.entries(this.samples)) {
+      const n = Math.min(b.t.length, 2000),
+        t0 = b.t.length - n;
+      out[id] = {t: Float64Array.from(b.t.slice(t0)), v: b.v.slice(t0)};
+    }
+    return out;
+  },
+  snapshot() {
+    return {
+      voltages: this.voltages,
+      components: this.components,
+      diagnostics: this.diagnostics,
+      nets: this.count,
+      netIndex: this.graph.index,
+      scope: this.scope(),
+      digital: this.digital,
+    };
+  },
 };

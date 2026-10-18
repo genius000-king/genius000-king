@@ -25,10 +25,13 @@ export function modelCategory(type) {
 export function loadModelCategory(category) {
   if (!LOADERS[category]) return Promise.resolve();
   if (!pending.has(category))
-    pending.set(category, LOADERS[category]().then(module => {
-      Object.assign(PART_MODELS, module[category + 'Models']);
-      ready.add(category);
-    }));
+    pending.set(
+      category,
+      LOADERS[category]().then(module => {
+        Object.assign(PART_MODELS, module[category + 'Models']);
+        ready.add(category);
+      })
+    );
   return pending.get(category);
 }
 

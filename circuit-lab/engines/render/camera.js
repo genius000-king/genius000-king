@@ -2,12 +2,121 @@ import * as THREE from 'three';
 
 // LabScene methods: nudgeCamera, getCamera, restoreCamera, phoneView, fit, focus, view, zoom
 export const cameraMethods = {
-nudgeCamera(theta,phi){const offset=this.camera.position.clone().sub(this.controls.target),spherical=new THREE.Spherical().setFromVector3(offset);spherical.theta+=theta;spherical.phi=Math.max(.08,Math.min(Math.PI-.08,spherical.phi+phi));this.camera.position.copy(this.controls.target).add(new THREE.Vector3().setFromSpherical(spherical));this.dirty=true;this.cb.onCamera?.(this.getCamera());},
-getCamera(){return {position:this.camera.position.toArray(),target:this.controls.target.toArray()};},
-restoreCamera(value){if(value?.position?.length===3&&value?.target?.length===3&&[...value.position,...value.target].every(Number.isFinite)){this.camera.position.fromArray(value.position);this.controls.target.fromArray(value.target);this.controls.update();this.dirty=true;if(this.compact){this.phoneView();/* a project load builds its parts right after this call; frame again once they exist */this.pendingFit={t:performance.now()};}}},
-phoneView(){const bounds=new THREE.Box3();for(const g of this.objects.values())if(g.userData.localBounds)bounds.union(g.userData.localBounds.clone().applyMatrix4(g.matrixWorld));if(bounds.isEmpty())return;const size=bounds.getSize(new THREE.Vector3()),portrait=this.camera.aspect<.9;let dir;/* keep the circuit's long side along the screen's long side */if(portrait&&size.x>size.z*1.25)dir=new THREE.Vector3(1,1.6,.22);else if(portrait&&size.z>size.x*1.25)dir=new THREE.Vector3(.22,1.6,1);else if(!portrait&&size.x>=size.z)dir=new THREE.Vector3(.35,1.05,1);else if(!portrait)dir=new THREE.Vector3(1,1.05,.35);else{dir=this.camera.position.clone().sub(this.controls.target).normalize();dir.y+=.7;}this.fit(dir.normalize());},
-fit(dir=this.camera.position.clone().sub(this.controls.target).normalize(),objects=[...this.objects.values()]){if(!objects.length||!Number.isFinite(dir.x))return;const bounds=new THREE.Box3();objects.forEach(g=>{if(g.userData.localBounds)bounds.union(g.userData.localBounds.clone().applyMatrix4(g.matrixWorld));});if(bounds.isEmpty())return;const center=bounds.getCenter(new THREE.Vector3()),corners=[];for(const x of [bounds.min.x,bounds.max.x])for(const y of [bounds.min.y,bounds.max.y])for(const z of [bounds.min.z,bounds.max.z])corners.push(new THREE.Vector3(x,y,z));const mx=this.compact?.9:.82,my=this.compact?.72:.78,fits=d=>{this.camera.position.copy(center).addScaledVector(dir,d);this.camera.lookAt(center);this.camera.updateMatrixWorld();return corners.every(c=>{const v=c.clone().project(this.camera);return v.z<1&&Math.abs(v.x)<=mx&&Math.abs(v.y)<=my;});};let lo=this.controls.minDistance,hi=this.controls.maxDistance;for(let i=0;i<28;i++){const mid=(lo+hi)/2;fits(mid)?hi=mid:lo=mid;}fits(hi);this.controls.target.copy(center);this.controls.update();this.dirty=true;this.cb.onCamera?.(this.getCamera());},
-focus(){const objects=this.selection.length?this.selection.map(id=>this.objects.get(id)).filter(Boolean):[...this.objects.values()];if(!objects.length)return;const bounds=new THREE.Box3();objects.forEach(g=>bounds.union(g.userData.localBounds.clone().applyMatrix4(g.matrixWorld)));this.fit(new THREE.Vector3(70,90,115).normalize(),objects);},
-view(type){const target=this.controls.target.clone(),dist=this.camera.position.distanceTo(target);this.camera.position.copy(target).add((type==='top'?new THREE.Vector3(0,1,.0001):type==='front'?new THREE.Vector3(0,.25,1):new THREE.Vector3(85,105,130)).normalize().multiplyScalar(dist));this.dirty=true;this.cb.onCamera?.(this.getCamera());},
-zoom(factor){this.camera.position.sub(this.controls.target).multiplyScalar(factor).add(this.controls.target);this.dirty=true;}
+  nudgeCamera(theta, phi) {
+    const offset = this.camera.position.clone().sub(this.controls.target),
+      spherical = new THREE.Spherical().setFromVector3(offset);
+    spherical.theta += theta;
+    spherical.phi = Math.max(0.08, Math.min(Math.PI - 0.08, spherical.phi + phi));
+    this.camera.position.copy(this.controls.target).add(new THREE.Vector3().setFromSpherical(spherical));
+    this.dirty = true;
+    this.cb.onCamera?.(this.getCamera());
+  },
+  getCamera() {
+    return {position: this.camera.position.toArray(), target: this.controls.target.toArray()};
+  },
+  restoreCamera(value) {
+    if (
+      value?.position?.length === 3 &&
+      value?.target?.length === 3 &&
+      [...value.position, ...value.target].every(Number.isFinite)
+    ) {
+      this.camera.position.fromArray(value.position);
+      this.controls.target.fromArray(value.target);
+      this.controls.update();
+      this.dirty = true;
+      if (this.compact) {
+        this.phoneView();
+        /* a project load builds its parts right after this call; frame again once they exist */ this.pendingFit =
+          {t: performance.now()};
+      }
+    }
+  },
+  phoneView() {
+    const bounds = new THREE.Box3();
+    for (const g of this.objects.values())
+      if (g.userData.localBounds) bounds.union(g.userData.localBounds.clone().applyMatrix4(g.matrixWorld));
+    if (bounds.isEmpty()) return;
+    const size = bounds.getSize(new THREE.Vector3()),
+      portrait = this.camera.aspect < 0.9;
+    let dir;
+    /* keep the circuit's long side along the screen's long side */ if (portrait && size.x > size.z * 1.25)
+      dir = new THREE.Vector3(1, 1.6, 0.22);
+    else if (portrait && size.z > size.x * 1.25) dir = new THREE.Vector3(0.22, 1.6, 1);
+    else if (!portrait && size.x >= size.z) dir = new THREE.Vector3(0.35, 1.05, 1);
+    else if (!portrait) dir = new THREE.Vector3(1, 1.05, 0.35);
+    else {
+      dir = this.camera.position.clone().sub(this.controls.target).normalize();
+      dir.y += 0.7;
+    }
+    this.fit(dir.normalize());
+  },
+  fit(
+    dir = this.camera.position.clone().sub(this.controls.target).normalize(),
+    objects = [...this.objects.values()]
+  ) {
+    if (!objects.length || !Number.isFinite(dir.x)) return;
+    const bounds = new THREE.Box3();
+    objects.forEach(g => {
+      if (g.userData.localBounds) bounds.union(g.userData.localBounds.clone().applyMatrix4(g.matrixWorld));
+    });
+    if (bounds.isEmpty()) return;
+    const center = bounds.getCenter(new THREE.Vector3()),
+      corners = [];
+    for (const x of [bounds.min.x, bounds.max.x])
+      for (const y of [bounds.min.y, bounds.max.y])
+        for (const z of [bounds.min.z, bounds.max.z]) corners.push(new THREE.Vector3(x, y, z));
+    const mx = this.compact ? 0.9 : 0.82,
+      my = this.compact ? 0.72 : 0.78,
+      fits = d => {
+        this.camera.position.copy(center).addScaledVector(dir, d);
+        this.camera.lookAt(center);
+        this.camera.updateMatrixWorld();
+        return corners.every(c => {
+          const v = c.clone().project(this.camera);
+          return v.z < 1 && Math.abs(v.x) <= mx && Math.abs(v.y) <= my;
+        });
+      };
+    let lo = this.controls.minDistance,
+      hi = this.controls.maxDistance;
+    for (let i = 0; i < 28; i++) {
+      const mid = (lo + hi) / 2;
+      fits(mid) ? (hi = mid) : (lo = mid);
+    }
+    fits(hi);
+    this.controls.target.copy(center);
+    this.controls.update();
+    this.dirty = true;
+    this.cb.onCamera?.(this.getCamera());
+  },
+  focus() {
+    const objects = this.selection.length
+      ? this.selection.map(id => this.objects.get(id)).filter(Boolean)
+      : [...this.objects.values()];
+    if (!objects.length) return;
+    const bounds = new THREE.Box3();
+    objects.forEach(g => bounds.union(g.userData.localBounds.clone().applyMatrix4(g.matrixWorld)));
+    this.fit(new THREE.Vector3(70, 90, 115).normalize(), objects);
+  },
+  view(type) {
+    const target = this.controls.target.clone(),
+      dist = this.camera.position.distanceTo(target);
+    this.camera.position
+      .copy(target)
+      .add(
+        (type === 'top'
+          ? new THREE.Vector3(0, 1, 0.0001)
+          : type === 'front'
+            ? new THREE.Vector3(0, 0.25, 1)
+            : new THREE.Vector3(85, 105, 130)
+        )
+          .normalize()
+          .multiplyScalar(dist)
+      );
+    this.dirty = true;
+    this.cb.onCamera?.(this.getCamera());
+  },
+  zoom(factor) {
+    this.camera.position.sub(this.controls.target).multiplyScalar(factor).add(this.controls.target);
+    this.dirty = true;
+  },
 };

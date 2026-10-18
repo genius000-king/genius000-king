@@ -5,24 +5,284 @@ import {line, mat} from './geo.js';
 
 // LabScene methods: dropPosition, showTerminals, setMode, select, refreshOutlines, cast, componentOf, attachedTo, down, move, up, setPending
 export const interactionMethods = {
-dropPosition(e){this.cast(e);const p=this.ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),0),new THREE.Vector3());return p?[p.x/MM,0,p.z/MM]:[0,0,35];},
-showTerminals(g,visible){for(const t of Object.values(g.userData.terminals??{}))t.visible=visible;if(g.userData.terminalMesh)g.userData.terminalMesh.visible=visible;},
-setMode(mode){this.mode=mode;for(const g of this.objects.values())this.showTerminals(g,mode==='wire');this.transform.detach();this.transform.axis=null;if(['rotate','translate'].includes(mode)&&this.selection.length===1){this.transform.setMode(mode);this.transform.setRotationSnap(null);this.transform.attach(this.objects.get(this.selection[0]));}this.renderer.domElement.style.cursor=mode==='wire'?'crosshair':'default';this.dirty=true;},
-select(ids,wire){this.selection=ids;this.selectedWire=wire;this.outlines?.forEach(o=>{this.scene.remove(o);o.geometry.dispose();o.material.dispose();});this.outlines=ids.map(id=>this.objects.get(id)).filter(Boolean).map(g=>{const o=new THREE.Box3Helper(g.userData.localBounds.clone().applyMatrix4(g.matrixWorld),'#a5a5bc');o.material.transparent=true;o.material.opacity=.5;o.userData.group=g;this.scene.add(o);return o;});this.setMode(this.mode);this.updateWires();},
-refreshOutlines(){for(const o of this.outlines??[])o.box.copy(o.userData.group.userData.localBounds).applyMatrix4(o.userData.group.matrixWorld);},
-cast(e){const rect=this.renderer.domElement.getBoundingClientRect();this.pointer.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);this.ray.setFromCamera(this.pointer,this.camera);const hits=this.ray.intersectObjects([...this.objects.values(),...this.wires.values(),...(this.wireHandles??[])],true);return hits;},
-componentOf(mesh){let g=mesh;while(g&&!g.userData.component)g=g.parent;return g;},
-attachedTo(id){return [...new Set(this.project.wires.filter(w=>w.kind==='contact'&&w.b.slice(0,w.b.indexOf(':'))===id).map(w=>w.a.slice(0,w.a.indexOf(':'))))];},
-down(e){if(e.pointerType==='touch'){/* double-tap frames the circuit, like double-click */const now=performance.now(),last=this.lastTap;this.lastTap={t:now,x:e.clientX,y:e.clientY};if(last&&now-last.t<320&&Math.hypot(e.clientX-last.x,e.clientY-last.y)<30){this.lastTap=null;this.focus();return;}}if(e.button!==0||this.transform.dragging||(this.transform.object&&this.transform.axis))return;const hits=this.cast(e),hit=hits[0];if(!hit){if(this.mode!=='orbit')this.cb.onSelect?.([],null);return;}if(hit.object.userData.wireControl){this.drag={wire:hit.object.userData.wireControl,pointIndex:hit.object.userData.pointIndex,start:hit.point.clone(),lastPoint:hit.point.clone(),startClient:[e.clientX,e.clientY]};this.plane.constant=-hit.point.y;this.controls.enabled=false;this.renderer.domElement.setPointerCapture(e.pointerId);return;}
- const termHit=hits.find(h=>termOf(h)),term=termOf(termHit);if(term&&this.mode==='select'&&termHit.distance<=hit.distance+.9){const node=term.node,i=node.indexOf(':'),c=this.project.components.find(c=>c.id===node.slice(0,i)),t=terminals(c).find(t=>t.id===node.slice(i+1));this.cb.onPin?.({node,label:t.label??t.id,info:term.info??t.info??t.label});return;}if(this.mode==='wire'&&term){this.cb.onTerminal?.(term.node);this.controls.enabled=false;this.renderer.domElement.setPointerCapture(e.pointerId);return;}if(this.mode==='orbit')return;if(hit.object.userData.wire){this.cb.onSelect?.([],hit.object.userData.wire);return;}const g=this.componentOf(hit.object);if(!g)return;
- if(hit.object.userData.action){this.action={id:g.userData.component,action:hit.object.userData.action,x0:e.clientX,y0:e.clientY};this.cb.onAction?.(this.action,true);this.controls.enabled=false;this.renderer.domElement.setPointerCapture(e.pointerId);return;}
- const id=g.userData.component,selected=e.shiftKey?[...new Set([...this.selection,id])]:this.selection.includes(id)?this.selection:[id];this.cb.onSelect?.(selected,null);if(['rotate','translate'].includes(this.mode))return;
- const moving=[...new Set([...selected,...selected.flatMap(s=>this.attachedTo(s))])];this.plane.constant=-g.position.y;const start=this.ray.ray.intersectPlane(this.plane,new THREE.Vector3());if(start){this.drag={id,start:start.clone(),origins:moving.filter(id=>this.objects.has(id)).map(id=>({id,pos:this.objects.get(id).position.clone()})),moved:false};this.controls.enabled=false;this.renderer.domElement.setPointerCapture(e.pointerId);}},
-move(e){if(this.action&&['turn','stick','encoder'].includes(this.action.action)){this.cb.onAction?.({...this.action,dx:e.clientX-this.action.x0,dy:e.clientY-this.action.y0},'drag');return;}this.transform.setRotationSnap(e.shiftKey?Math.PI/12:null);const hits=this.cast(e);if(this.drag?.wire){const w=this.project.wires.find(w=>w.id===this.drag.wire);if(w){const p=this.ray.ray.intersectPlane(this.plane,new THREE.Vector3()),delta=p?p.clone().sub(this.drag.lastPoint):new THREE.Vector3(),dy=(this.drag.startClient[1]-e.clientY)*.12;if(this.drag.pointIndex>=0){const points=structuredClone(w.points),cp=points[this.drag.pointIndex];if(e.shiftKey)cp.y=Math.max(1,cp.y+dy);else{cp.x+=delta.x;cp.z+=delta.z;}this.cb.onWireRoute?.(w.id,{points,route:'manual'});}else this.cb.onWireRoute?.(w.id,e.shiftKey?{route:'manual',lift:Math.max(2,(w.lift??10)+dy)}:{route:'manual',bendX:(w.bendX??0)+delta.x,bendZ:(w.bendZ??0)+delta.z});if(p)this.drag.lastPoint.copy(p);}this.drag.startClient=[e.clientX,e.clientY];return;}
- if(this.drag){const p=this.ray.ray.intersectPlane(this.plane,new THREE.Vector3());if(p){const delta=p.clone().sub(this.drag.start);for(const {id,pos}of this.drag.origins)this.objects.get(id)?.position.copy(pos).add(delta);this.drag.moved=delta.length()>.2;this.objects.forEach(g=>g.updateMatrixWorld());this.updateWires();this.refreshOutlines();this.dirty=true;}return;}
- const candidate=hits.find(h=>termOf(h)),pinHit=candidate&&candidate.distance<=(hits[0]?.distance??0)+.9?termOf(candidate):null;if(pinHit)this.cb.onHover?.({label:pinHit.info,node:pinHit.node,x:e.clientX,y:e.clientY});else this.cb.onHover?.(null);
- if(this.pendingWire){const start=this.endpoint(this.pendingWire);let end=pinHit?this.endpoint(pinHit.node):this.ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),-5),new THREE.Vector3());if(start&&end){if(this.preview){this.scene.remove(this.preview);this.preview.geometry.dispose();}this.preview=line(this.scene,[start.toArray(),start.clone().lerp(end,.5).add(new THREE.Vector3(0,9,0)).toArray(),end.toArray()],mat('#b0b0cc',.2,.4),.4);this.dirty=true;}}
- },
-up(e){if(this.action){this.cb.onAction?.(this.action,false);this.action=null;}if(this.drag?.origins&&this.drag.moved){this.cb.onMove?.(this.drag.origins.map(({id})=>({id,position:this.objects.get(id).position.toArray().map(v=>v/MM)})));}this.drag=null;this.controls.enabled=true;if(this.renderer.domElement.hasPointerCapture(e.pointerId))this.renderer.domElement.releasePointerCapture(e.pointerId);},
-setPending(node){this.pendingWire=node;if(this.preview){this.scene.remove(this.preview);this.preview.geometry.dispose();this.preview=null;this.dirty=true;}}
+  dropPosition(e) {
+    this.cast(e);
+    const p = this.ray.ray.intersectPlane(
+      new THREE.Plane(new THREE.Vector3(0, 1, 0), 0),
+      new THREE.Vector3()
+    );
+    return p ? [p.x / MM, 0, p.z / MM] : [0, 0, 35];
+  },
+  showTerminals(g, visible) {
+    for (const t of Object.values(g.userData.terminals ?? {})) t.visible = visible;
+    if (g.userData.terminalMesh) g.userData.terminalMesh.visible = visible;
+  },
+  setMode(mode) {
+    this.mode = mode;
+    for (const g of this.objects.values()) this.showTerminals(g, mode === 'wire');
+    this.transform.detach();
+    this.transform.axis = null;
+    if (['rotate', 'translate'].includes(mode) && this.selection.length === 1) {
+      this.transform.setMode(mode);
+      this.transform.setRotationSnap(null);
+      this.transform.attach(this.objects.get(this.selection[0]));
+    }
+    this.renderer.domElement.style.cursor = mode === 'wire' ? 'crosshair' : 'default';
+    this.dirty = true;
+  },
+  select(ids, wire) {
+    this.selection = ids;
+    this.selectedWire = wire;
+    this.outlines?.forEach(o => {
+      this.scene.remove(o);
+      o.geometry.dispose();
+      o.material.dispose();
+    });
+    this.outlines = ids
+      .map(id => this.objects.get(id))
+      .filter(Boolean)
+      .map(g => {
+        const o = new THREE.Box3Helper(g.userData.localBounds.clone().applyMatrix4(g.matrixWorld), '#a5a5bc');
+        o.material.transparent = true;
+        o.material.opacity = 0.5;
+        o.userData.group = g;
+        this.scene.add(o);
+        return o;
+      });
+    this.setMode(this.mode);
+    this.updateWires();
+  },
+  refreshOutlines() {
+    for (const o of this.outlines ?? [])
+      o.box.copy(o.userData.group.userData.localBounds).applyMatrix4(o.userData.group.matrixWorld);
+  },
+  cast(e) {
+    const rect = this.renderer.domElement.getBoundingClientRect();
+    this.pointer.set(
+      ((e.clientX - rect.left) / rect.width) * 2 - 1,
+      (-(e.clientY - rect.top) / rect.height) * 2 + 1
+    );
+    this.ray.setFromCamera(this.pointer, this.camera);
+    const hits = this.ray.intersectObjects(
+      [...this.objects.values(), ...this.wires.values(), ...(this.wireHandles ?? [])],
+      true
+    );
+    return hits;
+  },
+  componentOf(mesh) {
+    let g = mesh;
+    while (g && !g.userData.component) g = g.parent;
+    return g;
+  },
+  attachedTo(id) {
+    return [
+      ...new Set(
+        this.project.wires
+          .filter(w => w.kind === 'contact' && w.b.slice(0, w.b.indexOf(':')) === id)
+          .map(w => w.a.slice(0, w.a.indexOf(':')))
+      ),
+    ];
+  },
+  down(e) {
+    if (e.pointerType === 'touch') {
+      /* double-tap frames the circuit, like double-click */ const now = performance.now(),
+        last = this.lastTap;
+      this.lastTap = {t: now, x: e.clientX, y: e.clientY};
+      if (last && now - last.t < 320 && Math.hypot(e.clientX - last.x, e.clientY - last.y) < 30) {
+        this.lastTap = null;
+        this.focus();
+        return;
+      }
+    }
+    if (e.button !== 0 || this.transform.dragging || (this.transform.object && this.transform.axis)) return;
+    const hits = this.cast(e),
+      hit = hits[0];
+    if (!hit) {
+      if (this.mode !== 'orbit') this.cb.onSelect?.([], null);
+      return;
+    }
+    if (hit.object.userData.wireControl) {
+      this.drag = {
+        wire: hit.object.userData.wireControl,
+        pointIndex: hit.object.userData.pointIndex,
+        start: hit.point.clone(),
+        lastPoint: hit.point.clone(),
+        startClient: [e.clientX, e.clientY],
+      };
+      this.plane.constant = -hit.point.y;
+      this.controls.enabled = false;
+      this.renderer.domElement.setPointerCapture(e.pointerId);
+      return;
+    }
+    const termHit = hits.find(h => termOf(h)),
+      term = termOf(termHit);
+    if (term && this.mode === 'select' && termHit.distance <= hit.distance + 0.9) {
+      const node = term.node,
+        i = node.indexOf(':'),
+        c = this.project.components.find(c => c.id === node.slice(0, i)),
+        t = terminals(c).find(t => t.id === node.slice(i + 1));
+      this.cb.onPin?.({node, label: t.label ?? t.id, info: term.info ?? t.info ?? t.label});
+      return;
+    }
+    if (this.mode === 'wire' && term) {
+      this.cb.onTerminal?.(term.node);
+      this.controls.enabled = false;
+      this.renderer.domElement.setPointerCapture(e.pointerId);
+      return;
+    }
+    if (this.mode === 'orbit') return;
+    if (hit.object.userData.wire) {
+      this.cb.onSelect?.([], hit.object.userData.wire);
+      return;
+    }
+    const g = this.componentOf(hit.object);
+    if (!g) return;
+    if (hit.object.userData.action) {
+      this.action = {
+        id: g.userData.component,
+        action: hit.object.userData.action,
+        x0: e.clientX,
+        y0: e.clientY,
+      };
+      this.cb.onAction?.(this.action, true);
+      this.controls.enabled = false;
+      this.renderer.domElement.setPointerCapture(e.pointerId);
+      return;
+    }
+    const id = g.userData.component,
+      selected = e.shiftKey
+        ? [...new Set([...this.selection, id])]
+        : this.selection.includes(id)
+          ? this.selection
+          : [id];
+    this.cb.onSelect?.(selected, null);
+    if (['rotate', 'translate'].includes(this.mode)) return;
+    const moving = [...new Set([...selected, ...selected.flatMap(s => this.attachedTo(s))])];
+    this.plane.constant = -g.position.y;
+    const start = this.ray.ray.intersectPlane(this.plane, new THREE.Vector3());
+    if (start) {
+      this.drag = {
+        id,
+        start: start.clone(),
+        origins: moving
+          .filter(id => this.objects.has(id))
+          .map(id => ({id, pos: this.objects.get(id).position.clone()})),
+        moved: false,
+      };
+      this.controls.enabled = false;
+      this.renderer.domElement.setPointerCapture(e.pointerId);
+    }
+  },
+  move(e) {
+    if (this.action && ['turn', 'stick', 'encoder'].includes(this.action.action)) {
+      this.cb.onAction?.(
+        {...this.action, dx: e.clientX - this.action.x0, dy: e.clientY - this.action.y0},
+        'drag'
+      );
+      return;
+    }
+    this.transform.setRotationSnap(e.shiftKey ? Math.PI / 12 : null);
+    const hits = this.cast(e);
+    if (this.drag?.wire) {
+      const w = this.project.wires.find(w => w.id === this.drag.wire);
+      if (w) {
+        const p = this.ray.ray.intersectPlane(this.plane, new THREE.Vector3()),
+          delta = p ? p.clone().sub(this.drag.lastPoint) : new THREE.Vector3(),
+          dy = (this.drag.startClient[1] - e.clientY) * 0.12;
+        if (this.drag.pointIndex >= 0) {
+          const points = structuredClone(w.points),
+            cp = points[this.drag.pointIndex];
+          if (e.shiftKey) cp.y = Math.max(1, cp.y + dy);
+          else {
+            cp.x += delta.x;
+            cp.z += delta.z;
+          }
+          this.cb.onWireRoute?.(w.id, {points, route: 'manual'});
+        } else
+          this.cb.onWireRoute?.(
+            w.id,
+            e.shiftKey
+              ? {route: 'manual', lift: Math.max(2, (w.lift ?? 10) + dy)}
+              : {route: 'manual', bendX: (w.bendX ?? 0) + delta.x, bendZ: (w.bendZ ?? 0) + delta.z}
+          );
+        if (p) this.drag.lastPoint.copy(p);
+      }
+      this.drag.startClient = [e.clientX, e.clientY];
+      return;
+    }
+    if (this.drag) {
+      const p = this.ray.ray.intersectPlane(this.plane, new THREE.Vector3());
+      if (p) {
+        const delta = p.clone().sub(this.drag.start);
+        for (const {id, pos} of this.drag.origins) this.objects.get(id)?.position.copy(pos).add(delta);
+        this.drag.moved = delta.length() > 0.2;
+        this.objects.forEach(g => g.updateMatrixWorld());
+        this.updateWires();
+        this.refreshOutlines();
+        this.dirty = true;
+      }
+      return;
+    }
+    const candidate = hits.find(h => termOf(h)),
+      pinHit = candidate && candidate.distance <= (hits[0]?.distance ?? 0) + 0.9 ? termOf(candidate) : null;
+    if (pinHit) this.cb.onHover?.({label: pinHit.info, node: pinHit.node, x: e.clientX, y: e.clientY});
+    else this.cb.onHover?.(null);
+    if (this.pendingWire) {
+      const start = this.endpoint(this.pendingWire);
+      let end = pinHit
+        ? this.endpoint(pinHit.node)
+        : this.ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), -5), new THREE.Vector3());
+      if (start && end) {
+        if (this.preview) {
+          this.scene.remove(this.preview);
+          this.preview.geometry.dispose();
+        }
+        this.preview = line(
+          this.scene,
+          [
+            start.toArray(),
+            start
+              .clone()
+              .lerp(end, 0.5)
+              .add(new THREE.Vector3(0, 9, 0))
+              .toArray(),
+            end.toArray(),
+          ],
+          mat('#b0b0cc', 0.2, 0.4),
+          0.4
+        );
+        this.dirty = true;
+      }
+    }
+  },
+  up(e) {
+    if (this.action) {
+      this.cb.onAction?.(this.action, false);
+      this.action = null;
+    }
+    if (this.drag?.origins && this.drag.moved) {
+      this.cb.onMove?.(
+        this.drag.origins.map(({id}) => ({
+          id,
+          position: this.objects
+            .get(id)
+            .position.toArray()
+            .map(v => v / MM),
+        }))
+      );
+    }
+    this.drag = null;
+    this.controls.enabled = true;
+    if (this.renderer.domElement.hasPointerCapture(e.pointerId))
+      this.renderer.domElement.releasePointerCapture(e.pointerId);
+  },
+  setPending(node) {
+    this.pendingWire = node;
+    if (this.preview) {
+      this.scene.remove(this.preview);
+      this.preview.geometry.dispose();
+      this.preview = null;
+      this.dirty = true;
+    }
+  },
 };

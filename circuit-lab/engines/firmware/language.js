@@ -1,7 +1,68 @@
-export const TYPE_WORDS=new Set(['void','int','float','double','bool','boolean','long','short','byte','char','unsigned','signed','word','size_t','uint8_t','int8_t','uint16_t','int16_t','uint32_t','int32_t','uint64_t','int64_t','String','auto']);
+export const TYPE_WORDS = new Set([
+  'void',
+  'int',
+  'float',
+  'double',
+  'bool',
+  'boolean',
+  'long',
+  'short',
+  'byte',
+  'char',
+  'unsigned',
+  'signed',
+  'word',
+  'size_t',
+  'uint8_t',
+  'int8_t',
+  'uint16_t',
+  'int16_t',
+  'uint32_t',
+  'int32_t',
+  'uint64_t',
+  'int64_t',
+  'String',
+  'auto',
+]);
 
-export const QUALIFIERS=new Set(['const','volatile','static','constexpr','inline','unsigned','signed']);
+export const QUALIFIERS = new Set([
+  'const',
+  'volatile',
+  'static',
+  'constexpr',
+  'inline',
+  'unsigned',
+  'signed',
+]);
 
-export const CLASSES={Servo:'Servo',LiquidCrystal_I2C:'LiquidCrystal_I2C',Adafruit_SSD1306:'Adafruit_SSD1306',DHT:'DHT',Adafruit_NeoPixel:'Adafruit_NeoPixel',SoftwareSerial:'SoftwareSerial',WiFiUDP:'WiFiUDP'};
+export const CLASSES = {
+  Servo: 'Servo',
+  LiquidCrystal_I2C: 'LiquidCrystal_I2C',
+  Adafruit_SSD1306: 'Adafruit_SSD1306',
+  DHT: 'DHT',
+  Adafruit_NeoPixel: 'Adafruit_NeoPixel',
+  SoftwareSerial: 'SoftwareSerial',
+  WiFiUDP: 'WiFiUDP',
+};
 
-export const LIBRARIES=['Arduino.h','Wire.h','SPI.h','Servo.h','ESP32Servo.h','LiquidCrystal_I2C.h','Adafruit_GFX.h','Adafruit_SSD1306.h','DHT.h','DHT_U.h','Adafruit_Sensor.h','Adafruit_NeoPixel.h','SoftwareSerial.h','WiFi.h','ESP8266WiFi.h','WiFiUdp.h','EEPROM.h','math.h','stdint.h'];
+export const LIBRARIES = [
+  'Arduino.h',
+  'Wire.h',
+  'SPI.h',
+  'Servo.h',
+  'ESP32Servo.h',
+  'LiquidCrystal_I2C.h',
+  'Adafruit_GFX.h',
+  'Adafruit_SSD1306.h',
+  'DHT.h',
+  'DHT_U.h',
+  'Adafruit_Sensor.h',
+  'Adafruit_NeoPixel.h',
+  'SoftwareSerial.h',
+  'WiFi.h',
+  'ESP8266WiFi.h',
+  'WiFiUdp.h',
+  'EEPROM.h',
+  'math.h',
+  'stdint.h',
+];
