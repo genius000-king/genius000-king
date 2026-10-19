@@ -11,6 +11,9 @@ export let lastSend = 0;
 /** How often a running simulation sends a snapshot to the UI (set by the UI per device and visibility). */
 export let stateMs = 50;
 
+/** Whether the current debugger halt has been reported to the UI. */
+export let haltReported = false;
+
 export const send = () => {
   if (sim) postMessage({type: 'state', state: sim.snapshot()});
 };
@@ -40,7 +43,11 @@ onmessage = ({data}) => {
         send();
         break;
       case 'pause':
-        sim.running = !sim.running;
+        // while the debugger holds the bench, Run/Pause means continue
+        if (sim.halted) {
+          sim.debugAction('continue');
+          haltReported = false;
+        } else sim.running = !sim.running;
         last = performance.now();
         send();
         break;
@@ -61,6 +68,20 @@ onmessage = ({data}) => {
       case 'serial':
         sim.serial(data.text);
         send();
+        break;
+      case 'breakpoints':
+        sim?.setBreakpoints(data.board, data.lines);
+        break;
+      case 'debug':
+        if (sim?.debugAction(data.action)) {
+          haltReported = false;
+          last = performance.now();
+          accumulator = 0;
+        }
+        send();
+        break;
+      case 'inspect':
+        postMessage({type: 'debug', info: sim?.inspect(data.board) ?? null});
         break;
       case 'config':
         if (data.stateMs >= 16) stateMs = data.stateMs;
@@ -91,6 +112,11 @@ setInterval(() => {
     }
     accumulator -= advanced;
     if (accumulator > 200) accumulator = 200;
+  }
+  if (sim && !sim.running && !haltReported && sim.halted) {
+    haltReported = true;
+    postMessage({type: 'debug', info: sim.inspect()});
+    send();
   }
   if (now - lastSend > stateMs && sim) {
     if (sim.running) send();

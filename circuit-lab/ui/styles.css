@@ -4710,9 +4710,6 @@ p {
   background: #25372c !important;
   color: #e1ebdd;
 }
-.theme-dark .cm-line span {
-  filter: brightness(1.7) saturate(0.75);
-}
 .theme-dark .log-line,
 .theme-dark .signal-view strong,
 .theme-dark .gpio > strong,
@@ -5631,4 +5628,218 @@ p {
 }
 .app.low-power {
   --glass-alpha: 0.92 !important;
+}
+/* Firmware debugger */
+.app .cm-bp-gutter {
+  padding-left: 3px;
+  width: 14px;
+  cursor: pointer;
+}
+.app .cm-bp-gutter .cm-gutterElement {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.app .cm-bp {
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-top: 1px;
+}
+.app .cm-bp-gutter .cm-gutterElement:hover .cm-bp:not(.on) {
+  background: #d9534f44;
+}
+.app .cm-bp.on {
+  background: #e0483e;
+  box-shadow: 0 0 0 1px #00000030;
+}
+.app .cm-bp.here {
+  width: 0;
+  height: 0;
+  border-radius: 0;
+  background: none;
+  border-style: solid;
+  border-width: 5px 0 5px 8px;
+  border-color: transparent transparent transparent #f2c230;
+}
+.app .cm-paused-line {
+  background: #f2c23026 !important;
+  box-shadow: inset 3px 0 #f2c230;
+}
+.app .debug-view {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 14px;
+  height: 100%;
+  min-height: 0;
+}
+.app .debug-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: 10px;
+}
+.app .debug-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.app .debug-bar button {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  background: var(--control);
+}
+.app .debug-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  margin-right: 8px;
+  color: var(--muted);
+}
+.app .debug-state.halted {
+  color: #f2c230;
+  font-weight: 600;
+}
+.app .debug-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  overflow: auto;
+  min-height: 0;
+}
+.app .debug-vars {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.app .debug-var {
+  display: grid;
+  grid-template-columns: minmax(60px, auto) 56px 1fr;
+  gap: 8px;
+  font:
+    11px/1.9 'SFMono-Regular',
+    Consolas,
+    monospace;
+  border-bottom: 1px solid var(--hairline);
+}
+.app .debug-var i {
+  color: var(--muted);
+  font-style: normal;
+}
+.app .debug-var b {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+}
+.app .debug-side {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: auto;
+  border-left: 1px solid var(--hairline);
+  padding-left: 14px;
+}
+.app .debug-side .section-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+.app .debug-frame {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font:
+    11px/1.9 'SFMono-Regular',
+    Consolas,
+    monospace;
+}
+.app .debug-frame span {
+  color: var(--muted);
+  margin-left: auto;
+}
+.app .debug-frame.top {
+  color: #f2c230;
+}
+.app .debug-frame button {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+}
+@media (max-width: 650px) {
+  .app .debug-view {
+    grid-template-columns: 1fr;
+  }
+  .app .debug-columns {
+    grid-template-columns: 1fr;
+  }
+  .app .debug-side {
+    border-left: 0;
+    padding-left: 0;
+  }
+}
+/* Code colours (see ui/editor/Editor.jsx) */
+.app {
+  --code-keyword: #8b3fa8;
+  --code-type: #2f6f8f;
+  --code-function: #9a5a00;
+  --code-number: #1f7a55;
+  --code-string: #b03a2e;
+  --code-comment: #8a948a;
+  --code-macro: #7a4fb0;
+  --code-definition: #283b31;
+}
+.app.theme-dark {
+  --code-keyword: #d08ce6;
+  --code-type: #6cc4e0;
+  --code-function: #f0c674;
+  --code-number: #8fd19e;
+  --code-string: #f29b8b;
+  --code-comment: #7c7f88;
+  --code-macro: #b9a1f2;
+  --code-definition: #e6e6ea;
+}
+.app .debug-view {
+  padding: 12px 18px;
+}
+.app .cm-bp.on.here {
+  width: 10px;
+  height: 10px;
+  border: 0;
+  border-radius: 50%;
+  background: #e0483e;
+  box-shadow: 0 0 0 2px #f2c230;
+}
+.app .tok-keyword {
+  color: var(--code-keyword);
+}
+.app .tok-type {
+  color: var(--code-type);
+}
+.app .tok-function {
+  color: var(--code-function);
+}
+.app .tok-number {
+  color: var(--code-number);
+}
+.app .tok-string {
+  color: var(--code-string);
+}
+.app .tok-comment {
+  color: var(--code-comment);
+  font-style: italic;
+}
+.app .tok-macro {
+  color: var(--code-macro);
+}
+.app .tok-invalid {
+  color: #e0483e;
 }

@@ -24,6 +24,13 @@ export function useShortcuts(wb) {
         save();
         return;
       }
+      // debugger keys work in the code editor too (same keys as most IDEs)
+      const step = {F8: 'continue', F10: 'over', F11: e.shiftKey ? 'out' : 'into'}[e.key];
+      if (step) {
+        e.preventDefault();
+        wb.debugAction(step);
+        return;
+      }
       if (edit) return;
       if (e.code === 'Space') {
         e.preventDefault();

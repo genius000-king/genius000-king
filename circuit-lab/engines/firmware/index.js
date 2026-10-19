@@ -4,3 +4,4 @@ export {VM} from './vm.js';
 export {CompileError} from './errors.js';
 export {castValue} from './types.js';
 export {lex} from './lexer.js';
+export {Debugger, codeLines, functionAt, lineAt} from './debugger.js';

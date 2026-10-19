@@ -20,6 +20,7 @@ import {
   AlertTriangle,
   Calculator,
   BookOpen,
+  Bug,
 } from 'lucide-react';
 import {MODES, PROFILES} from '../../engines/performance/index.js';
 import {IconButton} from '../common/IconButton.jsx';
@@ -154,6 +155,7 @@ export default function WorkspaceMenu() {
             ['network', 'Wi-Fi / UDP', Wifi],
             ['signals', 'Signals', Activity],
             ['i2c', 'I²C bus', Link2],
+            ['debug', 'Firmware debugger', Bug],
             ['diagnostics', 'Circuit diagnostics', AlertTriangle],
           ].map(([key, label, Icon]) => (
             <button

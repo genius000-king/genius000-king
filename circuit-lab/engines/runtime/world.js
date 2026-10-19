@@ -115,7 +115,35 @@ export class LabWorld {
       this.network.tick(this.time);
       this.circuit.step(this.circuit.sharedHardware, this.time);
       if (all.some(s => s.boot === 'runtime error')) this.running = false;
+      // a breakpoint or a finished step halts the whole bench, as a debugger halts the target
+      if (all.some(s => s.debugger.paused)) {
+        this.running = false;
+        break;
+      }
     }
+  }
+  /** Breakpoints for one board, as lines of its concatenated source (see workspace/source-map.js). */
+  setBreakpoints(boardId, lines) {
+    this.devices.get(boardId)?.debugger.setBreakpoints(lines);
+  }
+  /** The board the debugger has halted, if any. */
+  get halted() {
+    for (const s of this.devices.values()) if (s.debugger.paused && s.vm) return s;
+    return null;
+  }
+  /** continue | into | over | out — leaves the pause and lets the bench run again. */
+  debugAction(action) {
+    const s = this.halted;
+    if (!s) return false;
+    s.debugger.resume(s.vm, action === 'continue' ? null : action);
+    this.running = true;
+    return true;
+  }
+  /** Variables and call stack of the halted board, or of the given board while the bench is paused. */
+  inspect(boardId = null) {
+    const s = this.halted ?? this.devices.get(boardId ?? this.project.activeBoard) ?? this.active;
+    if (!s?.vm) return null;
+    return {board: s.boardId, time: this.time, halted: !!s.debugger.paused, ...s.debugger.inspect(s.vm)};
   }
   serial(text) {
     this.active?.uart.push(...Array.from(text + '\n').map(c => c.charCodeAt(0)));

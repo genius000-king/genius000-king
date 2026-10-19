@@ -1,6 +1,7 @@
 import {useEffect} from 'react';
 import {isBoard} from '../../../engines/catalog/boards.js';
 import {filesForBoard, sourceForBoard} from '../../../engines/workspace/project.js';
+import {fileLine} from '../../../engines/workspace/source-map.js';
 
 /** The simulation worker: start, messages, compile errors mapped to files, run/pause, board choice. */
 export function useSimulation(wb) {
@@ -21,13 +22,19 @@ export function useSimulation(wb) {
     sim,
     worker,
   } = wb;
+  const activeBoard = () =>
+    current.current.activeBoard ?? current.current.components.find(c => isBoard(c))?.id;
   useEffect(() => {
-    const w = new Worker(new URL('../../../engines/runtime/sim.worker.js', import.meta.url), {type: 'module'});
+    const w = new Worker(new URL('../../../engines/runtime/sim.worker.js', import.meta.url), {
+      type: 'module',
+    });
     worker.current = w;
     w.onmessage = ({data}) => {
       if (data.type === 'state') setSim(data.state);
+      if (data.type === 'debug') wb.onDebug(data.info);
       if (data.type === 'compiled') {
         setError(null);
+        wb.setDebug(null);
         setCompiled(true);
         notify(
           data.size
@@ -41,18 +48,10 @@ export function useSimulation(wb) {
           data.board !== (current.current.activeBoard ?? current.current.components.find(c => isBoard(c))?.id)
         )
           selectBoard(data.board);
-        let line = data.line ?? 1,
-          file = 'main.ino';
-        for (const [name, text] of Object.entries(current.current.files).sort(([a], [b]) =>
-          a === 'main.ino' ? -1 : b === 'main.ino' ? 1 : a.localeCompare(b)
-        )) {
-          const count = text.split('\n').length;
-          if (line <= count) {
-            file = name;
-            break;
-          }
-          line -= count;
-        }
+        const {file, line} = fileLine(
+          filesForBoard(current.current, data.board ?? activeBoard()),
+          data.line ?? 1
+        );
         setError({message: data.message, line, file});
         if (current.current.files[file] !== undefined) setProject(p => ({...p, activeFile: file}));
         setCompiled(false);

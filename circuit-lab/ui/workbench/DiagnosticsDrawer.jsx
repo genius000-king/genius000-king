@@ -8,6 +8,7 @@ import {
   Link2,
   Wifi,
   AlertTriangle,
+  Bug,
   SkipForward,
   X,
   ChevronRight,
@@ -18,11 +19,17 @@ import {
 import {isBoard} from '../../engines/catalog/boards.js';
 import {terminals, ref} from '../../engines/catalog/types.js';
 import {IconButton} from '../common/IconButton.jsx';
-import {LogicView, ScopeView} from './lazy.jsx';
+import {DebugView, LogicView, ScopeView} from './lazy.jsx';
 import {useWorkbench} from './context.js';
 
 export default function DiagnosticsDrawer() {
   const {
+    breakpoints,
+    clearBreakpoints,
+    debug,
+    debugAction,
+    inspect,
+    removeBreakpoint,
     compiled,
     diagnostics,
     drawer,
@@ -46,6 +53,7 @@ export default function DiagnosticsDrawer() {
             [Grid2X2, 'gpio', 'GPIO'],
             [Link2, 'i2c', 'I²C bus'],
             [Wifi, 'network', 'Wi-Fi'],
+            [Bug, 'debug', 'Debugger'],
             [AlertTriangle, 'diagnostics', 'Diagnostics'],
           ].map(([Icon, key, label]) => (
             <button key={key} className={drawer === key ? 'selected' : ''} onClick={() => setDrawer(key)}>
@@ -67,7 +75,18 @@ export default function DiagnosticsDrawer() {
         </div>
       </div>
       <div className="drawer-content">
-        {drawer === 'scope' ? (
+        {drawer === 'debug' ? (
+          <DebugView
+            debug={debug}
+            sim={sim}
+            breakpoints={breakpoints}
+            boardNames={Object.fromEntries(project.components.filter(isBoard).map(c => [c.id, c.name]))}
+            onAction={debugAction}
+            onInspect={inspect}
+            onClearBreakpoints={clearBreakpoints}
+            onRemoveBreakpoint={removeBreakpoint}
+          />
+        ) : drawer === 'scope' ? (
           <ScopeView sim={sim} project={project} />
         ) : drawer === 'logic' ? (
           <LogicView sim={sim} project={project} />

@@ -27,6 +27,7 @@ import {useHistory} from './hooks/useHistory.js';
 import {useEditing} from './hooks/useEditing.js';
 import {useDerived} from './hooks/useDerived.js';
 import {useSimulation} from './hooks/useSimulation.js';
+import {useDebugger} from './hooks/useDebugger.js';
 import {useSceneCallbacks} from './hooks/useSceneCallbacks.js';
 import {useScene} from './hooks/useScene.js';
 import {useProjectFiles} from './hooks/useProjectFiles.js';
@@ -45,6 +46,7 @@ export function App() {
   Object.assign(wb, useEditing(wb));
   Object.assign(wb, useDerived(wb));
   Object.assign(wb, useSimulation(wb));
+  Object.assign(wb, useDebugger(wb));
   Object.assign(wb, useSceneCallbacks(wb));
   Object.assign(wb, useScene(wb));
   Object.assign(wb, useProjectFiles(wb));

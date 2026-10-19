@@ -2,6 +2,7 @@ import {profileOf, isBoard} from '../catalog/boards.js';
 import {ref} from '../catalog/types.js';
 import {electricalSignature, Circuit} from '../circuit/circuit.js';
 import {compile} from '../firmware/codegen.js';
+import {Debugger} from '../firmware/debugger.js';
 import {VM} from '../firmware/vm.js';
 import {mixin} from '../shared/mixin.js';
 import {apiMethods} from './api.js';
@@ -53,6 +54,7 @@ export const READ_ONLY = new Set([
 export class Simulator {
   constructor(project, boardId = null, sharedCircuit = null) {
     this.boardId = boardId;
+    this.debugger = new Debugger(); // survives resets; its breakpoints move onto each new program
     this.project = project;
     this.signature = electricalSignature(project);
     this.circuit = sharedCircuit ?? new Circuit(project);
@@ -156,6 +158,7 @@ export class Simulator {
     this.timers = {};
     this.resetPeripherals();
     this.vm = this.program ? new VM(this.program, this) : null;
+    this.debugger.bind(this.program);
     this.oled.text = '';
     this.oled.screens = {};
     this.oled.gfx = {};

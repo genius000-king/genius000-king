@@ -24,6 +24,7 @@ export function compile(source, options = {}) {
   };
   const items = new Parser(lex(source)).program(),
     funcs = {},
+    varTypes = {}, // slot -> declared type, for the debugger's variable view
     code = [],
     globalVars = new Map(),
     objects = new Map(),
@@ -421,6 +422,7 @@ export function compile(source, options = {}) {
     if (d.static && !isGlobal) {
       slot = currentFn + '::' + d.name;
     }
+    varTypes[slot] = d.dims.length ? `${d.vtype}[]` : d.vtype;
     if (d.dims.length) {
       if (d.dims.length > 2) throw new CompileError('Arrays support at most two dimensions', d.line);
       if (
@@ -513,8 +515,15 @@ export function compile(source, options = {}) {
     else build();
   };
   const staticInit = [];
+  // The first instruction of every statement carries its source line (`s`): the debugger stops there.
   const stmt = n => {
     if (!n) return;
+    const start = code.length;
+    statement(n);
+    if (n.type !== 'block' && n.line && code.length > start && code[start].s === undefined)
+      code[start].s = n.line;
+  };
+  const statement = n => {
     switch (n.type) {
       case 'block':
         n.body.forEach(stmt);
@@ -657,6 +666,7 @@ export function compile(source, options = {}) {
   emit('jump', repeat);
   for (const [name, f] of fnDefs) {
     funcs[name] = {pc: code.length, params: f.params.map(p => p.name)};
+    for (const p of f.params) varTypes[name + '::' + p.name] = p.array ? `${p.type}[]` : p.type;
     currentFn = name;
     locals = new Map(
       f.params.map(p => [p.name, {type: p.type, array: p.array, dims: p.array ? [0] : undefined}])
@@ -677,6 +687,7 @@ export function compile(source, options = {}) {
     code,
     funcs,
     globals: [...globalVars.keys()],
+    varTypes,
     objects: Object.fromEntries(objects),
     size: code.length,
     profile: profile?.key ?? null,

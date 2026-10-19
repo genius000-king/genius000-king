@@ -28,6 +28,9 @@ import {useWorkbench} from './context.js';
 
 export default function EditorPanel() {
   const {
+    fileBreakpoints,
+    pausedLine,
+    toggleBreakpoint,
     change,
     compiled,
     dock,
@@ -145,6 +148,9 @@ export default function EditorPanel() {
             file={project.activeFile}
             value={project.files[project.activeFile]}
             error={error?.file === project.activeFile ? error : null}
+            breakpoints={fileBreakpoints}
+            pausedLine={pausedLine}
+            onToggleBreakpoint={toggleBreakpoint}
             onChange={value => {
               setCompiled(false);
               change(p => {

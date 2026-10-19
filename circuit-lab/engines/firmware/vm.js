@@ -44,7 +44,8 @@ export class VM {
     else this.globals[name] = v;
   }
   run(now, budget = 4000) {
-    if (this.halted) return;
+    const dbg = this.host?.debugger;
+    if (this.halted || dbg?.paused) return;
     if (this.waiting) {
       if (!this.waiting.done) return;
       this.stack.push(this.waiting.result ?? 0);
@@ -65,6 +66,11 @@ export class VM {
     while (spent++ < budget) {
       const c = this.program.code[this.pc++];
       if (!c) throw Error('Invalid program counter');
+      // statement start: the debugger may halt here (breakpoint or step)
+      if (c.s !== undefined && dbg?.armed && dbg.shouldPause(this, this.pc - 1, c.s)) {
+        this.pc--;
+        return;
+      }
       this.instructions++;
       switch (c.op) {
         case 'push':
