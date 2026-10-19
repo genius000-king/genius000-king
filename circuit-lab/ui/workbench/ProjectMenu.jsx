@@ -1,6 +1,6 @@
 /** Project name, new/open/import/export and examples. */
 import {Save, Download, FolderOpen, Box, FileDown, FileCode2, Image} from 'lucide-react';
-import {PROJECTS} from '../../engines/projects/projects.js';
+import {PROJECTS} from '../../engines/projects/index.js';
 import {download, bomCsv, spiceNetlist} from '../../engines/workspace/exporters.js';
 import {useWorkbench} from './context.js';
 

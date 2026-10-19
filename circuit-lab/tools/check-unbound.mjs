@@ -32,7 +32,7 @@ const globals = new Set(
     'process',
   ])
 );
-for (const f of process.argv.slice(2)) {
+for (const f of process.argv.slice(2).filter(f => fs.existsSync(f))) {
   const ast = parse(fs.readFileSync(f, 'utf8'), {sourceType: 'module', plugins: ['jsx']});
   traverse(ast, {
     Identifier(p) {
