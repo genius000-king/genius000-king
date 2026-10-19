@@ -45,7 +45,8 @@ export function useWorkbenchState() {
     [fileName, setFileName] = useState('helpers.ino'),
     [gallery, setGallery] = useState(false),
     [tools, setTools] = useState(false),
-    [full, setFull] = useState(false);
+    [full, setFull] = useState(false),
+    [build, setBuild] = useState(null); // memory report of the last compile
   const sceneRoot = useRef(null),
     scene = useRef(null),
     worker = useRef(null),
@@ -74,6 +75,8 @@ export function useWorkbenchState() {
       scene: () => scene.current,
     };
   return {
+    build,
+    setBuild,
     project,
     setProject,
     selected,

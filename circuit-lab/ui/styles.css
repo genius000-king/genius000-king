@@ -5843,3 +5843,85 @@ p {
 .app .tok-invalid {
   color: #e0483e;
 }
+.app .ram-meter {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 8px;
+  padding-left: 46px;
+  cursor: help;
+}
+.app .ram-meter::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--hairline);
+}
+.app .ram-meter i {
+  position: absolute;
+  left: 0;
+  max-width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: #6fbf73;
+}
+.app .ram-meter.warn i {
+  background: #e0a030;
+}
+.app .ram-meter.warn {
+  color: #e0a030;
+}
+.app .plotter-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 10px 18px;
+  gap: 8px;
+  min-height: 0;
+}
+.app .plotter-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.app .plotter-bar > span {
+  flex: 1;
+}
+.app .plotter-bar button {
+  height: 26px;
+  padding: 0 9px;
+  border-radius: 7px;
+  font-size: 11px;
+  background: var(--control);
+}
+.app .plot-legend i {
+  width: 10px;
+  height: 3px;
+  border-radius: 2px;
+}
+.app .plot-legend b {
+  font:
+    500 11px 'SFMono-Regular',
+    Consolas,
+    monospace;
+  margin-left: 4px;
+}
+.app .plot-legend.off {
+  opacity: 0.4;
+}
+.app .plotter-canvas {
+  flex: 1;
+  width: 100%;
+  min-height: 120px;
+}
+.app .capture-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+}

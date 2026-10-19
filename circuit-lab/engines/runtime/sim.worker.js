@@ -31,7 +31,12 @@ onmessage = ({data}) => {
         break;
       case 'compile':
         sim.compile(data.source);
-        postMessage({type: 'compiled', size: sim.program.size});
+        postMessage({
+          type: 'compiled',
+          size: sim.program.size,
+          memory: sim.program.memory,
+          board: sim.active?.boardId,
+        });
         send();
         break;
       case 'run':
@@ -39,7 +44,12 @@ onmessage = ({data}) => {
         sim.start();
         last = performance.now();
         accumulator = 0;
-        postMessage({type: 'compiled', size: sim.program?.size ?? 0});
+        postMessage({
+          type: 'compiled',
+          size: sim.program?.size ?? 0,
+          memory: sim.program?.memory,
+          board: sim.active?.boardId,
+        });
         send();
         break;
       case 'pause':

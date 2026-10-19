@@ -1,4 +1,6 @@
 import {Gauge} from 'lucide-react';
+import {toVcd} from '../../engines/instruments/capture.js';
+import {saveFile, slugOf} from '../common/save-file.js';
 import {fmtNum} from './format.js';
 
 export function LogicView({sim, project}) {
@@ -29,8 +31,15 @@ export function LogicView({sim, project}) {
           span = t.at(-1) - t0 || 1;
         return (
           <div key={c.id}>
-            <div className="eyebrow">
+            <div className="eyebrow capture-head">
               {c.name.toUpperCase()} · {fmtNum(span, 0)} ms · threshold {c.params.threshold} V
+              <button
+                className="small-action"
+                title="Value Change Dump for PulseView, GTKWave or sigrok"
+                onClick={() => saveFile(`${slugOf(c.name)}.vcd`, toVcd(s), 'text/plain')}
+              >
+                Export VCD
+              </button>
             </div>
             <svg viewBox="0 0 1000 200" preserveAspectRatio="none" className="logic-plot">
               {Array.from({length: 8}, (_, ch) => {

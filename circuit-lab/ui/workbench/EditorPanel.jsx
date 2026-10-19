@@ -28,6 +28,7 @@ import {useWorkbench} from './context.js';
 
 export default function EditorPanel() {
   const {
+    build,
     fileBreakpoints,
     pausedLine,
     toggleBreakpoint,
@@ -196,6 +197,22 @@ export default function EditorPanel() {
                 <>
                   <CheckCircle2 size={12} />
                   Build ready
+                  {build?.max && (
+                    <span
+                      className={`ram-meter ${build.warning ? 'warn' : ''}`}
+                      title={[
+                        build.reserved.length
+                          ? `${build.board}: global variables use ${build.used} bytes (${build.percent}%) of ${build.max} bytes of RAM, leaving ${build.max - build.used} for local variables.`
+                          : `${build.board}: the sketch's global variables use ${build.used} bytes (${build.percent}%) of ${build.max} bytes. The board's core and Wi-Fi stack take more that is not counted here.`,
+                        ...build.items.slice(0, 8).map(i => `  ${i.name} (${i.type}) ${i.bytes} B`),
+                        ...build.reserved.map(r => `  ${r.name} ≈${r.bytes} B`),
+                        build.warning ?? '',
+                      ].join('\n')}
+                    >
+                      <i style={{width: `${0.4 * Math.min(100, build.percent)}px`}} />
+                      RAM {build.percent}%
+                    </span>
+                  )}
                 </>
               ) : (
                 <>C++ subset · UTF-8</>

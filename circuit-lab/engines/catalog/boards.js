@@ -335,6 +335,7 @@ export const PROFILES = {
     vendor: 'Espressif',
     mcu: 'ESP32-D0WD-V3 · dual-core Xtensa LX6 · 240 MHz',
     memory: '4 MB flash · 520 KB SRAM',
+    ramBytes: 327680, // the Arduino IDE's "Maximum is … bytes" of dynamic memory
     core: 'esp32',
     family: 'esp32',
     size: [27.94, 48.26],
@@ -425,6 +426,7 @@ export const PROFILES = {
     vendor: 'Arduino',
     mcu: 'ATmega328P · 8-bit AVR · 16 MHz',
     memory: '32 KB flash · 2 KB SRAM · 1 KB EEPROM',
+    ramBytes: 2048, // the Arduino IDE's "Maximum is … bytes" of dynamic memory
     core: 'avr',
     family: 'avr',
     size: [68.58, 53.34],
@@ -502,6 +504,7 @@ export const PROFILES = {
     vendor: 'Arduino',
     mcu: 'ATmega328P · 8-bit AVR · 16 MHz',
     memory: '32 KB flash · 2 KB SRAM',
+    ramBytes: 2048, // the Arduino IDE's "Maximum is … bytes" of dynamic memory
     core: 'avr',
     family: 'avr',
     size: [18, 45],
@@ -580,6 +583,7 @@ export const PROFILES = {
     vendor: 'Arduino',
     mcu: 'ATmega2560 · 8-bit AVR · 16 MHz',
     memory: '256 KB flash · 8 KB SRAM · 4 KB EEPROM',
+    ramBytes: 8192, // the Arduino IDE's "Maximum is … bytes" of dynamic memory
     core: 'avr',
     family: 'avr',
     size: [101.6, 53.34],
@@ -655,6 +659,7 @@ export const PROFILES = {
     vendor: 'Raspberry Pi',
     mcu: 'RP2040 · dual-core Arm Cortex-M0+ · 133 MHz',
     memory: '2 MB flash · 264 KB SRAM',
+    ramBytes: 262144, // the Arduino IDE's "Maximum is … bytes" of dynamic memory
     core: 'rp2040',
     family: 'rp2040',
     size: [21, 51],
@@ -714,6 +719,7 @@ export const PROFILES = {
     vendor: 'Espressif · NodeMCU',
     mcu: 'ESP8266EX · Tensilica L106 · 80 MHz',
     memory: '4 MB flash · 80 KB user RAM',
+    ramBytes: 81920, // the Arduino IDE's "Maximum is … bytes" of dynamic memory
     core: 'esp8266',
     family: 'esp8266',
     size: [25.6, 48.3],
@@ -797,6 +803,7 @@ export const PROFILES = {
     vendor: 'STMicroelectronics MCU · generic board',
     mcu: 'STM32F103C8T6 · Arm Cortex-M3 · 72 MHz',
     memory: '64 KB flash · 20 KB SRAM',
+    ramBytes: 20480, // the Arduino IDE's "Maximum is … bytes" of dynamic memory
     core: 'stm32',
     family: 'stm32',
     size: [22.86, 53],

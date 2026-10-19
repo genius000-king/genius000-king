@@ -1,5 +1,7 @@
 import {Waves} from 'lucide-react';
 import {useState} from 'react';
+import {toCsv} from '../../engines/instruments/capture.js';
+import {saveFile, slugOf} from '../common/save-file.js';
 import {stats, frequency, fmtNum} from './format.js';
 
 export function ScopeView({sim, project}) {
@@ -64,7 +66,16 @@ export function ScopeView({sim, project}) {
               <path d={path(1)} className="ch2" />
             </svg>
             <div className="scope-side">
-              <div className="eyebrow">{c.name.toUpperCase()}</div>
+              <div className="eyebrow capture-head">
+                {c.name.toUpperCase()}
+                <button
+                  className="small-action"
+                  title="Both channels as CSV (time in ms, volts)"
+                  onClick={() => saveFile(`${slugOf(c.name)}.csv`, toCsv(s), 'text/csv')}
+                >
+                  CSV
+                </button>
+              </div>
               {[0, 1].map(ch => {
                 const st = stats(chans[ch]),
                   f = frequency(tt, chans[ch]);

@@ -21,6 +21,7 @@ import {
   Calculator,
   BookOpen,
   Bug,
+  LineChart,
 } from 'lucide-react';
 import {MODES, PROFILES} from '../../engines/performance/index.js';
 import {IconButton} from '../common/IconButton.jsx';
@@ -149,6 +150,7 @@ export default function WorkspaceMenu() {
           <summary>Instruments</summary>
           {[
             ['serial', 'Serial monitor', Terminal],
+            ['plotter', 'Serial plotter', LineChart],
             ['scope', 'Oscilloscope', Waves],
             ['logic', 'Logic analyzer', Gauge],
             ['gpio', 'GPIO', Grid2X2],

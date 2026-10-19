@@ -24,6 +24,7 @@ export const Library = later(named(() => import('../panels/Library.jsx'), 'Libra
 export const ToolsModal = later(named(() => import('../panels/ToolsModal.jsx'), 'ToolsModal'));
 export const ScopeView = later(named(() => import('../panels/ScopeView.jsx'), 'ScopeView'));
 export const DebugView = later(named(() => import('../panels/DebugView.jsx'), 'DebugView'));
+export const PlotterView = later(named(() => import('../panels/PlotterView.jsx'), 'PlotterView'));
 export const LogicView = later(named(() => import('../panels/LogicView.jsx'), 'LogicView'));
 export const Editor = later(
   () => import('../editor/Editor.jsx'),

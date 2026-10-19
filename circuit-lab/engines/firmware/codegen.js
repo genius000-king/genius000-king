@@ -25,6 +25,7 @@ export function compile(source, options = {}) {
   const items = new Parser(lex(source)).program(),
     funcs = {},
     varTypes = {}, // slot -> declared type, for the debugger's variable view
+    memory = [], // statically allocated variables and their size on this board
     code = [],
     globalVars = new Map(),
     objects = new Map(),
@@ -423,6 +424,10 @@ export function compile(source, options = {}) {
       slot = currentFn + '::' + d.name;
     }
     varTypes[slot] = d.dims.length ? `${d.vtype}[]` : d.vtype;
+    // static RAM: globals and static locals (a const scalar with a literal value is folded away by the compiler)
+    const ram = bytes => {
+      if (isGlobal || d.static) memory.push({name: d.name, type: varTypes[slot], bytes});
+    };
     if (d.dims.length) {
       if (d.dims.length > 2) throw new CompileError('Arrays support at most two dimensions', d.line);
       if (
@@ -432,6 +437,7 @@ export function compile(source, options = {}) {
         typeof d.init.value === 'string'
       ) {
         scope.set(d.name, {type: 'String', slot});
+        ram(d.init.value.length + 1);
         if (d.static && !isGlobal)
           staticInit.push(() => {
             emit('push', d.init.value);
@@ -483,6 +489,7 @@ export function compile(source, options = {}) {
       const total = dims.reduce((a, b) => a * b, 1);
       if (flat.length > total) throw new CompileError(`Too many initializers for “${d.name}”`, d.line);
       scope.set(d.name, {type: d.vtype, array: true, dims, stride: dims[1] ?? 1, const: d.const, slot});
+      ram(elemSize(d.vtype) * total);
       const build = () => {
         for (const it of flat) {
           if (it) {
@@ -500,6 +507,7 @@ export function compile(source, options = {}) {
     const info = {type: d.vtype, const: d.const, slot};
     if (d.const && d.init?.type === 'literal' && typeof d.init.value === 'number')
       info.constValue = d.init.value;
+    else ram(elemSize(d.vtype));
     const build = () => {
       if (d.init) {
         if (d.init.type === 'list') throw new CompileError('Only arrays use { } initializers', d.line);
@@ -688,6 +696,22 @@ export function compile(source, options = {}) {
     funcs,
     globals: [...globalVars.keys()],
     varTypes,
+    memory: {
+      items: memory,
+      // libraries whose fixed buffers count on small boards
+      uses: ['Serial', 'Wire']
+        .filter(lib =>
+          code.some(
+            c =>
+              c.op === 'call' &&
+              typeof c.a === 'string' &&
+              (c.a.startsWith(lib) || (lib === 'Wire' && /^(LCD|OLED)\./.test(c.a)))
+          )
+        )
+        .concat(
+          Object.values(objects).some(o => /LiquidCrystal_I2C|SSD1306/.test(o.cls ?? o)) ? ['Wire'] : []
+        ),
+    },
     objects: Object.fromEntries(objects),
     size: code.length,
     profile: profile?.key ?? null,

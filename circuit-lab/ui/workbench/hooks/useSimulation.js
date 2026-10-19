@@ -1,5 +1,6 @@
 import {useEffect} from 'react';
-import {isBoard} from '../../../engines/catalog/boards.js';
+import {isBoard, profileOf} from '../../../engines/catalog/boards.js';
+import {memoryReport} from '../../../engines/instruments/memory.js';
 import {filesForBoard, sourceForBoard} from '../../../engines/workspace/project.js';
 import {fileLine} from '../../../engines/workspace/source-map.js';
 
@@ -36,11 +37,15 @@ export function useSimulation(wb) {
         setError(null);
         wb.setDebug(null);
         setCompiled(true);
+        const board = current.current.components.find(c => c.id === data.board),
+          report = data.memory && board ? memoryReport({memory: data.memory}, profileOf(board)) : null;
+        wb.setBuild(report && {...report, size: data.size, board: board.name});
         notify(
           data.size
-            ? `Compiled successfully · ${data.size} instructions`
+            ? `Compiled · ${data.size} instructions${report?.max ? ` · RAM ${report.used} of ${report.max} bytes (${report.percent}%)` : ''}`
             : 'Simulation running · no microcontroller firmware'
         );
+        if (report?.warning) notify(`${report.warning} RAM ${report.percent}% used on ${board.name}.`);
       }
       if (data.type === 'error') {
         if (

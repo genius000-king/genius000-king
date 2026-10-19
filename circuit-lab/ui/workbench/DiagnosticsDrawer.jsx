@@ -9,6 +9,7 @@ import {
   Wifi,
   AlertTriangle,
   Bug,
+  LineChart,
   SkipForward,
   X,
   ChevronRight,
@@ -19,7 +20,7 @@ import {
 import {isBoard} from '../../engines/catalog/boards.js';
 import {terminals, ref} from '../../engines/catalog/types.js';
 import {IconButton} from '../common/IconButton.jsx';
-import {DebugView, LogicView, ScopeView} from './lazy.jsx';
+import {DebugView, LogicView, PlotterView, ScopeView} from './lazy.jsx';
 import {useWorkbench} from './context.js';
 
 export default function DiagnosticsDrawer() {
@@ -47,6 +48,7 @@ export default function DiagnosticsDrawer() {
         <div className="drawer-tabs">
           {[
             [Terminal, 'serial', 'Serial monitor'],
+            [LineChart, 'plotter', 'Plotter'],
             [Waves, 'scope', 'Oscilloscope'],
             [Gauge, 'logic', 'Logic'],
             [Activity, 'signals', 'Signals'],
@@ -86,6 +88,8 @@ export default function DiagnosticsDrawer() {
             onClearBreakpoints={clearBreakpoints}
             onRemoveBreakpoint={removeBreakpoint}
           />
+        ) : drawer === 'plotter' ? (
+          <PlotterView sim={sim} onClear={() => send('clear')} />
         ) : drawer === 'scope' ? (
           <ScopeView sim={sim} project={project} />
         ) : drawer === 'logic' ? (
