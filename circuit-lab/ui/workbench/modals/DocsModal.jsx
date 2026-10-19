@@ -75,6 +75,27 @@ export default function DocsModal() {
           </p>
         </details>
         <details>
+          <summary>Developer tools</summary>
+          <p>
+            <b>Debugger.</b> Click left of a line number to set a breakpoint, then Run. The whole bench halts
+            there, as a hardware debugger halts the chip. The Debugger tab shows the line, the locals and
+            globals with their types, and the call stack. <kbd>F10</kbd> step over, <kbd>F11</kbd> step into,{' '}
+            <kbd>Shift</kbd>+<kbd>F11</kbd> step out, <kbd>F8</kbd> continue.
+          </p>
+          <p>
+            <b>Serial Plotter.</b> Print numbers, one sample per line; <code>label:value</code> pairs name the
+            series, as in the Arduino IDE.
+          </p>
+          <p>
+            <b>RAM.</b> After compiling, the meter next to “Build ready” shows how much RAM the sketch’s
+            global variables use on this board (the AVR core and Serial/Wire buffers included on AVR). Above
+            75 % the sketch is likely to misbehave, as the IDE warns. Flash is not estimated.
+          </p>
+          <p>
+            <b>Exports.</b> Logic analyzer → VCD (PulseView, GTKWave); oscilloscope → CSV.
+          </p>
+        </details>
+        <details>
           <summary>Electrical model & timing</summary>
           <p>
             Modified nodal analysis solved every simulated millisecond, with 1/5/20 substeps (Simulation

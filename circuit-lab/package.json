@@ -7,7 +7,8 @@
     "dev": "next dev -H 0.0.0.0 -p 5173",
     "build": "next build",
     "start": "node tools/serve.mjs 5173",
-    "test": "node --test tests/*.test.js"
+    "test": "node --test tests/*.test.js",
+    "check": "node --test tests/*.test.js && node tools/check-unbound.mjs $(git ls-files 'engines/*.js' 'ui/*.js' 'ui/*.jsx' 'app/*.jsx')"
   },
   "dependencies": {
     "@codemirror/commands": "^6.8.1",

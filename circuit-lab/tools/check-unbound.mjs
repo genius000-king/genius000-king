@@ -32,16 +32,20 @@ const globals = new Set(
     'process',
   ])
 );
+const report = (...a) => {
+  console.log(...a);
+  process.exitCode = 1;
+};
 for (const f of process.argv.slice(2).filter(f => fs.existsSync(f))) {
   const ast = parse(fs.readFileSync(f, 'utf8'), {sourceType: 'module', plugins: ['jsx']});
   traverse(ast, {
     Identifier(p) {
       if (p.isReferencedIdentifier() && !p.scope.hasBinding(p.node.name) && !globals.has(p.node.name))
-        console.log(f + ':' + p.node.loc.start.line, p.node.name);
+        report(f + ':' + p.node.loc.start.line, p.node.name);
     },
     JSXIdentifier(p) {
       if (/^[A-Z]/.test(p.node.name) && p.isReferencedIdentifier() && !p.scope.hasBinding(p.node.name))
-        console.log(f + ':' + p.node.loc.start.line, p.node.name);
+        report(f + ':' + p.node.loc.start.line, p.node.name);
     },
   });
 }

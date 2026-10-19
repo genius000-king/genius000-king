@@ -1,33 +1,31 @@
 # Circuit Lab handoff
 
-User priorities (unchanged): charcoal black/gray UI, highly transparent glass, minimal visible controls. 3D models must use real, sourced proportions, colors and markings. Electronics and interactions must behave like the real thing. Send real in-app screenshots while working, with no separate display or gallery site. Be honest about limits.
+User priorities (unchanged): charcoal black/gray UI, highly transparent glass, minimal visible controls. 3D models must use real, sourced proportions, colors and markings. Electronics and interactions must behave like the real thing. Send real in-app screenshots while working, with no separate display or gallery site. Be honest about limits. The code must stay split into independent engines with small named functions, and the site must load in stages and run on weak devices.
 
 ## State
 
-- 7 boards with per-board profiles, 84 parts, 56 projects (all executed and physically checked by `tests/projects.test.js`).
-- Transient MNA engine with nonlinear semiconductors, companion models for C/L, switching PWM, behavioural ICs, bus/UART/Wi-Fi models. See README "Simulation model" for the exact limits.
-- Typed compiler/VM with library classes. API availability depends on the board.
-- Breadboard seating (`src/snap.js`) creates explicit `kind:'contact'` connections. Hole-to-hole wires are flat solid-core jumpers bent at right angles, with a small per-wire lift so crossings don't share a surface. Other wires are Dupont jumpers with housings. Instrument leads lie on the bench and drape over obstacles (`benchBoxes`/`layoutKey` in `scene.js`). The render loop resizes itself whenever the canvas and its container disagree (the ResizeObserver alone missed drawer openings).
-- UI: library with live thumbnails, schema inspector, project gallery, scope/logic drawer, calculators, BOM/SPICE/JSON export, file import (projects and `.ino` sources), and an in-app reference that matches the README.
-- Hand controls in 3D: pot/encoder shafts turn by dragging, the joystick tilts and springs back, the meter dial and tilt switch click (`tests/hand-controls.mjs`).
-- Full screen button (real Fullscreen API, immersive CSS fallback for iPhone). Phones: aspect-aware `fit()` (projects the box corners and binary-searches the distance), `phoneView()` turns long circuits to run up a portrait screen, bottom-sheet inspector, thumb-sized controls, double-tap to frame, and `touchend` preventDefault on the canvas so taps cannot ghost-click a panel that opens under the finger (`tests/mobile.mjs`).
-- `npm test`: 153 passing (`tests/newparts.test.js` covers the transformer, rectifiers, fuse, LM317, buck, solar, gates, CD4017, L293D, ULN2003 + stepper, LM393, PC817 and the rest). Browser: `tests/app-tour.mjs` (13 shots, zero page errors). The legacy workflows were ported to the project gallery and portable paths.
+- Next.js 16 App Router, static export (`out/`), no server code. Engines in `engines/` (catalog, circuit, firmware, runtime, render, workspace, projects, instruments, performance), UI in `ui/` (workbench shell + 15 hooks + one component per panel). README "Architecture" has the map and how to add a part.
+- 7 boards, 83 parts + 3 breadboards, 59 projects (every one executed by `tests/projects.test.js`).
+- Developer tools: firmware debugger (breakpoints, step into/over/out, locals/globals/call stack; the bench halts), Serial Plotter, RAM report after compile, VCD/CSV export.
+- Inductive parts: inductor, toroid, choke, transformers (coupled windings), relay, KY-019 relay module, JF-0530B solenoid. LC ringing project matches theory within 2 % at the Precise setting.
+- Staged loading (splash → workbench + 3D + worker in parallel → panels and model categories on first use), service worker for repeat/offline visits, performance engine (Battery saver / Automatic / Quality, adaptive resolution, render-on-change, hidden-tab throttling).
+- `npm test`: 169 passing. `npm run check` adds the unbound-identifier check. Browser tests (zero page errors): app-tour, debugger-ui, dev-tools, performance-modes, offline, mobile, hand-controls, new-parts-shots and the workflow suites.
 
 ## Verify
 
 ```sh
-npm ci && npm test
-npm run dev &
-node tests/app-tour.mjs            # screenshots/01…13
-node tests/showcase.mjs screenshots/x.png uno,nano,pico 3 90
-npx vite build --config vite.standalone.config.js && cp standalone/index.html Circuit-Lab.html
+npm ci && npm run check
+npm run build && npm start &          # production build on 127.0.0.1:5173
+node tests/app-tour.mjs               # screenshots/01…13
+node tests/debugger-ui.mjs && node tests/dev-tools.mjs && node tests/performance-modes.mjs
+node tests/load-budget.mjs            # bytes per loading stage
 ```
 
-## Next work (most valuable first)
+## Known limits and next work (most valuable first)
 
-1. Model pass still worth doing: relay *module* variant (blue PCB, transistor, flyback diode, screw terminal), 18650 holder vs LiPo pouch choice, MQ-2 mesh texture, servo horn variants.
-2. Large-circuit performance: the dense LU is O(n³). Switch to sparse LU or a KLU-style ordering before exceeding about 300 active nets.
-3. Firmware: structs, user classes, pointers to arrays.
-4. Real-GPU WebGPU verification (QA so far is SwiftShader WebGL2).
-
-Continue development from the sources. `Circuit-Lab.html` is a generated, minified snapshot.
+1. Solver: dense LU is O(n³); move to sparse LU before about 300 active nets. Backward Euler damps high-Q resonances slightly; a trapezoidal option for L/C would fix it (watch for trapezoidal ringing on switching edges).
+2. Debugger: breakpoints are line numbers and do not move when lines are inserted above them; no conditional breakpoints or watch expressions yet.
+3. RAM report counts the sketch's globals exactly but not core/library RAM on ESP32/RP2040/STM32 (said so in the tooltip). Flash is deliberately not estimated.
+4. Firmware: structs, user classes, pointers to arrays.
+5. Real-GPU WebGPU verification (QA so far is SwiftShader WebGL2).
+6. Model pass: relay module variants (low-level trigger, 2/4 channel), MQ-2 mesh texture, servo horn variants.
