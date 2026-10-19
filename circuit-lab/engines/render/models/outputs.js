@@ -17,6 +17,8 @@ import {
   pcbBoard,
   smdR,
   screen,
+  ledSmd,
+  maleHeader,
 } from '../geo.js';
 import {roundLead, halo, lead, rbox, pinUp, lathe} from './kit.js';
 
@@ -98,6 +100,119 @@ export const outputsModels = {
     /* The SRD case is sealed: the armature moves but cannot be seen */ arm.visible = false;
     g.add(arm);
     g.userData.armature = arm;
+  },
+  relaymodule(g, c) {
+    /* KY-019: 34 × 27 black PCB; 3-pin header (S + −) at one end, blue Songle SRD-05VDC-SL-C in the middle,
+       3-way 5.0 mm screw terminal (NO COM NC) at the other; S8050, 1N4007 (M7) and a red LED on the board */
+    const top = pcbBoard(g, 34, 27, '#18181b', {y: 1, r: 1.2});
+    maleHeader(
+      g,
+      [
+        [-14.5, -2.54],
+        [-14.5, 0],
+        [-14.5, 2.54],
+      ],
+      top
+    );
+    for (const [z, l] of [
+      [-2.54, 'S'],
+      [0, '+'],
+      [2.54, '−'],
+    ]) {
+      pinUp(g, -14.5, z, top + 2.5 + 5.8);
+      text(g, l, -11.6, top + 0.02, z, 2, 2, '#eeeeee', 36, 0, 700, 'sans-serif');
+    }
+    // relay body: 19.2 × 15.6 footprint, 15.5 tall, lid printing like the real part
+    box(g, 19.2, 15.5, 15.6, -0.6, top + 7.75, 0, mat('#2a63c4', 0.05, 0.35));
+    text(g, 'SONGLE', -0.6, top + 15.52, -4.6, 12, 2.4, '#eef2ff', 36, 0, 700, 'sans-serif');
+    text(g, 'SRD-05VDC-SL-C', -0.6, top + 15.52, -1.2, 15, 1.6, '#eef2ff');
+    text(g, '10A 250VAC  10A 30VDC', -0.6, top + 15.52, 1.6, 15, 1.3, '#eef2ff');
+    text(g, '10A 125VAC  10A 28VDC', -0.6, top + 15.52, 3.8, 15, 1.3, '#eef2ff');
+    // screw terminal: blue PA66 body, wire entries facing outwards, brass screws on top
+    box(g, 7.6, 10, 15.2, 13.3, top + 5, 0, mat('#1f5fd0', 0.05, 0.45));
+    for (const z of [-5, 0, 5]) {
+      box(g, 0.2, 3.6, 3.6, 17.12, top + 3.2, z, mat('#0b0b0c', 0, 0.9));
+      cyl(g, 1.55, 0.6, 13.3, top + 10.3, z, mat('#c9a14c', 0.9, 0.28), 20);
+      box(g, 3, 0.25, 0.45, 13.3, top + 10.65, z, mat('#3b2f14', 0.3, 0.7));
+    }
+    text(g, 'NO', 8.6, top + 0.02, -5, 3.2, 1.6, '#eeeeee', 36, Math.PI / 2, 700, 'sans-serif');
+    text(g, 'COM', 8.6, top + 0.02, 0, 4.2, 1.6, '#eeeeee', 36, Math.PI / 2, 700, 'sans-serif');
+    text(g, 'NC', 8.6, top + 0.02, 5, 3.2, 1.6, '#eeeeee', 36, Math.PI / 2, 700, 'sans-serif');
+    // driver: S8050 (SOT-23 "J3Y"), 1N4007 (SMA "M7"), resistors, power LED
+    box(g, 2.9, 1, 1.3, -11.5, top + 0.5, -8.6, mat('#1b1b1d', 0.05, 0.6));
+    text(g, 'J3Y', -11.5, top + 1.02, -8.6, 2.4, 1, '#c9c9cf');
+    box(g, 4.3, 2.1, 2.6, -11.3, top + 1.05, 9.2, mat('#202022', 0.05, 0.55));
+    box(g, 0.6, 0.03, 2.4, -9.6, top + 2.12, 9.2, mat('#c9c9cf'));
+    text(g, 'M7', -11.6, top + 2.13, 9.2, 2.4, 1, '#c9c9cf');
+    smdR(g, -7.3, top, -10.6);
+    smdR(g, -7.3, top, 10.6);
+    const led = ledSmd(g, -11.2, top, -11.4, '#ff2a1f', 1.6);
+    text(g, 'KY-019', 4, top + 0.02, 11.6, 9, 1.8, '#eeeeee', 36, 0, 700, 'sans-serif');
+    for (const [x, z] of [
+      [-14.2, -10.6],
+      [14.4, 10.6],
+    ])
+      cyl(g, 1.3, 0.1, x, top + 0.01, z, mat('#c7c9cc', 0.9, 0.3), 20);
+    g.userData.relayLed = led;
+  },
+  solenoid(g, c) {
+    /* JF-0530B: zinc-plated U frame 30 × 15.5 × 13, taped coil, Ø6 plunger with return spring, E-ring and
+       rubber washer on the push side; red and black flying leads */
+    const steel = mat('#b9bec4', 0.85, 0.32),
+      base = 1;
+    box(g, 30, 1.2, 15.5, 0, base + 0.6, 0, steel);
+    for (const x of [-14.4, 14.4]) box(g, 1.2, 13, 15.5, x, base + 6.5, 0, steel);
+    const coil = cyl(g, 6.2, 26.6, 0, base + 7, 0, mat('#e8c34a', 0.05, 0.55), 40);
+    coil.rotation.z = Math.PI / 2;
+    for (const x of [-12.9, 12.9]) {
+      const flange = cyl(g, 6.5, 1.2, x, base + 7, 0, mat('#1b1b1d', 0.05, 0.6), 40);
+      flange.rotation.z = Math.PI / 2;
+    }
+    text(g, 'JF-0530B', 0, base + 13.25, 0, 14, 2.4, '#3a3220', 36, 0, 700, 'sans-serif');
+    text(g, 'DC12V', 0, base + 13.25, 3, 8, 1.8, '#3a3220');
+    // the plunger moves along x: pulled in when energized, pushed back out by the spring
+    const plunger = new THREE.Group();
+    plunger.position.set(0, base + 7, 0);
+    g.add(plunger);
+    const rod = cyl(plunger, 3, 46, 6, 0, 0, mat('#d4d8dc', 0.9, 0.22), 28);
+    rod.rotation.z = Math.PI / 2;
+    const tip = cyl(plunger, 3, 2, -17.5, 0, 0, mat('#d4d8dc', 0.9, 0.22), 28, 2.4);
+    tip.rotation.z = Math.PI / 2;
+    const washer = cyl(plunger, 4.2, 1.2, 25.5, 0, 0, mat('#151517', 0.0, 0.85), 28);
+    washer.rotation.z = Math.PI / 2;
+    const ring = cyl(plunger, 3.6, 0.6, 27, 0, 0, mat('#2b2b2e', 0.7, 0.4), 28);
+    ring.rotation.z = Math.PI / 2;
+    const spring = new THREE.Group();
+    spring.position.set(15.1, base + 7, 0);
+    g.add(spring);
+    const turns = 7,
+      pts = [];
+    for (let i = 0; i <= turns * 24; i++) {
+      const a = (i / 24) * Math.PI * 2;
+      pts.push(new THREE.Vector3((i / (turns * 24)) * 10, Math.cos(a) * 3.9, Math.sin(a) * 3.9));
+    }
+    spring.add(
+      new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), turns * 24, 0.35, 6), steel)
+    );
+    // leads leave the coil at the back and end at the two pin positions
+    for (const [z, col] of [
+      [-2.54, '#c8332b'],
+      [2.54, '#1d1d20'],
+    ]) {
+      polyline(
+        g,
+        [
+          [-12, base + 12.2, z * 0.5],
+          [-15.5, base + 13.5, z],
+          [-18.5, 4, z],
+          [-19, 1, z],
+        ],
+        mat(col, 0.05, 0.55),
+        0.55
+      );
+      box(g, 0.6, 2, 0.6, -19, 1, z, tin());
+    }
+    g.userData.plunger = {plunger, spring};
   },
   motor(g, c) {
     /* FA-130 can: Ø20.1 with two flats 15.1 apart, 25 long, Ø2 brass shaft */ const can = new THREE.Shape();

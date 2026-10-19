@@ -404,3 +404,27 @@ def(
     return done(p, {position: [0, 190, 170], target: [0, 0, 0]});
   }
 );
+def(
+  'lc-ringing',
+  'LC ringing on a scope',
+  'No microcontroller',
+  'Intermediate',
+  ['Inductor', 'Capacitor', 'Resonance f = 1/(2π√LC)'],
+  'A square wave steps a 1 H choke into 10 µF. The capacitor overshoots and rings at f = 1/(2π√(LC)) ≈ 50 Hz; the generator’s 50 Ω output and the 5 Ω winding make it die away (Q = √(L/C)/R ≈ 5.7).',
+  () => {
+    const p = base('LC ringing');
+    // 50 µs steps: the solver's implicit integration damps a 50 Hz resonance noticeably at 0.2 ms
+    p.config = {...p.config, precision: 20};
+    add(p, 'fgen', 'gen', [-85, 0, -10], {wave: 'square', frequency: 2, amplitude: 2.5, offset: 2.5});
+    add(p, 'inductor', 'l', [-15, 0, 40], {inductance: 1, dcr: 5, maxCurrent: 300});
+    add(p, 'electrolytic', 'c', [15, 0, 40], {capacitance: 10e-6, rating: 25});
+    add(p, 'scope', 'scope', [80, 0, -10]);
+    w(p, 'gen:OUT', 'l:A', 'yellow');
+    w(p, 'l:B', 'c:+', 'green');
+    w(p, 'c:-', 'gen:GND', 'black');
+    w(p, 'gen:OUT', 'scope:CH1', 'yellow');
+    w(p, 'c:+', 'scope:CH2', 'blue');
+    w(p, 'scope:GND', 'gen:GND', 'black');
+    return done(p, {position: [0, 140, 230], target: [0, 20, 0]});
+  }
+);

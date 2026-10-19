@@ -80,3 +80,14 @@ export function armature(ud, c, comp, ctx) {
     ctx.changed = true;
   }
 }
+
+export function plunger(ud, c, comp, ctx) {
+  // pulled into the coil by the stroke; the spring between frame and washer compresses with it
+  const x = -(c?.stroke ?? 0),
+    {plunger: rod, spring} = ud.plunger;
+  if (Math.abs(rod.position.x - x) > 0.01) {
+    rod.position.x = x;
+    spring.scale.x = Math.max(0.15, (10 + x) / 10);
+    ctx.changed = true;
+  }
+}

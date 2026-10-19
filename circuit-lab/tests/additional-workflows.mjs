@@ -1,29 +1,201 @@
 import {chromium} from '@playwright/test';
 import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
-const out=new URL('../screenshots/workflows',import.meta.url).pathname;
-const b=await chromium.launch({executablePath:process.env.CHROMIUM??'/opt/pw-browsers/chromium-1194/chrome-linux/chrome',args:['--no-sandbox','--disable-dev-shm-usage','--enable-unsafe-swiftshader','--use-angle=swiftshader','--disable-gpu-compositing']});
-const p=await b.newPage({viewport:{width:1440,height:960}}),errors=[],passed=[];p.setDefaultTimeout(30000);p.on('pageerror',e=>errors.push(e.message));p.on('dialog',d=>d.accept());await p.addInitScript(()=>(sessionStorage.setItem('circuit-lab-force-webgl','1'),sessionStorage.setItem('circuit-lab-debug','1'),localStorage.getItem('circuit-lab-performance')||localStorage.setItem('circuit-lab-performance','quality')));
-const click=loc=>loc.evaluate(el=>el.click());const button=name=>p.getByRole('button',{name,exact:true});
-const shot=async name=>{await p.waitForTimeout(300);await p.screenshot({path:`${out}/${name}.png`});console.log('SCREENSHOT',name);};
-const state=()=>p.evaluate(()=>window.__circuitLab.state());const project=()=>p.evaluate(()=>window.__circuitLab.project());
-const close=async name=>{const el=button(name);if(await el.count())await click(el);};
-const pause=async()=>{if((await state()).running){await click(p.locator('.run-button'));await p.waitForFunction(()=>!window.__circuitLab.state().running);}};
-const example=async name=>{await close('Close instruments');await close('Close editor');await close('Close inspector');const g=p.getByRole('button',{name:'Projects',exact:true}).first();await g.evaluate(el=>el.click());await p.getByLabel('Search projects').fill(name);await p.locator('.project-card',{hasText:name}).first().click();await p.waitForFunction(()=>window.__circuitLab.scene().objects.size>0);};
-try{
- await p.goto('http://127.0.0.1:5173');await p.waitForFunction(()=>window.__circuitLab?.scene()?.objects.size>0);await p.waitForTimeout(800);
- await click(button('Workspace options'));await click(p.getByText('Appearance',{exact:true}));if(await button('Dark mode').count())await click(button('Dark mode'));await p.getByLabel('Workspace panel opacity').focus();await p.keyboard.press('Home');for(let i=0;i<10;i++)await p.keyboard.press('ArrowRight');assert.equal((await project()).appearance.opacity,.22);await shot('23-dark-mode-glass-settings');await click(button('Workspace options'));await click(button('Components'));await shot('24-expanded-component-library');await click(button('Collapse components'));passed.push('Global glass opacity and dark theme update all workspace panels');
- await click(button('Camera controls'));await click(button('Orbit camera left'));await click(button('Orbit camera up'));await click(button('Zoom in'));await shot('25-camera-controls');await click(button('Camera controls'));
- // A real pin pick: project a terminal, then use the pointer on the 3D canvas.
- const point=await p.evaluate(()=>{const s=window.__circuitLab.scene(),v=s.endpoint('esp32:IO34').project(s.camera),r=s.renderer.domElement.getBoundingClientRect();return {x:r.left+(v.x+1)*r.width/2,y:r.top+(1-v.y)*r.height/2};});await p.mouse.click(point.x,point.y);await p.locator('.pin-detail').waitFor();await click(button('Trace net'));await shot('26-click-pin-inspection');await close('Close inspector');passed.push('Clicking a 3D GPIO pin exposes its label, functions and measured voltage');
- await example('LCD workbench');await click(p.locator('.run-button'));await p.waitForFunction(()=>window.__circuitLab.state().oled.lcd?.includes('CIRCUIT LAB'));await pause();await shot('27-lcd-16x2');passed.push('16×2 LCD receives powered I2C text from firmware');
- await example('Two boards');await click(p.locator('.run-button'));await p.waitForFunction(()=>window.__circuitLab.state().components.led.current>.004,{},{timeout:60000});await pause();await click(button('Workspace options'));await click(p.getByText('Instruments',{exact:true}));await click(button('Wi-Fi / UDP'));await shot('28-independent-boards-wifi-udp');assert.ok((await state()).network.events.some(e=>e.type==='delivered'));await close('Close instruments');
- await click(button('Code'));await p.getByLabel('Firmware target board').selectOption('esp32');await p.waitForTimeout(250);assert.match(await p.locator('.cm-content').innerText(),/WiFi.begin/);await shot('29-independent-receiver-firmware');await p.getByLabel('Firmware target board').selectOption('sender');assert.match(await p.locator('.cm-content').innerText(),/WiFi.softAP/);await p.getByLabel('Firmware target board').selectOption('esp32');passed.push('Independent firmware selection preserves sender and receiver sketches; virtual UDP drives receiver LED');
- const receiver=(await project()).files['main.ino'];await p.locator('.cm-content').fill(receiver.replace('learn1234','wrong1234'));await click(button('Upload & run'));await p.waitForFunction(()=>window.__circuitLab.state().network.events.some(e=>e.type==='association failed'),{},{timeout:60000});await pause();assert.equal((await state()).components.led.current,0);await close('Close editor');await click(button('Workspace options'));await click(p.getByText('Instruments',{exact:true}));await click(button('Wi-Fi / UDP'));await shot('30-wifi-credential-failure');passed.push('Wrong Wi-Fi credentials prevent delivery and are visible in network diagnostics');
- await close('Close instruments');await click(button('Code'));await p.locator('.cm-content').fill(receiver);await close('Close editor');await click(p.locator('.project-button'));const download=p.waitForEvent('download');await click(p.locator('.project-menu').getByRole('button',{name:'Export .circuitlab.json',exact:true}));const file=await download;const path=`${out}/two-boards.circuitlab.json`;await file.saveAs(path);const exported=JSON.parse(await fs.readFile(path,'utf8'));assert.equal(exported.appearance.theme,'dark');assert.match(exported.firmware.sender.files['main.ino'],/softAP/);await p.mouse.click(1050,80);await p.waitForTimeout(800);await p.reload();await p.waitForFunction(()=>window.__circuitLab?.scene()?.objects.size===5);assert.equal((await project()).appearance.opacity,.22);assert.match((await project()).files['main.ino'],/learn1234/);passed.push('Export and reload preserve per-board source files, dark theme and global opacity');
- await p.setViewportSize({width:390,height:844});await shot('31-mobile-dark-workspace');await click(button('Components'));await shot('32-mobile-component-library');await click(button('Collapse components'));await p.setViewportSize({width:1440,height:960});
- // Place all six added model types with UI transforms, in a fresh example.
- await example('First light');for(const [name,x,z]of [['LCD 16 × 2',0,-65],['Photoresistor',-65,38],['Thermistor',-50,38],['Slide switch',-35,38],['7-segment display',-70,-10],['Battery 9 V',65,-37]]){await click(button('Components'));await click(p.locator('.component-card').filter({hasText:name}));await click(p.locator('.transform-group>summary'));await p.getByLabel('Position X',{exact:true}).fill(String(x));await p.getByLabel('Position Z',{exact:true}).fill(String(z));await p.getByLabel('Position Y',{exact:true}).fill('0');await p.keyboard.press('Tab');}
- await close('Close inspector');await click(button('Camera controls'));await click(button('Focus circuit'));await click(button('Camera controls'));await shot('33-expanded-3d-components');passed.push('Additional component bodies are separately selectable, positioned and rendered in 3D');
- assert.equal(errors.length,0,JSON.stringify(errors));await fs.writeFile(`${out}/additional-verification.json`,JSON.stringify({passed,errors},null,2));console.log(JSON.stringify({passed,errors},null,2));
-}catch(e){console.error(e);await shot('additional-failure').catch(()=>{});await fs.writeFile(`${out}/additional-failure.txt`,e.stack+'\n'+JSON.stringify(errors));process.exitCode=1;}finally{await b.close();}
+const out = new URL('../screenshots/workflows', import.meta.url).pathname;
+const b = await chromium.launch({
+  executablePath: process.env.CHROMIUM ?? '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
+  args: [
+    '--no-sandbox',
+    '--disable-dev-shm-usage',
+    '--enable-unsafe-swiftshader',
+    '--use-angle=swiftshader',
+    '--disable-gpu-compositing',
+  ],
+});
+const p = await b.newPage({viewport: {width: 1440, height: 960}}),
+  errors = [],
+  passed = [];
+p.setDefaultTimeout(30000);
+p.on('pageerror', e => errors.push(e.message));
+p.on('dialog', d => d.accept());
+await p.addInitScript(
+  () => (
+    sessionStorage.setItem('circuit-lab-force-webgl', '1'),
+    sessionStorage.setItem('circuit-lab-debug', '1'),
+    localStorage.getItem('circuit-lab-performance') ||
+      localStorage.setItem('circuit-lab-performance', 'quality')
+  )
+);
+const click = loc => loc.evaluate(el => el.click());
+const button = name => p.getByRole('button', {name, exact: true});
+const shot = async name => {
+  await p.waitForTimeout(300);
+  await p.screenshot({path: `${out}/${name}.png`});
+  console.log('SCREENSHOT', name);
+};
+const state = () => p.evaluate(() => window.__circuitLab.state());
+const project = () => p.evaluate(() => window.__circuitLab.project());
+const close = async name => {
+  const el = button(name);
+  if (await el.count()) await click(el);
+};
+const pause = async () => {
+  if ((await state()).running) {
+    await click(p.locator('.run-button'));
+    await p.waitForFunction(() => !window.__circuitLab.state().running);
+  }
+};
+const example = async name => {
+  await close('Close instruments');
+  await close('Close editor');
+  await close('Close inspector');
+  const g = p.getByRole('button', {name: 'Projects', exact: true}).first();
+  await g.evaluate(el => el.click());
+  await p.getByLabel('Search projects').fill(name);
+  await p.locator('.project-card', {hasText: name}).first().click();
+  await p.waitForFunction(() => window.__circuitLab.scene().objects.size > 0);
+};
+try {
+  await p.goto('http://127.0.0.1:5173');
+  await p.waitForFunction(() => window.__circuitLab?.scene()?.objects.size > 0);
+  await p.waitForTimeout(800);
+  await click(button('Workspace options'));
+  await click(p.getByText('Appearance', {exact: true}));
+  if (await button('Dark mode').count()) await click(button('Dark mode'));
+  await p.getByLabel('Workspace panel opacity').focus();
+  await p.keyboard.press('Home');
+  for (let i = 0; i < 10; i++) await p.keyboard.press('ArrowRight');
+  assert.equal((await project()).appearance.opacity, 0.22);
+  await shot('23-dark-mode-glass-settings');
+  await click(button('Workspace options'));
+  await click(button('Components'));
+  await shot('24-expanded-component-library');
+  await click(button('Collapse components'));
+  passed.push('Global glass opacity and dark theme update all workspace panels');
+  await click(button('Camera controls'));
+  await click(button('Orbit camera left'));
+  await click(button('Orbit camera up'));
+  await click(button('Zoom in'));
+  await shot('25-camera-controls');
+  await click(button('Camera controls'));
+  // A real pin pick: project a terminal, then use the pointer on the 3D canvas.
+  const point = await p.evaluate(() => {
+    const s = window.__circuitLab.scene(),
+      v = s.endpoint('esp32:IO34').project(s.camera),
+      r = s.renderer.domElement.getBoundingClientRect();
+    return {x: r.left + ((v.x + 1) * r.width) / 2, y: r.top + ((1 - v.y) * r.height) / 2};
+  });
+  await p.mouse.click(point.x, point.y);
+  await p.locator('.pin-detail').waitFor();
+  await click(button('Trace net'));
+  await shot('26-click-pin-inspection');
+  await close('Close inspector');
+  passed.push('Clicking a 3D GPIO pin exposes its label, functions and measured voltage');
+  await example('LCD workbench');
+  await click(p.locator('.run-button'));
+  await p.waitForFunction(() => window.__circuitLab.state().oled.lcd?.includes('CIRCUIT LAB'));
+  await pause();
+  await shot('27-lcd-16x2');
+  passed.push('16×2 LCD receives powered I2C text from firmware');
+  await example('Two boards');
+  await click(p.locator('.run-button'));
+  await p.waitForFunction(
+    () => window.__circuitLab.state().components.led.current > 0.004,
+    {},
+    {timeout: 60000}
+  );
+  await pause();
+  await click(button('Workspace options'));
+  await click(p.getByText('Instruments', {exact: true}));
+  await click(button('Wi-Fi / UDP'));
+  await shot('28-independent-boards-wifi-udp');
+  assert.ok((await state()).network.events.some(e => e.type === 'delivered'));
+  await close('Close instruments');
+  await click(button('Code'));
+  await p.getByLabel('Firmware target board').selectOption('esp32');
+  await p.waitForTimeout(250);
+  assert.match(await p.locator('.cm-content').innerText(), /WiFi.begin/);
+  await shot('29-independent-receiver-firmware');
+  await p.getByLabel('Firmware target board').selectOption('sender');
+  assert.match(await p.locator('.cm-content').innerText(), /WiFi.softAP/);
+  await p.getByLabel('Firmware target board').selectOption('esp32');
+  passed.push(
+    'Independent firmware selection preserves sender and receiver sketches; virtual UDP drives receiver LED'
+  );
+  const receiver = (await project()).files['main.ino'];
+  await p.locator('.cm-content').fill(receiver.replace('learn1234', 'wrong1234'));
+  await click(button('Upload & run'));
+  await p.waitForFunction(
+    () => window.__circuitLab.state().network.events.some(e => e.type === 'association failed'),
+    {},
+    {timeout: 60000}
+  );
+  await pause();
+  assert.equal((await state()).components.led.current, 0);
+  await close('Close editor');
+  await click(button('Workspace options'));
+  await click(p.getByText('Instruments', {exact: true}));
+  await click(button('Wi-Fi / UDP'));
+  await shot('30-wifi-credential-failure');
+  passed.push('Wrong Wi-Fi credentials prevent delivery and are visible in network diagnostics');
+  await close('Close instruments');
+  await click(button('Code'));
+  await p.locator('.cm-content').fill(receiver);
+  await close('Close editor');
+  await click(p.locator('.project-button'));
+  const download = p.waitForEvent('download');
+  await click(p.locator('.project-menu').getByRole('button', {name: 'Export .circuitlab.json', exact: true}));
+  const file = await download;
+  const path = `${out}/two-boards.circuitlab.json`;
+  await file.saveAs(path);
+  const exported = JSON.parse(await fs.readFile(path, 'utf8'));
+  assert.equal(exported.appearance.theme, 'dark');
+  assert.match(exported.firmware.sender.files['main.ino'], /softAP/);
+  await p.mouse.click(1050, 80);
+  await p.waitForTimeout(800);
+  await p.reload();
+  await p.waitForFunction(() => window.__circuitLab?.scene()?.objects.size === 5);
+  assert.equal((await project()).appearance.opacity, 0.22);
+  assert.match((await project()).files['main.ino'], /learn1234/);
+  passed.push('Export and reload preserve per-board source files, dark theme and global opacity');
+  await p.setViewportSize({width: 390, height: 844});
+  await shot('31-mobile-dark-workspace');
+  await click(button('Components'));
+  await shot('32-mobile-component-library');
+  await click(button('Collapse components'));
+  await p.setViewportSize({width: 1440, height: 960});
+  // Place all six added model types with UI transforms, in a fresh example.
+  await example('First light');
+  for (const [name, x, z] of [
+    ['LCD 16 × 2', 0, -65],
+    ['Photoresistor', -65, 38],
+    ['Thermistor', -50, 38],
+    ['Slide switch', -35, 38],
+    ['7-segment display', -70, -10],
+    ['Battery 9 V', 65, -37],
+  ]) {
+    await click(button('Components'));
+    await click(p.locator('.component-card').filter({hasText: name}));
+    await click(p.locator('.transform-group>summary'));
+    await p.getByLabel('Position X', {exact: true}).fill(String(x));
+    await p.getByLabel('Position Z', {exact: true}).fill(String(z));
+    await p.getByLabel('Position Y', {exact: true}).fill('0');
+    await p.keyboard.press('Tab');
+  }
+  await close('Close inspector');
+  await click(button('Camera controls'));
+  await click(button('Focus circuit'));
+  await click(button('Camera controls'));
+  await shot('33-expanded-3d-components');
+  passed.push('Additional component bodies are separately selectable, positioned and rendered in 3D');
+  assert.equal(errors.length, 0, JSON.stringify(errors));
+  await fs.writeFile(`${out}/additional-verification.json`, JSON.stringify({passed, errors}, null, 2));
+  console.log(JSON.stringify({passed, errors}, null, 2));
+} catch (e) {
+  console.error(e);
+  await shot('additional-failure').catch(() => {});
+  await fs.writeFile(`${out}/additional-failure.txt`, e.stack + '\n' + JSON.stringify(errors));
+  process.exitCode = 1;
+} finally {
+  await b.close();
+}

@@ -118,6 +118,123 @@ export const outputsElements = {
       return {coil: i, state: d.closed ? 'COM → NO (energized)' : 'COM → NC (released)', closed: d.closed};
     });
   },
+  // KY-019: the signal pin drives an S8050 through 1 kΩ; when the transistor saturates the coil sees the
+  // module's supply. A 1N4007 across the coil carries its current after switch-off (no kick reaches the
+  // pins, the relay just releases a little later). A red LED with 1 kΩ sits in parallel with the coil.
+  relaymodule(k) {
+    k.led('S', '-', 0.7, 1000); // base-emitter junction behind the 1 kΩ resistor
+    const d = k.digital,
+      R = k.p.coilResistance,
+      L = k.p.inductance,
+      Rsat = 3, // V CE(sat) ≈ 0.2 V at 70 mA
+      i0 = k.s.i ?? 0,
+      vcc = k.vprev('+') - k.vprev('-'),
+      ib = Math.max(0, (k.vprev('S') - k.vprev('-') - 0.7) / 1000),
+      inom = 5 / R,
+      on = vcc > 1 && ib * k.p.hfe > (0.9 * vcc) / R,
+      g = 1 / (R + Rsat + L / k.h);
+    if (on) {
+      k.S('+', '-', -(L / k.h) * i0, 1 / g, 'relay module coil');
+      k.R('+', '-', 1800); // indicator LED and its resistor (≈ 2.8 mA at 5 V)
+    }
+    d.closed ??= false;
+    k.R('COM', d.closed ? 'NO' : 'NC', 0.05);
+    k.post(() => {
+      const vc = k.v('+') - k.v('-');
+      // energized: the coil follows the supply; released: its current decays through the diode (0.7 V)
+      const i = on ? g * vc + g * (L / k.h) * i0 : Math.max(0, ((L / k.h) * i0 - 0.7) / (R + L / k.h));
+      k.next.i = i;
+      // SRD-05VDC-SL-C: operate ≤ 10 ms, release ≤ 5 ms (plus the diode's slower decay)
+      if (!d.closed && i > 0.75 * inom) {
+        d.at ??= k.t + 6;
+        if (k.t >= d.at) {
+          d.closed = true;
+          d.at = null;
+        }
+      } else if (d.closed && i < 0.1 * inom) {
+        d.at ??= k.t + 4;
+        if (k.t >= d.at) {
+          d.closed = false;
+          d.at = null;
+        }
+      } else d.at = null;
+    });
+    k.result(() => {
+      const vs = k.v('S') - k.v('-'),
+        supply = k.v('+') - k.v('-'),
+        input = Math.max(0, (vs - 0.7) / 1000),
+        i = k.s.i ?? 0;
+      if (input > 0 && supply < 1)
+        k.diag(
+          'warning',
+          `${k.c.name}: the signal is HIGH but + has no supply. Connect + to 5 V and − to GND.`
+        );
+      else if (on && supply < 3.75)
+        k.diag(
+          'warning',
+          `${k.c.name}: ${supply.toFixed(2)} V on +; the 5 V relay needs at least 3.75 V to pull in.`
+        );
+      if (supply > 6.5)
+        k.diag('warning', `${k.c.name}: ${supply.toFixed(1)} V on + is above the 5 V coil rating.`);
+      return {
+        input,
+        coil: i,
+        led: on && supply > 2,
+        closed: d.closed,
+        state: d.closed ? 'COM → NO (energized)' : 'COM → NC (released)',
+      };
+    });
+  },
+  // JF-0530B: the coil is an R-L; the plunger pulls in once the magnetic force (∝ i²) beats the spring.
+  solenoid(k) {
+    const d = k.digital,
+      R = k.p.coilResistance,
+      L = k.p.inductance,
+      i0 = k.s.i ?? 0,
+      g = 1 / (R + L / k.h);
+    k.S('+', '-', -(L / k.h) * i0, 1 / g, 'solenoid coil');
+    k.R('+', '-', 1e6);
+    d.x ??= 0;
+    k.post(() => {
+      const v = k.v('+') - k.v('-'),
+        i = g * v + g * (L / k.h) * i0;
+      k.next.i = i;
+      // Interrupting the coil current with nothing to carry it (no diode) makes the coil reverse its
+      // voltage to keep the current flowing. The real spike is far shorter than a simulation step, so a
+      // reversal of more than a diode drop counts, and its size is estimated from L·di/dt.
+      const reversed = Math.abs(i0) > 0.02 && -v * Math.sign(i0) > 3,
+        spike = reversed ? Math.max(Math.abs(v), (L * Math.abs(i0 - i)) / k.h) : Math.abs(v);
+      if (reversed || spike > 30) {
+        d.kickV = Math.max(spike, d.kickAt > k.t - 100 ? d.kickV : 0);
+        d.kickAt = k.t;
+      }
+      // about 5 N at the rated 300 mA; the return spring holds about 0.6 N
+      const force = 5 * (i / k.p.ratedCurrent) ** 2,
+        target = force > 0.6 ? 10 : 0,
+        tau = target ? 12 : 25; // ms: pull-in is quicker than the spring return
+      d.x += (target - d.x) * Math.min(1, (k.h * 1000) / tau);
+      d.force = force;
+      if (Math.abs(i) > 0.5 * k.p.ratedCurrent) d.onSince ??= k.t;
+      else d.onSince = null;
+    });
+    k.result(() => {
+      const v = k.v('+') - k.v('-'),
+        i = g * v + g * (L / k.h) * i0;
+      if (d.kickAt !== undefined && k.t - d.kickAt < 500)
+        k.diag(
+          'warning',
+          `${k.c.name}: inductive kick when the coil was switched off${d.kickV > 30 ? ` (≈ ${d.kickV.toFixed(0)} V here)` : ''}. On real hardware the spike lasts microseconds and reaches tens to hundreds of volts, enough to destroy the transistor. Put a flyback diode across the coil (cathode to +).`
+        );
+      if (d.onSince !== null && d.onSince !== undefined && k.t - d.onSince > 2000)
+        k.diag(
+          'warning',
+          `${k.c.name}: energized for ${((k.t - d.onSince) / 1000).toFixed(1)} s. The JF-0530B is made for short pulses (about 1 s on, 1 s off); held on it overheats.`
+        );
+      if (Math.abs(i) > 1.6 * k.p.ratedCurrent)
+        k.diag('warning', `${k.c.name}: ${(i * 1000).toFixed(0)} mA is far above the 300 mA rating.`);
+      return {voltage: v, current: i, stroke: d.x, force: d.force ?? 0};
+    });
+  },
   motor(k) {
     const Ke = 0.005,
       R = 8,

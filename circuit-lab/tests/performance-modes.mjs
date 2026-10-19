@@ -20,7 +20,11 @@ await p.addInitScript(() => {
     localStorage.setItem('circuit-lab-performance', 'saver');
   }
 });
-const btn = name => p.getByRole('button', {name, exact: true}).first().evaluate(el => el.click());
+const btn = name =>
+  p
+    .getByRole('button', {name, exact: true})
+    .first()
+    .evaluate(el => el.click());
 const renderer = () =>
   p.evaluate(() => {
     const s = window.__circuitLab.scene(),
@@ -41,9 +45,15 @@ try {
   assert.deepEqual(saver, {tier: 'low', shadows: false, antialias: false, blur: 'none', lowPower: true});
   await btn('Projects');
   await p.getByLabel('Search projects').fill('Ultrasonic ruler');
-  await p.locator('.project-card').first().evaluate(el => el.click());
+  await p
+    .locator('.project-card')
+    .first()
+    .evaluate(el => el.click());
   await p.waitForTimeout(2000);
-  await p.locator('.run-button').first().evaluate(el => el.click());
+  await p
+    .locator('.run-button')
+    .first()
+    .evaluate(el => el.click());
   await p.waitForFunction(() => window.__circuitLab.state().time > 800, null, {timeout: 120000});
   await p.waitForTimeout(800);
   await p.screenshot({path: out + '14-battery-saver.png'});

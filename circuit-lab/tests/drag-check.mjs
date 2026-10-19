@@ -1,5 +1,51 @@
 import {chromium} from '@playwright/test';
-const b=await chromium.launch({executablePath:process.env.CHROMIUM??'/opt/pw-browsers/chromium-1194/chrome-linux/chrome',args:['--no-sandbox','--disable-dev-shm-usage','--enable-unsafe-swiftshader','--use-angle=swiftshader','--disable-gpu-compositing']});const p=await b.newPage({viewport:{width:1440,height:960}});await p.addInitScript(()=>(sessionStorage.setItem('circuit-lab-force-webgl','1'),sessionStorage.setItem('circuit-lab-debug','1'),localStorage.getItem('circuit-lab-performance')||localStorage.setItem('circuit-lab-performance','quality')));await p.goto('http://127.0.0.1:5173');await p.waitForFunction(()=>window.__circuitLab?.scene()?.objects.size>0);
-const point=await p.evaluate(()=>{const s=window.__circuitLab.scene(),v=s.objects.get('esp32').position.clone();v.y+=5.5;v.z-=12;v.project(s.camera);const r=s.renderer.domElement.getBoundingClientRect();return {x:r.left+(v.x+1)/2*r.width,y:r.top+(1-v.y)/2*r.height};});
-const info=()=>p.evaluate(()=>{const s=window.__circuitLab.scene();return {drag:s.drag?{id:s.drag.id,moved:s.drag.moved,start:s.drag.start}:null,mode:s.mode,axis:s.transform.axis,pos:s.objects.get('esp32').position.toArray(),saved:window.__circuitLab.project().components[0].position,draws:s.renderer.info.render.calls};});
-await p.mouse.move(point.x,point.y);await p.mouse.down();console.log('DOWN',await info());await p.mouse.move(point.x+50,point.y+20,{steps:2});console.log('MOVE',await info());await p.mouse.up();console.log('UP',await info());await b.close();
+const b = await chromium.launch({
+  executablePath: process.env.CHROMIUM ?? '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
+  args: [
+    '--no-sandbox',
+    '--disable-dev-shm-usage',
+    '--enable-unsafe-swiftshader',
+    '--use-angle=swiftshader',
+    '--disable-gpu-compositing',
+  ],
+});
+const p = await b.newPage({viewport: {width: 1440, height: 960}});
+await p.addInitScript(
+  () => (
+    sessionStorage.setItem('circuit-lab-force-webgl', '1'),
+    sessionStorage.setItem('circuit-lab-debug', '1'),
+    localStorage.getItem('circuit-lab-performance') ||
+      localStorage.setItem('circuit-lab-performance', 'quality')
+  )
+);
+await p.goto('http://127.0.0.1:5173');
+await p.waitForFunction(() => window.__circuitLab?.scene()?.objects.size > 0);
+const point = await p.evaluate(() => {
+  const s = window.__circuitLab.scene(),
+    v = s.objects.get('esp32').position.clone();
+  v.y += 5.5;
+  v.z -= 12;
+  v.project(s.camera);
+  const r = s.renderer.domElement.getBoundingClientRect();
+  return {x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height};
+});
+const info = () =>
+  p.evaluate(() => {
+    const s = window.__circuitLab.scene();
+    return {
+      drag: s.drag ? {id: s.drag.id, moved: s.drag.moved, start: s.drag.start} : null,
+      mode: s.mode,
+      axis: s.transform.axis,
+      pos: s.objects.get('esp32').position.toArray(),
+      saved: window.__circuitLab.project().components[0].position,
+      draws: s.renderer.info.render.calls,
+    };
+  });
+await p.mouse.move(point.x, point.y);
+await p.mouse.down();
+console.log('DOWN', await info());
+await p.mouse.move(point.x + 50, point.y + 20, {steps: 2});
+console.log('MOVE', await info());
+await p.mouse.up();
+console.log('UP', await info());
+await b.close();

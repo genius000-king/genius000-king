@@ -59,6 +59,53 @@ export const outputsParts = {
     ],
     readouts: [ro('coil', 'Coil current', 'mA', 1000, 1), ro('state', 'Contact', '')],
   },
+  relaymodule: {
+    name: 'Relay module',
+    subtitle: 'KY-019 · 5 V · high-level trigger',
+    spec: 'KY-019',
+    category: 'Outputs',
+    size: [34, 27],
+    // SRD-05VDC-SL-C relay driven by an S8050 NPN (1 kΩ base resistor), 1N4007 across the coil, red LED
+    params: {coilResistance: 70, inductance: 0.15, hfe: 150},
+    optional: ['NO', 'NC'], // a load uses one side of the changeover contact
+    pins: [
+      ['S', -14.5, 1, -2.54, 'Signal (HIGH = on)'],
+      ['+', -14.5, 1, 0, '+5 V'],
+      ['-', -14.5, 1, 2.54, 'GND'],
+      ['NO', 13.5, 1, -5, 'Normally open'],
+      ['COM', 13.5, 1, 0, 'Common'],
+      ['NC', 13.5, 1, 5, 'Normally closed'],
+    ],
+    controls: [
+      num('coilResistance', 'Coil resistance', 10, 2000, 1, 'Ω'),
+      num('hfe', 'Transistor gain (hFE)', 40, 400, 1, ''),
+    ],
+    readouts: [
+      ro('input', 'Signal current', 'mA', 1000, 2),
+      ro('coil', 'Coil current', 'mA', 1000, 1),
+      ro('state', 'Contact', ''),
+    ],
+    note: 'S drives the relay through a transistor, so a 3.3 V or 5 V GPIO pin is enough (about 2–4 mA). The diode on the board absorbs the coil’s kick and the red LED shows when the coil is on. Contacts: 10 A at 250 VAC or 30 VDC.',
+  },
+  solenoid: {
+    name: 'Push-pull solenoid',
+    subtitle: 'JF-0530B · 12 V · 10 mm stroke',
+    spec: 'JF-0530B',
+    category: 'Outputs',
+    size: [30, 15],
+    // 12 V / 300 mA rating → 40 Ω; the inductance is a typical value for this frame (no datasheet gives it)
+    params: {coilResistance: 40, inductance: 0.025, ratedCurrent: 0.3},
+    pins: [
+      ['+', -19, 1, -2.54, 'Red lead'],
+      ['-', -19, 1, 2.54, 'Black lead'],
+    ],
+    controls: [
+      num('coilResistance', 'Coil resistance', 5, 500, 0.1, 'Ω'),
+      num('inductance', 'Coil inductance', 1, 500, 1, 'mH', {scale: 1e3}),
+    ],
+    readouts: [V, I, ro('stroke', 'Plunger travel', 'mm', 1, 1), ro('force', 'Pull force', 'N', 1, 1)],
+    note: 'About 5 N over a 10 mm stroke at 12 V / 300 mA, for short pulses (roughly 1 s on, 1 s off). Drive it with a transistor or MOSFET and put a flyback diode across the coil. The coil resistance comes from the 12 V / 300 mA rating and the inductance is a typical value: measure yours and enter them.',
+  },
   motor: {
     name: 'DC motor',
     subtitle: '130-size brushed · 3–6 V',

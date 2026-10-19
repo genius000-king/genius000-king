@@ -118,3 +118,7 @@ export function mqLeds(ud, c, comp, ctx) {
   ctx.set(ud.mqLeds[0], (c?.current ?? 0) > 0.05 ? 2 : 0);
   ctx.set(ud.mqLeds[1], (c?.ao ?? 0) > comp.params.threshold * 5 ? 2 : 0);
 }
+
+export function relayLed(ud, c, comp, ctx) {
+  ctx.set(ud.relayLed, c?.led ? 2.2 : 0);
+}

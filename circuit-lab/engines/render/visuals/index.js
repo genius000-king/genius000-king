@@ -29,4 +29,6 @@ export const UPDATERS = [
   ['pirLed', lights.pirLed],
   ['mqLeds', lights.mqLeds],
   ['display', screens.display],
+  ['relayLed', lights.relayLed],
+  ['plunger', motion.plunger],
 ];

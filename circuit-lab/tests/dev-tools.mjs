@@ -15,15 +15,23 @@ p.on('dialog', d => d.accept());
 await p.addInitScript(() => {
   sessionStorage.setItem('circuit-lab-force-webgl', '1');
   sessionStorage.setItem('circuit-lab-debug', '1');
-  localStorage.getItem('circuit-lab-performance') || localStorage.setItem('circuit-lab-performance', 'quality');
+  localStorage.getItem('circuit-lab-performance') ||
+    localStorage.setItem('circuit-lab-performance', 'quality');
 });
-const btn = name => p.getByRole('button', {name, exact: true}).first().evaluate(el => el.click());
+const btn = name =>
+  p
+    .getByRole('button', {name, exact: true})
+    .first()
+    .evaluate(el => el.click());
 const open = async name => {
   for (const c of ['Close instruments', 'Close editor'])
     if (await p.getByRole('button', {name: c, exact: true}).count()) await btn(c);
   await btn('Projects');
   await p.getByLabel('Search projects').fill(name);
-  await p.locator('.project-card').first().evaluate(el => el.click());
+  await p
+    .locator('.project-card')
+    .first()
+    .evaluate(el => el.click());
   await p.waitForTimeout(1500);
 };
 const SKETCH = `void setup() {
@@ -47,7 +55,10 @@ try {
   await p.locator('.cm-content').click();
   await p.keyboard.press('Control+A');
   await p.keyboard.insertText(SKETCH);
-  await p.locator('.run-button').first().evaluate(el => el.click());
+  await p
+    .locator('.run-button')
+    .first()
+    .evaluate(el => el.click());
   await p.waitForFunction(() => window.__circuitLab.state().time > 2500, null, {timeout: 120000});
   // RAM report next to "Build ready"
   const ram = await p.locator('.ram-meter').textContent();
@@ -68,13 +79,19 @@ try {
   await p.screenshot({path: out + '16-serial-plotter.png'});
   // oscilloscope capture as CSV
   await open('RC filter');
-  await p.locator('.run-button').first().evaluate(el => el.click());
+  await p
+    .locator('.run-button')
+    .first()
+    .evaluate(el => el.click());
   await p.waitForFunction(() => window.__circuitLab.state().time > 1500, null, {timeout: 120000});
   await btn('Workspace options');
   await p.getByText('Instruments', {exact: true}).click();
   await btn('Oscilloscope');
   await p.waitForSelector('.capture-head button');
-  const [download] = await Promise.all([p.waitForEvent('download'), p.locator('.capture-head button').first().click()]);
+  const [download] = await Promise.all([
+    p.waitForEvent('download'),
+    p.locator('.capture-head button').first().click(),
+  ]);
   const csv = await (await download.createReadStream()).toArray().then(c => Buffer.concat(c).toString());
   const rows = csv.trim().split('\n');
   console.log('csv:', download.suggestedFilename(), rows.length, 'rows,', rows[0], '|', rows[1]);

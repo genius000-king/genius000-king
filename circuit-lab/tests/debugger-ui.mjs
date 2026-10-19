@@ -15,16 +15,24 @@ p.on('dialog', d => d.accept());
 await p.addInitScript(() => {
   sessionStorage.setItem('circuit-lab-force-webgl', '1');
   sessionStorage.setItem('circuit-lab-debug', '1');
-  localStorage.getItem('circuit-lab-performance') || localStorage.setItem('circuit-lab-performance', 'quality');
+  localStorage.getItem('circuit-lab-performance') ||
+    localStorage.setItem('circuit-lab-performance', 'quality');
 });
-const btn = name => p.getByRole('button', {name, exact: true}).first().evaluate(el => el.click());
+const btn = name =>
+  p
+    .getByRole('button', {name, exact: true})
+    .first()
+    .evaluate(el => el.click());
 const halted = () => p.locator('.debug-state.halted').textContent();
 try {
   await p.goto('http://127.0.0.1:5173/');
   await p.waitForFunction(() => window.__circuitLab?.scene()?.objects.size > 0);
   await btn('Projects');
   await p.getByLabel('Search projects').fill('Traffic light');
-  await p.locator('.project-card').first().evaluate(el => el.click());
+  await p
+    .locator('.project-card')
+    .first()
+    .evaluate(el => el.click());
   await p.waitForFunction(() => window.__circuitLab.scene().objects.size > 3);
   await btn('Code');
   await p.waitForSelector('.cm-content');
@@ -37,13 +45,19 @@ try {
     return lines.findIndex((l, i) => i > loop && l.includes('show(')) + 1;
   });
   await p.waitForTimeout(900);
-  const text = await p.evaluate(l => window.__circuitLab.project().files['main.ino'].split('\n')[l - 1].trim(), line);
+  const text = await p.evaluate(
+    l => window.__circuitLab.project().files['main.ino'].split('\n')[l - 1].trim(),
+    line
+  );
   const row = p.locator('.cm-line', {hasText: text}).first(),
     box = await row.boundingBox(),
     gutter = await p.locator('.cm-bp-gutter').boundingBox();
   await p.mouse.click(gutter.x + gutter.width / 2, box.y + box.height / 2);
   await p.waitForSelector('.cm-bp.on');
-  await p.locator('.run-button').first().evaluate(el => el.click());
+  await p
+    .locator('.run-button')
+    .first()
+    .evaluate(el => el.click());
   await p.waitForSelector('.debug-state.halted', {timeout: 120000});
   const first = await halted();
   console.log('halted:', first);
@@ -54,7 +68,10 @@ try {
   assert.equal((await p.evaluate(() => window.__circuitLab.state())).time, t0, 'the bench stands still');
   await p.screenshot({path: out + '15-debugger-breakpoint.png'});
   await p.keyboard.press('F10');
-  await p.waitForFunction(l => document.querySelector('.debug-state.halted')?.textContent.includes('Stepped'), line);
+  await p.waitForFunction(
+    l => document.querySelector('.debug-state.halted')?.textContent.includes('Stepped'),
+    line
+  );
   const second = await halted();
   console.log('after F10:', second);
   assert.match(second, /Stepped · line \d+/);
@@ -62,7 +79,9 @@ try {
   const vars = await p.locator('.debug-var').count();
   console.log('variables shown:', vars);
   await p.keyboard.press('F8');
-  await p.waitForFunction(() => document.querySelector('.debug-state.halted')?.textContent.includes('Breakpoint'));
+  await p.waitForFunction(() =>
+    document.querySelector('.debug-state.halted')?.textContent.includes('Breakpoint')
+  );
   console.log('after F8:', await halted());
   // remove the breakpoint from the list and continue: the bench runs freely
   await p.getByRole('button', {name: 'Remove breakpoint'}).first().click();

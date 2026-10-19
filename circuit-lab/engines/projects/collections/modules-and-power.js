@@ -350,3 +350,66 @@ def(
     return done(p, {position: [0, 150, 170], target: [0, 0, 0]});
   }
 );
+def(
+  'relay-module',
+  'Relay module switches a lamp',
+  'Arduino Uno',
+  'Beginner',
+  ['KY-019', 'Relay', 'Isolated load'],
+  'A KY-019 relay module turns a separately powered 6 V lamp on and off. The Uno pin only feeds the module’s transistor (about 4 mA); the lamp current flows through the relay contacts.',
+  () => {
+    const p = base('Relay module switches a lamp');
+    add(p, 'uno', 'uno', [-80, 0, 0]);
+    add(p, 'relaymodule', 'k', [5, 0, 0]);
+    add(p, 'psu', 'ps', [60, 0, -55], {voltage: 6, limit: 1});
+    add(p, 'lamp', 'lamp', [70, 0, 25]);
+    w(p, 'uno:D7', 'k:S', 'yellow');
+    w(p, 'uno:5V', 'k:+', 'red');
+    w(p, 'uno:GND1', 'k:-', 'black');
+    // the lamp circuit has its own supply: it only meets the module at the screw terminals
+    w(p, 'ps:+', 'k:COM', 'red');
+    w(p, 'k:NO', 'lamp:A', 'orange');
+    w(p, 'lamp:B', 'ps:-', 'black');
+    code(
+      p,
+      'uno',
+      `// KY-019: S HIGH energizes the relay; COM connects to NO.\nconst int RELAY = 7;\n\nvoid setup() {\n  pinMode(RELAY, OUTPUT);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  digitalWrite(RELAY, HIGH);\n  Serial.println("lamp on");\n  delay(1000);\n  digitalWrite(RELAY, LOW);\n  Serial.println("lamp off");\n  delay(1000);\n}\n`
+    );
+    return done(p, {position: [0, 150, 175], target: [0, 0, 0]});
+  }
+);
+def(
+  'solenoid-striker',
+  'Solenoid striker',
+  'Arduino Uno',
+  'Intermediate',
+  ['JF-0530B', 'MOSFET', 'Flyback diode'],
+  'An IRLZ44N lets the Uno fire a 12 V push-pull solenoid in short pulses. The 1N4007 across the coil catches the switch-off kick; remove it and the diagnostics show why it is there.',
+  () => {
+    const p = base('Solenoid striker');
+    add(p, 'uno', 'uno', [-85, 0, 0]);
+    add(p, 'bbhalf', 'bb', [10, 0, 10]);
+    add(p, 'psu', 'ps', [20, 0, -70], {voltage: 12, limit: 1});
+    add(p, 'solenoid', 'sol', [95, 0, 10]);
+    on(p, 'mosfet', 'q', 'bb', 'E12');
+    on(p, 'resistor', 'rg', 'bb', 'D5', {resistance: 220});
+    on(p, 'resistor', 'rpd', 'bb', 'D12', {resistance: 10000}); // gate pull-down: off while the Uno boots
+    on(p, 'diode', 'd', 'bb', 'G20');
+    w(p, 'uno:D9', at(p, 'bb', 'rg', 'A', 'A'), 'yellow');
+    w(p, at(p, 'bb', 'rg', 'B', 'B'), at(p, 'bb', 'q', 'G', 'B'), 'yellow');
+    w(p, at(p, 'bb', 'q', 'S', 'A'), 'bb:TN16', 'black');
+    w(p, at(p, 'bb', 'rpd', 'B', 'E'), 'bb:TN19', 'black');
+    w(p, 'uno:GND1', 'bb:TN2', 'black');
+    w(p, 'ps:-', 'bb:TN24', 'black');
+    w(p, at(p, 'bb', 'q', 'D', 'C'), at(p, 'bb', 'd', 'A', 'H'), 'blue');
+    w(p, 'ps:+', at(p, 'bb', 'd', 'K', 'J'), 'red');
+    w(p, at(p, 'bb', 'd', 'K', 'I'), 'sol:+', 'red');
+    w(p, at(p, 'bb', 'd', 'A', 'I'), 'sol:-', 'blue');
+    code(
+      p,
+      'uno',
+      `// JF-0530B is for short pulses: about 1 s on, 1 s off at most.\nconst int GATE = 9;\n\nvoid setup() {\n  pinMode(GATE, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(GATE, HIGH);  // pull the plunger in\n  delay(150);\n  digitalWrite(GATE, LOW);   // the spring pushes it back\n  delay(850);\n}\n`
+    );
+    return done(p, {position: [10, 160, 170], target: [10, 0, 0]});
+  }
+);

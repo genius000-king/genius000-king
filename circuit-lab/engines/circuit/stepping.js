@@ -163,6 +163,8 @@ export const steppingMethods = {
             b.v[b.v.length - 1] = vals;
             return;
           }
+          // at most one sample per 0.2 ms: finer sub-steps would shrink the record to a sliver of the window
+          if (b.t.length && t - b.t.at(-1) < 0.2 - 1e-9) return;
           b.t.push(t);
           b.v.push(vals);
           if (b.t.length > SCOPE_SAMPLES) {
