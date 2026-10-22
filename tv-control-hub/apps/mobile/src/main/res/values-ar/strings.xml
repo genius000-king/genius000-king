@@ -35,4 +35,16 @@
     <string name="home_overview_placeholder">حالة الاتصال وملخص الجهاز يُضافان في المرحلتين P2 وP4.</string>
     <string name="phase_pending">يُبنى في %1$s</string>
     <string name="action_back">رجوع</string>
+
+    <string name="stream_host_label">عنوان التلفزيون</string>
+    <string name="stream_host_hint">192.168.1.50</string>
+    <string name="stream_connect">اتصال</string>
+    <string name="stream_status_idle">غير متصل</string>
+    <string name="stream_status_connecting">جارٍ الاتصال…</string>
+    <string name="stream_status_connected">متصل. بانتظار صورة التلفزيون.</string>
+    <string name="stream_status_failed">فشل الاتصال: %1$s</string>
+    <string name="stream_tap_hint">اضغط على الصورة لإرسال نقرة إلى التلفزيون.</string>
+    <string name="nav_back">رجوع</string>
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_recents">الأخيرة</string>
 </resources>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="input_service_label">TV Control Hub: remote input</string>
+    <string name="input_service_description">Lets TV Control Hub send taps and navigation keys from your phone. It does not read what is on screen.</string>
+</resources>

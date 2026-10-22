@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPIKE ONLY (phase P1): the control channel is plain WebSocket on the LAN.
+  Phase P2 replaces it with TLS and certificate pinning, and removes this cleartext allowance.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

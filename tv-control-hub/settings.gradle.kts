@@ -20,5 +20,14 @@ rootProject.name = "tv-control-hub"
 include(":core:common")
 include(":core:protocol")
 include(":core:design")
+
+include(":engines:input:api")
+include(":engines:input:tv")
+include(":engines:transport:tv")
+include(":engines:transport:mobile")
+include(":engines:stream:tv")
+include(":engines:stream:mobile")
+include(":engines:monitor:tv")
+
 include(":apps:mobile")
 include(":apps:tv")

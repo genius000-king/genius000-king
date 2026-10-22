@@ -4,6 +4,7 @@ import com.tvhub.common.AppResult
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.fail
 
 class ProtocolCodecTest {
@@ -31,6 +32,29 @@ class ProtocolCodecTest {
     }
 
     @Test
+    fun `tap encodes with normalised coordinates`() {
+        val text = ProtocolCodec.encode(Tap(x = 0.5f, y = 0.25f))
+
+        assertEquals("""{"type":"tap","x":0.5,"y":0.25}""", text)
+    }
+
+    @Test
+    fun `stream signalling and input messages survive a round trip`() {
+        val messages = listOf(
+            SdpOffer(sdp = "v=0\r\n"),
+            SdpAnswer(sdp = "v=0\r\n"),
+            IceCandidate(candidate = "candidate:1 1 udp 2122 10.0.0.2 5000 typ host", sdpMid = "0", sdpMLineIndex = 0),
+            IceCandidate(candidate = "candidate:2", sdpMid = null, sdpMLineIndex = 1),
+            Tap(x = 0.1f, y = 0.9f),
+            GlobalAction(action = NavAction.BACK),
+        )
+
+        messages.forEach { original ->
+            assertEquals(original, decodeOrFail(ProtocolCodec.encode(original)))
+        }
+    }
+
+    @Test
     fun `every encoded type is listed as known`() {
         val samples = listOf(
             Hello(1, "a", PeerRole.TV),
@@ -38,6 +62,11 @@ class ProtocolCodecTest {
             Reject(RejectCode.RATE_LIMITED, "slow down"),
             Ping(1, 1),
             Pong(1, 1),
+            SdpOffer("s"),
+            SdpAnswer("s"),
+            IceCandidate("c", null, 0),
+            Tap(0f, 0f),
+            GlobalAction(NavAction.HOME),
         )
 
         val encodedTypes = samples.map { sample ->
@@ -105,6 +134,13 @@ class ProtocolCodecTest {
         )
 
         assertEquals(ProtocolCodec.ERROR_MALFORMED, failure.error.code)
+    }
+
+    @Test
+    fun `decodeOrNull returns the message for known types and null for unknown or broken input`() {
+        assertEquals(Ping(1, 2), ProtocolCodec.decodeOrNull("""{"type":"ping","sequence":1,"sentAtMillis":2}"""))
+        assertNull(ProtocolCodec.decodeOrNull("""{"type":"future_feature"}"""))
+        assertNull(ProtocolCodec.decodeOrNull("{not json"))
     }
 
     private fun decodeOrFail(text: String): ProtocolMessage =

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="input_service_label">TV Control Hub: إدخال عن بُعد</string>
+    <string name="input_service_description">يسمح لـ TV Control Hub بإرسال النقرات ومفاتيح التنقل من جوالك. لا يقرأ محتوى الشاشة.</string>
+</resources>

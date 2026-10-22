@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">TV Control Hub</string>
-    <string name="tv_home_subtitle">جاهز للإقران · المرحلة P0</string>
+    <string name="tv_home_subtitle">جاهز للإقران · مختبر المرحلة P1</string>
 
     <string name="screen_home">الرئيسية وحالة الاتصال</string>
     <string name="screen_pairing">إقران الجوال</string>
@@ -9,4 +9,17 @@
     <string name="screen_permissions">الأذونات</string>
     <string name="screen_active_services">الخدمات النشطة</string>
     <string name="screen_settings">الإعدادات</string>
+
+    <string name="lab_open">فتح مختبر إثبات P1</string>
+    <string name="lab_title">P1 · مختبر إمكانية التنفيذ</string>
+    <string name="lab_address">اتصل من الجوال بالعنوان %1$s:%2$d</string>
+    <string name="lab_idle">لا يوجد بث حاليًا. ابدأ البث ثم اتصل من الجوال.</string>
+    <string name="lab_start_stream">بدء البث</string>
+    <string name="lab_stop">إيقاف</string>
+    <string name="lab_tap_test">اختبار نقرة (بعد 3 ثوانٍ)</string>
+    <string name="lab_accessibility">إعدادات إمكانية الوصول</string>
+
+    <string name="hub_channel_name">مشاركة الشاشة</string>
+    <string name="hub_notification_title">TV Control Hub نشط</string>
+    <string name="hub_notification_text">يمكن التحكم بالتلفزيون من جوالك</string>
 </resources>

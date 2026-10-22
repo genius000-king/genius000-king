@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
+import androidx.tv.material3.Button
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text as TvText
@@ -33,7 +34,10 @@ import com.tvhub.tv.navigation.TvScreen
  * Focus moves with the D-pad, and every item is a large target readable from the sofa.
  */
 @Composable
-fun TvHomeScreen(modifier: Modifier = Modifier) {
+fun TvHomeScreen(
+    onOpenLab: () -> Unit = {},
+    modifier: Modifier = Modifier,
+) {
     val palette = LocalBrandPalette.current
     Column(
         modifier = modifier
@@ -51,7 +55,11 @@ fun TvHomeScreen(modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.titleMedium,
             color = palette.contentSecondary,
         )
-        Spacer(Modifier.height(40.dp))
+        Spacer(Modifier.height(24.dp))
+        Button(onClick = onOpenLab) {
+            TvText(text = stringResource(R.string.lab_open))
+        }
+        Spacer(Modifier.height(24.dp))
 
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(14.dp),

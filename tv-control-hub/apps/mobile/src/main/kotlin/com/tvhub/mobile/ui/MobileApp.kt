@@ -19,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import com.tvhub.design.LocalBrandPalette
 import com.tvhub.mobile.navigation.MobilePage
 import com.tvhub.mobile.navigation.MobileSection
+import com.tvhub.mobile.ui.stream.StreamScreen
 
 @Composable
 fun MobileApp(modifier: Modifier = Modifier) {
@@ -64,7 +65,12 @@ fun MobileApp(modifier: Modifier = Modifier) {
             }
             MobilePage.entries.forEach { page ->
                 composable(page.fullRoute) {
-                    PageScreen(page = page, onBack = { navController.popBackStack() })
+                    val back: () -> Unit = { navController.popBackStack() }
+                    if (page == MobilePage.Stream) {
+                        StreamScreen(onBack = back)
+                    } else {
+                        PageScreen(page = page, onBack = back)
+                    }
                 }
             }
         }

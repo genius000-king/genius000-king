@@ -47,6 +47,57 @@ data class Pong(
     val sentAtMillis: Long,
 ) : ProtocolMessage
 
+/** WebRTC offer from the TV. The phone answers it. */
+@Serializable
+@SerialName("sdp_offer")
+data class SdpOffer(
+    val sdp: String,
+) : ProtocolMessage
+
+@Serializable
+@SerialName("sdp_answer")
+data class SdpAnswer(
+    val sdp: String,
+) : ProtocolMessage
+
+@Serializable
+@SerialName("ice_candidate")
+data class IceCandidate(
+    val candidate: String,
+    val sdpMid: String?,
+    val sdpMLineIndex: Int,
+) : ProtocolMessage
+
+/** Tap at a normalised point of the video: x and y are in 0..1, relative to the video frame. */
+@Serializable
+@SerialName("tap")
+data class Tap(
+    val x: Float,
+    val y: Float,
+) : ProtocolMessage
+
+@Serializable
+@SerialName("global_action")
+data class GlobalAction(
+    val action: NavAction,
+) : ProtocolMessage
+
+/** System navigation keys that an accessibility service can perform without shell access. */
+@Serializable
+enum class NavAction {
+    @SerialName("back")
+    BACK,
+
+    @SerialName("home")
+    HOME,
+
+    @SerialName("recents")
+    RECENTS,
+
+    @SerialName("notifications")
+    NOTIFICATIONS,
+}
+
 /** A message whose type this build does not know. It is never sent, only received. */
 data class UnknownMessage(val type: String) : ProtocolMessage
 

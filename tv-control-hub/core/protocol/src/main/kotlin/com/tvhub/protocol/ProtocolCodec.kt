@@ -24,13 +24,28 @@ object ProtocolCodec {
     internal const val TYPE_FIELD = "type"
 
     /** Must list every @SerialName used by [ProtocolMessage]. A test enforces this. */
-    internal val KNOWN_MESSAGE_TYPES: Set<String> = setOf("hello", "hello_ack", "reject", "ping", "pong")
+    internal val KNOWN_MESSAGE_TYPES: Set<String> = setOf(
+        "hello",
+        "hello_ack",
+        "reject",
+        "ping",
+        "pong",
+        "sdp_offer",
+        "sdp_answer",
+        "ice_candidate",
+        "tap",
+        "global_action",
+    )
 
     private val json = Json {
         classDiscriminator = TYPE_FIELD
         ignoreUnknownKeys = true
         explicitNulls = false
     }
+
+    /** Decodes a message, or returns null when it is malformed or of an unknown type. */
+    fun decodeOrNull(text: String): ProtocolMessage? =
+        (decode(text) as? AppResult.Success)?.value?.takeUnless { it is UnknownMessage }
 
     fun encode(message: ProtocolMessage): String =
         json.encodeToString(ProtocolMessage.serializer(), message)

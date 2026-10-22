@@ -35,4 +35,16 @@
     <string name="home_overview_placeholder">Connection status and device summary arrive in phases P2 and P4.</string>
     <string name="phase_pending">Coming in %1$s</string>
     <string name="action_back">Back</string>
+
+    <string name="stream_host_label">TV address</string>
+    <string name="stream_host_hint">192.168.1.50</string>
+    <string name="stream_connect">Connect</string>
+    <string name="stream_status_idle">Not connected</string>
+    <string name="stream_status_connecting">Connecting…</string>
+    <string name="stream_status_connected">Connected. Waiting for the TV picture.</string>
+    <string name="stream_status_failed">Failed: %1$s</string>
+    <string name="stream_tap_hint">Tap the picture to send a tap to the TV.</string>
+    <string name="nav_back">Back</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_recents">Recents</string>
 </resources>
