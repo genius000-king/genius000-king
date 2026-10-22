@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TV Control Hub</string>
+    <string name="tv_home_subtitle">جاهز للإقران · المرحلة P0</string>
+
+    <string name="screen_home">الرئيسية وحالة الاتصال</string>
+    <string name="screen_pairing">إقران الجوال</string>
+    <string name="screen_trusted_devices">الأجهزة الموثوقة</string>
+    <string name="screen_permissions">الأذونات</string>
+    <string name="screen_active_services">الخدمات النشطة</string>
+    <string name="screen_settings">الإعدادات</string>
+</resources>

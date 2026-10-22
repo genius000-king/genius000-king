@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TV Control Hub</string>
+    <string name="tv_home_subtitle">Ready to pair · Phase P0</string>
+
+    <string name="screen_home">Home and connection</string>
+    <string name="screen_pairing">Pair a phone</string>
+    <string name="screen_trusted_devices">Trusted devices</string>
+    <string name="screen_permissions">Permissions</string>
+    <string name="screen_active_services">Active services</string>
+    <string name="screen_settings">Settings</string>
+</resources>

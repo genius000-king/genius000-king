@@ -1,0 +1,17 @@
+build:
+  maxIssues: 0
+
+naming:
+  FunctionNaming:
+    # Compose functions are PascalCase by convention, so they are exempt.
+    ignoreAnnotated:
+      - Composable
+
+style:
+  MaxLineLength:
+    maxLineLength: 120
+  MagicNumber:
+    ignoreNamedArgument: true
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreNumbers: ['-1', '0', '1', '2']

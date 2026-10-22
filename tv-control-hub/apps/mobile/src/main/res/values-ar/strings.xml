@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TV Control Hub</string>
+
+    <string name="section_home">الرئيسية</string>
+    <string name="section_control">التحكم</string>
+    <string name="section_device">الجهاز</string>
+    <string name="section_tools">الأدوات</string>
+    <string name="section_settings">الإعدادات</string>
+
+    <string name="page_stream">الشاشة المباشرة</string>
+    <string name="page_remote">الريموت</string>
+    <string name="page_touchpad">الماوس</string>
+    <string name="page_keyboard">لوحة المفاتيح</string>
+    <string name="page_shortcuts">الاختصارات</string>
+
+    <string name="page_cpu">المعالج</string>
+    <string name="page_gpu">الرسوميات</string>
+    <string name="page_memory">الذاكرة</string>
+    <string name="page_storage">التخزين</string>
+    <string name="page_network">الشبكة</string>
+    <string name="page_live">الأداء المباشر</string>
+
+    <string name="page_services">الخدمات</string>
+    <string name="page_terminal">Terminal</string>
+    <string name="page_files">مدير الملفات</string>
+    <string name="page_apps">المشاريع والتطبيقات</string>
+
+    <string name="page_connection">الاتصال</string>
+    <string name="page_security">الأمان</string>
+    <string name="page_permissions">الصلاحيات</string>
+    <string name="page_appearance">المظهر</string>
+    <string name="page_devices">الأجهزة المقترنة</string>
+
+    <string name="home_overview_placeholder">حالة الاتصال وملخص الجهاز يُضافان في المرحلتين P2 وP4.</string>
+    <string name="phase_pending">يُبنى في %1$s</string>
+    <string name="action_back">رجوع</string>
+</resources>
