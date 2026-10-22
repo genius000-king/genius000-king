@@ -29,5 +29,4 @@ include(":engines:stream:tv")
 include(":engines:stream:mobile")
 include(":engines:monitor:tv")
 
-include(":apps:mobile")
-include(":apps:tv")
+include(":apps:hub")

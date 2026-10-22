@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Window background matches the brand base, so the first frame has no white flash. -->
-    <style name="Theme.TvHub" parent="android:Theme.DeviceDefault.NoActionBar">
-        <item name="android:windowBackground">@color/tvhub_background</item>
-    </style>
-</resources>
