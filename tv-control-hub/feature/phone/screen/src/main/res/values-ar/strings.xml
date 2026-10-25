@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="screen_connecting">جاري تشغيل الصورة…</string>
+    <string name="screen_tv_prompt">إذا سأل التلفزيون عن بدء التسجيل اضغط OK مرة واحدة</string>
+    <string name="screen_failed">لم يشارك التلفزيون شاشته</string>
+    <string name="screen_back">رجوع</string>
+    <string name="screen_close">إغلاق</string>
+    <string name="screen_keyboard">الكيبورد</string>
+    <string name="screen_protected">الفيديو المحمي (نتفلكس وأمثاله) يظهر أسود: Android يمنع تصويره</string>
+</resources>

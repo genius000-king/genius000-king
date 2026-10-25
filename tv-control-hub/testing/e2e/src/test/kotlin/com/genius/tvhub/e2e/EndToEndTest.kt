@@ -225,6 +225,19 @@ class EndToEndTest {
         assertThat(failed.failure).isEqualTo(LinkFailure.REFUSED)
     }
 
+    @Test fun revokedPhoneDoesNotPesterTheTvAgain() = runBlocking {
+        val p = pairFirstTime()
+        trust.revoke(fingerprintOf(phoneKey.publicKey))
+        p.awaitState { it is LinkState.Failed }
+        delay(3_000) // long enough for any automatic reconnect attempt
+        assertThat(gatekeeper.request.value).isNull()
+        assertThat(p.state.value).isInstanceOf(LinkState.Failed::class.java)
+        // Only the user's own "try again" may ask the TV's owner again.
+        p.userRetry()
+        withTimeout(10_000) { gatekeeper.request.first { it != null } }
+        gatekeeper.deny()
+    }
+
     @Test fun permissionSwitchOnTheTvAppliesImmediately() = runBlocking {
         val p = pairFirstTime()
         val id = fingerprintOf(phoneKey.publicKey)

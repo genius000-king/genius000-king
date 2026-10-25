@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sys_title">Settings</string>
+    <string name="sys_interface">Interface</string>
+    <string name="sys_phones">Phones</string>
+    <string name="sys_setup">Setup</string>
+    <string name="sys_system">System</string>
+    <string name="sys_services">Services</string>
+    <string name="sys_about">About</string>
+
+    <string name="sys_glow">Ambient light</string>
+    <string name="sys_glow_off">Off</string>
+    <string name="sys_glow_soft">Soft</string>
+    <string name="sys_glow_medium">Medium</string>
+    <string name="sys_glow_strong">Strong</string>
+    <string name="sys_motion">Moving background</string>
+    <string name="sys_motion_body">Clouds drift slowly behind everything</string>
+    <string name="sys_frames">Icon frames</string>
+    <string name="sys_frames_body">Show each icon on a glass tile</string>
+    <string name="sys_labels">App names</string>
+    <string name="sys_big_icons">Large icons</string>
+    <string name="sys_widget_phone">Phone widget</string>
+    <string name="sys_widget_device">Memory widget</string>
+    <string name="sys_widget_shortcuts">Shortcuts</string>
+
+    <string name="sys_no_phones">No phone paired yet</string>
+    <string name="sys_no_phones_body">Open TV Hub on your phone: this TV appears by itself. Press OK when asked.</string>
+    <string name="sys_connected_now">Connected now</string>
+    <string name="sys_revoke">Remove access</string>
+    <string name="sys_grant_screen">See the screen</string>
+    <string name="sys_grant_input">Control and type</string>
+    <string name="sys_grant_info">Device info</string>
+    <string name="sys_grant_files_read">Browse files</string>
+    <string name="sys_grant_files_write">Change files</string>
+    <string name="sys_grant_apps">Apps</string>
+    <string name="sys_grant_shell">Terminal</string>
+    <string name="sys_grant_services">Services</string>
+    <string name="sys_auto_approve">Approve new phones automatically</string>
+    <string name="sys_auto_approve_body">Not recommended: anyone on your Wi‑Fi could connect</string>
+
+    <string name="sys_setup_done">Everything is set up</string>
+    <string name="sys_check_accessibility">Control from the phone</string>
+    <string name="sys_check_accessibility_body">Turn on TV Hub in Accessibility</string>
+    <string name="sys_check_install">Install apps</string>
+    <string name="sys_check_install_body">Allow TV Hub to install apps</string>
+    <string name="sys_check_files">All files</string>
+    <string name="sys_check_files_body">Lets your phone browse USB and Downloads</string>
+    <string name="sys_check_home">Open TV Hub at start</string>
+    <string name="sys_check_home_body">Make TV Hub the home screen</string>
+    <string name="sys_open">Open</string>
+    <string name="sys_adb_hint">Faster: run tools/tv-setup.sh from a computer once</string>
+
+    <string name="sys_take_home">Home button opens TV Hub</string>
+    <string name="sys_take_home_body">Uses the accessibility service</string>
+    <string name="sys_boot">Start with the TV</string>
+    <string name="sys_remote_mouse">Pointer from the remote</string>
+    <string name="sys_remote_mouse_body">In phone apps, hold OK to show or hide it</string>
+    <string name="sys_auto_mouse">Pointer in phone apps</string>
+    <string name="sys_auto_mouse_body">Shows by itself when a phone app opens</string>
+    <string name="sys_language">Language</string>
+    <string name="sys_lang_system">System</string>
+
+    <string name="sys_no_services">No services yet</string>
+    <string name="sys_no_services_body">Add Node or Python servers from your phone: TV Hub ← More ← Services</string>
+
+    <string name="sys_version">Version</string>
+    <string name="sys_fingerprint">TV identity</string>
+    <string name="sys_address">Address</string>
+
+    <string name="pair_title">%1$s wants to connect</string>
+    <string name="pair_body">The same code is on the phone</string>
+    <string name="pair_allow">Allow</string>
+    <string name="pair_deny">Deny</string>
+</resources>

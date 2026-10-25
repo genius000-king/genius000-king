@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Charcoal from the first frame: no white flash before Compose draws. -->
+    <style name="Theme.TvHub" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/charcoal</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <!-- The pairing prompt floats over whatever the TV shows. -->
+    <style name="Theme.TvHub.Overlay" parent="Theme.TvHub">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.55</item>
+    </style>
+
+    <color name="charcoal">#0A0A0A</color>
+    <color name="cream">#F1F0EC</color>
+</resources>

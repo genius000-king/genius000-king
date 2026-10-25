@@ -74,7 +74,7 @@
 ### 1.8 السيرفرات والخدمات: عبر Termux، بصدق
 تطبيقنا لا يستطيع تشغيل `node`/`python` الخاصين بـ Termux مباشرة (UID و SELinux مختلفان). الحل الرسمي: **Termux `RUN_COMMAND` intent** + سكربت مدير صغير (`svc.sh`) نثبّته داخل Termux يدير PID وملفات Logs لكل خدمة. بالإضافة إلى **Shell محلي محدود** بصلاحيات التطبيق نفسه (toybox).
 
-### 1.9 «وضع المشغّل» — الإجابة على مشكلة التطبيقات التي "لا تعمل"
+### 1.9 النظام هو الأساس — الإجابة على مشكلة التطبيقات التي "لا تعمل"
 المشكلة الحقيقية ليست أن Google TV "زبالة": تطبيقات الجوال (المتصفحات مثلًا) **تُثبَّت فعلًا** لكن:
 1. واجهة Google TV **تُخفي** أي تطبيق لا يعلن `LEANBACK_LAUNCHER`.
 2. هي مصممة للّمس، والريموت لا يملك مؤشرًا.
@@ -88,25 +88,27 @@
 ## 2. الوحدات (المحركات)
 
 ```
-:app                         APK واحد، RoleRouter، رسم DI
-:core:common                 Kotlin نقي: Outcome، Logger، أدوات Flow
+:app                         APK واحد، RoleRouter، رسم DI، النشاطات
+:core:common                 Kotlin نقي: Logger، Clock، أدوات
 :core:model                  Kotlin نقي: نماذج المجال المشتركة
-:core:protocol               Kotlin نقي: رسائل البروتوكول + الترميز (CBOR)
+:core:protocol               Kotlin نقي: رسائل البروتوكول + الترميز (CBOR) + حزم الفيديو
 :core:security               Kotlin نقي: الهوية، المصافحة، AES‑GCM، SAS
-:core:transport              Ktor WebSocket: Server/Client، SecureSession، RPC، إعادة الاتصال
+:core:transport              Ktor WebSocket: Server/Client، RPC، Backoff
 :core:discovery              NSD/mDNS إعلان واكتشاف
-:core:data                   Room + DataStore (أجهزة موثوقة، تلفزيونات مقترنة، اختصارات، إعدادات)
-:core:designsystem           هوية عملاق (من ملف PDF نفسه) + مكونات التلفزيون
-:engine:stream               capture · encode · packet · decode · quality
-:engine:input                accessibility · gesture · keys · cursor · text
-:engine:monitor              collectors (memory, storage, cpu, gpu, thermal, network, uptime)
-:engine:files                roots · guard · ops · transfer
-:engine:shell                sandbox · termux · services (svc.sh) · policy
-:engine:apps                 catalog · launch · install · beam (extract on phone)
-:runtime:host                (تلفزيون) HostService، بوابة الصلاحيات، توجيه الأوامر للمحركات
-:runtime:client              (جوال) مدير الاتصال، واجهات بعيدة مطبوعة لكل محرك
-:feature:phone:{connect,home,control,device,tools,settings}
-:feature:tv:{hub,launcher}
+:core:data                   Room + DataStore + مفتاح الهوية في AndroidKeyStore
+:core:designsystem           مواد عملاق (الحجر، الزجاج، الألوان، الخط) + LivingBackground
+:engine:input                keys · gesture · cursor · text · service (Accessibility)
+:engine:stream               quality · capture · encode · decode
+:engine:monitor              parse · collect
+:engine:files                guard · ops · transfer · roots
+:engine:shell                sandbox · termux · services (svc.sh)
+:engine:apps                 catalog · icons · launch · install · beam
+:runtime:host                (تلفزيون) HostCore نقي، CallRouter، HostService
+:runtime:client              (جوال) HubClient + واجهات بعيدة مطبوعة
+:feature:tv:launcher         النظام: الشاشة الرئيسية وكل التطبيقات
+:feature:tv:system           الإعدادات + نافذة الإقران
+:feature:phone:{remote,screen,device,apps,files,services,settings}
+:testing:e2e                 تلفزيون حقيقي (منطقيًا) ↔ جوال حقيقي على مقابس حقيقية
 ```
 
 ### قواعد الاعتماد (تمنع "تعديل شيء يخرب شيئًا آخر")

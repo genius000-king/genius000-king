@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 320×180 TV banner: charcoal, the hub mark and the name in cream. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp" android:height="180dp" android:viewportWidth="320" android:viewportHeight="180">
+    <path android:fillColor="#0A0A0A" android:pathData="M0,0h320v180h-320z" />
+    <path android:fillColor="#1C1C1C" android:pathData="M160,90 m-120,0 a120,70 0 1,0 240,0 a120,70 0 1,0 -240,0" />
+    <path android:strokeColor="#F1F0EC" android:strokeWidth="5" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M128,62 L192,62 Q198,62 198,68 L198,106 Q198,112 192,112 L128,112 Q122,112 122,106 L122,68 Q122,62 128,62 Z" />
+    <path android:strokeColor="#F1F0EC" android:strokeWidth="5" android:strokeLineCap="round" android:pathData="M144,124 L176,124" />
+    <path android:fillColor="#F1F0EC" android:pathData="M160,87 m-6,0 a6,6 0 1,0 12,0 a6,6 0 1,0 -12,0" />
+</vector>

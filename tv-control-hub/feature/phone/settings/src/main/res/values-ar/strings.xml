@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="set_title">الإعدادات</string>
+    <string name="set_tvs">التلفزيونات المقترنة</string>
+    <string name="set_forget">نسيان</string>
+    <string name="set_manual">الاتصال بالعنوان</string>
+    <string name="set_manual_hint">192.168.1.20 أو عنوان Tailscale</string>
+    <string name="set_connect">اتصال</string>
+    <string name="set_auto_keyboard">الكيبورد يفتح وحده</string>
+    <string name="set_volume_keys">أزرار صوت الجوال تتحكم بالتلفزيون</string>
+    <string name="set_language">اللغة</string>
+    <string name="set_lang_system">النظام</string>
+    <string name="set_identity">هوية هذا الجوال</string>
+    <string name="set_version">الإصدار</string>
+</resources>

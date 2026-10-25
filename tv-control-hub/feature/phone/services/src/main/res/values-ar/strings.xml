@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="svc_title">الخدمات</string>
+    <string name="svc_add">إضافة خدمة</string>
+    <string name="svc_empty">لا توجد خدمات بعد</string>
+    <string name="svc_empty_body">شغّل سيرفر Node أو Python على التلفزيون وأبقه يعمل. يحتاج Termux على التلفزيون.</string>
+    <string name="svc_name">الاسم</string>
+    <string name="svc_id">المعرّف (حروف، أرقام، -)</string>
+    <string name="svc_folder">المجلد في Termux</string>
+    <string name="svc_command">الأمر (فارغ = الافتراضي)</string>
+    <string name="svc_save">حفظ</string>
+    <string name="svc_logs">السجلات</string>
+    <string name="svc_restart">إعادة تشغيل</string>
+    <string name="svc_remove">حذف</string>
+    <string name="svc_terminal">الطرفية</string>
+    <string name="svc_terminal_body">نفّذ أمرًا على التلفزيون</string>
+    <string name="term_hint">الأمر</string>
+    <string name="term_app">Shell التطبيق</string>
+    <string name="term_termux">Termux</string>
+    <string name="term_enable">مرة واحدة، في Termux على التلفزيون:</string>
+</resources>

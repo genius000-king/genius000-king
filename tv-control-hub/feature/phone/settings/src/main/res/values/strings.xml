@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="set_title">Settings</string>
+    <string name="set_tvs">Paired TVs</string>
+    <string name="set_forget">Forget</string>
+    <string name="set_manual">Connect by address</string>
+    <string name="set_manual_hint">192.168.1.20 or a Tailscale address</string>
+    <string name="set_connect">Connect</string>
+    <string name="set_auto_keyboard">Keyboard opens by itself</string>
+    <string name="set_volume_keys">Phone volume buttons control the TV</string>
+    <string name="set_language">Language</string>
+    <string name="set_lang_system">System</string>
+    <string name="set_identity">This phone\'s identity</string>
+    <string name="set_version">Version</string>
+</resources>

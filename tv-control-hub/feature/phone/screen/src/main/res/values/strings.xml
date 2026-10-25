@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="screen_connecting">Starting the picture…</string>
+    <string name="screen_tv_prompt">If the TV asks to start recording, press OK once</string>
+    <string name="screen_failed">The TV did not share its screen</string>
+    <string name="screen_back">Back</string>
+    <string name="screen_close">Close</string>
+    <string name="screen_keyboard">Keyboard</string>
+    <string name="screen_protected">Protected video (Netflix and similar) shows black: Android forbids capturing it</string>
+</resources>

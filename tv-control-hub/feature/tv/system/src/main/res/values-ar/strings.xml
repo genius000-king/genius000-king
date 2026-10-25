@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sys_title">الإعدادات</string>
+    <string name="sys_interface">الواجهة</string>
+    <string name="sys_phones">الجوالات</string>
+    <string name="sys_setup">الإعداد</string>
+    <string name="sys_system">النظام</string>
+    <string name="sys_services">الخدمات</string>
+    <string name="sys_about">حول</string>
+
+    <string name="sys_glow">الإضاءة المحيطية</string>
+    <string name="sys_glow_off">إيقاف</string>
+    <string name="sys_glow_soft">خفيفة</string>
+    <string name="sys_glow_medium">متوسطة</string>
+    <string name="sys_glow_strong">قوية</string>
+    <string name="sys_motion">خلفية متحركة</string>
+    <string name="sys_motion_body">الغيوم تنجرف ببطء خلف كل شيء</string>
+    <string name="sys_frames">إطار الأيقونات</string>
+    <string name="sys_frames_body">إظهار كل أيقونة على بلاطة زجاجية</string>
+    <string name="sys_labels">أسماء التطبيقات</string>
+    <string name="sys_big_icons">أيقونات كبيرة</string>
+    <string name="sys_widget_phone">إضافة الجوال</string>
+    <string name="sys_widget_device">إضافة الذاكرة</string>
+    <string name="sys_widget_shortcuts">الاختصارات</string>
+
+    <string name="sys_no_phones">لا يوجد جوال مقترن بعد</string>
+    <string name="sys_no_phones_body">افتح TV Hub على جوالك: سيظهر هذا التلفزيون وحده. اضغط OK عند السؤال.</string>
+    <string name="sys_connected_now">متصل الآن</string>
+    <string name="sys_revoke">إلغاء الوصول</string>
+    <string name="sys_grant_screen">رؤية الشاشة</string>
+    <string name="sys_grant_input">التحكم والكتابة</string>
+    <string name="sys_grant_info">معلومات الجهاز</string>
+    <string name="sys_grant_files_read">تصفح الملفات</string>
+    <string name="sys_grant_files_write">تعديل الملفات</string>
+    <string name="sys_grant_apps">التطبيقات</string>
+    <string name="sys_grant_shell">الطرفية</string>
+    <string name="sys_grant_services">الخدمات</string>
+    <string name="sys_auto_approve">قبول الجوالات الجديدة تلقائيًا</string>
+    <string name="sys_auto_approve_body">غير مستحسن: أي أحد على شبكتك يستطيع الاتصال</string>
+
+    <string name="sys_setup_done">كل شيء جاهز</string>
+    <string name="sys_check_accessibility">التحكم من الجوال</string>
+    <string name="sys_check_accessibility_body">فعّل TV Hub في إمكانية الوصول</string>
+    <string name="sys_check_install">تثبيت التطبيقات</string>
+    <string name="sys_check_install_body">اسمح لـ TV Hub بتثبيت التطبيقات</string>
+    <string name="sys_check_files">كل الملفات</string>
+    <string name="sys_check_files_body">يتيح لجوالك تصفح USB والتنزيلات</string>
+    <string name="sys_check_home">فتح TV Hub عند التشغيل</string>
+    <string name="sys_check_home_body">اجعل TV Hub الشاشة الرئيسية</string>
+    <string name="sys_open">فتح</string>
+    <string name="sys_adb_hint">أسرع: شغّل tools/tv-setup.sh من الكمبيوتر مرة واحدة</string>
+
+    <string name="sys_take_home">زر الرئيسية يفتح TV Hub</string>
+    <string name="sys_take_home_body">يعمل عبر خدمة إمكانية الوصول</string>
+    <string name="sys_boot">التشغيل مع التلفزيون</string>
+    <string name="sys_remote_mouse">المؤشر من الريموت</string>
+    <string name="sys_remote_mouse_body">في تطبيقات الجوال، اضغط OK مطولًا لإظهاره أو إخفائه</string>
+    <string name="sys_auto_mouse">المؤشر في تطبيقات الجوال</string>
+    <string name="sys_auto_mouse_body">يظهر وحده عند فتح تطبيق جوال</string>
+    <string name="sys_language">اللغة</string>
+    <string name="sys_lang_system">النظام</string>
+
+    <string name="sys_no_services">لا توجد خدمات بعد</string>
+    <string name="sys_no_services_body">أضف سيرفرات Node أو Python من جوالك: TV Hub ← المزيد ← الخدمات</string>
+
+    <string name="sys_version">الإصدار</string>
+    <string name="sys_fingerprint">هوية التلفزيون</string>
+    <string name="sys_address">العنوان</string>
+
+    <string name="pair_title">%1$s يريد الاتصال</string>
+    <string name="pair_body">نفس الرمز ظاهر على الجوال</string>
+    <string name="pair_allow">سماح</string>
+    <string name="pair_deny">رفض</string>
+</resources>

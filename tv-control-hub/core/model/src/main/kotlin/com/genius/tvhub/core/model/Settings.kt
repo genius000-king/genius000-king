@@ -31,6 +31,11 @@ data class HubSettings(
     val motion: Boolean = true,
     /** Off = the app's own icon only; on = the icon sits on a glass tile. */
     val iconFrames: Boolean = false,
+    val largeIcons: Boolean = true,
+    val showLabels: Boolean = true,
+    val widgetPhone: Boolean = true,
+    val widgetDevice: Boolean = true,
+    val widgetShortcuts: Boolean = true,
 )
 
 /** A phone the TV trusts. */

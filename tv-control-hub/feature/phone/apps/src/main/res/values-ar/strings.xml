@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="apps_title">التطبيقات</string>
+    <string name="apps_beam">أرسل من جوالي</string>
+    <string name="apps_beam_title">أرسل إلى التلفزيون</string>
+    <string name="apps_search">ابحث في تطبيقاتك</string>
+    <string name="apps_sending">يرسل %1$s… %2$d%%</string>
+    <string name="apps_confirm">أكّد التثبيت على التلفزيون</string>
+    <string name="apps_done">%1$s صار على التلفزيون</string>
+    <string name="apps_failed">تعذّر التثبيت: %1$s</string>
+    <string name="apps_phone_app">تطبيق جوال</string>
+    <string name="apps_open">افتح على التلفزيون</string>
+    <string name="apps_uninstall">إزالة التثبيت</string>
+</resources>

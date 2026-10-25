@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dev_title">Device</string>
+    <string name="dev_memory">Memory</string>
+    <string name="dev_used_of">of %1$s</string>
+    <string name="dev_storage">Storage</string>
+    <string name="dev_temp">Temperature</string>
+    <string name="dev_network">Network</string>
+    <string name="dev_uptime">Up for</string>
+    <string name="dev_cpu">Processor</string>
+    <string name="dev_gpu">Graphics</string>
+    <string name="dev_display">Display</string>
+    <string name="dev_system">System</string>
+    <string name="dev_chip">Chip</string>
+    <string name="dev_cores">Cores</string>
+    <string name="dev_load">Load</string>
+    <string name="dev_freq">Frequency</string>
+    <string name="dev_app_cpu">TV Hub itself</string>
+    <string name="dev_renderer">Renderer</string>
+    <string name="dev_vendor">Vendor</string>
+    <string name="dev_gl">OpenGL</string>
+    <string name="dev_gpu_usage">Usage</string>
+    <string name="dev_gpu_usage_na">Android has no API for GPU usage</string>
+    <string name="dev_address">Address</string>
+    <string name="dev_signal">Signal</string>
+    <string name="dev_link">Link speed</string>
+    <string name="dev_down">Down</string>
+    <string name="dev_up">Up</string>
+    <string name="dev_android">Android</string>
+    <string name="dev_patch">Security patch</string>
+    <string name="dev_model">Model</string>
+    <string name="dev_resolution">Resolution</string>
+    <string name="dev_thermal_state">Thermal state</string>
+    <string name="dev_loading">Reading the TV…</string>
+    <string name="dev_needs_adb">Needs ADB</string>
+</resources>

@@ -29,4 +29,10 @@
     <string name="deck_files">الملفات</string>
     <string name="deck_services">الخدمات</string>
     <string name="deck_settings">الإعدادات</string>
+    <string name="kb_title">الكيبورد</string>
+    <string name="kb_hint">اكتب هنا، يظهر على التلفزيون</string>
+    <string name="kb_enter">إدخال</string>
+    <string name="kb_no_field">اختر حقل نص على التلفزيون أولًا</string>
+    <string name="mouse_hint">تحريك: إصبع · نقر: لمسة · تمرير: إصبعان</string>
+    <string name="mouse_title">الماوس</string>
 </resources>

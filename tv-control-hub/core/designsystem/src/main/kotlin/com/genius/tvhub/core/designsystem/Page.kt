@@ -68,3 +68,9 @@ fun HubPage(
 fun HubSurface(modifier: Modifier = Modifier, content: @Composable androidx.compose.foundation.layout.BoxScope.() -> Unit) {
     ImlaqBackground(modifier) { Box(Modifier.fillMaxSize(), content = content) }
 }
+
+/** A faint label above a group of controls. */
+@Composable
+fun SectionLabel(text: String, modifier: Modifier = Modifier) {
+    Text(text, modifier.padding(top = 10.dp, start = 4.dp), style = MaterialTheme.typography.labelSmall, color = Imlaq.colors.faint)
+}

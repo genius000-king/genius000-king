@@ -29,4 +29,10 @@
     <string name="deck_files">Files</string>
     <string name="deck_services">Services</string>
     <string name="deck_settings">Settings</string>
+    <string name="kb_title">Keyboard</string>
+    <string name="kb_hint">Type here, it appears on the TV</string>
+    <string name="kb_enter">Enter</string>
+    <string name="kb_no_field">Select a text field on the TV first</string>
+    <string name="mouse_hint">Move: one finger · Click: tap · Scroll: two fingers</string>
+    <string name="mouse_title">Mouse</string>
 </resources>

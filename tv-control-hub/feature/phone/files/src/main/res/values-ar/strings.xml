@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="files_title">الملفات</string>
+    <string name="files_upload">أرسل ملفًا</string>
+    <string name="files_empty">هذا المجلد فارغ</string>
+    <string name="files_download">حفظ في الجوال</string>
+    <string name="files_rename">إعادة تسمية</string>
+    <string name="files_delete">حذف</string>
+    <string name="files_new_folder">مجلد جديد</string>
+    <string name="files_name">الاسم</string>
+    <string name="files_ok">تم</string>
+    <string name="files_saved">حُفظ في التنزيلات</string>
+    <string name="files_progress">%1$d%%</string>
+</resources>

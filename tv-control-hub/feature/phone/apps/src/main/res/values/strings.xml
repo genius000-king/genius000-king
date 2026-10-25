@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="apps_title">Apps</string>
+    <string name="apps_beam">Send from my phone</string>
+    <string name="apps_beam_title">Send to the TV</string>
+    <string name="apps_search">Search your apps</string>
+    <string name="apps_sending">Sending %1$s… %2$d%%</string>
+    <string name="apps_confirm">Confirm the install on the TV</string>
+    <string name="apps_done">%1$s is on the TV</string>
+    <string name="apps_failed">Could not install: %1$s</string>
+    <string name="apps_phone_app">Phone app</string>
+    <string name="apps_open">Open on TV</string>
+    <string name="apps_uninstall">Uninstall</string>
+</resources>

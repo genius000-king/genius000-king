@@ -89,9 +89,9 @@ class HubAccessibilityService : AccessibilityService() {
         }
     }
 
-    /** A phone app: launchable, but without a TV (leanback) entry. Our own app counts too (launcher). */
+    /** A phone app: launchable, but without a TV (leanback) entry. Our launcher is remote-friendly: not one. */
     private fun isPhoneApp(pkg: String): Boolean {
-        if (pkg == packageName) return true
+        if (pkg == packageName) return false
         val pm = packageManager
         val leanback = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER).setPackage(pkg)
         if (pm.queryIntentActivities(leanback, 0).isNotEmpty()) return false

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="files_title">Files</string>
+    <string name="files_upload">Send a file</string>
+    <string name="files_empty">This folder is empty</string>
+    <string name="files_download">Save to phone</string>
+    <string name="files_rename">Rename</string>
+    <string name="files_delete">Delete</string>
+    <string name="files_new_folder">New folder</string>
+    <string name="files_name">Name</string>
+    <string name="files_ok">Done</string>
+    <string name="files_saved">Saved to Downloads</string>
+    <string name="files_progress">%1$d%%</string>
+</resources>

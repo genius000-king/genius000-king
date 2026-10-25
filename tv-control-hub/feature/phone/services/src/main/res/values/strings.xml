@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="svc_title">Services</string>
+    <string name="svc_add">Add service</string>
+    <string name="svc_empty">No services yet</string>
+    <string name="svc_empty_body">Run a Node or Python server on the TV and keep it alive. Needs Termux on the TV.</string>
+    <string name="svc_name">Name</string>
+    <string name="svc_id">Id (letters, digits, -)</string>
+    <string name="svc_folder">Folder in Termux</string>
+    <string name="svc_command">Command (empty = default)</string>
+    <string name="svc_save">Save</string>
+    <string name="svc_logs">Logs</string>
+    <string name="svc_restart">Restart</string>
+    <string name="svc_remove">Remove</string>
+    <string name="svc_terminal">Terminal</string>
+    <string name="svc_terminal_body">Run a command on the TV</string>
+    <string name="term_hint">Command</string>
+    <string name="term_app">App shell</string>
+    <string name="term_termux">Termux</string>
+    <string name="term_enable">Once, in Termux on the TV:</string>
+</resources>

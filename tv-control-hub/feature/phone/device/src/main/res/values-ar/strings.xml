@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dev_title">الجهاز</string>
+    <string name="dev_memory">الذاكرة</string>
+    <string name="dev_used_of">من %1$s</string>
+    <string name="dev_storage">التخزين</string>
+    <string name="dev_temp">الحرارة</string>
+    <string name="dev_network">الشبكة</string>
+    <string name="dev_uptime">يعمل منذ</string>
+    <string name="dev_cpu">المعالج</string>
+    <string name="dev_gpu">الرسوميات</string>
+    <string name="dev_display">الشاشة</string>
+    <string name="dev_system">النظام</string>
+    <string name="dev_chip">الشريحة</string>
+    <string name="dev_cores">الأنوية</string>
+    <string name="dev_load">الحمل</string>
+    <string name="dev_freq">التردد</string>
+    <string name="dev_app_cpu">TV Hub نفسه</string>
+    <string name="dev_renderer">المعالج الرسومي</string>
+    <string name="dev_vendor">المصنّع</string>
+    <string name="dev_gl">OpenGL</string>
+    <string name="dev_gpu_usage">الاستخدام</string>
+    <string name="dev_gpu_usage_na">لا توجد واجهة في Android لاستخدام الرسوميات</string>
+    <string name="dev_address">العنوان</string>
+    <string name="dev_signal">الإشارة</string>
+    <string name="dev_link">سرعة الربط</string>
+    <string name="dev_down">تنزيل</string>
+    <string name="dev_up">رفع</string>
+    <string name="dev_android">Android</string>
+    <string name="dev_patch">تحديث الأمان</string>
+    <string name="dev_model">الطراز</string>
+    <string name="dev_resolution">الدقة</string>
+    <string name="dev_thermal_state">الحالة الحرارية</string>
+    <string name="dev_loading">يقرأ التلفزيون…</string>
+    <string name="dev_needs_adb">يحتاج ADB</string>
+</resources>

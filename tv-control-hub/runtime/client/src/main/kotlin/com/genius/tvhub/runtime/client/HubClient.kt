@@ -79,6 +79,8 @@ class HubClient(
     private var bulkSocket: OpenSocket? = null
     private val bulkLock = Mutex()
     private var retryNow = CompletableDeferred<Unit>()
+    /** False after the TV refused or revoked us: never ask its owner again until the user acts. */
+    @Volatile private var autoPair = true
     private var loop: Job? = null
 
     private lateinit var scope: CoroutineScope
@@ -92,6 +94,9 @@ class HubClient(
 
     /** The user picked a TV (or typed an address). */
     fun connect(tv: TvEndpoint) { chosen.value = tv; retry() }
+
+    /** A user action ("try again"): re-allows pairing with an unknown TV. */
+    fun userRetry() { autoPair = true; retry() }
 
     fun connectManual(host: String, port: Int) = connect(TvEndpoint("", host, host, port, paired = false))
 
@@ -161,6 +166,7 @@ class HubClient(
                     else -> null
                 }
                 if (failure != null) {
+                    if (failure == LinkFailure.REFUSED) autoPair = false
                     _state.value = LinkState.Failed(target, failure)
                     chosen.value = null
                     waitForRetry()
@@ -224,7 +230,8 @@ class HubClient(
 
     private suspend fun onPush(push: Push) {
         if (push is Push.Goodbye) {
-            current?.let { paired.forget(it.id) }
+            autoPair = false
+            current?.let { tv -> paired.forget(tv.id); settings.update { if (it.lastTvId == tv.id) it.copy(lastTvId = null) else it } }
             _state.value = LinkState.Failed(current, LinkFailure.REFUSED)
             disconnect()
         }
@@ -243,6 +250,7 @@ class HubClient(
             val seen = found.value.firstOrNull { it.record.id == last.id }
             return TvEndpoint(last.id, last.name, seen?.host ?: last.host, seen?.port ?: last.port, paired = true)
         }
+        if (!autoPair) return null
         return found.value.singleOrNull()?.let { TvEndpoint(it.record.id, it.record.name, it.host, it.port, paired = false) }
     }
 
@@ -266,7 +274,7 @@ class HubClient(
         retryNow = CompletableDeferred()
     }
 
-    private suspend fun waitForRetry() { retryNow.await(); retryNow = CompletableDeferred() }
+    private suspend fun waitForRetry() { retryNow.await(); retryNow = CompletableDeferred(); autoPair = true }
 
     private suspend fun disconnect() {
         rpc = null; current = null; currentKey = null

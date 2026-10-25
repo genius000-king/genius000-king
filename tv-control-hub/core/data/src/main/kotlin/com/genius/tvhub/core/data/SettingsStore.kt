@@ -31,6 +31,11 @@ class SettingsStore @Inject constructor(private val store: DataStore<Preferences
         val glow = androidx.datastore.preferences.core.floatPreferencesKey("glow")
         val motion = booleanPreferencesKey("motion")
         val iconFrames = booleanPreferencesKey("icon_frames")
+        val largeIcons = booleanPreferencesKey("large_icons")
+        val labels = booleanPreferencesKey("labels")
+        val wPhone = booleanPreferencesKey("w_phone")
+        val wDevice = booleanPreferencesKey("w_device")
+        val wShortcuts = booleanPreferencesKey("w_shortcuts")
         val language = stringPreferencesKey("language")
         val effects = stringPreferencesKey("effects")
         val role = stringPreferencesKey("role")
@@ -72,6 +77,11 @@ class SettingsStore @Inject constructor(private val store: DataStore<Preferences
             glow = p[K.glow]?.coerceIn(0f, 1f) ?: d.glow,
             motion = p[K.motion] ?: d.motion,
             iconFrames = p[K.iconFrames] ?: d.iconFrames,
+            largeIcons = p[K.largeIcons] ?: d.largeIcons,
+            showLabels = p[K.labels] ?: d.showLabels,
+            widgetPhone = p[K.wPhone] ?: d.widgetPhone,
+            widgetDevice = p[K.wDevice] ?: d.widgetDevice,
+            widgetShortcuts = p[K.wShortcuts] ?: d.widgetShortcuts,
         )
     }
 
@@ -94,5 +104,10 @@ class SettingsStore @Inject constructor(private val store: DataStore<Preferences
         p[K.glow] = s.glow
         p[K.motion] = s.motion
         p[K.iconFrames] = s.iconFrames
+        p[K.largeIcons] = s.largeIcons
+        p[K.labels] = s.showLabels
+        p[K.wPhone] = s.widgetPhone
+        p[K.wDevice] = s.widgetDevice
+        p[K.wShortcuts] = s.widgetShortcuts
     }
 }
