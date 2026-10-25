@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ds_close">إغلاق</string>
+    <string name="ds_options">خيارات</string>
+    <string name="ds_back">رجوع</string>
+    <string name="ds_more">المزيد</string>
+    <string name="ds_unavailable">غير متاح</string>
+    <string name="ds_retry">إعادة المحاولة</string>
+</resources>

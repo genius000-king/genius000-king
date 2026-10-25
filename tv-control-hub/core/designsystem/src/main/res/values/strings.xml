@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ds_close">Close</string>
+    <string name="ds_options">Options</string>
+    <string name="ds_back">Back</string>
+    <string name="ds_more">More</string>
+    <string name="ds_unavailable">Not available</string>
+    <string name="ds_retry">Try again</string>
+</resources>

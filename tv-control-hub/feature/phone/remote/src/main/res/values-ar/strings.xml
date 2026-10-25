@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="remote_hint">اسحب للتنقل · انقر للاختيار</string>
+    <string name="remote_hint_more">افتح إصبعين لترى الشاشة</string>
+    <string name="remote_back">رجوع</string>
+    <string name="remote_home">الرئيسية</string>
+    <string name="remote_more">المزيد</string>
+    <string name="link_searching">يبحث عن تلفزيونك…</string>
+    <string name="link_searching_tip">اجعل الجوال والتلفزيون على نفس شبكة Wi‑Fi</string>
+    <string name="link_connecting">يتصل بـ %1$s</string>
+    <string name="link_reconnecting">يعيد الاتصال…</string>
+    <string name="link_approve_title">اضغط OK على ريموت التلفزيون</string>
+    <string name="link_approve_body">نفس الرمز ظاهر على التلفزيون</string>
+    <string name="link_manual">إدخال العنوان</string>
+    <string name="link_retry">إعادة المحاولة</string>
+    <string name="link_ms">%1$d ms</string>
+    <string name="link_fail_no_network">لا يوجد اتصال Wi‑Fi</string>
+    <string name="link_fail_not_found">لم يُعثر على التلفزيون في هذه الشبكة</string>
+    <string name="link_fail_refused">رفض التلفزيون الاتصال</string>
+    <string name="link_fail_key_changed">هوية هذا التلفزيون تغيّرت. أعد الإقران للأمان</string>
+    <string name="link_fail_version">حدّث التطبيق على الجهازين</string>
+    <string name="link_fail_unreachable">تعذّر الوصول للتلفزيون</string>
+    <string name="deck_title">المزيد</string>
+    <string name="deck_screen">الشاشة</string>
+    <string name="deck_mouse">الماوس</string>
+    <string name="deck_keyboard">الكيبورد</string>
+    <string name="deck_device">الجهاز</string>
+    <string name="deck_apps">التطبيقات</string>
+    <string name="deck_files">الملفات</string>
+    <string name="deck_services">الخدمات</string>
+    <string name="deck_settings">الإعدادات</string>
+</resources>

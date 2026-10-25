@@ -61,6 +61,9 @@ internal fun Project.configureKotlinJvm() {
 internal fun Project.configureTests() {
     tasks.withType<Test>().configureEach {
         maxHeapSize = "2g"
+        // Robolectric fetches its android-all jar at run time; use the same Central mirror as Gradle.
+        systemProperty("robolectric.dependency.repo.url", "https://maven-central.storage-download.googleapis.com/maven2")
+        systemProperty("robolectric.logging.enabled", "false")
         testLogging {
             events("failed")
             exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL

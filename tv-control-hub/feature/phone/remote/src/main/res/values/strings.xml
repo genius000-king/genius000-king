@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="remote_hint">Swipe to move · tap to select</string>
+    <string name="remote_hint_more">Spread two fingers to see the screen</string>
+    <string name="remote_back">Back</string>
+    <string name="remote_home">Home</string>
+    <string name="remote_more">More</string>
+    <string name="link_searching">Looking for your TV…</string>
+    <string name="link_searching_tip">Keep the phone and the TV on the same Wi‑Fi</string>
+    <string name="link_connecting">Connecting to %1$s</string>
+    <string name="link_reconnecting">Reconnecting…</string>
+    <string name="link_approve_title">Press OK on the TV remote</string>
+    <string name="link_approve_body">The same code is on the TV</string>
+    <string name="link_manual">Enter address</string>
+    <string name="link_retry">Try again</string>
+    <string name="link_ms">%1$d ms</string>
+    <string name="link_fail_no_network">No Wi‑Fi connection</string>
+    <string name="link_fail_not_found">TV not found on this network</string>
+    <string name="link_fail_refused">The TV refused the connection</string>
+    <string name="link_fail_key_changed">This TV\'s identity changed. Pair it again to be safe</string>
+    <string name="link_fail_version">Update the app on both devices</string>
+    <string name="link_fail_unreachable">Cannot reach the TV</string>
+    <string name="deck_title">More</string>
+    <string name="deck_screen">Screen</string>
+    <string name="deck_mouse">Mouse</string>
+    <string name="deck_keyboard">Keyboard</string>
+    <string name="deck_device">Device</string>
+    <string name="deck_apps">Apps</string>
+    <string name="deck_files">Files</string>
+    <string name="deck_services">Services</string>
+    <string name="deck_settings">Settings</string>
+</resources>
