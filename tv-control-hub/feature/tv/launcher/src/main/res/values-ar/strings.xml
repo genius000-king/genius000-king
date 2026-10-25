@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tv_all_apps">كل التطبيقات</string>
+    <string name="tv_all_apps_hint">للأسفل لكل التطبيقات</string>
+    <string name="tv_my_space">مساحتي</string>
+    <string name="tv_add_app">إضافة تطبيق</string>
+    <string name="tv_settings">الإعدادات</string>
+    <string name="tv_open">فتح</string>
+    <string name="tv_add_to_space">أضف إلى مساحتي</string>
+    <string name="tv_remove_from_space">أزل من مساحتي</string>
+    <string name="tv_app_info">معلومات التطبيق</string>
+    <string name="tv_uninstall">إزالة التثبيت</string>
+    <string name="tv_phone_connected">%1$s متصل</string>
+    <string name="tv_mouse_on">المؤشر يعمل</string>
+    <string name="tv_phone_app">تطبيق جوال</string>
+    <string name="tv_add_from_phone">من جوالي</string>
+    <string name="tv_add_from_phone_body">افتح TV Hub على جوالك ← التطبيقات ← أرسل للتلفزيون</string>
+    <string name="tv_add_from_files">من USB أو التنزيلات</string>
+    <string name="tv_add_from_files_body">ملفات APK الموجودة على هذا التلفزيون</string>
+    <string name="tv_add_from_link">من رابط</string>
+    <string name="tv_add_from_link_body">اكتب الرابط بكيبورد جوالك</string>
+    <string name="tv_empty_space">مساحتك فارغة</string>
+    <string name="tv_empty_space_body">أضف التطبيقات التي تستخدمها. الباقي يبقى بعيدًا عن طريقك.</string>
+    <string name="tv_setup_needed">بقي %1$d خطوات لإكمال الإعداد</string>
+    <string name="tv_good_morning">صباح الخير</string>
+    <string name="tv_good_afternoon">مساء الخير</string>
+    <string name="tv_good_evening">مساء الخير</string>
+</resources>

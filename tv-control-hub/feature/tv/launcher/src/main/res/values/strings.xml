@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tv_all_apps">All apps</string>
+    <string name="tv_all_apps_hint">Down for all apps</string>
+    <string name="tv_my_space">My space</string>
+    <string name="tv_add_app">Add app</string>
+    <string name="tv_settings">Settings</string>
+    <string name="tv_open">Open</string>
+    <string name="tv_add_to_space">Add to my space</string>
+    <string name="tv_remove_from_space">Remove from my space</string>
+    <string name="tv_app_info">App info</string>
+    <string name="tv_uninstall">Uninstall</string>
+    <string name="tv_phone_connected">%1$s connected</string>
+    <string name="tv_mouse_on">Pointer on</string>
+    <string name="tv_phone_app">Phone app</string>
+    <string name="tv_add_from_phone">From my phone</string>
+    <string name="tv_add_from_phone_body">Open TV Hub on your phone ← Apps ← Send to TV</string>
+    <string name="tv_add_from_files">From USB or Downloads</string>
+    <string name="tv_add_from_files_body">APK files found on this TV</string>
+    <string name="tv_add_from_link">From a link</string>
+    <string name="tv_add_from_link_body">Type the link on your phone keyboard</string>
+    <string name="tv_empty_space">Your space is empty</string>
+    <string name="tv_empty_space_body">Add the apps you use. Everything else stays out of the way.</string>
+    <string name="tv_setup_needed">%1$d steps left to finish setup</string>
+    <string name="tv_good_morning">Good morning</string>
+    <string name="tv_good_afternoon">Good afternoon</string>
+    <string name="tv_good_evening">Good evening</string>
+</resources>

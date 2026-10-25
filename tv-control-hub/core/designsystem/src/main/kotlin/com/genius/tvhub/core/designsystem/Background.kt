@@ -108,7 +108,7 @@ private val CLOUDS = listOf(
  * brighter "veins" show. Small on purpose: it is scaled up with bilinear filtering, which is
  * exactly the softness stone needs.
  */
-private fun stoneTexture(w: Int = 120, h: Int = 260): ImageBitmap {
+internal fun stoneTexture(w: Int = 120, h: Int = 260): ImageBitmap {
     val rnd = Random(11)
     val lattice = Array(5) { FloatArray(64 * 64) { rnd.nextFloat() } }
     fun smooth(t: Float) = t * t * (3 - 2 * t)
@@ -134,7 +134,7 @@ private fun stoneTexture(w: Int = 120, h: Int = 260): ImageBitmap {
 }
 
 /** 160×160 grey noise for film grain. */
-private fun grainTile(): ImageBitmap {
+internal fun grainTile(): ImageBitmap {
     val n = 160
     val rnd = Random(7)
     val pixels = IntArray(n * n) {
