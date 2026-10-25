@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="input_accessibility_label">TV Hub control</string>
+    <string name="input_accessibility_description">Lets your paired phone press buttons, tap, type and move a pointer on this TV. TV Hub does not read or collect what is on screen.</string>
+</resources>

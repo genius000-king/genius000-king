@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="input_accessibility_label">تحكم TV Hub</string>
+    <string name="input_accessibility_description">يسمح لجوالك المقترن بضغط الأزرار والنقر والكتابة وتحريك مؤشر على هذا التلفزيون. لا يقرأ TV Hub محتوى الشاشة ولا يجمعه.</string>
+</resources>
