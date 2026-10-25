@@ -8,3 +8,4 @@ captures/
 *.keystore
 *.jks
 !dist/
+dist/*-debug.apk

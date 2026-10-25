@@ -53,19 +53,18 @@ class MainActivity : ComponentActivity() {
     }
 
     /** On the phone, the hardware volume buttons turn the TV up and down while connected. */
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (role == DeviceRole.PHONE && hub.state.value is LinkState.Connected &&
-            (event.keyCode == KeyEvent.KEYCODE_VOLUME_UP || event.keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
-        ) {
-            if (event.action == KeyEvent.ACTION_DOWN) {
-                lifecycleScope.launch {
-                    if (settings.current().volumeKeysControlTv) {
-                        runCatching { hub.call(Call.Key(if (event.keyCode == KeyEvent.KEYCODE_VOLUME_UP) KeyAction.VOLUME_UP else KeyAction.VOLUME_DOWN)) }
-                    }
-                }
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (!volumeForTv(keyCode)) return super.onKeyDown(keyCode, event)
+        lifecycleScope.launch {
+            if (settings.current().volumeKeysControlTv) {
+                runCatching { hub.call(Call.Key(if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) KeyAction.VOLUME_UP else KeyAction.VOLUME_DOWN)) }
             }
-            return true
         }
-        return super.dispatchKeyEvent(event)
+        return true
     }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean = volumeForTv(keyCode) || super.onKeyUp(keyCode, event)
+
+    private fun volumeForTv(keyCode: Int) = role == DeviceRole.PHONE && hub.state.value is LinkState.Connected &&
+        (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
 }
