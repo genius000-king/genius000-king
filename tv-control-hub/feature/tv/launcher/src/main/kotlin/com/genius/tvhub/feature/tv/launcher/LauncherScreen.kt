@@ -117,6 +117,7 @@ fun LauncherScreen(
                         app, a.iconSize.dock, a.labels,
                         onClick = { actions.launch(app) }, onLongClick = { menuFor = app }, onFocused = onFocused,
                         focusRequester = if (app == state.space.first()) firstTile else null,
+                        framed = a.iconFrames,
                     )
                 }
                 item { AddTile(a.iconSize.dock, stringResource(R.string.tv_add_app), { addOpen = true }) { glow = null; glowAt = it } }
@@ -222,7 +223,7 @@ private fun AppsDrawer(
         ) {
             items(state.all, key = { it.packageName }) { app ->
                 Box(contentAlignment = Alignment.Center) {
-                    AppTile(app, state.appearance.iconSize.grid, true, { actions.launch(app) }, { onLongClick(app) }, onFocused, focusRequester = if (app == state.all.firstOrNull()) first else null)
+                    AppTile(app, state.appearance.iconSize.grid, true, { actions.launch(app) }, { onLongClick(app) }, onFocused, focusRequester = if (app == state.all.firstOrNull()) first else null, framed = state.appearance.iconFrames)
                     if (!app.isTvApp) PhoneBadge(Modifier.align(Alignment.TopEnd))
                 }
             }

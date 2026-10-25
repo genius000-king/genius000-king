@@ -44,7 +44,7 @@ class RemoteScreenshotTest {
     }
 
     @Test fun connected() = shot("connected_ar", LinkState.Connected(tv, 12, Grants.DEFAULT))
-    @Test fun connectedLightEnglish() = shot("connected_light_en", LinkState.Connected(tv, 9, Grants.DEFAULT), rtl = false, dark = false)
+    @Test fun connectedEnglish() = shot("connected_en", LinkState.Connected(tv, 9, Grants.DEFAULT), rtl = false)
     @Test fun searching() = shot("searching_ar", LinkState.Searching(listOf(tv.copy(paired = false))))
     @Test fun approval() = shot("approval_ar", LinkState.AwaitingApproval(tv, "482913"))
     @Test fun failed() = shot("failed_ar", LinkState.Failed(tv, LinkFailure.KEY_CHANGED))

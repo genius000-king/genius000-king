@@ -59,7 +59,6 @@ class LauncherScreenshotTest {
     )
     private val state = LauncherState(
         space = space, all = all,
-        shortcuts = listOf(HomeShortcut("1", "GitHub", ShortcutAction.OpenUrl("https://github.com")), HomeShortcut("2", "Pointer", ShortcutAction.TogglePointer)),
         phoneName = "Galaxy S24", ramFraction = 0.58f, storageFraction = 0.41f, setupStepsLeft = 1,
     )
     private val actions = object : LauncherActions {
@@ -98,5 +97,4 @@ class LauncherScreenshotTest {
     @Test fun homeEnglish() = shot("home_en", rtl = false)
     @Test fun homeFocusMoved() = shot("home_focus_en", rtl = false, focusMoves = 1)
     @Test fun drawerArabic() = shot("drawer_ar", rtl = true, drawer = true)
-    @Test fun homeLight() = shot("home_light_en", rtl = false, dark = false)
 }

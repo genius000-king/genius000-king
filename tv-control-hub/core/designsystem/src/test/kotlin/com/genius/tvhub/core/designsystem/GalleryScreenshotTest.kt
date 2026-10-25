@@ -59,5 +59,5 @@ class GalleryScreenshotTest {
     }
 
     @Test fun darkArabic() = gallery(dark = true, rtl = true, name = "dark_ar")
-    @Test fun lightEnglish() = gallery(dark = false, rtl = false, name = "light_en")
+    @Test fun darkEnglish() = gallery(dark = true, rtl = false, name = "dark_en")
 }

@@ -41,6 +41,8 @@ sealed interface Push {
     @Serializable @SerialName("stream") data class StreamState(val active: Boolean, val format: VideoFormat?) : Push
     @Serializable @SerialName("install") data class InstallProgress(val transferId: String, val state: InstallState, val message: String = "") : Push
     @Serializable @SerialName("svc") data class ServicesChanged(val services: List<ServiceEntry>) : Push
+    /** A text field on the TV gained or lost focus: the phone opens or closes its keyboard by itself. */
+    @Serializable @SerialName("focus") data class TextFocus(val focused: Boolean, val text: String = "", val hint: String? = null, val password: Boolean = false) : Push
     /** The TV revoked this phone; the phone forgets the TV's session and shows why. */
     @Serializable @SerialName("bye") data class Goodbye(val reason: String) : Push
 }

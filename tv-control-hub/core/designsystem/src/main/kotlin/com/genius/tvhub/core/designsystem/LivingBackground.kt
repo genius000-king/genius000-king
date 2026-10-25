@@ -49,7 +49,7 @@ fun LivingBackground(
     modifier: Modifier = Modifier,
     glow: Color? = null,
     glowAt: Offset = Offset(0.5f, 0.75f),
-    intensity: Float = 1f,
+    intensity: Float = 0.7f,
     motion: Boolean = true,
     content: @Composable BoxScope.() -> Unit,
 ) {
@@ -72,7 +72,7 @@ fun LivingBackground(
             drawRect(c.background)
 
             // Ambient wash: the focused colour tints the whole stone, very faintly.
-            drawRect(glowColor.copy(alpha = glowColor.alpha * 0.10f * strength))
+            drawRect(glowColor.copy(alpha = glowColor.alpha * 0.04f * strength))
 
             DRIFT.forEachIndexed { i, d ->
                 val a = p * d.speed + i * 1.7f
@@ -85,9 +85,9 @@ fun LivingBackground(
             if (glowColor.alpha > 0.01f) {
                 val at = Offset(size.width * glowPos.x, size.height * glowPos.y)
                 val bloom = size.maxDimension * 0.42f
-                drawCircle(Brush.radialGradient(listOf(glowColor.copy(alpha = 0.34f * strength * glowColor.alpha), Color.Transparent), at, bloom), bloom, at)
+                drawCircle(Brush.radialGradient(listOf(glowColor.copy(alpha = 0.16f * strength * glowColor.alpha), Color.Transparent), at, bloom), bloom, at)
                 val core = size.maxDimension * 0.14f
-                drawCircle(Brush.radialGradient(listOf(glowColor.copy(alpha = 0.30f * strength * glowColor.alpha), Color.Transparent), at, core), core, at)
+                drawCircle(Brush.radialGradient(listOf(glowColor.copy(alpha = 0.12f * strength * glowColor.alpha), Color.Transparent), at, core), core, at)
             }
 
             drawImage(

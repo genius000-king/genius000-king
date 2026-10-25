@@ -61,6 +61,7 @@ fun AppTile(
     onFocused: (LauncherApp, Offset) -> Unit,
     modifier: Modifier = Modifier,
     focusRequester: FocusRequester? = null,
+    framed: Boolean = false,
 ) {
     val c = Imlaq.colors
     var focused by remember { mutableStateOf(false) }
@@ -87,14 +88,18 @@ fun AppTile(
             Modifier
                 .graphicsLayer { scaleX = scale; scaleY = scale; translationY = if (focused) -6.dp.toPx() else 0f }
                 .size(iconDp.dp)
-                .glass(shape, strong = true)
-                .border(if (focused) 2.dp else 1.dp, ring, shape),
+                .then(
+                    if (framed) Modifier.glass(shape, strong = true).border(if (focused) 2.dp else 1.dp, ring, shape)
+                    // Unframed: the app's own icon, and a cream ring only around the focused one.
+                    else Modifier.border(2.dp, if (focused) c.text.copy(alpha = 0.9f) else Color.Transparent, shape),
+                ),
             contentAlignment = Alignment.Center,
         ) {
+            val inner = if (framed) iconDp * 0.66f else iconDp - 12f
             if (app.icon != null) {
-                Image(app.icon, app.label, Modifier.size((iconDp * 0.66f).dp).clip(RoundedCornerShape((iconDp * 0.18f).dp)))
+                Image(app.icon, app.label, Modifier.size(inner.dp).clip(RoundedCornerShape((inner * 0.26f).dp)))
             } else {
-                Box(Modifier.size((iconDp * 0.6f).dp).clip(RoundedCornerShape(14.dp)).background(app.accent), contentAlignment = Alignment.Center) {
+                Box(Modifier.size(inner.dp).clip(RoundedCornerShape((inner * 0.26f).dp)).background(app.accent), contentAlignment = Alignment.Center) {
                     Text(app.label.take(1), style = MaterialTheme.typography.titleLarge, color = Color.White)
                 }
             }

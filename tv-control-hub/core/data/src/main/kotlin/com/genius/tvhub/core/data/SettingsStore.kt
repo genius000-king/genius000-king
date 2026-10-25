@@ -8,7 +8,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.genius.tvhub.core.model.AppLanguage
 import com.genius.tvhub.core.model.DeviceRole
 import com.genius.tvhub.core.model.HubSettings
-import com.genius.tvhub.core.model.ThemeMode
 import com.genius.tvhub.core.model.VisualEffects
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -29,7 +28,9 @@ class SettingsStore @Inject constructor(private val store: DataStore<Preferences
     }
 
     private object K {
-        val theme = stringPreferencesKey("theme")
+        val glow = androidx.datastore.preferences.core.floatPreferencesKey("glow")
+        val motion = booleanPreferencesKey("motion")
+        val iconFrames = booleanPreferencesKey("icon_frames")
         val language = stringPreferencesKey("language")
         val effects = stringPreferencesKey("effects")
         val role = stringPreferencesKey("role")
@@ -53,7 +54,6 @@ class SettingsStore @Inject constructor(private val store: DataStore<Preferences
     private fun read(p: Preferences): HubSettings {
         val d = HubSettings()
         return HubSettings(
-            theme = p.enum(K.theme, d.theme),
             language = p.enum(K.language, d.language),
             effects = p.enum(K.effects, d.effects),
             roleOverride = p[K.role]?.let { v -> DeviceRole.entries.firstOrNull { it.name == v } },
@@ -69,11 +69,13 @@ class SettingsStore @Inject constructor(private val store: DataStore<Preferences
             launcherTakesHome = p[K.takeHome] ?: d.launcherTakesHome,
             autoApproveNew = p[K.autoApprove] ?: d.autoApproveNew,
             favorites = p[K.favorites]?.split('\n')?.filter { it.isNotBlank() } ?: d.favorites,
+            glow = p[K.glow]?.coerceIn(0f, 1f) ?: d.glow,
+            motion = p[K.motion] ?: d.motion,
+            iconFrames = p[K.iconFrames] ?: d.iconFrames,
         )
     }
 
     private fun write(p: androidx.datastore.preferences.core.MutablePreferences, s: HubSettings) {
-        p[K.theme] = s.theme.name
         p[K.language] = s.language.name
         p[K.effects] = s.effects.name
         s.roleOverride?.let { p[K.role] = it.name } ?: p.remove(K.role)
@@ -89,5 +91,8 @@ class SettingsStore @Inject constructor(private val store: DataStore<Preferences
         p[K.takeHome] = s.launcherTakesHome
         p[K.autoApprove] = s.autoApproveNew
         p[K.favorites] = s.favorites.joinToString("\n")
+        p[K.glow] = s.glow
+        p[K.motion] = s.motion
+        p[K.iconFrames] = s.iconFrames
     }
 }

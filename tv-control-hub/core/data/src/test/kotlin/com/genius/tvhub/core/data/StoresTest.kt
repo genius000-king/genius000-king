@@ -11,7 +11,6 @@ import com.genius.tvhub.core.model.Grants
 import com.genius.tvhub.core.model.HubSettings
 import com.genius.tvhub.core.model.ServiceKind
 import com.genius.tvhub.core.model.ServiceSpec
-import com.genius.tvhub.core.model.ThemeMode
 import com.genius.tvhub.core.security.fingerprintOf
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
@@ -74,9 +73,10 @@ class StoresTest {
         val file = File(context.cacheDir, "s-${System.nanoTime()}.preferences_pb")
         val store = SettingsStore(PreferenceDataStoreFactory.create(scope = TestScope(testScheduler).backgroundScope) { file })
         assertThat(store.current()).isEqualTo(HubSettings())
-        store.update { it.copy(theme = ThemeMode.LIGHT, language = AppLanguage.ARABIC, favorites = listOf("a", "b"), lastTvId = "tv") }
+        store.update { it.copy(glow = 0.3f, iconFrames = true, language = AppLanguage.ARABIC, favorites = listOf("a", "b"), lastTvId = "tv") }
         val s = store.current()
-        assertThat(s.theme).isEqualTo(ThemeMode.LIGHT)
+        assertThat(s.glow).isEqualTo(0.3f)
+        assertThat(s.iconFrames).isTrue()
         assertThat(s.language).isEqualTo(AppLanguage.ARABIC)
         assertThat(s.favorites).containsExactly("a", "b").inOrder()
         store.update { it.copy(lastTvId = null) }

@@ -19,7 +19,9 @@ enum class IconSize(val dock: Int, val grid: Int) { NORMAL(80, 64), LARGE(92, 76
 /** Everything the "Interface" settings page controls. */
 @Immutable
 data class Appearance(
-    val glow: Float = 1f,
+    val glow: Float = 0.7f,
+    /** Off: the app's own icon only. On: the icon on a glass tile. */
+    val iconFrames: Boolean = false,
     val motion: Boolean = true,
     val iconSize: IconSize = IconSize.LARGE,
     val labels: Boolean = true,

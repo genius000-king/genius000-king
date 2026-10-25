@@ -1,13 +1,14 @@
 package com.genius.tvhub.core.model
 
-enum class ThemeMode { SYSTEM, DARK, LIGHT }
 enum class AppLanguage { SYSTEM, ARABIC, ENGLISH }
 /** AUTO picks LITE on low-RAM devices (the 2 GB TV box), FULL elsewhere. */
 enum class VisualEffects { AUTO, FULL, LITE }
 
-/** Every user choice, both roles. Defaults are the "nothing to configure" experience. */
+/**
+ * Every user choice, both roles. Defaults are the "nothing to configure" experience.
+ * There is no light theme: the product is charcoal only, by decision.
+ */
 data class HubSettings(
-    val theme: ThemeMode = ThemeMode.DARK,
     val language: AppLanguage = AppLanguage.SYSTEM,
     val effects: VisualEffects = VisualEffects.AUTO,
     val roleOverride: DeviceRole? = null,
@@ -25,6 +26,11 @@ data class HubSettings(
     val launcherTakesHome: Boolean = false,
     val autoApproveNew: Boolean = false,
     val favorites: List<String> = emptyList(),
+    /** 0..1; how strongly the focused app's colour lights the room. */
+    val glow: Float = 0.7f,
+    val motion: Boolean = true,
+    /** Off = the app's own icon only; on = the icon sits on a glass tile. */
+    val iconFrames: Boolean = false,
 )
 
 /** A phone the TV trusts. */
