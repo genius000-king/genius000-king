@@ -22,9 +22,10 @@ import java.util.concurrent.atomic.AtomicLong
 
 /**
  * The phone's RPC over one secure session: [call] sends a request and waits for its reply;
- * [events] carries pushes. [run] owns the read loop and returns when the connection ends.
+ * pushes go to [onPush] on the read loop itself, in order, before the next frame is read — so a
+ * push followed at once by the socket closing (a revocation) is never lost. [events] mirrors them.
  */
-class RpcClient(private val session: SecureSession) {
+class RpcClient(private val session: SecureSession, private val onPush: suspend (Push) -> Unit = {}) {
     private val ids = AtomicLong(1)
     private val pending = ConcurrentHashMap<Long, CompletableDeferred<Reply>>()
     private val _events = MutableSharedFlow<Push>(extraBufferCapacity = 64)
@@ -59,7 +60,7 @@ class RpcClient(private val session: SecureSession) {
                 val bytes = session.receive() ?: break
                 when (val frame = ProtocolCodec.decode(bytes)) {
                     is Frame.Response -> pending[frame.id]?.complete(frame.reply)
-                    is Frame.Event -> _events.emit(frame.push)
+                    is Frame.Event -> { onPush(frame.push); _events.emit(frame.push) }
                     is Frame.Request -> Log.w(TAG, "ignoring request from TV")
                 }
             }

@@ -124,7 +124,7 @@ class HandshakeTest {
         assertThat((server.await().exceptionOrNull() as HandshakeException).failure).isEqualTo(HandshakeFailure.VERSION_MISMATCH)
     }
 
-    @Test fun tamperedServerHelloBreaksSignature() = runTest {
+    @Test fun tamperedServerHelloIsRejectedWithATypedFailure() = runTest {
         // Flip a byte in the signed body of ServerHello (server message #0) on the wire.
         val pipes = PipePair { fromClient, index, bytes ->
             if (!fromClient && index == 0) bytes.copyOf().also { it[it.size / 3] = (it[it.size / 3].toInt() xor 1).toByte() } else bytes

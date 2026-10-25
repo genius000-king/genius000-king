@@ -73,6 +73,7 @@ class HubClient(
     private val found = MutableStateFlow<List<FoundService>>(emptyList())
     private val chosen = MutableStateFlow<TvEndpoint?>(null)
     private var rpc: RpcClient? = null
+    private var controlSocket: OpenSocket? = null
     private var current: TvEndpoint? = null
     private var currentKey: ByteArray? = null
     private var bulk: RpcClient? = null
@@ -103,6 +104,7 @@ class HubClient(
     fun retry() { retryNow.complete(Unit) }
 
     suspend fun forget(id: String) {
+        autoPair = false // forgetting a TV must not re-pair with it the next second
         paired.forget(id)
         settings.update { if (it.lastTvId == id) it.copy(lastTvId = null) else it }
         if (current?.id == id) disconnect()
@@ -178,6 +180,8 @@ class HubClient(
                 Log.d(TAG, "link to ${target.name} dropped: ${e.message}")
             }
             rpc = null; closeBulk()
+            // Refused or revoked while connected: stay on that message until the user acts.
+            if (_state.value is LinkState.Failed) { chosen.value = null; waitForRetry(); continue }
             if (!target.paired && _state.value !is LinkState.Connected) chosen.value = null
             _state.value = LinkState.Reconnecting(target, backoff.attempt + 1)
             withTimeoutOrNull(backoff.next()) { retryNow.await() }
@@ -189,24 +193,25 @@ class HubClient(
         val pairedTv = target.id.takeIf { it.isNotEmpty() }?.let { paired.get(it) }
         _state.value = if (_state.value is LinkState.Reconnecting) _state.value else LinkState.Connecting(target)
         val socket = connector.open(target.host, target.port, Channel.CONTROL)
+        controlSocket = socket
         try {
             val session = Handshaker(self, identity(), PROTOCOL_VERSION).connect(socket.pipe, Channel.CONTROL.name, pairedTv?.publicKey) { code ->
                 _state.value = LinkState.AwaitingApproval(target, code)
             }
             val tv = remember(target, session)
             backoff.reset()
-            val client = RpcClient(session)
+            val client = RpcClient(session, ::onPush)
             rpc = client
             current = tv
             currentKey = session.peerKey
             _state.value = LinkState.Connected(tv, null, session.grants)
             coroutineScope {
-                launch { client.events.collect(::onPush) }
                 launch { pingLoop(client, tv, session.grants) }
                 client.run()
                 coroutineContext.cancelChildren()
             }
         } finally {
+            controlSocket = null
             socket.close()
         }
     }
@@ -222,7 +227,7 @@ class HubClient(
         while (true) {
             val t0 = System.nanoTime()
             val ok = runCatching { client.call(Call.Ping(System.currentTimeMillis()), 5_000) }.isSuccess
-            if (!ok) break
+            if (!ok || rpc !== client) break
             _state.value = LinkState.Connected(tv, ((System.nanoTime() - t0) / 1_000_000).toInt(), grants)
             delay(3_000)
         }
@@ -279,7 +284,7 @@ class HubClient(
     private suspend fun disconnect() {
         rpc = null; current = null; currentKey = null
         closeBulk()
-        retry()
+        controlSocket?.close()
     }
 
     private suspend fun closeBulk() = bulkLock.withLock { bulkSocket?.close(); bulk = null; bulkSocket = null }

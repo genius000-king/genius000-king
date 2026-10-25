@@ -53,6 +53,8 @@ class HostCore(
 ) {
     private val handshaker = Handshaker(self, identity, PROTOCOL_VERSION)
     private val sessions = mutableMapOf<String, HostSession>()
+    /** Every open channel of every phone, so revoking closes them all (video included). */
+    private val open = mutableMapOf<String, MutableSet<SecureSession>>()
     private val _connected = MutableStateFlow<List<PeerInfo>>(emptyList())
     val connected: StateFlow<List<PeerInfo>> = _connected
     private val _streaming = MutableStateFlow(false)
@@ -63,9 +65,14 @@ class HostCore(
             handshaker.accept(incoming.pipe, gatekeeper, Channel.CONTROL.name)
         }
         trust.seen(session.peer.id)
+        synchronized(open) { open.getOrPut(session.peer.id) { mutableSetOf() } += session }
+        try { serve(incoming.channel, session) } finally { synchronized(open) { open[session.peer.id]?.remove(session) } }
+    }
+
+    private suspend fun serve(channel: Channel, session: SecureSession) {
         val grants = { gatekeeper.grantsOf(session.peer.id) }
         val handler = handlerFor(session.peer.id, CallRouter(ports, grants, { status(grants()) }))
-        when (incoming.channel) {
+        when (channel) {
             Channel.CONTROL -> coroutineScope {
                 val host = HostSession(session.peer, RpcServer(session, this), ports, grants)
                 register(host)
@@ -121,10 +128,12 @@ class HostCore(
 
     fun status(grants: Grants) = HostStatus(self, checks(), grants, _streaming.value)
 
-    /** Tells removed devices they are out; their sockets close as their sessions end. */
+    /** Tells removed devices they are out, then closes every channel they have open. */
     suspend fun onTrustedChanged(trusted: Set<String>) {
         val gone = synchronized(sessions) { sessions.values.filter { it.peer.id !in trusted } }
         gone.forEach { runCatching { it.push(Push.Goodbye("access removed on the TV")) } }
+        val toClose = synchronized(open) { open.filterKeys { it !in trusted }.values.flatten() }
+        toClose.forEach { runCatching { it.close() } }
     }
 
     private fun register(s: HostSession) = synchronized(sessions) {

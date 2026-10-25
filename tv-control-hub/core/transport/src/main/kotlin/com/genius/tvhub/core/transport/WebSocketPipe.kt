@@ -23,5 +23,5 @@ internal class WebSocketPipe(private val socket: WebSocketSession) : FramePipe {
         }
     }
 
-    suspend fun close(reason: String) = socket.close(CloseReason(CloseReason.Codes.NORMAL, reason.take(120)))
+    override suspend fun close() = socket.close(CloseReason(CloseReason.Codes.NORMAL, "closed"))
 }

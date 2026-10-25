@@ -64,7 +64,7 @@ class Handshaker(
             )
             else -> throw HandshakeException(HandshakeFailure.PROTOCOL, "expected ServerHello")
         }
-        val body = HandshakeCodec.decode(server.body) as? Handshake.ServerBody
+        val body = decodeOrFail(server.body) as? Handshake.ServerBody
             ?: throw HandshakeException(HandshakeFailure.PROTOCOL, "bad ServerHello body")
         if (body.version != version) throw HandshakeException(HandshakeFailure.VERSION_MISMATCH, "TV protocol ${body.version}, ours $version")
         if (body.peer.id != fingerprintOf(body.identityKey)) throw HandshakeException(HandshakeFailure.ID_MISMATCH, "TV id does not match its key")
@@ -84,7 +84,10 @@ class Handshaker(
         val opener = AeadChannel(keys.s2c)
         while (true) {
             val sealed = pipe.receive() ?: throw HandshakeException(HandshakeFailure.CLOSED, "TV closed the connection")
-            when (val a = HandshakeCodec.decodeAdmission(opener.open(sealed))) {
+            val admission = try { HandshakeCodec.decodeAdmission(opener.open(sealed)) } catch (e: Exception) {
+                throw HandshakeException(HandshakeFailure.PROTOCOL, "unreadable admission: ${e.message}")
+            }
+            when (val a = admission) {
                 is Admission.Waiting -> onWaiting(a.sas)
                 is Admission.Admitted -> return SecureSession(body.peer, body.identityKey, a.grants, sas, pipe, sealer, opener)
                 is Admission.Denied -> throw HandshakeException(HandshakeFailure.DENIED, a.reason)
@@ -98,7 +101,7 @@ class Handshaker(
      */
     suspend fun accept(pipe: FramePipe, gatekeeper: Gatekeeper, pairingChannel: String): SecureSession {
         val helloBytes = pipe.receive() ?: throw HandshakeException(HandshakeFailure.CLOSED, "closed before hello")
-        val hello = HandshakeCodec.decode(helloBytes) as? Handshake.ClientHello
+        val hello = decodeOrFail(helloBytes) as? Handshake.ClientHello
             ?: throw HandshakeException(HandshakeFailure.PROTOCOL, "expected ClientHello")
         if (hello.version != version) {
             pipe.send(HandshakeCodec.encode(Handshake.Reject(version, "protocol mismatch")))
@@ -153,11 +156,14 @@ class Handshaker(
 
     private suspend fun receive(pipe: FramePipe): Handshake {
         val bytes = pipe.receive() ?: throw HandshakeException(HandshakeFailure.CLOSED, "connection closed during handshake")
-        return try {
-            HandshakeCodec.decode(bytes)
-        } catch (e: Exception) {
-            throw HandshakeException(HandshakeFailure.PROTOCOL, "unreadable handshake message: ${e.message}")
-        }
+        return decodeOrFail(bytes)
+    }
+
+    /** Any malformed or tampered message is a typed protocol failure, never a raw decoder crash. */
+    private fun decodeOrFail(bytes: ByteArray): Handshake = try {
+        HandshakeCodec.decode(bytes)
+    } catch (e: Exception) {
+        throw HandshakeException(HandshakeFailure.PROTOCOL, "unreadable handshake message: ${e.message}")
     }
 
     private fun nonce() = ByteArray(32).also(random::nextBytes)

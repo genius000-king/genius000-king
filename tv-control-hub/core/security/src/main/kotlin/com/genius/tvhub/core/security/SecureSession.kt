@@ -10,6 +10,9 @@ interface FramePipe {
     suspend fun send(bytes: ByteArray)
     /** Next frame, or null when the other side closed. */
     suspend fun receive(): ByteArray?
+
+    /** Ends the connection; the other side's [receive] returns null. */
+    suspend fun close() {}
 }
 
 /**
@@ -32,6 +35,8 @@ class SecureSession internal constructor(
     suspend fun send(plain: ByteArray) = sendLock.withLock { pipe.send(sealer.seal(plain)) }
 
     suspend fun receive(): ByteArray? = pipe.receive()?.let(opener::open)
+
+    suspend fun close() = pipe.close()
 }
 
 enum class HandshakeFailure {
