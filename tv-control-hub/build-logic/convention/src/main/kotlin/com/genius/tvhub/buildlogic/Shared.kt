@@ -61,6 +61,8 @@ internal fun Project.configureKotlinJvm() {
 internal fun Project.configureTests() {
     tasks.withType<Test>().configureEach {
         maxHeapSize = "2g"
+        // Screen modules without unit tests yet are not a misconfiguration.
+        failOnNoDiscoveredTests.set(false)
         // Robolectric fetches its android-all jar at run time; use the same Central mirror as Gradle.
         systemProperty("robolectric.dependency.repo.url", "https://maven-central.storage-download.googleapis.com/maven2")
         systemProperty("robolectric.logging.enabled", "false")

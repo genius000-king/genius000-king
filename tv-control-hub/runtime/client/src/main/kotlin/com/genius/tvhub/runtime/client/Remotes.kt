@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withTimeoutOrNull
@@ -137,7 +138,8 @@ class RemoteApps(private val hub: HubClient) {
             }
         }
         val done = coroutineScope {
-            val result = async {
+            // Subscribe before committing: the TV may answer before this coroutine would otherwise run.
+            val result = async(start = CoroutineStart.UNDISPATCHED) {
                 hub.events.filterIsInstance<Push.InstallProgress>().first { it.transferId == id && (it.state == InstallState.SUCCESS || it.state == InstallState.FAILED) }
             }
             hub.bulk(Call.InstallCommit(id))
