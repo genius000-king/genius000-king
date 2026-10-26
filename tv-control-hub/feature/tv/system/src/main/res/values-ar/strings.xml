@@ -50,11 +50,11 @@
     <string name="sys_open">فتح</string>
     <string name="sys_adb_hint">أسرع: شغّل tools/tv-setup.sh من الكمبيوتر مرة واحدة</string>
 
-    <string name="sys_take_home">زر الرئيسية يفتح TV Hub</string>
-    <string name="sys_take_home_body">يعمل عبر خدمة إمكانية الوصول</string>
-    <string name="sys_boot">التشغيل مع التلفزيون</string>
+    <string name="sys_take_home">اجعله الواجهة الرئيسية</string>
+    <string name="sys_take_home_body">زر الرئيسية وأي رجوع للرئيسية يعيد TV Hub</string>
+    <string name="sys_boot">افتحه عند تشغيل التلفزيون</string>
     <string name="sys_remote_mouse">المؤشر من الريموت</string>
-    <string name="sys_remote_mouse_body">في تطبيقات الجوال، اضغط OK مطولًا لإظهاره أو إخفائه</string>
+    <string name="sys_remote_mouse_body">في تطبيقات الجوال، اضغط رجوع مطولًا لإظهاره أو إخفائه</string>
     <string name="sys_auto_mouse">المؤشر في تطبيقات الجوال</string>
     <string name="sys_auto_mouse_body">يظهر وحده عند فتح تطبيق جوال</string>
     <string name="sys_language">اللغة</string>
@@ -71,4 +71,5 @@
     <string name="pair_body">نفس الرمز ظاهر على الجوال</string>
     <string name="pair_allow">سماح</string>
     <string name="pair_deny">رفض</string>
+    <string name="sys_boot_body">بعد إعادة التشغيل أو الاستيقاظ من السكون</string>
 </resources>

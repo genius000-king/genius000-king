@@ -50,11 +50,11 @@
     <string name="sys_open">Open</string>
     <string name="sys_adb_hint">Faster: run tools/tv-setup.sh from a computer once</string>
 
-    <string name="sys_take_home">Home button opens TV Hub</string>
-    <string name="sys_take_home_body">Uses the accessibility service</string>
-    <string name="sys_boot">Start with the TV</string>
+    <string name="sys_take_home">Be the home screen</string>
+    <string name="sys_take_home_body">Home button and every return to home bring TV Hub back</string>
+    <string name="sys_boot">Open when the TV turns on</string>
     <string name="sys_remote_mouse">Pointer from the remote</string>
-    <string name="sys_remote_mouse_body">In phone apps, hold OK to show or hide it</string>
+    <string name="sys_remote_mouse_body">In phone apps, hold Back to show or hide it</string>
     <string name="sys_auto_mouse">Pointer in phone apps</string>
     <string name="sys_auto_mouse_body">Shows by itself when a phone app opens</string>
     <string name="sys_language">Language</string>
@@ -71,4 +71,5 @@
     <string name="pair_body">The same code is on the phone</string>
     <string name="pair_allow">Allow</string>
     <string name="pair_deny">Deny</string>
+    <string name="sys_boot_body">After a restart or waking from standby</string>
 </resources>

@@ -49,7 +49,15 @@ class TvHubApp : Application() {
                 // Input settings live in DataStore; the accessibility service reads them from here.
                 scope.launch {
                     settings.settings.collect { s ->
-                        input.configure(InputPrefs(s.remoteMouseLongPress, s.autoMouseForPhoneApps, s.launcherTakesHome, "$packageName/$packageName.MainActivity"))
+                        input.configure(
+                            InputPrefs(
+                                remoteMouseLongPress = s.remoteMouseLongPress,
+                                autoMouseForPhoneApps = s.autoMouseForPhoneApps,
+                                launcherTakesHome = s.launcherTakesHome,
+                                openOnBoot = s.startOnBoot,
+                                homeComponent = "$packageName/$packageName.MainActivity",
+                            ),
+                        )
                     }
                 }
             }

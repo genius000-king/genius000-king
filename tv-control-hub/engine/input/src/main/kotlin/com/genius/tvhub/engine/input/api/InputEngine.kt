@@ -27,6 +27,9 @@ interface InputEngine {
 
     /** Settings the host passes in; the engine never reads app storage itself. */
     fun configure(prefs: InputPrefs)
+
+    /** Plugs in real-event injection (ADB mode); preferred over accessibility while it is ready. */
+    fun attachRawInput(raw: RawInput?)
 }
 
 data class FocusedField(val text: String, val hint: String?, val password: Boolean)
@@ -34,8 +37,11 @@ data class FocusedField(val text: String, val hint: String?, val password: Boole
 data class InputPrefs(
     val remoteMouseLongPress: Boolean = true,
     val autoMouseForPhoneApps: Boolean = true,
+    /** Whenever another home screen comes forward (Home key, boot), bring TV Hub back instead. */
     val launcherTakesHome: Boolean = false,
-    /** Component to open when the Home key is taken over. */
+    /** Open TV Hub when the TV finishes starting. */
+    val openOnBoot: Boolean = true,
+    /** Component of TV Hub's home. */
     val homeComponent: String? = null,
 )
 

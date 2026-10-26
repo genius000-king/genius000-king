@@ -52,6 +52,8 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -95,10 +97,11 @@ fun LauncherScreen(
     val onFocused: (LauncherApp, Offset) -> Unit = { app, at -> glow = app.accent; glowAt = at }
 
     LivingBackground(modifier, glow = glow, glowAt = glowAt, intensity = a.glow, motion = a.motion) {
-        Column(
+        // Not composed under the drawer: hidden tiles that can still take focus would swallow
+        // presses (Up from the drawer landed on an invisible dock).
+        if (!drawer) Column(
             // No horizontal padding here: the dock needs the full width so the focus light is never clipped.
-            Modifier.fillMaxSize().padding(top = 30.dp, bottom = 14.dp)
-                .graphicsLayer { alpha = if (drawer) 0f else 1f },
+            Modifier.fillMaxSize().padding(top = 30.dp, bottom = 14.dp),
         ) {
             Box(Modifier.padding(horizontal = EDGE)) { TopRow(state, nowMillis, actions) }
             Spacer(Modifier.weight(1f))
@@ -134,7 +137,7 @@ fun LauncherScreen(
         }
     }
 
-    LaunchedEffect(state.space.isNotEmpty()) { if (state.space.isNotEmpty() && !drawer) runCatching { firstTile.requestFocus() } }
+    LaunchedEffect(state.space.isNotEmpty(), drawer) { if (state.space.isNotEmpty() && !drawer) runCatching { firstTile.requestFocus() } }
     BackHandler(drawer) { drawer = false }
     menuFor?.let { app -> AppMenu(app, inSpace = state.space.any { it.packageName == app.packageName }, actions) { menuFor = null } }
     if (addOpen) AddAppSheet(actions) { addOpen = false }
@@ -206,6 +209,8 @@ private fun AppsDrawer(
 ) {
     val c = Imlaq.colors
     val first = remember { FocusRequester() }
+    val grid = rememberLazyGridState()
+    var focusedIndex by remember { mutableStateOf(0) }
     Column(Modifier.fillMaxSize().padding(horizontal = EDGE, vertical = 36.dp)) {
         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(stringResource(R.string.tv_all_apps), style = MaterialTheme.typography.headlineMedium, color = c.text)
@@ -217,13 +222,23 @@ private fun AppsDrawer(
             verticalArrangement = Arrangement.spacedBy(22.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             contentPadding = PaddingValues(vertical = 16.dp),
+            state = grid,
             modifier = Modifier.onPreviewKeyEvent {
-                if (it.type == KeyEventType.KeyDown && it.key == Key.Back) { onClose(); true } else false
+                if (it.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                when (it.key) {
+                    Key.Back -> { onClose(); true }
+                    // Up from the first row goes back home, the way Down came here.
+                    Key.DirectionUp -> {
+                        val row = grid.layoutInfo.visibleItemsInfo.firstOrNull { i -> i.index == focusedIndex }?.row
+                        if (row == 0) { onClose(); true } else false
+                    }
+                    else -> false
+                }
             },
         ) {
-            items(state.all, key = { it.packageName }) { app ->
+            itemsIndexed(state.all, key = { _, app -> app.packageName }) { index, app ->
                 Box(contentAlignment = Alignment.Center) {
-                    AppTile(app, state.appearance.iconSize.grid, true, { actions.launch(app) }, { onLongClick(app) }, onFocused, focusRequester = if (app == state.all.firstOrNull()) first else null, framed = state.appearance.iconFrames)
+                    AppTile(app, state.appearance.iconSize.grid, true, { actions.launch(app) }, { onLongClick(app) }, { a, at -> focusedIndex = index; onFocused(a, at) }, focusRequester = if (app == state.all.firstOrNull()) first else null, framed = state.appearance.iconFrames)
                     if (!app.isTvApp) PhoneBadge(Modifier.align(Alignment.TopEnd))
                 }
             }

@@ -33,4 +33,13 @@
     <string name="dev_thermal_state">Thermal state</string>
     <string name="dev_loading">Reading the TV…</string>
     <string name="dev_needs_adb">Needs ADB</string>
+    <string name="dev_apps_arch">Apps</string>
+    <string name="dev_arch_64">64-bit and 32-bit</string>
+    <string name="dev_arch_32">32-bit only — 64-bit-only apps won\'t install</string>
+    <string name="dev_not_offered">Not offered by this device</string>
+    <string name="dev_th_none">Normal</string>
+    <string name="dev_th_light">Warm</string>
+    <string name="dev_th_moderate">Hot</string>
+    <string name="dev_th_severe">Very hot</string>
+    <string name="dev_th_critical">Overheating</string>
 </resources>

@@ -157,7 +157,7 @@ internal fun SetupSection(items: List<SetupItem>, a: SystemActions) {
 internal fun SystemSection(s: HubSettings, a: SystemActions) {
     SectionTitle(stringResource(R.string.sys_system))
     TvToggle(stringResource(R.string.sys_take_home), s.launcherTakesHome, stringResource(R.string.sys_take_home_body)) { v -> a.update { it.copy(launcherTakesHome = v) } }
-    TvToggle(stringResource(R.string.sys_boot), s.startOnBoot) { v -> a.update { it.copy(startOnBoot = v) } }
+    TvToggle(stringResource(R.string.sys_boot), s.startOnBoot, stringResource(R.string.sys_boot_body)) { v -> a.update { it.copy(startOnBoot = v) } }
     TvToggle(stringResource(R.string.sys_auto_mouse), s.autoMouseForPhoneApps, stringResource(R.string.sys_auto_mouse_body)) { v -> a.update { it.copy(autoMouseForPhoneApps = v) } }
     TvToggle(stringResource(R.string.sys_remote_mouse), s.remoteMouseLongPress, stringResource(R.string.sys_remote_mouse_body)) { v -> a.update { it.copy(remoteMouseLongPress = v) } }
     Choices(stringResource(R.string.sys_language), listOf(stringResource(R.string.sys_lang_system), "العربية", "English"), s.language.ordinal) { i -> a.setLanguage(AppLanguage.entries[i]) }

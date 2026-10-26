@@ -16,6 +16,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import kotlinx.coroutines.delay
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -59,9 +63,13 @@ fun LivingBackground(
     val haze = rememberHazeState()
     val blur = LocalEffects.current == Effects.FULL
 
-    val t = rememberInfiniteTransition(label = "drift")
-    val phase by t.animateFloat(0f, (2 * PI).toFloat(), infiniteRepeatable(tween(64_000, easing = LinearEasing)), label = "phase")
-    val p = if (motion) phase else 0f
+    // Weak boxes (LITE) step the drift 12 times a second: a 64-second loop looks the same, and the
+    // GPU is not redrawing a full-screen gradient 60 times a second behind every app list.
+    val p = when {
+        !motion -> 0f
+        blur -> smoothPhase()
+        else -> steppedPhase()
+    }
 
     val glowColor by animateColorAsState(glow ?: Color.Transparent, tween(700), label = "glow")
     val glowPos by animateOffsetAsState(glowAt, spring(stiffness = Spring.StiffnessLow), label = "glow-pos")
@@ -113,3 +121,26 @@ private val DRIFT = listOf(
     Drift(0.30f, 0.75f, 0.45f, 0.040f, 2f),
     Drift(0.80f, 0.92f, 0.35f, 0.030f, -2f),
 )
+
+private const val LOOP_MILLIS = 64_000
+
+@Composable
+private fun smoothPhase(): Float {
+    val t = rememberInfiniteTransition(label = "drift")
+    val phase by t.animateFloat(0f, (2 * PI).toFloat(), infiniteRepeatable(tween(LOOP_MILLIS, easing = LinearEasing)), label = "phase")
+    return phase
+}
+
+@Composable
+private fun steppedPhase(): Float {
+    var phase by remember { mutableFloatStateOf(0f) }
+    LaunchedEffect(Unit) {
+        val start = System.nanoTime()
+        while (true) {
+            val ms = (System.nanoTime() - start) / 1_000_000 % LOOP_MILLIS
+            phase = (2 * PI * ms / LOOP_MILLIS).toFloat()
+            delay(83)
+        }
+    }
+    return phase
+}

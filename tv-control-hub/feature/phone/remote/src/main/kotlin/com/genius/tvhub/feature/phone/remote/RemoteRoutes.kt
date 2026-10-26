@@ -18,7 +18,9 @@ fun RemoteRoute(onOpen: (Destination) -> Unit, vm: RemoteViewModel = hiltViewMod
     val link by vm.link.collectAsStateWithLifecycle()
     val hint by vm.showHint.collectAsStateWithLifecycle()
     val keyboard by vm.keyboard.collectAsStateWithLifecycle()
+    val notice by vm.notice.collectAsStateWithLifecycle()
     RemoteScreen(link, vm, hint)
+    NoticePill(notice, vm::noticeShown)
     keyboard?.let { KeyboardSheet(it, vm::type, vm::enter, vm::closeKeyboard) }
 }
 

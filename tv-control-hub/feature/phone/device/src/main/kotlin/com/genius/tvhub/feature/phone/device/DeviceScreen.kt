@@ -44,6 +44,7 @@ import com.genius.tvhub.core.designsystem.MetricTile
 import com.genius.tvhub.core.designsystem.PulseDot
 import com.genius.tvhub.core.designsystem.Sparkline
 import com.genius.tvhub.core.model.Availability
+import com.genius.tvhub.core.model.ThermalLevel
 import com.genius.tvhub.core.model.Reading
 
 @Composable
@@ -79,17 +80,23 @@ fun DeviceScreen(state: DeviceState, onBack: () -> Unit) {
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             val disk = m.storage.firstOrNull()
             MetricTile(HubIcons.Storage, stringResource(R.string.dev_storage), disk?.let { formatBytes(it.totalBytes - it.freeBytes) }, Modifier.weight(1f), fraction = disk?.usedFraction, caption = disk?.let { stringResource(R.string.dev_used_of, formatBytes(it.totalBytes)) })
-            MetricTile(HubIcons.Thermometer, stringResource(R.string.dev_temp), m.thermal.celsius.value?.let { "%.0f°".format(it) } ?: m.thermal.level.value?.name?.lowercase(), Modifier.weight(1f), caption = if (m.thermal.celsius.value != null) m.thermal.level.value?.name?.lowercase() else null)
+            MetricTile(HubIcons.Thermometer, stringResource(R.string.dev_temp), m.thermal.celsius.value?.let { "%.0f°".format(it) } ?: m.thermal.level.value?.let { thermalLabel(it) }, Modifier.weight(1f), caption = if (m.thermal.celsius.value != null) m.thermal.level.value?.let { thermalLabel(it) } else null)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            MetricTile(HubIcons.Wifi, stringResource(R.string.dev_network), "${formatBytes(m.network.rxBytesPerSec)}/s", Modifier.weight(1f), caption = m.network.addresses.firstOrNull())
+            MetricTile(HubIcons.Wifi, stringResource(R.string.dev_network), "${formatBytes(m.network.rxBytesPerSec)}/s", Modifier.weight(1f), caption = ipv4First(m.network.addresses).firstOrNull())
             MetricTile(HubIcons.Clock, stringResource(R.string.dev_uptime), formatDuration(m.uptimeMillis), Modifier.weight(1f))
         }
 
         Expandable(HubIcons.Cpu, stringResource(R.string.dev_cpu), p?.socModel?.value) {
             p?.let {
                 Fact(stringResource(R.string.dev_chip), it.socModel)
-                KeyValueRow(stringResource(R.string.dev_cores), "${it.cpuCores} · ${it.abis.firstOrNull().orEmpty()}")
+                KeyValueRow(stringResource(R.string.dev_cores), it.cpuCores.toString())
+                // Says plainly why many phone apps refuse to install: a 32-bit-only system.
+                KeyValueRow(
+                    stringResource(R.string.dev_apps_arch),
+                    "${stringResource(if (it.abis.any { a -> "64" in a }) R.string.dev_arch_64 else R.string.dev_arch_32)}\n${it.abis.joinToString(" · ")}",
+                    valueColor = if (it.abis.none { a -> "64" in a }) Imlaq.colors.warn else null,
+                )
             }
             Fact(stringResource(R.string.dev_load), m.cpu.loadFraction.map { "${(it * 100).toInt()}%" })
             Fact(stringResource(R.string.dev_freq), m.cpu.curFreqKhz.map { f -> f.joinToString(" · ") { "${it / 1000}" } + " MHz" })
@@ -104,7 +111,7 @@ fun DeviceScreen(state: DeviceState, onBack: () -> Unit) {
             Fact(stringResource(R.string.dev_gpu_usage), Reading.unsupported<String>(stringResource(R.string.dev_gpu_usage_na)))
         }
         Expandable(HubIcons.Wifi, stringResource(R.string.dev_network), m.network.kind.name.lowercase()) {
-            KeyValueRow(stringResource(R.string.dev_address), m.network.addresses.joinToString("\n").ifEmpty { "—" })
+            KeyValueRow(stringResource(R.string.dev_address), ipv4First(m.network.addresses).joinToString("\n").ifEmpty { "—" })
             Fact(stringResource(R.string.dev_signal), m.network.wifiRssiDbm.map { "$it dBm" })
             Fact(stringResource(R.string.dev_link), m.network.linkSpeedMbps.map { "$it Mbps" })
             KeyValueRow(stringResource(R.string.dev_down), "${formatBytes(m.network.rxBytesPerSec)}/s")
@@ -118,10 +125,24 @@ fun DeviceScreen(state: DeviceState, onBack: () -> Unit) {
                 KeyValueRow(stringResource(R.string.dev_patch), it.securityPatch)
                 KeyValueRow(stringResource(R.string.dev_resolution), "${it.displayWidth}×${it.displayHeight} · ${it.refreshRate.toInt()} Hz")
             }
-            Fact(stringResource(R.string.dev_thermal_state), m.thermal.level.map { it.name.lowercase() })
+            Fact(stringResource(R.string.dev_thermal_state), Reading(m.thermal.level.value?.let { thermalLabel(it) }, m.thermal.level.availability))
         }
     }
 }
+
+/** Home networks are reached by their IPv4 address; long IPv6 ones go last. */
+private fun ipv4First(addresses: List<String>) = addresses.sortedBy { ':' in it }
+
+@Composable
+private fun thermalLabel(level: ThermalLevel): String = stringResource(
+    when (level) {
+        ThermalLevel.NONE -> R.string.dev_th_none
+        ThermalLevel.LIGHT -> R.string.dev_th_light
+        ThermalLevel.MODERATE -> R.string.dev_th_moderate
+        ThermalLevel.SEVERE -> R.string.dev_th_severe
+        else -> R.string.dev_th_critical
+    },
+)
 
 private fun <T, R> Reading<T>.map(f: (T) -> R): Reading<R> = Reading(value?.let(f), availability)
 
@@ -131,8 +152,9 @@ private fun Fact(label: String, reading: Reading<String>) {
     val c = Imlaq.colors
     when (val a = reading.availability) {
         Availability.Available -> KeyValueRow(label, reading.value ?: "—")
-        is Availability.NeedsAdb -> KeyValueRow(label, "${stringResource(R.string.dev_needs_adb)} · ${a.reason}", valueColor = c.faint)
-        is Availability.Unsupported -> KeyValueRow(label, a.reason, valueColor = c.faint)
+        // The engine's reasons are for logs; on screen, one short phrase in the user's language.
+        is Availability.NeedsAdb -> KeyValueRow(label, stringResource(R.string.dev_needs_adb), valueColor = c.faint)
+        is Availability.Unsupported -> KeyValueRow(label, stringResource(R.string.dev_not_offered), valueColor = c.faint)
     }
 }
 

@@ -59,6 +59,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -93,9 +94,14 @@ fun Hairline(modifier: Modifier = Modifier) {
 fun KeyValueRow(label: String, value: String, modifier: Modifier = Modifier, valueColor: Color? = null) {
     val c = Imlaq.colors
     Row(modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, color = c.muted)
+        // The label keeps at least its share; a long value wraps instead of squeezing it to nothing.
+        Text(label, Modifier.weight(0.42f), style = MaterialTheme.typography.bodyMedium, color = c.muted)
         Spacer(Modifier.width(12.dp))
-        Text(value, style = MaterialTheme.typography.labelMedium.copy(textDirection = TextDirection.ContentOrLtr), color = valueColor ?: c.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Text(
+            value, Modifier.weight(0.58f),
+            style = MaterialTheme.typography.labelMedium.copy(textDirection = TextDirection.ContentOrLtr, textAlign = TextAlign.End),
+            color = valueColor ?: c.text, maxLines = 4, overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 

@@ -33,4 +33,13 @@
     <string name="dev_thermal_state">الحالة الحرارية</string>
     <string name="dev_loading">يقرأ التلفزيون…</string>
     <string name="dev_needs_adb">يحتاج ADB</string>
+    <string name="dev_apps_arch">التطبيقات</string>
+    <string name="dev_arch_64">64-بت و32-بت</string>
+    <string name="dev_arch_32">32-بت فقط، والتطبيقات التي تتطلب 64-بت لن تثبت</string>
+    <string name="dev_not_offered">الجهاز لا يوفّرها</string>
+    <string name="dev_th_none">طبيعية</string>
+    <string name="dev_th_light">دافئ</string>
+    <string name="dev_th_moderate">حار</string>
+    <string name="dev_th_severe">حار جدًا</string>
+    <string name="dev_th_critical">سخونة زائدة</string>
 </resources>

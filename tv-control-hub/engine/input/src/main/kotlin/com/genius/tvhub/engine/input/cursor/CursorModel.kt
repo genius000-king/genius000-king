@@ -23,6 +23,12 @@ class CursorModel(private val width: Int, private val height: Int) {
         return Move(nx - x, ny - y)
     }
 
+    /** Phone touchpad deltas are in 1080p pixels; scaled so a swipe feels the same on any TV. */
+    val touchpadScale get() = width / 1920f
+
+    /** The pointer as a fraction of the screen, for injectors that know their own resolution. */
+    val normalized get() = x / width to y / height
+
     fun center() { x = width / 2f; y = height / 2f }
 
     /** Step for the [repeat]-th consecutive D-pad press in one direction (0 = first press). */
@@ -34,7 +40,7 @@ class CursorModel(private val width: Int, private val height: Int) {
     } * (width / 1920f)
 
     companion object {
-        /** Touchpad: small motions precise, fast flicks travel far. */
-        fun accelerate(delta: Float): Float = delta * (1f + (abs(delta) / 12f).coerceAtMost(2.5f))
+        /** Touchpad: small motions precise, fast flicks a little further — gently (at most ×1.6). */
+        fun accelerate(delta: Float): Float = delta * (1f + (abs(delta) / 40f).coerceAtMost(0.6f))
     }
 }

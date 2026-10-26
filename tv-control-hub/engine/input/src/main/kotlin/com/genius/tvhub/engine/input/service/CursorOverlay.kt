@@ -24,7 +24,9 @@ internal class CursorOverlay(private val context: Context) {
         WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
             WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
         PixelFormat.TRANSLUCENT,
-    ).apply { gravity = Gravity.TOP or Gravity.START }
+    // LEFT, not START: in an Arabic (RTL) layout START is the right edge, which drew the pointer
+    // mirrored from where its taps land.
+    ).apply { gravity = Gravity.TOP or Gravity.LEFT }
 
     val isShown get() = view != null
 

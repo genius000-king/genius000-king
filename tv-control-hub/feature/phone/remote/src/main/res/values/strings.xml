@@ -35,4 +35,6 @@
     <string name="kb_no_field">Select a text field on the TV first</string>
     <string name="mouse_hint">Move: one finger · Click: tap · Scroll: two fingers</string>
     <string name="mouse_title">Mouse</string>
+    <string name="notice_accessibility">Turn on TV Hub in the TV\'s accessibility settings (Settings → Accessibility) to control it</string>
+    <string name="notice_denied">The TV has not allowed this phone to do that</string>
 </resources>

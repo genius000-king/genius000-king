@@ -66,6 +66,7 @@ class FakeTv {
         override suspend fun cursorScroll(dx: Float, dy: Float) = r("scroll")
         override suspend fun cursorVisible(visible: Boolean) = r("cursor:$visible")
         override fun configure(prefs: InputPrefs) {}
+        override fun attachRawInput(raw: com.genius.tvhub.engine.input.api.RawInput?) {}
     }
 
     val apps = object : AppsEngine {

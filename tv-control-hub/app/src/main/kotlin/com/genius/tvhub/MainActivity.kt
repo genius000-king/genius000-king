@@ -18,6 +18,7 @@ import com.genius.tvhub.core.model.HubSettings
 import com.genius.tvhub.core.model.KeyAction
 import com.genius.tvhub.core.model.LinkState
 import com.genius.tvhub.core.protocol.Call
+import com.genius.tvhub.engine.input.api.LocalKeys
 import com.genius.tvhub.runtime.client.HubClient
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.drop
@@ -50,6 +51,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    // On the TV, keys from the phone reach our own launcher as real key events (any Android version).
+    override fun onResume() {
+        super.onResume()
+        if (role == DeviceRole.TV) LocalKeys.sink = { e -> e.keyCode != KeyEvent.KEYCODE_HOME && window.decorView.dispatchKeyEvent(e) }
+    }
+
+    override fun onPause() {
+        LocalKeys.sink = null
+        super.onPause()
     }
 
     /** On the phone, the hardware volume buttons turn the TV up and down while connected. */

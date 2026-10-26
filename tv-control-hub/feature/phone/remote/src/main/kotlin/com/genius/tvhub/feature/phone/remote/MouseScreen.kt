@@ -47,6 +47,7 @@ fun MouseScreen(onMove: (Float, Float) -> Unit, onClick: (Boolean) -> Unit, onSc
             Modifier.fillMaxSize().pointerInput(Unit) {
                 awaitEachGesture {
                     val down = awaitFirstDown()
+                    val perDp = 1f / density
                     used = true
                     var travelled = 0f
                     var twoFingers = false
@@ -59,15 +60,15 @@ fun MouseScreen(onMove: (Float, Float) -> Unit, onClick: (Boolean) -> Unit, onSc
                         if (pressed.size >= 2) {
                             twoFingers = true
                             val d = pressed.map { it.positionChange() }.reduce { a, b -> a + b } / pressed.size.toFloat()
-                            if (d != Offset.Zero) scroll(d.x * SCROLL, d.y * SCROLL)
+                            if (d != Offset.Zero) scroll(d.x * perDp * SCROLL, d.y * perDp * SCROLL)
                         } else if (!twoFingers) {
                             val d = pressed[0].positionChange()
-                            travelled += d.getDistance()
-                            if (d != Offset.Zero) move(d.x * GAIN, d.y * GAIN)
+                            travelled += d.getDistance() * perDp
+                            if (d != Offset.Zero) move(d.x * perDp * GAIN, d.y * perDp * GAIN)
                         }
                         e.changes.forEach { it.consume() }
                     }
-                    if (!twoFingers && travelled < 18f) {
+                    if (!twoFingers && travelled < TAP_SLOP_DP) {
                         // Held still for over half a second = long click (context menus).
                         click(upAt - down.uptimeMillis >= LONG_PRESS_MS)
                         haptics.performHapticFeedback(HapticFeedbackType.Confirm)
@@ -84,7 +85,12 @@ fun MouseScreen(onMove: (Float, Float) -> Unit, onClick: (Boolean) -> Unit, onSc
     }
 }
 
-/** Phone pixels to TV pixels: a TV is wider than a phone, so motion is amplified. */
-private const val GAIN = 2.2f
-private const val SCROLL = 3f
+/**
+ * Finger motion in dp to TV pixels. Measured in dp so every phone feels the same: a full swipe
+ * across a phone (~360dp) carries the pointer about a third of a 1080p screen, like a laptop
+ * touchpad. Fast flicks go further through the TV's gentle acceleration.
+ */
+private const val GAIN = 1.5f
+private const val SCROLL = 4f
+private const val TAP_SLOP_DP = 8f
 private const val LONG_PRESS_MS = 550L
