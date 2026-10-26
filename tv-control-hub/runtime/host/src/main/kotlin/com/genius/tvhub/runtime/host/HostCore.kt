@@ -10,6 +10,7 @@ import com.genius.tvhub.core.model.PeerInfo
 import com.genius.tvhub.core.model.StreamQuality
 import com.genius.tvhub.core.protocol.Channel
 import com.genius.tvhub.core.protocol.PROTOCOL_VERSION
+import com.genius.tvhub.core.protocol.EndReason
 import com.genius.tvhub.core.protocol.Push
 import com.genius.tvhub.core.protocol.VideoPacket
 import com.genius.tvhub.core.security.Handshaker
@@ -104,18 +105,29 @@ class HostCore(
     private fun sessionOf(peerId: String) = synchronized(sessions) { sessions[peerId] }
 
     private suspend fun stream(session: SecureSession, grants: () -> Grants) = coroutineScope {
-        if (Grant.SCREEN !in grants()) return@coroutineScope
+        if (Grant.SCREEN !in grants()) { runCatching { session.send(VideoPacket.end(EndReason.NOT_ALLOWED).encode()) }; return@coroutineScope }
         val quality = session.receive()?.firstOrNull()?.toInt()?.let { StreamQuality.entries.getOrNull(it) } ?: StreamQuality.BALANCED
-        if (!video.ensureCapture()) { Log.w(TAG, "screen capture refused on the TV"); return@coroutineScope }
+        if (!video.ensureCapture()) {
+            Log.w(TAG, "screen capture refused on the TV")
+            runCatching { session.send(VideoPacket.end(EndReason.CAPTURE_UNAVAILABLE).encode()) }
+            return@coroutineScope
+        }
         _streaming.value = true
         broadcast(Push.StreamState(true, null))
         val sender = launch {
-            video.packets(quality).collect { packet ->
-                val t0 = System.currentTimeMillis()
-                session.send(packet.encode())
-                // A slow send means frames are piling up behind it: report it as queue depth.
-                video.reportQueue(((System.currentTimeMillis() - t0) / 16).toInt(), t0)
-            }
+            val failure = runCatching {
+                video.packets(quality).collect { packet ->
+                    val t0 = System.currentTimeMillis()
+                    session.send(packet.encode())
+                    // A slow send means frames are piling up behind it: report it as queue depth.
+                    video.reportQueue(((System.currentTimeMillis() - t0) / 16).toInt(), t0)
+                }
+            }.exceptionOrNull()
+            if (failure is kotlinx.coroutines.CancellationException) throw failure
+            if (failure != null) Log.w(TAG, "screen stream failed", failure)
+            // The source ended by itself (encoder error, screenrecord gave up): tell the phone, then hang up.
+            runCatching { session.send(VideoPacket.end(if (failure != null) EndReason.CAPTURE_FAILED else EndReason.ENDED).encode()) }
+            runCatching { session.close() }
         }
         try {
             while (session.receive() != null) { /* the phone sends nothing more; null means it left */ }

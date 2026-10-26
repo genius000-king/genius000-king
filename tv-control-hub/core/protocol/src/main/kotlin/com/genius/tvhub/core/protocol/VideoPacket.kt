@@ -44,10 +44,26 @@ class VideoPacket(val kind: Kind, val flags: Int, val ptsMicros: Long, val paylo
             ByteBuffer.allocate(16).putInt(width).putInt(height).putInt(fps).putInt(bitrate).array(),
         )
 
+        /** The stream will not start or has stopped, and why: the phone says it instead of guessing. */
+        fun end(reason: EndReason) = VideoPacket(Kind.END, 0, 0, byteArrayOf(reason.ordinal.toByte()))
+
+        fun readEnd(packet: VideoPacket): EndReason =
+            packet.payload.firstOrNull()?.toInt()?.let { EndReason.entries.getOrNull(it) } ?: EndReason.ENDED
+
         fun readFormat(packet: VideoPacket): IntArray {
             require(packet.kind == Kind.FORMAT)
             val b = ByteBuffer.wrap(packet.payload)
             return intArrayOf(b.int, b.int, b.int, b.int)
         }
     }
+}
+
+enum class EndReason {
+    ENDED,
+    /** This phone lacks the screen permission on the TV. */
+    NOT_ALLOWED,
+    /** The TV gave no capture: prompt declined, missing on this build, and no ADB mode. */
+    CAPTURE_UNAVAILABLE,
+    /** Capture started but the encoder or screenrecord failed. */
+    CAPTURE_FAILED,
 }

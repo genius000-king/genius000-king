@@ -42,6 +42,7 @@ class HostRuntime @Inject constructor(
     private val identity: IdentityStore,
     private val ports: HostPorts,
     private val stream: StreamEngine,
+    private val adb: AdbBridge,
 ) {
     val gatekeeper = HostGatekeeper(trust, settings)
     private val _core = MutableStateFlow<HostCore?>(null)
@@ -54,11 +55,17 @@ class HostRuntime @Inject constructor(
     private val advertiser = NsdAdvertiser(context)
     private var job: Job? = null
 
+    /** ADB mode when connected (no prompt, works where the capture dialog is missing), else MediaProjection. */
     private val video = object : VideoSource {
-        override suspend fun ensureCapture() = stream.projection.active.value || (projectionRequester?.invoke() ?: false)
-        override fun packets(quality: StreamQuality): Flow<VideoPacket> = stream.packets(quality)
+        override suspend fun ensureCapture() = adb.ready || stream.projection.active.value || (projectionRequester?.invoke() ?: false)
+        override fun packets(quality: StreamQuality): Flow<VideoPacket> =
+            if (adb.ready && !stream.projection.active.value) displaySize().let { (w, h) -> adb.packets(w, h, quality) } else stream.packets(quality)
         override fun reportQueue(queued: Int, nowMillis: Long) = stream.reportQueue(queued, nowMillis)
     }
+
+    private fun displaySize(): Pair<Int, Int> = if (Build.VERSION.SDK_INT >= 30) {
+        context.getSystemService(android.view.WindowManager::class.java).maximumWindowMetrics.bounds.let { it.width() to it.height() }
+    } else context.resources.displayMetrics.let { it.widthPixels to it.heightPixels }
 
     suspend fun start(scope: CoroutineScope) {
         if (job != null) return
@@ -66,6 +73,7 @@ class HostRuntime @Inject constructor(
         val self = PeerInfo(fingerprintOf(key.publicKey), deviceName(), "${Build.MANUFACTURER} ${Build.MODEL}", DeviceRole.TV, VERSION)
         val core = HostCore(self, key, gatekeeper, trust, ports, video, ::checks, scope)
         _core.value = core
+        adb.start(scope)
         job = scope.launch {
             launch { trust.devices.collect { list -> gatekeeper.update(list); core.onTrustedChanged(list.map { it.id }.toSet()) } }
             val s = HostServer(HostServer.DEFAULT_PORT, core::handle)

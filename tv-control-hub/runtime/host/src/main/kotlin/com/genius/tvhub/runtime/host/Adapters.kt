@@ -16,6 +16,8 @@ import com.genius.tvhub.engine.monitor.MonitorEngine
 import com.genius.tvhub.engine.shell.sandbox.SandboxShell
 import com.genius.tvhub.engine.shell.services.ServiceManager
 import com.genius.tvhub.engine.shell.termux.TermuxBridge
+import com.genius.tvhub.engine.adb.api.AdbEngine
+import com.genius.tvhub.engine.adb.api.AdbState
 import com.genius.tvhub.engine.stream.StreamEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -83,7 +85,9 @@ class ServicesAdapter(private val store: ServiceStore, private val manager: Serv
     private suspend fun spec(id: String) = store.all().firstOrNull { it.id == id } ?: throw RemoteException(ErrorCode.NOT_FOUND, "no service $id")
 }
 
-class StreamAdapter(private val engine: StreamEngine) : StreamPort {
-    override fun requestKeyFrame() = engine.requestKeyFrame()
+class StreamAdapter(private val engine: StreamEngine, private val adb: AdbEngine) : StreamPort {
+    override fun requestKeyFrame() {
+        if (adb.state.value == AdbState.Ready) adb.requestKeyFrame() else engine.requestKeyFrame()
+    }
     override fun setQuality(quality: StreamQuality) = Unit // takes effect on the next stream start
 }

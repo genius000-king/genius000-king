@@ -49,6 +49,7 @@ class SettingsStore @Inject constructor(private val store: DataStore<Preferences
         val mouseLongPress = booleanPreferencesKey("mouse_long_press")
         val autoMouse = booleanPreferencesKey("auto_mouse")
         val takeHome = booleanPreferencesKey("take_home")
+        val adbMode = booleanPreferencesKey("adb_mode")
         val autoApprove = booleanPreferencesKey("auto_approve")
         val favorites = stringPreferencesKey("favorites")
     }
@@ -72,6 +73,7 @@ class SettingsStore @Inject constructor(private val store: DataStore<Preferences
             remoteMouseLongPress = p[K.mouseLongPress] ?: d.remoteMouseLongPress,
             autoMouseForPhoneApps = p[K.autoMouse] ?: d.autoMouseForPhoneApps,
             launcherTakesHome = p[K.takeHome] ?: d.launcherTakesHome,
+            adbMode = p[K.adbMode] ?: d.adbMode,
             autoApproveNew = p[K.autoApprove] ?: d.autoApproveNew,
             favorites = p[K.favorites]?.split('\n')?.filter { it.isNotBlank() } ?: d.favorites,
             glow = p[K.glow]?.coerceIn(0f, 1f) ?: d.glow,
@@ -99,6 +101,7 @@ class SettingsStore @Inject constructor(private val store: DataStore<Preferences
         p[K.mouseLongPress] = s.remoteMouseLongPress
         p[K.autoMouse] = s.autoMouseForPhoneApps
         p[K.takeHome] = s.launcherTakesHome
+        p[K.adbMode] = s.adbMode
         p[K.autoApprove] = s.autoApproveNew
         p[K.favorites] = s.favorites.joinToString("\n")
         p[K.glow] = s.glow

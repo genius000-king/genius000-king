@@ -19,6 +19,8 @@ import com.genius.tvhub.core.transport.HostServer
 import com.genius.tvhub.engine.apps.AndroidAppsEngine
 import com.genius.tvhub.engine.files.FilesEngine
 import com.genius.tvhub.engine.input.AccessibilityInputEngine
+import com.genius.tvhub.engine.adb.api.AdbState
+import com.genius.tvhub.runtime.host.AdbBridge
 import com.genius.tvhub.runtime.host.HostRuntime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -42,10 +44,11 @@ class SystemViewModel @Inject constructor(
     private val apps: AndroidAppsEngine,
     private val files: FilesEngine,
     private val input: AccessibilityInputEngine,
+    private val adb: AdbBridge,
 ) : ViewModel(), SystemActions {
 
     /** Setup checks change outside the app (in Android settings): re-read every two seconds while shown. */
-    private val setupTicker = flow { while (true) { emit(setupItems()); delay(2_000) } }
+    private val setupTicker = combine(flow { while (true) { emit(Unit); delay(2_000) } }, adb.state) { _, a -> setupItems(a) }
 
     val state: StateFlow<SystemState> = combine(
         settings.settings, trust.devices, runtime.core.let { core -> combine(core, input.ready) { c, _ -> c } }, setupTicker, services.services,
@@ -76,7 +79,16 @@ class SystemViewModel @Inject constructor(
     override fun setLanguage(language: AppLanguage) = update { it.copy(language = language) }
 
     override fun openSetup(kind: SetupKind) {
+        if (kind == SetupKind.ADB) {
+            // Network ADB off: open developer options, where "USB debugging" turns it on.
+            if ((adb.state.value as? AdbState.Unavailable)?.reason == AdbState.Reason.PORT_CLOSED) {
+                runCatching { context.startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+            }
+            adb.enable()
+            return
+        }
         val intent = when (kind) {
+            SetupKind.ADB -> return
             SetupKind.ACCESSIBILITY -> Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
             SetupKind.INSTALL -> Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:${context.packageName}"))
             SetupKind.FILES -> if (Build.VERSION.SDK_INT >= 30) Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, Uri.parse("package:${context.packageName}")) else Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${context.packageName}"))
@@ -88,12 +100,24 @@ class SystemViewModel @Inject constructor(
         }
     }
 
-    private fun setupItems() = listOf(
+    private fun setupItems(a: AdbState) = listOf(
+        SetupItem(SetupKind.ADB, a == AdbState.Ready, noteOf(a)),
         SetupItem(SetupKind.ACCESSIBILITY, input.ready.value),
         SetupItem(SetupKind.INSTALL, apps.canInstall()),
         SetupItem(SetupKind.FILES, files.roots.sharedAllowed()),
         SetupItem(SetupKind.HOME, isDefaultHome()),
     )
+
+    private fun noteOf(a: AdbState): AdbNote? = when (a) {
+        AdbState.Connecting -> AdbNote.CONNECTING
+        AdbState.AwaitingApproval -> AdbNote.APPROVE_ON_TV
+        is AdbState.Unavailable -> when (a.reason) {
+            AdbState.Reason.PORT_CLOSED -> AdbNote.PORT_CLOSED
+            AdbState.Reason.NOT_APPROVED -> AdbNote.NOT_APPROVED
+            AdbState.Reason.FAILED -> AdbNote.FAILED
+        }
+        else -> null
+    }
 
     private fun isDefaultHome(): Boolean {
         val home = context.packageManager.resolveActivity(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0)

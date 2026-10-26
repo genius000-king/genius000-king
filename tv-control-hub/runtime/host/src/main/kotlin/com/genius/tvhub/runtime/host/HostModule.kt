@@ -2,6 +2,7 @@ package com.genius.tvhub.runtime.host
 
 import android.content.Context
 import com.genius.tvhub.core.data.ServiceStore
+import com.genius.tvhub.engine.adb.AndroidAdbEngine
 import com.genius.tvhub.engine.apps.AndroidAppsEngine
 import com.genius.tvhub.engine.files.FilesEngine
 import com.genius.tvhub.engine.input.AccessibilityInputEngine
@@ -27,11 +28,12 @@ object HostModule {
     @Provides @Singleton fun monitor(@ApplicationContext c: Context) = MonitorEngine(c)
     @Provides @Singleton fun files(@ApplicationContext c: Context) = FilesEngine(c)
     @Provides @Singleton fun termux(@ApplicationContext c: Context) = TermuxBridge(c)
+    @Provides @Singleton fun adb(@ApplicationContext c: Context) = AndroidAdbEngine(c)
 
     @Provides @Singleton
     fun ports(
         @ApplicationContext c: Context,
-        input: AccessibilityInputEngine, apps: AndroidAppsEngine, stream: StreamEngine,
+        input: AccessibilityInputEngine, apps: AndroidAppsEngine, stream: StreamEngine, adb: AndroidAdbEngine,
         monitor: MonitorEngine, files: FilesEngine, termux: TermuxBridge, services: ServiceStore,
     ) = HostPorts(
         input = input,
@@ -40,6 +42,6 @@ object HostModule {
         files = FilesAdapter(files),
         shell = ShellAdapter(SandboxShell(c.filesDir), termux),
         services = ServicesAdapter(services, ServiceManager(termux), termux),
-        stream = StreamAdapter(stream),
+        stream = StreamAdapter(stream, adb),
     )
 }

@@ -9,11 +9,14 @@ import com.genius.tvhub.core.model.ServiceState
 
 enum class Section { INTERFACE, PHONES, SETUP, SYSTEM, SERVICES, ABOUT }
 
-enum class SetupKind { ACCESSIBILITY, INSTALL, FILES, HOME }
+enum class SetupKind { ADB, ACCESSIBILITY, INSTALL, FILES, HOME }
+
+/** Where ADB mode stands, for the line under its setup item. */
+enum class AdbNote { CONNECTING, APPROVE_ON_TV, PORT_CLOSED, NOT_APPROVED, FAILED }
 
 @Immutable data class PhoneRow(val id: String, val name: String, val model: String, val grants: Grants, val connected: Boolean)
 
-@Immutable data class SetupItem(val kind: SetupKind, val done: Boolean)
+@Immutable data class SetupItem(val kind: SetupKind, val done: Boolean, val note: AdbNote? = null)
 
 @Immutable data class ServiceRow(val name: String, val state: ServiceState)
 

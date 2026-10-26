@@ -10,3 +10,4 @@
 -dontwarn java.lang.management.**
 # The accessibility service and activities are referenced from the manifest only.
 -keep class com.genius.tvhub.engine.input.service.HubAccessibilityService
+

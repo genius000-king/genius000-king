@@ -24,6 +24,8 @@ data class HubSettings(
     val remoteMouseLongPress: Boolean = true,
     val autoMouseForPhoneApps: Boolean = true,
     val launcherTakesHome: Boolean = false,
+    /** ADB mode was set up once: reconnect to the TV's own ADB at every start. */
+    val adbMode: Boolean = false,
     val autoApproveNew: Boolean = false,
     val favorites: List<String> = emptyList(),
     /** 0..1; how strongly the focused app's colour lights the room. */

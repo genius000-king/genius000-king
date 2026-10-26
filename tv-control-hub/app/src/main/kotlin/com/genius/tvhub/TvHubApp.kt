@@ -8,6 +8,7 @@ import com.genius.tvhub.core.data.SettingsStore
 import com.genius.tvhub.core.model.DeviceRole
 import com.genius.tvhub.engine.input.AccessibilityInputEngine
 import com.genius.tvhub.engine.input.api.InputPrefs
+import com.genius.tvhub.engine.input.service.SelfEnable
 import com.genius.tvhub.runtime.client.HubClient
 import com.genius.tvhub.runtime.host.HostService
 import dagger.hilt.android.HiltAndroidApp
@@ -45,6 +46,7 @@ class TvHubApp : Application() {
         when (role) {
             DeviceRole.TV -> {
                 RoleDetector.enableTvHome(this)
+                SelfEnable.ensure(this)
                 runCatching { HostService.start(this) }
                 // Input settings live in DataStore; the accessibility service reads them from here.
                 scope.launch {

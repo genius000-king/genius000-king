@@ -40,7 +40,7 @@ class SandboxShell(private val workdir: File, private val shell: String = "/syst
             }
         }
         fun join() = reader.join(2_000)
-        val text: String get() = buf.toString(Charsets.UTF_8)
+        val text: String get() = buf.toString("UTF-8") // toString(Charset) is Android 13+
     }
 
     companion object {

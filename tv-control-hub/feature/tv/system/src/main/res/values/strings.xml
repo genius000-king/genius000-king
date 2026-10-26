@@ -48,7 +48,6 @@
     <string name="sys_check_home">Open TV Hub at start</string>
     <string name="sys_check_home_body">Make TV Hub the home screen</string>
     <string name="sys_open">Open</string>
-    <string name="sys_adb_hint">Faster: run tools/tv-setup.sh from a computer once</string>
 
     <string name="sys_take_home">Be the home screen</string>
     <string name="sys_take_home_body">Home button and every return to home bring TV Hub back</string>
@@ -72,4 +71,11 @@
     <string name="pair_allow">Allow</string>
     <string name="pair_deny">Deny</string>
     <string name="sys_boot_body">After a restart or waking from standby</string>
+    <string name="sys_check_adb">ADB mode — fixes everything at once</string>
+    <string name="sys_check_adb_body">Real remote keys, the screen without prompts, installs without asking</string>
+    <string name="sys_adb_connecting">Connecting…</string>
+    <string name="sys_adb_approve">On the TV: tick “Always allow” and press Allow</string>
+    <string name="sys_adb_port_closed">Turn on Developer options (Settings → About → press Build 7 times), then USB debugging, and press again</string>
+    <string name="sys_adb_not_approved">Not allowed on the TV. Press again, tick “Always allow” and press Allow</string>
+    <string name="sys_adb_failed">Could not connect. Press to try again</string>
 </resources>

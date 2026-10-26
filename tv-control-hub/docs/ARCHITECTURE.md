@@ -102,7 +102,8 @@
 :engine:monitor              parse · collect
 :engine:files                guard · ops · transfer · roots
 :engine:shell                sandbox · termux · services (svc.sh)
-:engine:apps                 catalog · icons · launch · install · beam
+:engine:apps                 catalog · icons · launch · install (session · staged · abi) · beam
+:engine:adb                  link (dadb loopback) · agent (app_process injector) · screen (screenrecord → Annex-B) · setup
 :runtime:host                (تلفزيون) HostCore نقي، CallRouter، HostService
 :runtime:client              (جوال) HubClient + واجهات بعيدة مطبوعة
 :feature:tv:launcher         النظام: الشاشة الرئيسية وكل التطبيقات

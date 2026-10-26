@@ -1,6 +1,5 @@
 package com.genius.tvhub.feature.phone.screen
 
-import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -33,9 +32,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.activity.compose.LocalActivity
+import com.genius.tvhub.core.protocol.EndReason
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -58,7 +58,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun ScreenRoute(onClose: () -> Unit, onKeyboard: () -> Unit, vm: ScreenViewModel = hiltViewModel()) {
     val status by vm.status.collectAsStateWithLifecycle()
-    val activity = LocalContext.current as? Activity
+    val activity = LocalActivity.current
     DisposableEffect(Unit) {
         val before = activity?.requestedOrientation
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
@@ -86,9 +86,21 @@ fun ScreenRoute(onClose: () -> Unit, onKeyboard: () -> Unit, vm: ScreenViewModel
             val playing = status as? ScreenStatus.Playing
             if (playing != null) TouchLayer(TouchMapper(size.value.width.toFloat(), size.value.height.toFloat(), playing.width, playing.height), vm) { controls = true }
         }
-        when (status) {
+        when (val s = status) {
             ScreenStatus.Starting -> Centered { PulseDot(Imlaq.colors.text, size = 10.dp); Text(stringResource(R.string.screen_connecting), color = Imlaq.colors.text, style = MaterialTheme.typography.titleMedium); Text(stringResource(R.string.screen_tv_prompt), color = Imlaq.colors.muted, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center) }
-            ScreenStatus.Failed -> Centered { Text(stringResource(R.string.screen_failed), color = Imlaq.colors.text, style = MaterialTheme.typography.titleMedium) }
+            is ScreenStatus.Failed -> Centered {
+                Text(
+                    stringResource(
+                        when (s.reason) {
+                            EndReason.NOT_ALLOWED -> R.string.screen_not_allowed
+                            EndReason.CAPTURE_FAILED -> R.string.screen_capture_failed
+                            else -> R.string.screen_failed
+                        },
+                    ),
+                    color = Imlaq.colors.text, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(32.dp),
+                )
+            }
             is ScreenStatus.Playing -> Unit
         }
         AnimatedVisibility(controls, enter = fadeIn(), exit = fadeOut(), modifier = Modifier.align(Alignment.BottomCenter)) {

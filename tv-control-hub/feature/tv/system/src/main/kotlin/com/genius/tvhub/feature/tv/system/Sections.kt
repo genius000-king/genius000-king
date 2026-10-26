@@ -121,6 +121,14 @@ private val GRANTS = listOf(
     Grant.SERVICES to R.string.sys_grant_services,
 )
 
+private fun adbNote(n: AdbNote) = when (n) {
+    AdbNote.CONNECTING -> R.string.sys_adb_connecting
+    AdbNote.APPROVE_ON_TV -> R.string.sys_adb_approve
+    AdbNote.PORT_CLOSED -> R.string.sys_adb_port_closed
+    AdbNote.NOT_APPROVED -> R.string.sys_adb_not_approved
+    AdbNote.FAILED -> R.string.sys_adb_failed
+}
+
 @Composable
 internal fun SetupSection(items: List<SetupItem>, a: SystemActions) {
     val c = Imlaq.colors
@@ -131,6 +139,7 @@ internal fun SetupSection(items: List<SetupItem>, a: SystemActions) {
     }
     items.forEach { item ->
         val (title, body) = when (item.kind) {
+            SetupKind.ADB -> R.string.sys_check_adb to (item.note?.let(::adbNote) ?: R.string.sys_check_adb_body)
             SetupKind.ACCESSIBILITY -> R.string.sys_check_accessibility to R.string.sys_check_accessibility_body
             SetupKind.INSTALL -> R.string.sys_check_install to R.string.sys_check_install_body
             SetupKind.FILES -> R.string.sys_check_files to R.string.sys_check_files_body
@@ -150,7 +159,6 @@ internal fun SetupSection(items: List<SetupItem>, a: SystemActions) {
             if (!item.done) Text(stringResource(R.string.sys_open), style = MaterialTheme.typography.labelMedium, color = c.text)
         }
     }
-    Text(stringResource(R.string.sys_adb_hint), style = MaterialTheme.typography.bodySmall, color = c.faint, modifier = Modifier.padding(top = 8.dp, start = 4.dp))
 }
 
 @Composable

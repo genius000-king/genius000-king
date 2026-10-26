@@ -2,9 +2,11 @@
 <resources>
     <string name="screen_connecting">Starting the picture…</string>
     <string name="screen_tv_prompt">If the TV asks to start recording, press OK once</string>
-    <string name="screen_failed">The TV did not share its screen</string>
+    <string name="screen_failed">The TV did not share its screen. On the TV, open TV Hub settings → Setup → ADB mode: it shares the screen without asking</string>
     <string name="screen_back">Back</string>
     <string name="screen_close">Close</string>
     <string name="screen_keyboard">Keyboard</string>
     <string name="screen_protected">Protected video (Netflix and similar) shows black: Android forbids capturing it</string>
+    <string name="screen_not_allowed">This phone is not allowed to see the screen. Allow it on the TV: Settings → Phones</string>
+    <string name="screen_capture_failed">The TV started sharing but its video encoder stopped. Try again</string>
 </resources>

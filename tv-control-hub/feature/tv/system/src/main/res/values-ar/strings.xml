@@ -48,7 +48,6 @@
     <string name="sys_check_home">فتح TV Hub عند التشغيل</string>
     <string name="sys_check_home_body">اجعل TV Hub الشاشة الرئيسية</string>
     <string name="sys_open">فتح</string>
-    <string name="sys_adb_hint">أسرع: شغّل tools/tv-setup.sh من الكمبيوتر مرة واحدة</string>
 
     <string name="sys_take_home">اجعله الواجهة الرئيسية</string>
     <string name="sys_take_home_body">زر الرئيسية وأي رجوع للرئيسية يعيد TV Hub</string>
@@ -72,4 +71,11 @@
     <string name="pair_allow">سماح</string>
     <string name="pair_deny">رفض</string>
     <string name="sys_boot_body">بعد إعادة التشغيل أو الاستيقاظ من السكون</string>
+    <string name="sys_check_adb">وضع ADB: يصلح كل شيء دفعة واحدة</string>
+    <string name="sys_check_adb_body">أزرار ريموت حقيقية، والشاشة بلا طلبات، وتثبيت بلا أسئلة</string>
+    <string name="sys_adb_connecting">يتصل…</string>
+    <string name="sys_adb_approve">على التلفزيون: فعّل «السماح دائمًا» ثم اضغط سماح</string>
+    <string name="sys_adb_port_closed">فعّل خيارات المطوّر (الإعدادات ← حول ← اضغط «رقم البنية» 7 مرات) ثم «تصحيح USB»، وارجع اضغط هنا</string>
+    <string name="sys_adb_not_approved">لم يُسمح على التلفزيون. اضغط مرة أخرى وفعّل «السماح دائمًا» ثم سماح</string>
+    <string name="sys_adb_failed">تعذّر الاتصال. اضغط لإعادة المحاولة</string>
 </resources>

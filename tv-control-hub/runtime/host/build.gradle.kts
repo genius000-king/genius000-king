@@ -13,6 +13,7 @@ dependencies {
     api(project(":engine:monitor"))
     api(project(":engine:files"))
     api(project(":engine:shell"))
+    api(project(":engine:adb"))
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.service)

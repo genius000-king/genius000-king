@@ -21,6 +21,7 @@ import com.genius.tvhub.core.model.RemotePath
 import com.genius.tvhub.core.model.StreamQuality
 import com.genius.tvhub.core.protocol.InstallState
 import com.genius.tvhub.core.protocol.PROTOCOL_VERSION
+import com.genius.tvhub.core.protocol.EndReason
 import com.genius.tvhub.core.protocol.VideoPacket
 import com.genius.tvhub.core.security.SoftwareIdentityKey
 import com.genius.tvhub.core.security.fingerprintOf
@@ -91,13 +92,16 @@ class EndToEndTest {
 
     private fun settingsStore(name: String) = SettingsStore(PreferenceDataStoreFactory.create(scope = scope) { File(context.cacheDir, "$name-${System.nanoTime()}.preferences_pb") })
 
+    /** False = the TV's capture prompt was declined or missing (clone boxes) and ADB mode is off. */
+    @Volatile private var captureAllowed = true
+
     @Before fun setUp() = runBlocking {
         tvDb = Room.inMemoryDatabaseBuilder(context, HubDatabase::class.java).build()
         phoneDb = Room.inMemoryDatabaseBuilder(context, HubDatabase::class.java).build()
         trust = TrustStore(tvDb.trustedDevices(), clock)
         gatekeeper = HostGatekeeper(trust, settingsStore("tv"), answerTimeoutMillis = 10_000)
         val video = object : VideoSource {
-            override suspend fun ensureCapture() = true
+            override suspend fun ensureCapture() = captureAllowed
             override fun packets(quality: StreamQuality): Flow<VideoPacket> = flow {
                 emit(VideoPacket.format(1280, 720, 30, 4_000_000))
                 emit(VideoPacket(VideoPacket.Kind.CONFIG, 0, 0, byteArrayOf(0, 0, 0, 1, 0x67)))
@@ -216,6 +220,14 @@ class EndToEndTest {
         val packets = withTimeout(5_000) { p.video(StreamQuality.BALANCED).take(5).toList() }
         assertThat(packets.first().kind).isEqualTo(VideoPacket.Kind.FORMAT)
         assertThat(packets[2].isKeyFrame).isTrue()
+    }
+
+    @Test fun refusedCaptureTellsThePhoneWhy() = runBlocking {
+        val p = pairFirstTime()
+        captureAllowed = false
+        val packets = withTimeout(5_000) { p.video(StreamQuality.BALANCED).toList() }
+        assertThat(packets.map { it.kind }).containsExactly(VideoPacket.Kind.END)
+        assertThat(VideoPacket.readEnd(packets.single())).isEqualTo(EndReason.CAPTURE_UNAVAILABLE)
     }
 
     @Test fun revokingOnTheTvCutsThePhoneOff() = runBlocking {

@@ -146,7 +146,8 @@ fun LauncherScreen(
 @Composable
 private fun TopRow(state: LauncherState, nowMillis: Long, actions: LauncherActions) {
     val c = Imlaq.colors
-    val locale = Locale.getDefault()
+    // From the configuration: a language switch in TV Hub re-reads it.
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
     val date = Date(nowMillis)
     val hour = date.hours
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {

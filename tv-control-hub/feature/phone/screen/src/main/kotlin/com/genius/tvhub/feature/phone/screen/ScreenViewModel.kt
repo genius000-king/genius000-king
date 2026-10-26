@@ -6,6 +6,7 @@ import com.genius.tvhub.core.model.KeyAction
 import com.genius.tvhub.core.model.NormPoint
 import com.genius.tvhub.core.model.StreamQuality
 import com.genius.tvhub.core.protocol.Call
+import com.genius.tvhub.core.protocol.EndReason
 import com.genius.tvhub.core.protocol.VideoPacket
 import com.genius.tvhub.runtime.client.HubClient
 import com.genius.tvhub.runtime.client.RemoteInput
@@ -19,7 +20,7 @@ import javax.inject.Inject
 sealed interface ScreenStatus {
     data object Starting : ScreenStatus
     data class Playing(val width: Int, val height: Int) : ScreenStatus
-    data object Failed : ScreenStatus
+    data class Failed(val reason: EndReason) : ScreenStatus
 }
 
 @HiltViewModel
@@ -33,13 +34,19 @@ class ScreenViewModel @Inject constructor(private val hub: HubClient, private va
         job?.cancel()
         _status.value = ScreenStatus.Starting
         job = viewModelScope.launch {
+            var ended: EndReason? = null
             runCatching {
                 hub.video(StreamQuality.BALANCED).collect { p ->
                     if (p.kind == VideoPacket.Kind.FORMAT) VideoPacket.readFormat(p).let { _status.value = ScreenStatus.Playing(it[0], it[1]) }
+                    if (p.kind == VideoPacket.Kind.END) ended = VideoPacket.readEnd(p)
                     sink(p)
                 }
             }
-            if (_status.value is ScreenStatus.Starting) _status.value = ScreenStatus.Failed
+            val reason = ended
+            when {
+                reason != null && reason != EndReason.ENDED -> _status.value = ScreenStatus.Failed(reason)
+                _status.value is ScreenStatus.Starting -> _status.value = ScreenStatus.Failed(EndReason.CAPTURE_UNAVAILABLE)
+            }
         }
     }
 
